@@ -1,0 +1,135 @@
+.user-view-form {
+  margin: 10px auto 30px auto;
+}
+
+.form-actions {
+  width: 95%;
+  min-height: 0;
+  max-height: 1000px;
+  margin: 10px auto;
+  transition: max-height 0.9s ease-in-out;
+}
+
+.select-list {
+  margin: 20px 0 !important;
+  display: block !important;
+  width: 100%;
+  max-width: 415px;
+}
+
+.btn-select-list {
+  margin: 0 !important;
+  min-width: 180px !important;
+}
+
+.select-list>div {
+  width: 100%;
+  font-size: 12px !important;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  color: #232323;
+}
+
+.btn-select-list>.select-label {
+  top: -5px;
+}
+
+.btn-select-list .css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input {
+  padding: 9px 0 9px 15px !important;
+  color: #232323 !important;
+}
+
+.select-label {
+  width: max-content;
+  padding: 0 5px !important;
+  background: #fff;
+}
+
+.form-actions label>span {
+  font-size: 14px !important;
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.label,
+.label-small {
+  color: rgb(49, 47, 47) !important;
+  width: max-content;
+  margin: 15px 15px 5px 0;
+  display: block;
+}
+
+.label-small {
+  font-size: 12px !important;
+  color: #525252 !important;
+}
+
+.inputs-wrapper {
+  display: flex;
+  margin-bottom: 20px;
+  clear: both;
+  transition: all 0.5s eas;
+}
+
+.unlock-block {
+  width: 100%;
+  padding: 0 10px;
+  border: 1px solid #bdbdbd;
+  margin: 10px 0;
+  position: relative;
+  height: 60px;
+  line-height: 55px;
+  vertical-align: middle;
+}
+
+.unlock-block>span {
+  margin-left: 15px;
+  color: #1976d2;
+  vertical-align: middle;
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+}
+
+.unlock-block svg {
+  color: #1976d2;
+}
+
+.locked-account svg,
+.locked-account>span {
+  color: #cc0000 !important;
+}
+
+.unlock-btn {
+  position: absolute !important;
+  right: 10px;
+  top: 11px;
+}
+
+.pr-inputs {
+  display: inline-flex;
+  margin: 5px 2px !important;
+  width: 100%;
+}
+
+.pr-inputs input {
+  height: 16px;
+  line-height: 16px;
+}
+
+.pr-inputs label {
+  font-size: 12px !important;
+  letter-spacing: 0.5px;
+}
+
+.user-view-form>button {
+  float: right !important;
+  margin-left: 15px;
+}
+
+.generate-password {
+  font-size: 11px !important;
+  background: none !important;
+}
+
+.generate-password:hover {
+  opacity: 0.6 !important;
+}
