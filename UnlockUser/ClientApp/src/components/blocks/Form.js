@@ -99,21 +99,20 @@ export default function Form(props) {
         setForm(defaultForm);
     }, [variousPassword])
 
-    useEffect(() => {
-        setDisabled()
-    }, [form])
+    // useEffect(() => {
+    //     setDisabled()
+    // }, [form])
 
     useEffect(() => {
         if (savedPdf != null && savePdf)
             sendEmailWithFile();
     }, [savedPdf])
 
-    useEffect(() => {
-        if (props.setDisabled && !props.disabled)
-            props.setDisabled(load);
-        
-        setDisabled(load || confirmSubmit || response || props.disabled);
-    }, [load, confirmSubmit, response, props.disabled])
+    // useEffect(() => {
+    //     setTimeout(() => {
+    //         setDisabled(load || confirmSubmit || response);
+    //     }, 10000)
+    // }, [load, confirmSubmit, response])
 
     useEffect(() => {
         if (isGenerated && previewList.length === 0) {
@@ -274,6 +273,7 @@ export default function Form(props) {
             setLoad(false);
             if (res.data?.success) {
                 setSavePdf(confirmSavePdf);
+                sessionStorage.setItem("sessionWork", JSON.stringify(formValues));
                 setTimeout(() => {
                     resetForm(true);
                 }, 5000)
@@ -396,8 +396,8 @@ export default function Form(props) {
 
                                 {/* Choice of password category */}
                                 {passType === "medium" &&
-                                    <ListCategories 
-                                        limitedChars={limitedChars} 
+                                    <ListCategories
+                                        limitedChars={limitedChars}
                                         label="Lösenords kategory"
                                         selectChange={(list) => handleSelectListChange(list)}
                                         reset={_.isEqual(form, defaultForm)}
@@ -517,7 +517,7 @@ export default function Form(props) {
                                     className={'button-btn button-action' + (variousPassword ? " none" : "")}
                                     color="primary"
                                     type='submit'
-                                    disabled={disabled || _.isEqual(form, defaultForm) || 
+                                    disabled={disabled || _.isEqual(form, defaultForm) ||
                                         (!variousPassword && (noConfirm || requirementError || regexError))}>
                                     {load && <CircularProgress style={{ width: "15px", height: "15px", marginTop: "3px" }} />}
                                     {!load && <><Save /> <span>Verkställ</span></>}</Button>

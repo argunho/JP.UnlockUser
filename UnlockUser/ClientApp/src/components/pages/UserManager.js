@@ -134,7 +134,7 @@ export class UserManager extends Component {
                     {userIsFound && <>
                         <div className={'unlock-block' + (user.isLocked ? " locked-account" : "")}>
                             {user.isLocked ? <Lock /> : <LockOpen />}
-                            <span>{user.isLocked ? "Lås upp konto" : "Aktiv konto"}</span>
+                            <span>{user.isLocked ? "Kontot är låst" : "Aktiv konto"}</span>
 
                             {/* Unlock user - button */}
                             <Button variant="contained"
@@ -146,13 +146,11 @@ export class UserManager extends Component {
                             </Button>
                         </div>
                         {/* Change password */}
-                        <Form
+                        {!user.isLocked && <Form
                             title="Återställa lösenord"
                             api="resetPassword"
                             name={name}
-                            disabled={user.isLocked}
-                            setDisabled={(val) => this.setState({ disabled: val })}
-                            passwordLength={user.passwordLength} />
+                            passwordLength={user.passwordLength} />}
                     </>}
                     {/* Visible image under search progress */}
                     {!userIsFound && <Loading msg="söker efter användardata." img="loading.gif" />}

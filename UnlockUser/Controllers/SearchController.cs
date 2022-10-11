@@ -2,9 +2,7 @@
 using UnlockUser.Interface;
 using UnlockUser.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 
 namespace UnlockUser.Controllers

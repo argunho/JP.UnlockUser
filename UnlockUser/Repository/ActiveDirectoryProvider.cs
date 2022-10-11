@@ -53,6 +53,7 @@ public class ActiveDirectoryProvider : IActiveDirectoryProvider // Help class in
                         return $"Användaren {model.Username} hittades inte"; // Canceled operation. User {model.Username} not found
 
                     user.SetPassword(model.Password);
+       
                     user.Dispose();
                     return string.Empty;
                 }

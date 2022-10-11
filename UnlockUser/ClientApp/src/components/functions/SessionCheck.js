@@ -7,6 +7,7 @@ export default function SessionCheck() {
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
+    
     // Return to the start page if a user is unauthorized
     if (token === null || token === undefined)
         history.push("/");
