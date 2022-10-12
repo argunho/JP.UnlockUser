@@ -147,9 +147,13 @@ export default function Result({
                     {SessionPasswordsList().map((x, index) => (
                         <Tooltip arrow
                             key={index}
-                            title={"Lösenord: " + x.password}
+                            title={x.users?.length > 0 ? x.users.map((y, ind) => (
+                                <pre key={ind}><b><font color='#000000'>{y.username} :</font></b> {y.password}</pre>
+                            )) : <pre><b><font color='#000000'>Lösenord : </font></b> {x.password}</pre>}
                             classes={{ tooltip: "tooltip tooltip-blue tooltip-margin", arrow: "arrow-blue" }}>
-                            <li onClick={(e) => history.push("/manage-user/" + x.username)}>{x.username}</li>
+                            <li onClick={(e) => history.push("/manage-user/" + x.username)}>
+                                {x.username}
+                            </li>
                         </Tooltip>
                     ))}
                 </ul>

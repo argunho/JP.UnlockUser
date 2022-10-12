@@ -270,8 +270,11 @@ export default function Form(props) {
         formValues.username = name;
 
         // Update session list of changed passwords
+        let data = formValues;
+        if(data.username === undefined)
+            data.username = location;
         let sessionPasswordsList = SessionPasswordsList();
-        sessionPasswordsList.push(formValues);
+        sessionPasswordsList.push(data);
 
         // Request
         await axios.post("user/" + api, formValues, TokenConfig()).then(res => {
