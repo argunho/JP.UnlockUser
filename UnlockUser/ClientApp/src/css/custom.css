@@ -573,16 +573,6 @@ input[type="password"]:disabled {
 }
 
 .confirm-wrapper {
-  /* position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(240, 240, 240, 0.95);
-  transition: all 0.5s ease-in;
-  z-index: 1000;
-  display: flex;
-  justify-content: center; */
   justify-content: flex-end !important;
   transition: all 0.5s ease-in;
 }
@@ -594,27 +584,6 @@ input[type="password"]:disabled {
   font-size: 18px;
   font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
 }
-
-
-/* .confirm-block {
-  width: max-content;
-  color: #791414;
-  background-color: #fff;
-  font-weight: 600;
-  border-radius: 5px;
-  padding: 25px;
-  display: block;
-  overflow: hidden;
-  font-size: 18px;
-  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
-    "Lucida Sans", Arial, sans-serif;
-  align-items: center;
-  height: max-content;
-  letter-spacing: 1px;
-  margin: auto;
-  text-align: center;
-  box-shadow: 0 0 2px 2px #791414a8;
-} */
 
 .input-block {
   margin: 20px auto !important;
