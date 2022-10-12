@@ -1,8 +1,11 @@
-export default function TokenConfig() {
+export default function TokenConfig(tokenCheck = false) {
   // Jwt token to connect server
-  const _token = sessionStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
+
+  if (tokenCheck)
+    return (token !== null && token !== undefined);
 
   return ({
-    headers: { 'Authorization': `Bearer ${_token}` }
+    headers: { 'Authorization': `Bearer ${token}` }
   })
 }

@@ -15,6 +15,7 @@ import ListCategories from './ListCategories';
 
 // To compare two objects for identity
 import _ from 'lodash';
+import SessionPasswordsList from '../functions/SessionPasswordsList';
 
 // Don't remove this comment line below, this uses for useEffect
 /* eslint-disable react-hooks/exhaustive-deps */
@@ -122,6 +123,7 @@ export default function Form(props) {
 
         resetError();
     }, [isGenerated])
+
 
     // Set password type
     const setPassTypeValue = (value) => {
@@ -267,13 +269,17 @@ export default function Form(props) {
         let formValues = form;
         formValues.username = name;
 
+        // Update session list of changed passwords
+        let sessionPasswordsList = SessionPasswordsList();
+        sessionPasswordsList.push(formValues);
+
         // Request
         await axios.post("user/" + api, formValues, TokenConfig()).then(res => {
             setResponse(res.data);
             setLoad(false);
             if (res.data?.success) {
                 setSavePdf(confirmSavePdf);
-                sessionStorage.setItem("sessionWork", JSON.stringify(formValues));
+                sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
                 setTimeout(() => {
                     resetForm(true);
                 }, 5000)

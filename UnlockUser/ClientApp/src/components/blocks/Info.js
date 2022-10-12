@@ -2,7 +2,7 @@ import { KeyboardReturnTwoTone } from '@mui/icons-material'
 import { Avatar, Button, List, ListItem, ListItemAvatar, ListItemText, Tooltip, Typography } from '@mui/material'
 import React, { useRef } from 'react';
 import { useHistory } from 'react-router-dom';
-import SessionCheck from '../functions/SessionCheck';
+import SessionTokenCheck from '../functions/SessionTokenCheck';
 
 export default function Info({ user, name, displayName, subTitle, result, check, children, updateSession, handleOutsideClick }) {
     const history = useHistory(null);
@@ -15,7 +15,7 @@ export default function Info({ user, name, displayName, subTitle, result, check,
 
     // Check current user authentication
     if(check)
-        SessionCheck();
+        SessionTokenCheck();
 
     const clickHandle = (e) => {
         if (!result && refButton?.current && refButton?.current.contains(e?.target)) {

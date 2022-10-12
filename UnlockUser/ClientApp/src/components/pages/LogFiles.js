@@ -6,7 +6,7 @@ import Response from '../blocks/Response';
 import Loading from '../blocks/Loading';
 import TokenConfig from '../functions/TokenConfig';
 import moment from "moment";
-import SessionCheck from '../functions/SessionCheck';
+import SessionTokenCheck from '../functions/SessionTokenCheck';
 // import { saveAs } from "file-saver";
 
 export default function LogFiles() {
@@ -18,7 +18,7 @@ export default function LogFiles() {
     const [isLoading, setIsLoading] = useState(true);
 
     // Check current user authentication
-    SessionCheck("/");
+    SessionTokenCheck("/");
 
     useEffect(() => {
         if (list.length === 0) {

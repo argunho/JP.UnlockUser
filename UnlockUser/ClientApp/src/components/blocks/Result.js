@@ -10,6 +10,7 @@ import Loading from './Loading';
 import { useHistory } from 'react-router-dom';
 import Response from './Response';
 import Info from './Info';
+import SessionPasswordsList from '../functions/SessionPasswordsList'
 /* eslint-disable react-hooks/exhaustive-deps */  // <= Do not remove this line
 
 
@@ -30,7 +31,6 @@ export default function Result({
     // const refGetMembers = useRef();
     const refCheckbox = useRef([]);
     // const group = sessionStorage.getItem("group")?.toLowerCase();
-
 
     useEffect(() => {
         if (resultBlock)
@@ -100,9 +100,11 @@ export default function Result({
         </Button>
     </Tooltip>;
 
+    console.log(SessionPasswordsList())
     return (
         /* Box to view the result of search */
         <div className='interior-div result-div' ref={refResult}>
+
             {/* Result info box */}
             {resultBlock && <ListItem className='search-result'>
                 {/* Result info */}
@@ -139,6 +141,19 @@ export default function Result({
                     </span>
                 </Tooltip>
             </ListItem>}
+
+            {SessionPasswordsList().length > 0 &&
+                <ul className='session-history-list'>
+                    {SessionPasswordsList().map((x, index) => (
+                        <Tooltip arrow
+                            key={index}
+                            title={"Lösenord: " + x.password}
+                            classes={{ tooltip: "tooltip tooltip-blue tooltip-margin", arrow: "arrow-blue" }}>
+                            <li onClick={(e) => history.push("/manage-user/" + x.username)}>{x.username}</li>
+                        </Tooltip>
+                    ))}
+                </ul>
+            }
 
             {/* Visible image under search progress// && users && users.length === 0 */}
             {isLoading && <Loading />}

@@ -122,7 +122,7 @@ export class UserManager extends Component {
                 : <div className='interior-div'>
                     {/* Info about user */}
                     <Info
-                    check={true}
+                        check={true}
                         user={user}
                         displayName={user?.displayName}
                         subTitle={user?.subTitle}
@@ -130,6 +130,7 @@ export class UserManager extends Component {
 
                     {/* Response */}
                     {response && <Response response={response} reset={() => this.setState({ response: null })} />}
+
                     {/* Unlock user */}
                     {userIsFound && <>
                         <div className={'unlock-block' + (user.isLocked ? " locked-account" : "")}>
@@ -145,6 +146,7 @@ export class UserManager extends Component {
                                 {load ? <CircularProgress style={{ width: "15px", height: "15px", marginTop: "3px" }} /> : "Lås upp"}
                             </Button>
                         </div>
+                        
                         {/* Change password */}
                         {!user.isLocked && <Form
                             title="Återställa lösenord"
@@ -152,6 +154,7 @@ export class UserManager extends Component {
                             name={name}
                             passwordLength={user.passwordLength} />}
                     </>}
+
                     {/* Visible image under search progress */}
                     {!userIsFound && <Loading msg="söker efter användardata." img="loading.gif" />}
                 </div>

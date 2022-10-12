@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useHistory } from "react-router-dom";
 
-export default function SessionCheck() {
+export default function SessionTokenCheck() {
 
   const history = useHistory();
 

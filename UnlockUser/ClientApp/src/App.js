@@ -12,6 +12,7 @@ import NotFound from './components/pages/NotFound';
 import Contacts from './components/pages/Contacts';
 import LogFiles from './components/pages/LogFiles';
 import Members from './components/pages/Members';
+import TokenConfig from './components/functions/TokenConfig';
 
 class App extends Component {
   static displayName = App.name;
@@ -20,18 +21,17 @@ class App extends Component {
     super();
     this.state = {};
   }
-  
+
   componentDidMount() {
-    var token = sessionStorage.getItem("token");
-    this.setState({ isAuthorized: (token !== null && token !== undefined) })
+    console.log(TokenConfig(true))
+    this.setState({ isAuthorized: TokenConfig(true) })
   }
 
   componentDidUpdate(prevProps) {
+    console.log("update")
     if (this.props.location.pathname !== prevProps.location.pathname) {
-      var token = sessionStorage.getItem("token");
-
       setTimeout(() => {
-        this.setState({ isAuthorized: (token !== null && token !== undefined) })
+        this.setState({ isAuthorized: TokenConfig(true) })
       }, 100)
     }
   }
@@ -43,9 +43,9 @@ class App extends Component {
           <Route exact path={['/', '/login']} component={Login} elem />
           <Route exact path='/find-user' component={Search} />
           <Route exact path='/manage-user/:id' component={UserManager} />
-          <Route exact path='/manage-users/:cls/:school' component={UsersManager} />        
-          <Route exact path='/contact' component={Contacts} />      
-          <Route exact path='/logfiles' component={LogFiles} />      
+          <Route exact path='/manage-users/:cls/:school' component={UsersManager} />
+          <Route exact path='/contact' component={Contacts} />
+          <Route exact path='/logfiles' component={LogFiles} />
           <Route exact path='/members/:office/:department' component={Members} />
           <Route component={NotFound} />
         </Switch>

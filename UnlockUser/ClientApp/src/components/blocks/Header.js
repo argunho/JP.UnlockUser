@@ -6,7 +6,6 @@ import { HomeSharp, InsertDriveFile, LiveHelp, Logout, Menu, Close, PasswordOutl
 import { Button, Tooltip } from '@mui/material';
 import logo from './../../images/logotype.png'
 import axios from 'axios';
-import SessionWork from '../functions/SessionWork';
 
 export default function Header({ isAuthorized }) {
 
@@ -31,6 +30,7 @@ export default function Header({ isAuthorized }) {
             document.removeEventListener("mousedown", clickHandler);
         }
     })
+    
 
     // Check current user authentication
     useEffect(() => {
@@ -50,12 +50,6 @@ export default function Header({ isAuthorized }) {
     useEffect(() => {
         document.title = linkName;
     }, [linkName])
-
-    useEffect(() => {
-        console.log(SessionWork())
-        setWork(SessionWork().Length > 0);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [sessionStorage.getItem("sessionWork")])
 
     const goToPage = (page) => {
         if (visibleMenu) setVisibleMenu(false);
@@ -103,7 +97,7 @@ export default function Header({ isAuthorized }) {
                                 {isSupport && <li onClick={() => goToPage("logfiles")}>
                                     <InsertDriveFile />&nbsp;&nbsp;<span>Loggfiler</span>
                                 </li>}
-                               {work && <li onClick={() => goToPage("contact")}>
+                                {work && <li onClick={() => goToPage("contact")}>
                                     <PasswordOutlined />&nbsp;&nbsp;<span>Ändrade lösenords</span>
                                 </li>}
                                 <li onClick={() => goToPage("contact")}>
