@@ -100,7 +100,6 @@ export default function Result({
         </Button>
     </Tooltip>;
 
-    console.log(SessionPasswordsList())
     return (
         /* Box to view the result of search */
         <div className='interior-div result-div' ref={refResult}>

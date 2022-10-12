@@ -573,7 +573,7 @@ input[type="password"]:disabled {
 }
 
 .confirm-wrapper {
-  position: absolute;
+  /* position: absolute;
   top: 0;
   left: 0;
   width: 100%;
@@ -582,10 +582,21 @@ input[type="password"]:disabled {
   transition: all 0.5s ease-in;
   z-index: 1000;
   display: flex;
-  justify-content: center;
+  justify-content: center; */
+  justify-content: flex-end !important;
+  transition: all 0.5s ease-in;
 }
 
-.confirm-block {
+.confirm-title {
+  color: #cc0000;
+  margin: auto 20px auto 20px;
+  font-weight: 600;
+  font-size: 18px;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+}
+
+
+/* .confirm-block {
   width: max-content;
   color: #791414;
   background-color: #fff;
@@ -603,7 +614,7 @@ input[type="password"]:disabled {
   margin: auto;
   text-align: center;
   box-shadow: 0 0 2px 2px #791414a8;
-}
+} */
 
 .input-block {
   margin: 20px auto !important;

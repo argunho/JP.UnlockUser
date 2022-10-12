@@ -22,22 +22,28 @@ function PaperComponent(props) {
 }
 
 function ModalHelpTexts({ arr, cls = " situated-btn", isTable = false, isSubmit = false,
-    isTitle, inverseFunction, resetList, regeneratePassword }, ref) {
+    isTitle, inverseFunction, regeneratePassword }, ref) {
 
     const [open, setOpen] = React.useState(false);
+    const [confirm, setConfirm] = React.useState(false);
+    const [savePdf, setSavePdf] = React.useState(false);
 
     const keys = arr.length > 0 ? Object.keys(arr[0]) : [];
     const refPrint = React.useRef(null);
 
-    React.useEffect(() => {
-        if (!open && isSubmit)
-            resetList();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open])
+    // Confirm handle
+    const confirmHandle = (save) => {
+        setConfirm(true);
+        setSavePdf(save);
+    }
 
     // Close modal window
-    const clickHandle = (save) => {
-        inverseFunction(save);
+    const clickHandle = (submit) => {
+        if (submit)
+            inverseFunction(savePdf);
+
+        setConfirm(false);
+        setSavePdf(false);
         setOpen(false);
     }
 
@@ -78,28 +84,28 @@ function ModalHelpTexts({ arr, cls = " situated-btn", isTable = false, isSubmit 
                                 <AlertTitle style={{ fontWeight: 600 }}>
                                     <span style={{ color: (a?.color ? a.color : "#000") }}>{a[keys[0]]}</span>
                                 </AlertTitle>
-                                
+
                                 {!Array.isArray(a[keys[1]]) && <div dangerouslySetInnerHTML={{ __html: a[keys[1]] }}></div>}
                                 {Array.isArray(a[keys[1]]) && a[keys[1]].map((x, ind) => (
                                     <div key={ind} dangerouslySetInnerHTML={{ __html: x }}></div>
                                 ))}
                             </div>
-                        ))} 
+                        ))}
                 </DialogContent>
 
                 <DialogActions className="no-print modal-buttons-wrapper">
-                    {isSubmit &&
+                    {(isSubmit && !confirm) &&
                         <>
                             <Button variant="text"
                                 className='button-btn'
                                 color="primary"
-                                onClick={() => clickHandle(true)}>
+                                onClick={() => confirmHandle(true)}>
                                 Spara & Verkställ</Button>
 
                             <Button variant="outlined"
                                 className='button-btn'
                                 color="primary"
-                                onClick={() => clickHandle(false)}>
+                                onClick={confirmHandle}>
                                 Verkställ</Button>
 
                             <Button variant="contained" className="mobile-hidden"
@@ -107,9 +113,17 @@ function ModalHelpTexts({ arr, cls = " situated-btn", isTable = false, isSubmit 
                                 <Refresh />
                             </Button>
                         </>}
-                    <Button variant='contained' color="error" autoFocus onClick={() => setOpen(false)}>
+
+                    {!confirm && <Button variant='contained' color="error" autoFocus onClick={() => setOpen(false)}>
                         <Close />
-                    </Button>
+                    </Button>}
+
+                    {/* Confirm actions block */}
+                    {confirm && <>
+                        <p className='confirm-title'>Är du säker att du vill göra det?</p>
+                        <Button className='button-btn button-action' onClick={() => clickHandle(true)} variant='contained' color="error">Ja</Button>
+                        <Button className='button-btn button-action' variant='contained' color="primary" autoFocus onClick={clickHandle}>Nej</Button>
+                    </>}
                 </DialogActions>
             </Dialog>
 

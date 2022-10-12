@@ -23,12 +23,10 @@ class App extends Component {
   }
 
   componentDidMount() {
-    console.log(TokenConfig(true))
     this.setState({ isAuthorized: TokenConfig(true) })
   }
 
   componentDidUpdate(prevProps) {
-    console.log("update")
     if (this.props.location.pathname !== prevProps.location.pathname) {
       setTimeout(() => {
         this.setState({ isAuthorized: TokenConfig(true) })

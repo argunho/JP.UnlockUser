@@ -29,7 +29,7 @@ const formList = [
 export default function Form(props) {
     Form.displayName = "Form";
 
-    const { title, api, name, multiple, passwordLength, users = [] } = props;
+    const { title, name, multiple, passwordLength, users = [] } = props;
     const defaultForm = {
         password: "",
         confirmPassword: "",
@@ -43,12 +43,10 @@ export default function Form(props) {
     const [noConfirm, setNoConfirm] = useState(false);
     const [requirementError, setRequirementError] = useState(false);
     const [regexError, setRegexError] = useState(false);
-    const [confirmSubmit, setConfirmSubmit] = useState(false);
-    const [confirmed, setConfirmed] = useState(false);
+    const [confirm, setConfirm] = useState(false);
     const [inputName, setInputName] = useState('');
     const [variousPassword, setVariousPassword] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState("");
-    const [disabled, setDisabled] = useState(false);
     const [isOpenTip, setIsOpenTip] = useState(false);
     const [wordsList, setWordsList] = useState([]);
     const [numbersCount, setNumbersCount] = useState(0);
@@ -100,20 +98,10 @@ export default function Form(props) {
         setForm(defaultForm);
     }, [variousPassword])
 
-    // useEffect(() => {
-    //     setDisabled()
-    // }, [form])
-
     useEffect(() => {
         if (savedPdf != null && savePdf)
             sendEmailWithFile();
     }, [savedPdf])
-
-    // useEffect(() => {
-    //     setTimeout(() => {
-    //         setDisabled(load || confirmSubmit || response);
-    //     }, 10000)
-    // }, [load, confirmSubmit, response])
 
     useEffect(() => {
         if (isGenerated && previewList.length === 0) {
@@ -207,28 +195,18 @@ export default function Form(props) {
         setNoConfirm(false)
     }
 
-    // Confirm action
-    const confirmHandle = () => {
-        setConfirmSubmit(false);
-        setConfirmed(true);
-        setTimeout(() => {
-            refSubmit.current.click();
-        }, 500)
-    }
-
     // Apply and save pdf
-    const saveApply = () => {
-        setConfirmSavePdf(true);
+    const saveApply = (save) => {
+        setConfirmSavePdf(save);
         refSubmit.current.click();
     }
 
     // Reset form
     const resetForm = (resetTotal = false) => {
         setRequirementError(false);
-        setConfirmed(false);
         setPassType("");
         setLimitedChars(multiple);
-        setConfirmSubmit(false);
+        setConfirm(false);
         setSelectedCategory("");
         setWordsList([]);
         setIsGenerated(false);
@@ -248,53 +226,54 @@ export default function Form(props) {
         }
     }
 
-    // Reset preview list
-    const resetPreviewList = () => {
-        if (confirmSubmit) return;
-        setPreviewList([]);
+    // Submit click handle
+    const submitClickHandle = () => {
+        if (variousPassword)
+            refModal?.current.click();
+        else
+            setConfirm(true);
     }
 
     // Submit form
     const submitForm = async (e) => {
         e.preventDefault();
 
-        if (!confirmed) {
-            setConfirmSubmit(true);
-            return;
-        } else
-            setConfirmSubmit(false);
-
+        setConfirm(false);
         setLoad(true);
+
+        console.log("submited")
 
         let formValues = form;
         formValues.username = name;
 
         // Update session list of changed passwords
         let data = formValues;
-        if(data.username === undefined)
+        if (data.username === undefined)
             data.username = location;
         let sessionPasswordsList = SessionPasswordsList();
         sessionPasswordsList.push(data);
 
+        return;
+
         // Request
-        await axios.post("user/" + api, formValues, TokenConfig()).then(res => {
-            setResponse(res.data);
-            setLoad(false);
-            if (res.data?.success) {
-                setSavePdf(confirmSavePdf);
-                sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
-                setTimeout(() => {
-                    resetForm(true);
-                }, 5000)
-            }
-        }, error => {
-            // Handle of error
-            resetForm();
-            setLoad(false);
-            if (error?.response.status === 401) setAccessDenied(true);
-            else
-                console.error("Error => " + error.response);
-        })
+        // await axios.post("user/" + api, formValues, TokenConfig()).then(res => {
+        //     setResponse(res.data);
+        //     setLoad(false);
+        //     if (res.data?.success) {
+        //         setSavePdf(confirmSavePdf);
+        //         sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
+        //         setTimeout(() => {
+        //             resetForm(true);
+        //         }, 5000)
+        //     }
+        // }, error => {
+        //     // Handle of error
+        //     resetForm();
+        //     setLoad(false);
+        //     if (error?.response.status === 401) setAccessDenied(true);
+        //     else
+        //         console.error("Error => " + error.response);
+        // })
     }
 
     // Send email to current user with saved pdf document
@@ -322,17 +301,6 @@ export default function Form(props) {
 
                 {/* The curtain over the block disables all action if the form data is submitted and waiting for a response */}
                 {load && <div className='curtain-block'></div>}
-
-                {/* Confirm actions block */}
-                {confirmSubmit && <div className='confirm-wrapper'>
-                    <div className='confirm-block'>
-                        Är du säker att du vill göra det?
-                        <div className='buttons-wrapper'>
-                            <Button type="submit" variant='contained' color="error" onClick={() => confirmHandle()}>Ja</Button>
-                            <Button variant='contained' color="primary" onClick={() => resetForm()}>Nej</Button>
-                        </div>
-                    </div>
-                </div>}
 
                 {/* Modal  window with help texts */}
                 <ModalHelpTexts arr={helpTexts} isTitle="Lösenordskrav" />
@@ -470,7 +438,7 @@ export default function Form(props) {
                                         className={(inputName === n.name && (requirementError || regexError)) ? "error" : ''}
                                         error={(n.name === "confirmPassword" && noConfirm) || (inputName === n.name && (requirementError || regexError))}
                                         placeholder={n.placeholder}
-                                        disabled={disabled || variousPassword || (n.name === "confirmPassword" && form.password?.length < passwordLength)}
+                                        disabled={variousPassword || (n.name === "confirmPassword" && form.password?.length < passwordLength) || confirm}
                                         onChange={valueChangeHandler}
                                         onBlur={validateField}
                                         helperText={(inputName === n.name) &&
@@ -482,13 +450,13 @@ export default function Form(props) {
                         </div>
 
                         {/* Buttons */}
-                        <div className='buttons-wrapper' style={variousPassword ? { justifyContent: 'flex-end' } : {}}>
+                        {!confirm && <div className='buttons-wrapper' style={variousPassword ? { justifyContent: 'flex-end' } : {}}>
                             {/* Change the password input type */}
                             {!variousPassword && <FormControlLabel className='checkbox'
                                 control={<Checkbox
                                     size='small'
+                                    disabled={load}
                                     checked={showPassword}
-                                    disabled={disabled}
                                     onClick={() => setShowPassword(!showPassword)} />}
                                 label="Visa lösenord" />}
 
@@ -497,7 +465,7 @@ export default function Form(props) {
                                 {/* Generate password */}
                                 <PasswordGeneration
                                     disabledTooltip={passType === "medium" && wordsList.length === 0}
-                                    disabledClick={disabled || (variousPassword && !passType)
+                                    disabledClick={(variousPassword && !passType)
                                         || (passType === "easy" && (wordsList.length === 0 || wordsList[0]?.length < 5))}
                                     regex={regex}
                                     users={users}
@@ -506,7 +474,8 @@ export default function Form(props) {
                                     strongPassword={passType === "strong"}
                                     variousPasswords={variousPassword}
                                     passwordLength={passwordLength}
-                                    regenerate={(previewList.length > 0 || !_.isEqual(form, defaultForm)) && !disabled}
+                                    disabled={load}
+                                    regenerate={(previewList.length > 0 || !_.isEqual(form, defaultForm))}
                                     setGenerated={val => setIsGenerated(val)}
                                     updatePasswordForm={(form) => setForm(form)}
                                     updatePreviewList={(list) => setPreviewList(list)}
@@ -516,33 +485,36 @@ export default function Form(props) {
                                 <Button variant="contained"
                                     color="error"
                                     type="button"
-                                    disabled={disabled || _.isEqual(form, defaultForm)}
-                                    onClick={() => resetForm(true)}
-                                ><ClearOutlined /></Button>
+                                    disabled={load || _.isEqual(form, defaultForm)}
+                                    onClick={() => resetForm(true)}>
+                                    <ClearOutlined />
+                                </Button>
 
-                                {/* Submit form - button */}
+                                {/* Set confirm question & Preview modal button */}
                                 <Button variant="contained"
-                                    ref={refSubmit}
-                                    className={'button-btn button-action' + (variousPassword ? " none" : "")}
+                                    className="button-btn button-action"
                                     color="primary"
-                                    type='submit'
-                                    disabled={disabled || _.isEqual(form, defaultForm) ||
-                                        (!variousPassword && (noConfirm || requirementError || regexError))}>
+                                    type='button'
+                                    onClick={submitClickHandle}
+                                    disabled={load || _.isEqual(form, defaultForm) || (!variousPassword && (noConfirm || requirementError || regexError))}>
                                     {load && <CircularProgress style={{ width: "15px", height: "15px", marginTop: "3px" }} />}
-                                    {!load && <><Save /> <span>Verkställ</span></>}</Button>
+                                    {!load && <>
+                                        {!variousPassword ? <Save /> : <ManageSearch />}
+                                        <span>{variousPassword ? "Granska" : "Verkställ"}</span>
+                                    </>}
+                                </Button>
 
-                                {/* Preview modal - button */}
-                                {variousPassword && <Button variant="contained"
-                                    className='button-btn button-action'
-                                    color="info"
-                                    onClick={() => refModal?.current.click()}
-                                    disabled={previewList.length === 0 || disabled}>
-                                    <ManageSearch />
-                                    <span>Granska</span>
-                                </Button>}
-
+                                {/* Hidden submit input, used for class members password change */}
+                                {previewList?.length > 0 && <input type="submit" className='none' value="" ref={refSubmit} />}
                             </div>
-                        </div>
+                        </div>}
+
+                        {/* Confirm actions block */}
+                        {confirm && <div className='buttons-wrapper confirm-wrapper'>
+                            <p className='confirm-title'>Är du säker att du vill göra det?</p>
+                            <Button className='button-btn button-action' type="submit" variant='contained' color="error">Ja</Button>
+                            <Button className='button-btn button-action' variant='outlined' color="primary" onClick={() => resetForm(true)}>Nej</Button>
+                        </div>}
                     </form>
                 </div>
 
@@ -553,9 +525,8 @@ export default function Form(props) {
                     isTitle={`${title} <span class='typography-span'>${location}</span>`}
                     isTable={true}
                     isSubmit={true}
-                    resetList={() => resetPreviewList()}
                     regeneratePassword={() => refGenerate?.current?.click()}
-                    inverseFunction={(save) => (save ? saveApply() : refSubmit.current.click())}
+                    inverseFunction={(save) => saveApply(save)}
                     ref={refModal} />}
 
                 {/* Save document to pdf */}
