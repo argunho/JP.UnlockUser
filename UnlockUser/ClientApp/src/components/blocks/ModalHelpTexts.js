@@ -39,6 +39,7 @@ function ModalHelpTexts({ arr, cls = " situated-btn", isTable = false, isSubmit 
 
     // Close modal window
     const clickHandle = (submit) => {
+        console.log(submit)
         if (submit)
             inverseFunction(savePdf);
 
@@ -105,7 +106,7 @@ function ModalHelpTexts({ arr, cls = " situated-btn", isTable = false, isSubmit 
                             <Button variant="outlined"
                                 className='button-btn'
                                 color="primary"
-                                onClick={confirmHandle}>
+                                onClick={() => confirmHandle(false)}>
                                 Verkställ</Button>
 
                             <Button variant="contained" className="mobile-hidden"
@@ -122,7 +123,7 @@ function ModalHelpTexts({ arr, cls = " situated-btn", isTable = false, isSubmit 
                     {confirm && <>
                         <p className='confirm-title'>Är du säker att du vill göra det?</p>
                         <Button className='button-btn button-action' onClick={() => clickHandle(true)} variant='contained' color="error">Ja</Button>
-                        <Button className='button-btn button-action' variant='contained' color="primary" autoFocus onClick={clickHandle}>Nej</Button>
+                        <Button className='button-btn button-action' variant='contained' color="primary" autoFocus onClick={() => clickHandle(false)}>Nej</Button>
                     </>}
                 </DialogActions>
             </Dialog>

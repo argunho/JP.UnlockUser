@@ -778,6 +778,7 @@ button {
 .modal-buttons-wrapper {
   position: "relative" !important;
   overflow: "hidden" !important;
+  padding: 0 24px 15px 24px !important;
 }
 
 pre {
