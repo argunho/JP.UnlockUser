@@ -86,11 +86,11 @@ public class UserController : ControllerBase
         Data log = GetLogData();
 
         // Set password to class students
-        //foreach (var user in model.Users)
-        //{
-        //    message += _provider.ResetPassword(UpdatedUser(user));
-        //    log.Users.Add(user?.Username ?? "");
-        //}
+        foreach (var user in model.Users)
+        {
+            message += _provider.ResetPassword(UpdatedUser(user));
+            log.Users.Add(user?.Username ?? "");
+        }
 
         SaveLogFile(log);
 
