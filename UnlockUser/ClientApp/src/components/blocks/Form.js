@@ -29,7 +29,7 @@ const formList = [
 export default function Form(props) {
     Form.displayName = "Form";
 
-    const { title, name, multiple, passwordLength, users = [] } = props;
+    const { title, name, multiple, api, passwordLength, users = [] } = props;
     const defaultForm = {
         password: "",
         confirmPassword: "",
@@ -253,27 +253,25 @@ export default function Form(props) {
         let sessionPasswordsList = SessionPasswordsList();
         sessionPasswordsList.push(data);
 
-        return;
-
         // Request
-        // await axios.post("user/" + api, formValues, TokenConfig()).then(res => {
-        //     setResponse(res.data);
-        //     setLoad(false);
-        //     if (res.data?.success) {
-        //         setSavePdf(confirmSavePdf);
-        //         sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
-        //         setTimeout(() => {
-        //             resetForm(true);
-        //         }, 5000)
-        //     }
-        // }, error => {
-        //     // Handle of error
-        //     resetForm();
-        //     setLoad(false);
-        //     if (error?.response.status === 401) setAccessDenied(true);
-        //     else
-        //         console.error("Error => " + error.response);
-        // })
+        await axios.post("user/" + api, formValues, TokenConfig()).then(res => {
+            setResponse(res.data);
+            setLoad(false);
+            if (res.data?.success) {
+                setSavePdf(confirmSavePdf);
+                sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
+                setTimeout(() => {
+                    resetForm(true);
+                }, 5000)
+            }
+        }, error => {
+            // Handle of error
+            resetForm();
+            setLoad(false);
+            if (error?.response.status === 401) setAccessDenied(true);
+            else
+                console.error("Error => " + error.response);
+        })
     }
 
     // Send email to current user with saved pdf document
