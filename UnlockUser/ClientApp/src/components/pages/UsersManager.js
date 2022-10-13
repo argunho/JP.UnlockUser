@@ -12,21 +12,24 @@ export default class UsersManager extends Component {
         const { cls, school } = this.props.match.params;
         const users = JSON.parse(sessionStorage.getItem("selectedUsers")) ?? [];
         this.state = {
+            users: users,
             cls: {
                 name: "Klass " + cls,
                 displayName: school,
-                users: users,
                 subTitle: `${users.length} elev${users.length === 1 ? "" : "er"}`
             }
         }
+
+        this.spliceUsersList = this.spliceUsersList.bind(this);
     }
 
-    spliceUsersList(x) {
+    componentDidMount
+
+    spliceUsersList = (x) => {
         console.log(x)
         const { users } = this.state;
-        this.setState({
-            users: users.splice(users.indexOf(x.name), -1)
-        })
+        let list = users.splice(users.indexOf(x), -1)
+        this.setState({ users: list })
     }
 
     render() {
@@ -41,21 +44,21 @@ export default class UsersManager extends Component {
                     check={true}
                 />
 
-                {users.length > 0 &&
+                {users?.length > 0 &&
                     <ul className='selected-list'>
                         {users.map((x, index) => (
                             <Tooltip arrow
                                 key={index}
                                 title={`Klicka här, att radera ${x.name} från listan`}
                                 classes={{ tooltip: "tooltip tooltip-error tooltip-margin", arrow: "arrow-error" }}>
-                                <li onClick={() => this.spliceUsersList(x)}>
+                                <li onClick={(x) => this.spliceUsersList(x)}>
                                     {x.name} <Close fontSize='10' />
                                 </li>
                             </Tooltip>
                         ))}
                     </ul>}
 
-                <Form title={"Nya lösenord till " + users.length + " elev" + (users.length === 1 ? "er" : "")}
+                <Form title={"Nya lösenord till " + users?.length + " elev" + (users?.length === 1 ? "er" : "")}
                     api="resetPasswords"
                     users={users}
                     multiple={true}
