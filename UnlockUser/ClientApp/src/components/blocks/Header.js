@@ -14,7 +14,6 @@ export default function Header({ isAuthorized }) {
     const [linkName, setLinkName] = useState("UnlockUser");
     const [isSupport, setIsSupport] = useState(false);
     const [visibleMenu, setVisibleMenu] = useState(false);
-    const [work, setWork] = useState(false);
 
     const refMenu = useRef();
 
@@ -96,9 +95,6 @@ export default function Header({ isAuthorized }) {
                                 <li className='display-name'>{displayName}</li>
                                 {isSupport && <li onClick={() => goToPage("logfiles")}>
                                     <InsertDriveFile />&nbsp;&nbsp;<span>Loggfiler</span>
-                                </li>}
-                                {work && <li onClick={() => goToPage("contact")}>
-                                    <PasswordOutlined />&nbsp;&nbsp;<span>Ändrade lösenords</span>
                                 </li>}
                                 <li onClick={() => goToPage("contact")}>
                                     <LiveHelp />&nbsp;&nbsp;<span>Kontakta support</span>

@@ -1,4 +1,4 @@
-import { Cancel, Close } from '@mui/icons-material';
+import { Close } from '@mui/icons-material';
 import { Tooltip } from '@mui/material';
 import React, { Component } from 'react'
 import Form from '../blocks/Form';
