@@ -13,46 +13,38 @@ export default class UsersManager extends Component {
         const users = JSON.parse(sessionStorage.getItem("selectedUsers")) ?? [];
         this.state = {
             users: users,
-            cls: {
-                name: "Klass " + cls,
-                displayName: school,
-                subTitle: `${users.length} elev${users.length === 1 ? "" : "er"}`
-            }
+            name: "Klass " + cls,
+            displayName: school
         }
 
         this.spliceUsersList = this.spliceUsersList.bind(this);
     }
 
-    componentDidMount
-
-    spliceUsersList = (x) => {
-        console.log(x)
-        const { users } = this.state;
-        let list = users.splice(users.indexOf(x), -1)
-        this.setState({ users: list })
+    spliceUsersList = (user) => {
+        this.setState({ users: this.state.users.filter(x => x !== user) })
     }
 
     render() {
-        const { cls, users } = this.state;
+        const { users, name, displayName } = this.state;
 
         return (
             <div className='interior-div'>
                 <Info
-                    name={cls?.name}
-                    displayName={cls?.displayName}
-                    subTitle={cls?.subTitle}
+                    name={name}
+                    displayName={displayName}
+                    subTitle={`${users.length} elev${users.length === 1 ? "" : "er"}`}
                     check={true}
                 />
 
                 {users?.length > 0 &&
                     <ul className='selected-list'>
-                        {users.map((x, index) => (
+                        {users.map((user, index) => (
                             <Tooltip arrow
                                 key={index}
-                                title={`Klicka här, att radera ${x.name} från listan`}
+                                title={<pre>Klicka här, att radera <b><font color="#000000">{user.displayName}</font></b> från listan</pre>}
                                 classes={{ tooltip: "tooltip tooltip-error tooltip-margin", arrow: "arrow-error" }}>
-                                <li onClick={(x) => this.spliceUsersList(x)}>
-                                    {x.name} <Close fontSize='10' />
+                                <li onClick={() => this.spliceUsersList(user)}>
+                                    {user.name} <Close fontSize='10' />
                                 </li>
                             </Tooltip>
                         ))}
