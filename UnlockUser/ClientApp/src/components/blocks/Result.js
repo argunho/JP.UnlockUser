@@ -74,15 +74,13 @@ export default function Result({
     }
 
     // Go to the current session history log page
-    const openSessionHistory = (arr, name) => {
-        if (arr.length === 0)
-            history.push(`/manage-user/${name}`);
-        else {
+    const openSessionHistory = (name, arr) => {
+        if (arr?.length > 0){
             let params = name.split("%");
             getHistoryList(`${params[1]}/${params[0]}`, arr);
-        }
+        } else 
+            history.push(`/manage-user/${name}`);
     }
-
 
     // To select one by one user from the class students' list
     const handleSelectedList = (name) => {
@@ -162,7 +160,7 @@ export default function Result({
                                 <pre key={ind}><b><font color='#000000'>{y.username} :</font></b> {y.password}</pre>
                             )) : <pre><b><font color='#000000'>Lösenord : </font></b> {x.password}</pre>}
                             classes={{ tooltip: "tooltip tooltip-blue tooltip-margin", arrow: "arrow-blue" }}>
-                            <li onClick={() => openSessionHistory(x.users, x.username)}>
+                            <li onClick={() => openSessionHistory(x.username, x.users)}>
                                 {x.username.replace("%", " ")}
                             </li>
                         </Tooltip>

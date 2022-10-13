@@ -129,7 +129,6 @@ export default function Form(props) {
         if (selectedCategory.length > 0)
             setSelectedCategory("");
 
-
         setNumbersCount(value ? 0 : 3);
     }
 
@@ -243,8 +242,6 @@ export default function Form(props) {
         setConfirm(false);
         setLoad(true);
 
-        console.log("submited")
-
         let formValues = form;
         formValues.username = name;
 
@@ -254,27 +251,26 @@ export default function Form(props) {
             data.username = location;
         let sessionPasswordsList = SessionPasswordsList();
         sessionPasswordsList.push(data);
-        sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
 
         // Request
-        // await axios.post("user/" + api, formValues, TokenConfig()).then(res => {
-        //     setResponse(res.data);
-        //     setLoad(false);
-        //     if (res.data?.success) {
-        //         setSavePdf(confirmSavePdf);
-        //         sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
-        //         setTimeout(() => {
-        //             resetForm(true);
-        //         }, 5000)
-        //     }
-        // }, error => {
-        //     // Handle of error
-        //     resetForm();
-        //     setLoad(false);
-        //     if (error?.response.status === 401) setAccessDenied(true);
-        //     else
-        //         console.error("Error => " + error.response);
-        // })
+        await axios.post("user/" + api, formValues, TokenConfig()).then(res => {
+            setResponse(res.data);
+            setLoad(false);
+            if (res.data?.success) {
+                setSavePdf(confirmSavePdf);
+                sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
+                setTimeout(() => {
+                    resetForm(true);
+                }, 5000)
+            }
+        }, error => {
+            // Handle of error
+            resetForm();
+            setLoad(false);
+            if (error?.response.status === 401) setAccessDenied(true);
+            else
+                console.error("Error => " + error.response);
+        })
     }
 
     // Send email to current user with saved pdf document

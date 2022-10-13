@@ -180,7 +180,7 @@ export class Search extends Component {
 
         // API parameters by chosen searching alternative
         const params = (!clsStudents) ? match + "/" + isCapitalize : additionInput;
-        console.log("search/" + sOption + "/" + input + "/" + params)
+
         // API request
         await axios.get("search/" + sOption + "/" + input + "/" + params, _config).then(res => {
             // Response
@@ -228,8 +228,7 @@ export class Search extends Component {
 
     // Get user from session history list
    async getHistoryList(link, list){
-    console.log(link)
-    console.log(list)
+
         // Update state parameters
         this.setState({ isLoading: true, users: null });
 
@@ -241,7 +240,7 @@ export class Search extends Component {
             // Response
             const { users } = res.data;
             const filteredList = users?.filter(x => list.some(s => s.username === x.name))
-console.log(users)
+
             // Update state parameters
             this.setState({
                 users: filteredList,
