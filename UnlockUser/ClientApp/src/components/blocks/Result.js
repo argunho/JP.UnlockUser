@@ -18,7 +18,7 @@ export default function Result({
     list, clsStudents,
     isVisibleTips, isLoading, response,
     cancelRequest, resetResult,
-    resultBlock
+    resultBlock, getHistoryList
 }) {
 
     const refResult = useRef(null);
@@ -62,7 +62,7 @@ export default function Result({
         updateSession();
 
         // Navigation
-        history.push(user?.name ? "/manage-user/" + user?.name : `/manage-users/${list[0].department}/${list[0].office}`);
+        history.push(user?.name ? "/manage-user/" + user?.name : `/manage-users/${list[0].office}/${list[0].department}`);
     }
 
     // Update session data
@@ -72,6 +72,17 @@ export default function Result({
         sessionStorage.setItem("selectedList", JSON.stringify(selectedList));
         sessionStorage.setItem("selectedUsers", JSON.stringify(list?.filter(x => selectedList.some(s => s === x.name))));
     }
+
+    // Go to the current session history log page
+    const openSessionHistory = (arr, name) => {
+        if (arr.length === 0)
+            history.push(`/manage-user/${name}`);
+        else {
+            let params = name.split("%");
+            getHistoryList(`${params[1]}/${params[0]}`, arr);
+        }
+    }
+
 
     // To select one by one user from the class students' list
     const handleSelectedList = (name) => {
@@ -141,6 +152,7 @@ export default function Result({
                 </Tooltip>
             </ListItem>}
 
+            {/* Session history */}
             {SessionPasswordsList().length > 0 &&
                 <ul className='session-history-list'>
                     {SessionPasswordsList().map((x, index) => (
@@ -150,13 +162,12 @@ export default function Result({
                                 <pre key={ind}><b><font color='#000000'>{y.username} :</font></b> {y.password}</pre>
                             )) : <pre><b><font color='#000000'>Lösenord : </font></b> {x.password}</pre>}
                             classes={{ tooltip: "tooltip tooltip-blue tooltip-margin", arrow: "arrow-blue" }}>
-                            <li onClick={(e) => history.push("/manage-user/" + x.username)}>
-                                {x.username}
+                            <li onClick={() => openSessionHistory(x.users, x.username)}>
+                                {x.username.replace("%", " ")}
                             </li>
                         </Tooltip>
                     ))}
-                </ul>
-            }
+                </ul>}
 
             {/* Visible image under search progress// && users && users.length === 0 */}
             {isLoading && <Loading />}

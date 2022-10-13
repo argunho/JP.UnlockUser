@@ -7,22 +7,21 @@ export default function Response(props) {
 
     const [supportLink, setSupportLink] = useState(false);
     const [timeLeft, setTimeLeft] = useState(null);
-    const [response, setResponse] = useState(props.response)
+    const [response, setResponse] = useState(props?.noAccess ? {
+        msg: "Åtkomst nekad! Dina atkomstbehörigheter måste kontrolleras på nytt.",
+        alert: "error"
+    } : props.response)
     const occurredError = sessionStorage.getItem("occurredError") || null;
     const error = response?.errorMessage ?? null;
 
     const history = useHistory();
 
     useEffect(() => {
-        if (props.noAccess && !props.response) {
-            setResponse({
-                msg: "Åtkomst nekad! Dina atkomstbehörigheter måste kontrolleras på nytt.",
-                alert: "error"
-            })
+        if (props?.noAccess && !props?.response)
             setTimeout(() => { history.push("/"); }, 5000);
-        }
+        
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.noAccess])
+    }, [])
 
     // Send a message to the system developer about the occurred error
     const sendMsgToSupport = async () => {
@@ -94,10 +93,10 @@ export default function Response(props) {
     return <Alert className='alert' severity={response?.alert} onClose={() => ((!props.noAccess && props.reset) ? props.reset() : {})}>
         <span dangerouslySetInnerHTML={{ __html: (timeLeft ? response?.msg.replace(response?.timeLeft, timeLeft) : response?.msg) }}></span>
         {supportLink && <Button variant="contained"
-                color='error'
-                style={{ display: "block", marginTop: "20px" }}
-                onClick={() => sendMsgToSupport()}>
-                Meddela systemadministratör
-            </Button>}
+            color='error'
+            style={{ display: "block", marginTop: "20px" }}
+            onClick={() => sendMsgToSupport()}>
+            Meddela systemadministratör
+        </Button>}
     </Alert>;
 }

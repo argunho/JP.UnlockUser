@@ -67,7 +67,7 @@ export default function Form(props) {
     const eng = /^[A-Za-z]+$/;
 
     // Student school and class
-    const location = (users.length > 0) ? users[0]?.office + " " + users[0]?.department : "";
+    const location = (users.length > 0) ? users[0]?.office.replace("%20", " ") + "%" + users[0]?.department.replace("%20", " ") : "";
 
     // To manipulate elements like js getElementById
     const refSubmit = useRef(null);
@@ -113,7 +113,7 @@ export default function Form(props) {
     }, [isGenerated])
 
 
-    // Set password type
+    // Set password typesetPreviewList
     const setPassTypeValue = (value) => {
         resetForm();
         setForm(defaultForm);
@@ -123,10 +123,12 @@ export default function Form(props) {
     // Set limited chars
     const switchCharsLimit = (value) => {
         setLimitedChars(value);
+
         if (wordsList.length > 0)
-            setWordsList([]);
+            setWordsList([""]);
         if (selectedCategory.length > 0)
             setSelectedCategory("");
+
 
         setNumbersCount(value ? 0 : 3);
     }
@@ -157,7 +159,7 @@ export default function Form(props) {
     }
 
     const passwordWordChange = (e) => {
-        setWordsList([]);
+        setPreviewList([]);
         let lng = e?.target?.value?.length;
         if (lng > 0)
             setWordsList([e.target.value?.replace(" ", "")]);
@@ -252,32 +254,33 @@ export default function Form(props) {
             data.username = location;
         let sessionPasswordsList = SessionPasswordsList();
         sessionPasswordsList.push(data);
+        sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
 
         // Request
-        await axios.post("user/" + api, formValues, TokenConfig()).then(res => {
-            setResponse(res.data);
-            setLoad(false);
-            if (res.data?.success) {
-                setSavePdf(confirmSavePdf);
-                sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
-                setTimeout(() => {
-                    resetForm(true);
-                }, 5000)
-            }
-        }, error => {
-            // Handle of error
-            resetForm();
-            setLoad(false);
-            if (error?.response.status === 401) setAccessDenied(true);
-            else
-                console.error("Error => " + error.response);
-        })
+        // await axios.post("user/" + api, formValues, TokenConfig()).then(res => {
+        //     setResponse(res.data);
+        //     setLoad(false);
+        //     if (res.data?.success) {
+        //         setSavePdf(confirmSavePdf);
+        //         sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
+        //         setTimeout(() => {
+        //             resetForm(true);
+        //         }, 5000)
+        //     }
+        // }, error => {
+        //     // Handle of error
+        //     resetForm();
+        //     setLoad(false);
+        //     if (error?.response.status === 401) setAccessDenied(true);
+        //     else
+        //         console.error("Error => " + error.response);
+        // })
     }
 
     // Send email to current user with saved pdf document
     const sendEmailWithFile = async () => {
 
-        const inf = location.split(" ");
+        const inf = location.split("%");
         const data = new FormData();
         data.append('attachedFile', savedPdf);
 
@@ -494,7 +497,9 @@ export default function Form(props) {
                                     color="primary"
                                     type='button'
                                     onClick={submitClickHandle}
-                                    disabled={load || _.isEqual(form, defaultForm) || (!variousPassword && (noConfirm || requirementError || regexError))}>
+                                    disabled={load || _.isEqual(form, defaultForm)
+                                        || (!variousPassword && (noConfirm || requirementError || regexError))
+                                        || (variousPassword && previewList.length === 0)}>
                                     {load && <CircularProgress style={{ width: "15px", height: "15px", marginTop: "3px" }} />}
                                     {!load && <>
                                         {!variousPassword ? <Save /> : <ManageSearch />}
@@ -511,7 +516,7 @@ export default function Form(props) {
                         {confirm && <div className='buttons-wrapper confirm-wrapper'>
                             <p className='confirm-title'>Är du säker att du vill göra det?</p>
                             <Button className='button-btn button-action' type="submit" variant='contained' color="error">Ja</Button>
-                            <Button className='button-btn button-action' variant='outlined' color="primary" onClick={() => resetForm(true)}>Nej</Button>
+                            <Button className='button-btn button-action' variant='contained' color="primary" onClick={() => resetForm(true)}>Nej</Button>
                         </div>}
                     </form>
                 </div>
@@ -520,7 +525,7 @@ export default function Form(props) {
                 {multiple && <ModalHelpTexts
                     arr={previewList}
                     cls={" none"}
-                    isTitle={`${title} <span class='typography-span'>${location}</span>`}
+                    isTitle={`${title} <span class='typography-span'>${location.replace("%", " ")}</span>`}
                     isTable={true}
                     isSubmit={true}
                     regeneratePassword={() => refGenerate?.current?.click()}
@@ -530,7 +535,7 @@ export default function Form(props) {
                 {/* Save document to pdf */}
                 {savePdf && <PDFConverter
                     name={title}
-                    subTitle={location}
+                    subTitle={location.replace("%", " ")}
                     names={["Namn", "Lösenord"]}
                     list={previewList}
                     savedPdf={(pdf) => setSavedPdf(pdf)}

@@ -1,0 +1,20 @@
+ Anställd
+ - Användarnamn: Aslan Khadizov
+ - Namn: 790822asla
+ - E-postadress: aslan.khadizov@alvesta.se
+ - Arbetsplats: IT Serviceavdelning
+ - Tjänst: Systemutvecklare
+
+ Dator
+ - Datornamn: ACPF37BZ75
+ - IpAddress: 127.0.0.1
+
+ Hantering
+ - Gruppnamn: Studenter
+ - Skolan: 
+ - Klassnamn: Test department
+ - Lösenord till 1 student:
+	- Student: t0017
+
+
+ Datum: 2022.10.11 15:06:03

@@ -39,7 +39,6 @@ function ModalHelpTexts({ arr, cls = " situated-btn", isTable = false, isSubmit 
 
     // Close modal window
     const clickHandle = (submit) => {
-        console.log(submit)
         if (submit)
             inverseFunction(savePdf);
 
