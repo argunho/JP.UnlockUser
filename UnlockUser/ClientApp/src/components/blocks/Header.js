@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useHistory } from 'react-router-dom';
 import jwt_decode from "jwt-decode";
-import { HomeSharp, InsertDriveFile, LiveHelp, Logout, Menu, Close, PasswordOutlined } from '@mui/icons-material';
+import { HomeSharp, InsertDriveFile, LiveHelp, Logout, Menu, Close } from '@mui/icons-material';
 import { Button, Tooltip } from '@mui/material';
 import logo from './../../images/logotype.png'
 import axios from 'axios';
