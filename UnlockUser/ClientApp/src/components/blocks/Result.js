@@ -155,7 +155,7 @@ export default function Result({
             {SessionPasswordsList().length > 0 &&
                 <>
                     <Button variant='text' onClick={() => setDropdown(!dropdown)} color={dropdown ? "primary" : "inherit"}>
-                        Ändrat lösenords &nbsp;&nbsp;{dropdown ? <ArrowDropUp /> : <ArrowDropDown />}
+                        Historik &nbsp;&nbsp;{dropdown ? <ArrowDropUp /> : <ArrowDropDown />}
                     </Button>
                     <ul className={`selected-list history-list dropdown-div ${dropdown ? "dropdown-open" : ""}`}>
                         {SessionPasswordsList().map((x, index) => (
