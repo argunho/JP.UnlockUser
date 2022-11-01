@@ -56,25 +56,7 @@ public class UserController : ControllerBase
     #endregion
 
     #region POST
-    [HttpPost("resetPassword")] // Reset one student password
-    public JsonResult ResetPasword(UserViewModel model)
-    {
-        // Check model is valid or not and return warning is true or false
-        var warning = ReturnWarningsMessage(model);
-        if (warning != null)
-            return warning;
-
-        // Set password to one student
-        var response = ReturnResultMessage(_provider.ResetPassword(UpdatedUser(model)));
-
-        var log = GetLogData();
-        log.Users.Add(model.Username);
-        SaveLogFile(log);
-
-        return response;
-    }
-
-    [HttpPost("resetPasswords")] // Reset class students passwords
+    [HttpPost("resetPassword")] // Reset class students passwords
     public JsonResult SetMultiplePaswords(UsersList model)
     {
         // Check model is valid or not and return warning is true or false
@@ -264,8 +246,6 @@ public class UserController : ControllerBase
     {
         if (!ModelState.IsValid)
             return new JsonResult(new { alert = "warning", msg = "Felaktigt eller ofullständigt ifyllda formulär" }); // Forms filled out incorrectly
-        else if (model.Password != model.ConfirmPassword)
-            return new JsonResult(new { alert = "warning", msg = "Fällts för Lösenord och Bekräfta lösenord matchar inte" }); // Password and ConfirmPassword doesn't matchs
         else if (model.Username == null)
             return new JsonResult(new { alert = "warning", msg = "Användare för lösenordsåterställning har inte specificerats." }); // Password reset user not specified
 

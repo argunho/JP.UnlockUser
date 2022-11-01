@@ -150,9 +150,9 @@ export class UserManager extends Component {
                         {/* Change password */}
                         {!user.isLocked && <Form
                             title="Återställa lösenord"
-                            api="resetPassword"
+                            // api="resetPasswords"
                             users={[user]}
-                            name={name}
+                            // name={name}
                             passwordLength={user.passwordLength} />}
                     </>}
 

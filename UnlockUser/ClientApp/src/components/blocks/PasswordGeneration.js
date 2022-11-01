@@ -29,29 +29,27 @@ function PasswordGeneration({
 
     // Generate handle
     const generateHandle = () => {
-        console.log(variousPasswords)
         if (variousPasswords) generateVariousPasswords()
         else generatePassword();
     }
 
     // Generate new password
     const generatePassword = () => {
-        console.log(users.length)
         let usersArray = [];
-        let generatedPassword = returnGeneratedPassword();
+        let password = returnGeneratedPassword();
 
-        while (!regex.test(generatedPassword))
-            generatedPassword = returnGeneratedPassword();
+        while (!regex.test(password))
+            password = returnGeneratedPassword();
         if (users.length > 0) {
             for (var i = 0; i < users.length; i++) {
                 usersArray.push({
                     username: users[i].name,
-                    password: generatedPassword
+                    password: password
                 })
             }
-            setForm({ password: generatedPassword, confirmPassword: generatedPassword, users: usersArray });
+            setForm({ password: password, confirmPassword: password, users: usersArray });
         } else
-            setForm({ password: generatedPassword, confirmPassword: generatedPassword });
+            setForm({ password: password, confirmPassword: password });
     }
 
     // Generate multiple passwords
@@ -64,7 +62,6 @@ function PasswordGeneration({
             let broken = false;
             let randomNumber = randomNumbers[numbersCount];
 
-            console.log(users.length - i, i)
             if (!strongPassword) {
                 const randomWord = wordsList.length === 1 ? wordsList[0] : wordsList[Math.floor(Math.random() * wordsList.length)];
                 password += (randomWord?.name || randomWord);
@@ -111,7 +108,6 @@ function PasswordGeneration({
 
     // Generate one password with a word choice from a list of word categories
     const generatePasswordWithRandomWord = (word) => {
-        console.log(users.length)
         let usersArray = [];
         if (word === null) {
             generatePassword();
@@ -145,7 +141,6 @@ function PasswordGeneration({
         for (var i = 0; i < passwordLength; i++) {
             password += randomChar(i);
         }
-        console.log(password)
         return password;
     }
 

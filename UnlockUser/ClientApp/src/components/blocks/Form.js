@@ -17,7 +17,7 @@ import ListCategories from './ListCategories';
 import _ from 'lodash';
 import SessionPasswordsList from '../functions/SessionPasswordsList';
 
-// Don't remove this comment line below, this uses for useEffect
+//// Don't remove this comment line below, this uses for useEffect
 /* eslint-disable react-hooks/exhaustive-deps */
 
 // Form inputs
@@ -29,7 +29,9 @@ const formList = [
 export default function Form(props) {
     Form.displayName = "Form";
 
-    const { title, name, multiple, api, passwordLength, users = [] } = props;
+    const { title, name, passwordLength, users = [] } = props;
+
+    const multiple = users.length > 1;
 
     const defaultForm = {
         password: "",
@@ -40,7 +42,7 @@ export default function Form(props) {
     const [response, setResponse] = useState(null);
     const [load, setLoad] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const [form, setForm] = useState(defaultForm);
+    const [formData, setFormData] = useState(defaultForm);
     const [noConfirm, setNoConfirm] = useState(false);
     const [requirementError, setRequirementError] = useState(false);
     const [regexError, setRegexError] = useState(false);
@@ -62,13 +64,12 @@ export default function Form(props) {
 
     const strongRegex = passwordLength === 12;
 
-    // Regex to validate password  (!@?$&#^%*_)
+    // Regex to validate password 
     const regex = strongRegex ?
-        /^(?=.*[0-9])(?=.*[!@?$&#^%*-,;._])[a-zA-Z0-9!@?$&#^%*-,;._]{12,50}$/ : /^[a-zA-Z0-9]{8,50}$/;
+        /^(?=.*[0-9])(?=.*[!@?$&#^%*-,;._])[A-Za-z0-9!@?$&#^%*-,;._]{12,50}$/ : /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])[A-Za-z0-9]{8,50}$/;
     const eng = /^[A-Za-z]+$/;
 
     // Student school and class
-    // const location = (users.length > 0) ? users[0]?.office.replace("%20", " ") + "%" + users[0]?.department.replace("%20", " ") : "";
     const location = users[0]?.office.replace("%20", " ") + "%" + users[0]?.department.replace("%20", " ");
 
     // To manipulate elements like js getElementById
@@ -97,7 +98,7 @@ export default function Form(props) {
 
     useEffect(() => {
         resetForm(!variousPassword);
-        setForm(defaultForm);
+        setFormData(defaultForm);
     }, [variousPassword])
 
     useEffect(() => {
@@ -117,7 +118,7 @@ export default function Form(props) {
     // Set password typesetPreviewList
     const setPassTypeValue = (value) => {
         resetForm();
-        setForm(defaultForm);
+        setFormData(defaultForm);
         setPassType(value);
     }
 
@@ -136,7 +137,7 @@ export default function Form(props) {
     // Switch password numbers count
     const switchNumbersCount = (value) => {
         setNumbersCount(value);
-        setForm(defaultForm);
+        setFormData(defaultForm);
         setPreviewList([]);
     }
 
@@ -144,15 +145,15 @@ export default function Form(props) {
     const handleSelectListChange = (list) => {
         setPreviewList([]);
         setWordsList(list);
-        setForm(defaultForm);
+        setFormData(defaultForm);
     }
 
-    // Handle change of form value
+    // Handle change of formData value
     const valueChangeHandler = (e) => {
         if (!e?.target) return;
         const value = e?.target.value;
 
-        setForm({ ...form, [e.target.name]: value?.replace(" ", "") });
+        setFormData({ ...formData, [e.target.name]: value?.replace(" ", "") });
 
         resetForm();
         validateField(e);
@@ -171,10 +172,10 @@ export default function Form(props) {
             setInputName(e.target?.name);
             const value = e.target?.value;
 
-            if (form.confirmPassword) {
+            if (formData.confirmPassword) {
                 // Confirm new password and confirmPassword
-                setNoConfirm((e.name === "password") ? form.confirmPassword !== value
-                    : form.password !== value)
+                setNoConfirm((e.name === "password") ? formData.confirmPassword !== value
+                    : formData.password !== value)
             }
 
             // Check and set error to true if the value contains a non-English character
@@ -217,7 +218,7 @@ export default function Form(props) {
 
         if (resetTotal) {
             setNoConfirm(false);
-            setForm(defaultForm);
+            setFormData(defaultForm);
             resetError();
             setShowPassword(false);
             setNumbersCount(0);
@@ -242,26 +243,26 @@ export default function Form(props) {
 
         setConfirm(false);
         setLoad(true);
+        const data = formData;
 
-        let formValues = form;
-        formValues.username = name;
+        if (data.users.length === 0) {
+            let usersArray = [];
+            for (var i = 0; i < users.length; i++) {
+                usersArray.push({
+                    username: users[i].name,
+                    password: formData.password
+                })
+            }
+            data.users = usersArray;
+        }
 
-        // Update session list of changed passwords
-        let sessionData = formValues;
-        if (sessionData.username === undefined)
-            sessionData.username = location;
-        let sessionPasswordsList = SessionPasswordsList();
-        sessionPasswordsList.push(sessionData);
-
-        console.log(formValues)
-        
         // Request
-        await axios.post("user/" + api, formValues, TokenConfig()).then(res => {
+        await axios.post("user/resetPassword/", data, TokenConfig()).then(res => {
             setResponse(res.data);
             setLoad(false);
             if (res.data?.success) {
                 setSavePdf(confirmSavePdf);
-                sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
+                sessionHistory(formData);
                 setTimeout(() => {
                     resetForm(true);
                 }, 5000)
@@ -274,6 +275,16 @@ export default function Form(props) {
             else
                 console.error("Error => " + error.response);
         })
+    }
+
+    // Update session list of changed passwords
+    const sessionHistory = (data) => {
+        if (data.username === undefined)
+            data.username = location;
+        let sessionPasswordsList = SessionPasswordsList();
+        sessionPasswordsList.push(data);
+
+        sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
     }
 
     // Send email to current user with saved pdf document
@@ -377,7 +388,7 @@ export default function Form(props) {
                                         limitedChars={limitedChars}
                                         label="Lösenords kategory"
                                         selectChange={(list) => handleSelectListChange(list)}
-                                        reset={_.isEqual(form, defaultForm)}
+                                        reset={_.isEqual(formData, defaultForm)}
                                         multiple={true}
                                     />}
 
@@ -429,7 +440,7 @@ export default function Form(props) {
                                         type={showPassword ? "text" : "password"}
                                         variant="outlined"
                                         required
-                                        value={form[n.name] || ""}
+                                        value={formData[n.name] || ""}
                                         inputProps={{
                                             minLength: passwordLength,
                                             autoComplete: formList[n.name],
@@ -438,7 +449,7 @@ export default function Form(props) {
                                         className={(inputName === n.name && (requirementError || regexError)) ? "error" : ''}
                                         error={(n.name === "confirmPassword" && noConfirm) || (inputName === n.name && (requirementError || regexError))}
                                         placeholder={n.placeholder}
-                                        disabled={variousPassword || (n.name === "confirmPassword" && form.password?.length < passwordLength) || confirm}
+                                        disabled={variousPassword || (n.name === "confirmPassword" && formData.password?.length < passwordLength) || confirm}
                                         onChange={valueChangeHandler}
                                         onBlur={validateField}
                                         helperText={(inputName === n.name) &&
@@ -475,9 +486,9 @@ export default function Form(props) {
                                     variousPasswords={variousPassword}
                                     passwordLength={passwordLength}
                                     disabled={load}
-                                    regenerate={(previewList.length > 0 || !_.isEqual(form, defaultForm))}
+                                    regenerate={(previewList.length > 0 || !_.isEqual(formData, defaultForm))}
                                     setGenerated={val => setIsGenerated(val)}
-                                    updatePasswordForm={(form) => setForm(form)}
+                                    updatePasswordForm={(formData) => setFormData(formData)}
                                     updatePreviewList={(list) => setPreviewList(list)}
                                     ref={refGenerate} />
 
@@ -485,7 +496,7 @@ export default function Form(props) {
                                 <Button variant="contained"
                                     color="error"
                                     type="button"
-                                    disabled={load || _.isEqual(form, defaultForm)}
+                                    disabled={load || _.isEqual(formData, defaultForm)}
                                     onClick={() => resetForm(true)}>
                                     <ClearOutlined />
                                 </Button>
@@ -496,7 +507,7 @@ export default function Form(props) {
                                     color="primary"
                                     type='button'
                                     onClick={submitClickHandle}
-                                    disabled={load || _.isEqual(form, defaultForm)
+                                    disabled={load || _.isEqual(formData, defaultForm)
                                         || (!variousPassword && (noConfirm || requirementError || regexError))
                                         || (variousPassword && previewList.length === 0)}>
                                     {load && <CircularProgress style={{ width: "15px", height: "15px", marginTop: "3px" }} />}
