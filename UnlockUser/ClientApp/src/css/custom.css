@@ -260,7 +260,6 @@ body {
   float: right !important;
 }
 
-.session-history-list,
 .selected-list {
   display: flex;
   justify-content: flex-start;
@@ -271,7 +270,6 @@ body {
   padding: 0 !important;
 }
 
-.session-history-list>li,
 .selected-list>li {
   list-style: none;
   width: max-content;
@@ -296,13 +294,6 @@ body {
   border-color: #242424;
 }
 
-.session-history-list>li:hover {
-  cursor: pointer;
-  color: #1976d2;
-  border-color: #1976d2;
-  opacity: 1;
-}
-
 .selected-list>li:hover {
   cursor: pointer;
   color: #cc0000;
@@ -310,7 +301,14 @@ body {
   opacity: 1;
 }
 
-.session-history-list>.tooltip {
+.history-list>li:hover {
+  cursor: pointer;
+  color: #1976d2;
+  border-color: #1976d2;
+  opacity: 1;
+}
+
+.history-list>.tooltip {
   text-align: left !important;
 }
 
@@ -672,6 +670,8 @@ button {
   text-align: center !important;
   padding: 10px !important;
   margin-top: 0 !important;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .tooltip-margin {

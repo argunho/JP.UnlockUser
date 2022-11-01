@@ -5,7 +5,7 @@ import {
     Avatar, Button, Checkbox, List, ListItem,
     ListItemAvatar, ListItemText, Tooltip, Typography
 } from '@mui/material'
-import { Cancel, DeleteSweep, Deselect, Edit, SelectAll } from '@mui/icons-material';
+import { ArrowDropDown, ArrowDropUp, Cancel, DeleteSweep, Deselect, Edit, SelectAll } from '@mui/icons-material';
 import Loading from './Loading';
 import { useHistory } from 'react-router-dom';
 import Response from './Response';
@@ -24,6 +24,7 @@ export default function Result({
     const refResult = useRef(null);
     const [selectedList, setSelectedList] = useState([]);
     const [isOpenTip, setIsOpenTip] = useState(false);
+    const [dropdown, setDropdown] = useState(false);
 
     const history = useHistory();
     const sl = selectedList.length;
@@ -60,9 +61,8 @@ export default function Result({
         }
 
         updateSession();
-
         // Navigation
-        history.push(user?.name ? "/manage-user/" + user?.name : `/manage-users/${list[0].office}/${list[0].department}`);
+        history.push(selectedList?.length > 1 ? `/manage-users/${list[0].office}/${list[0].department}` : "/manage-user/" + (user?.name ? user?.name : selectedList[0]));
     }
 
     // Update session data
@@ -75,10 +75,11 @@ export default function Result({
 
     // Go to the current session history log page
     const openSessionHistory = (name, arr) => {
-        if (arr?.length > 0){
+        setDropdown(false);
+        if (arr?.length > 0) {
             let params = name.split("%");
             getHistoryList(`${params[1]}/${params[0]}`, arr);
-        } else 
+        } else
             history.push(`/manage-user/${name}`);
     }
 
@@ -152,20 +153,25 @@ export default function Result({
 
             {/* Session history */}
             {SessionPasswordsList().length > 0 &&
-                <ul className='session-history-list'>
-                    {SessionPasswordsList().map((x, index) => (
-                        <Tooltip arrow
-                            key={index}
-                            title={x.users?.length > 0 ? x.users.map((y, ind) => (
-                                <pre key={ind}><b><font color='#000000'>{y.username} :</font></b> {y.password}</pre>
-                            )) : <pre><b><font color='#000000'>Lösenord : </font></b> {x.password}</pre>}
-                            classes={{ tooltip: "tooltip tooltip-blue tooltip-margin", arrow: "arrow-blue" }}>
-                            <li onClick={() => openSessionHistory(x.username, x.users)}>
-                                {x.username.replace("%", " ")}
-                            </li>
-                        </Tooltip>
-                    ))}
-                </ul>}
+                <>
+                    <Button variant='text' onClick={() => setDropdown(!dropdown)} color={dropdown ? "primary" : "inherit"}>
+                        Ändrat lösenords &nbsp;&nbsp;{dropdown ? <ArrowDropUp /> : <ArrowDropDown />}
+                    </Button>
+                    <ul className={`selected-list history-list dropdown-div ${dropdown ? "dropdown-open" : ""}`}>
+                        {SessionPasswordsList().map((x, index) => (
+                            <Tooltip arrow
+                                key={index}
+                                title={x.users?.length > 0 ? x.users.map((y, ind) => (
+                                    <pre key={ind}><b><font color='#000000'>{y.username} :</font></b> {y.password}</pre>
+                                )) : <pre><b><font color='#000000'>Lösenord : </font></b> {x.password}</pre>}
+                                classes={{ tooltip: "tooltip tooltip-blue tooltip-margin", arrow: "arrow-blue" }}>
+                                <li onClick={() => openSessionHistory(x.username, x.users)}>
+                                    {x.username.replace("%", " ")}
+                                </li>
+                            </Tooltip>
+                        ))}
+                    </ul>
+                </>}
 
             {/* Visible image under search progress// && users && users.length === 0 */}
             {isLoading && <Loading />}

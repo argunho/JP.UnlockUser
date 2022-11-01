@@ -1,5 +1,5 @@
-import { Close } from '@mui/icons-material';
-import { Tooltip } from '@mui/material';
+import { ArrowDropDown, ArrowDropUp, Close } from '@mui/icons-material';
+import { Tooltip, Button } from '@mui/material';
 import React, { Component } from 'react'
 import Form from '../blocks/Form';
 import Info from '../blocks/Info';
@@ -14,7 +14,8 @@ export default class UsersManager extends Component {
         this.state = {
             users: users,
             name: "Klass " + cls,
-            displayName: school
+            displayName: school,
+            dropdown: false
         }
 
         this.spliceUsersList = this.spliceUsersList.bind(this);
@@ -25,7 +26,7 @@ export default class UsersManager extends Component {
     }
 
     render() {
-        const { users, name, displayName } = this.state;
+        const { users, name, displayName, dropdown } = this.state;
 
         return (
             <div className='interior-div'>
@@ -36,21 +37,25 @@ export default class UsersManager extends Component {
                     check={true}
                 />
 
-                {users?.length > 0 &&
-                    <ul className='selected-list'>
-                        {users.map((user, index) => (
-                            <Tooltip arrow
-                                key={index}
-                                title={<pre>Klicka här, att radera <b><font color="#000000">{user.displayName}</font></b> från listan</pre>}
-                                classes={{ tooltip: "tooltip tooltip-error tooltip-margin", arrow: "arrow-error" }}>
-                                <li onClick={() => this.spliceUsersList(user)}>
-                                    {user.name} <Close fontSize='10' />
-                                </li>
-                            </Tooltip>
-                        ))}
-                    </ul>}
+                {/* Edit class members listan */}
+                <Button variant='text' onClick={() => this.setState({ dropdown: !dropdown })} color={dropdown ? "primary" : "inherit"}>
+                    Klassmedlemar &nbsp;&nbsp;{dropdown ? <ArrowDropUp /> : <ArrowDropDown />}
+                </Button>
+                <ul className={`selected-list dropdown-div ${dropdown ? "dropdown-open" : ""}`}>
+                    {users.map((user, index) => (
+                        <Tooltip arrow
+                            key={index}
+                            title={<pre>Klicka här, att radera <b><font color="#000000">{user.displayName}</font></b> från listan</pre>}
+                            classes={{ tooltip: "tooltip tooltip-error tooltip-margin", arrow: "arrow-error" }}>
+                            <li onClick={() => this.spliceUsersList(user)}>
+                                {user.name} <Close fontSize='10' />
+                            </li>
+                        </Tooltip>
+                    ))}
+                </ul>
 
-                <Form title={"Nya lösenord till " + users?.length + " elev" + (users?.length === 1 ? "er" : "")}
+                <Form
+                    title={"Nya lösenord till " + users?.length + " elev" + (users?.length === 1 ? "er" : "")}
                     api="resetPasswords"
                     users={users}
                     multiple={true}

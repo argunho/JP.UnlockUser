@@ -30,6 +30,7 @@ export default function Form(props) {
     Form.displayName = "Form";
 
     const { title, name, multiple, api, passwordLength, users = [] } = props;
+
     const defaultForm = {
         password: "",
         confirmPassword: "",
@@ -67,7 +68,8 @@ export default function Form(props) {
     const eng = /^[A-Za-z]+$/;
 
     // Student school and class
-    const location = (users.length > 0) ? users[0]?.office.replace("%20", " ") + "%" + users[0]?.department.replace("%20", " ") : "";
+    // const location = (users.length > 0) ? users[0]?.office.replace("%20", " ") + "%" + users[0]?.department.replace("%20", " ") : "";
+    const location = users[0]?.office.replace("%20", " ") + "%" + users[0]?.department.replace("%20", " ");
 
     // To manipulate elements like js getElementById
     const refSubmit = useRef(null);
@@ -111,7 +113,6 @@ export default function Form(props) {
 
         resetError();
     }, [isGenerated])
-
 
     // Set password typesetPreviewList
     const setPassTypeValue = (value) => {
@@ -246,12 +247,14 @@ export default function Form(props) {
         formValues.username = name;
 
         // Update session list of changed passwords
-        let data = formValues;
-        if (data.username === undefined)
-            data.username = location;
+        let sessionData = formValues;
+        if (sessionData.username === undefined)
+            sessionData.username = location;
         let sessionPasswordsList = SessionPasswordsList();
-        sessionPasswordsList.push(data);
+        sessionPasswordsList.push(sessionData);
 
+        console.log(formValues)
+        
         // Request
         await axios.post("user/" + api, formValues, TokenConfig()).then(res => {
             setResponse(res.data);

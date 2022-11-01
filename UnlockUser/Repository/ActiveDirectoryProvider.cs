@@ -61,7 +61,7 @@ public class ActiveDirectoryProvider : IActiveDirectoryProvider // Help class in
         }
         catch (Exception ex)
         {
-            return "Fel: " + ex?.InnerException?.Message ?? ex.Message;
+            return "Fel: " + ex?.InnerException?.Message ?? ex.Message + "\n";
         }
     }
 

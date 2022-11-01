@@ -29,18 +29,19 @@ function PasswordGeneration({
 
     // Generate handle
     const generateHandle = () => {
+        console.log(variousPasswords)
         if (variousPasswords) generateVariousPasswords()
         else generatePassword();
     }
 
     // Generate new password
     const generatePassword = () => {
+        console.log(users.length)
         let usersArray = [];
         let generatedPassword = returnGeneratedPassword();
 
         while (!regex.test(generatedPassword))
             generatedPassword = returnGeneratedPassword();
-
         if (users.length > 0) {
             for (var i = 0; i < users.length; i++) {
                 usersArray.push({
@@ -63,6 +64,7 @@ function PasswordGeneration({
             let broken = false;
             let randomNumber = randomNumbers[numbersCount];
 
+            console.log(users.length - i, i)
             if (!strongPassword) {
                 const randomWord = wordsList.length === 1 ? wordsList[0] : wordsList[Math.floor(Math.random() * wordsList.length)];
                 password += (randomWord?.name || randomWord);
@@ -109,6 +111,8 @@ function PasswordGeneration({
 
     // Generate one password with a word choice from a list of word categories
     const generatePasswordWithRandomWord = (word) => {
+        console.log(users.length)
+        let usersArray = [];
         if (word === null) {
             generatePassword();
             return;
@@ -122,7 +126,17 @@ function PasswordGeneration({
         password += (Math.random() * (randomNumber - min) + min).toFixed(0);
 
         password = capitalize(password);
-        setForm({password: password, confirmPassword: password });
+        if (users.length > 0){
+            for(var i = 0;i < users.length;i++){
+                usersArray.push({
+                    username: users[i].name,
+                    password: password
+                })
+            }
+            setForm({ password: password, confirmPassword: password, users: usersArray });
+        }
+        else
+            setForm({ password: password, confirmPassword: password });
     }
 
     // Generate strong password
@@ -131,6 +145,7 @@ function PasswordGeneration({
         for (var i = 0; i < passwordLength; i++) {
             password += randomChar(i);
         }
+        console.log(password)
         return password;
     }
 
@@ -150,7 +165,8 @@ function PasswordGeneration({
         return strArr[Math.floor(Math.random() * strArr.length)];
     }
 
-    const clickButton = <Tooltip arrow
+    // Button to generate various password
+    const clickSimpleButton = <Tooltip arrow
         title={disabledTooltip ? "Lösenords kategory är inte vald." : ""}
         classes={{
             tooltip: `tooltip tooltip-margin tooltip-${disabledTooltip ? 'error' : 'blue'}`,
@@ -170,7 +186,8 @@ function PasswordGeneration({
         </span>
     </Tooltip>;
 
-    const categoriesList = <ListCategories
+    // Button with list of words category to generate one password
+    const buttonCategoriesList = <ListCategories
         limitedChars={true}
         selectChange={(word) => generatePasswordWithRandomWord(word)}
         multiple={false}
@@ -178,8 +195,9 @@ function PasswordGeneration({
         disabled={disabledClick}
         label={`Generera ${regenerate ? " andra" : ""} lösenord`} />;
 
+
     return (
-        (sessionStorage.getItem("group") !== "Students" || variousPasswords) ? clickButton : categoriesList
+        (sessionStorage.getItem("group") !== "Students" || variousPasswords) ? clickSimpleButton : buttonCategoriesList
     )
 }
 
