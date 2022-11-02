@@ -206,6 +206,7 @@ export default function Form(props) {
 
     // Reset form
     const resetForm = (resetTotal = false) => {
+        setLoad(false);
         setRequirementError(false);
         setPassType("");
         setLimitedChars(multiple);
@@ -240,7 +241,6 @@ export default function Form(props) {
     // Submit form
     const submitForm = async (e) => {
         e.preventDefault();
-
         setConfirm(false);
         setLoad(true);
         const data = formData;
@@ -259,14 +259,14 @@ export default function Form(props) {
         // Request
         await axios.post("user/resetPassword/", data, TokenConfig()).then(res => {
             setResponse(res.data);
-            setLoad(false);
             if (res.data?.success) {
-                setSavePdf(confirmSavePdf);
-                sessionHistory(formData);
+                setSavePdf(true);
+                setSessionHistory(formData);
                 setTimeout(() => {
                     resetForm(true);
                 }, 5000)
-            }
+            } else
+                setLoad(false);
         }, error => {
             // Handle of error
             resetForm();
@@ -278,7 +278,7 @@ export default function Form(props) {
     }
 
     // Update session list of changed passwords
-    const sessionHistory = (data) => {
+    const setSessionHistory = (data) => {
         if (data.username === undefined)
             data.username = location;
         let sessionPasswordsList = SessionPasswordsList();
@@ -289,7 +289,6 @@ export default function Form(props) {
 
     // Send email to current user with saved pdf document
     const sendEmailWithFile = async () => {
-
         const inf = location.split("%");
         const data = new FormData();
         data.append('attachedFile', savedPdf);
@@ -510,8 +509,8 @@ export default function Form(props) {
                                     disabled={load || _.isEqual(formData, defaultForm)
                                         || (!variousPassword && (noConfirm || requirementError || regexError))
                                         || (variousPassword && previewList.length === 0)}>
-                                    {load && <CircularProgress style={{ width: "15px", height: "15px", marginTop: "3px" }} />}
-                                    {!load && <>
+                                    {(load && !response) && <CircularProgress style={{ width: "15px", height: "15px", marginTop: "3px" }} />}
+                                    {(!load || response) && <>
                                         {!variousPassword ? <Save /> : <ManageSearch />}
                                         <span>{variousPassword ? "Granska" : "Verkställ"}</span>
                                     </>}
@@ -543,7 +542,7 @@ export default function Form(props) {
                     ref={refModal} />}
 
                 {/* Save document to pdf */}
-                {savePdf && <PDFConverter
+                {(savePdf && confirmSavePdf) && <PDFConverter
                     name={title}
                     subTitle={location.replace("%", " ")}
                     names={["Namn", "Lösenord"]}

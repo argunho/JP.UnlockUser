@@ -6,7 +6,7 @@ import Table from './Table';
 
 export default function PDFConverter({ name, subTitle, names, list, savedPdf }) {
     const regex = /(<([^>]+)>)/ig;
-
+    
     useEffect(() => {
         saveApply();
         // eslint-disable-next-line react-hooks/exhaustive-deps
