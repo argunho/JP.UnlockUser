@@ -253,6 +253,7 @@ body {
 }
 
 .search-result {
+  display: block;
   padding-bottom: 5px !important;
   border-bottom: 1px solid #bdbdbd;
 }
