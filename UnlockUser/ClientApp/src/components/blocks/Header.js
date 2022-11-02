@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useHistory } from 'react-router-dom';
 import jwt_decode from "jwt-decode";
-import { HomeSharp, InsertDriveFile, LiveHelp, Logout, Menu, Close } from '@mui/icons-material';
+import { HomeSharp, InsertDriveFile, LiveHelp, Logout, Menu, Close, History } from '@mui/icons-material';
 import { Button, Tooltip } from '@mui/material';
 import logo from './../../images/logotype.png'
 import axios from 'axios';
@@ -98,6 +98,9 @@ export default function Header({ isAuthorized }) {
                                 </li>}
                                 <li onClick={() => goToPage("contact")}>
                                     <LiveHelp />&nbsp;&nbsp;<span>Kontakta support</span>
+                                </li>
+                                <li onClick={() => goToPage("history")}>
+                                    <History />&nbsp;&nbsp;<span>Session historik</span>
                                 </li>
                                 <li onClick={() => logout()}>
                                     <Logout />&nbsp;&nbsp;<span>Logga ut</span>

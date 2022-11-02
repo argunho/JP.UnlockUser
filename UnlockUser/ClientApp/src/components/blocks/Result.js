@@ -5,12 +5,12 @@ import {
     Avatar, Button, Checkbox, List, ListItem,
     ListItemAvatar, ListItemText, Tooltip, Typography
 } from '@mui/material'
-import { ArrowDropDown, ArrowDropUp, Cancel, DeleteSweep, Deselect, Edit, SelectAll } from '@mui/icons-material';
+import { Cancel, DeleteSweep, Deselect, Edit, SelectAll } from '@mui/icons-material';
 import Loading from './Loading';
 import { useHistory } from 'react-router-dom';
 import Response from './Response';
 import Info from './Info';
-import SessionPasswordsList from '../functions/SessionPasswordsList'
+
 /* eslint-disable react-hooks/exhaustive-deps */  // <= Do not remove this line
 
 
@@ -18,20 +18,17 @@ export default function Result({
     list, clsStudents,
     isVisibleTips, isLoading, response,
     cancelRequest, resetResult,
-    resultBlock, getHistoryList
+    resultBlock
 }) {
 
     const refResult = useRef(null);
     const [selectedList, setSelectedList] = useState([]);
     const [isOpenTip, setIsOpenTip] = useState(false);
-    const [dropdown, setDropdown] = useState(false);
 
     const history = useHistory();
     const sl = selectedList.length;
     const selected = (list?.length === sl);
-    // const refGetMembers = useRef();
     const refCheckbox = useRef([]);
-    // const group = sessionStorage.getItem("group")?.toLowerCase();
 
     useEffect(() => {
         if (resultBlock)
@@ -71,16 +68,6 @@ export default function Result({
         sessionStorage.setItem("users", JSON.stringify(list));
         sessionStorage.setItem("selectedList", JSON.stringify(selectedList));
         sessionStorage.setItem("selectedUsers", JSON.stringify(list?.filter(x => selectedList.some(s => s === x.name))));
-    }
-
-    // Go to the current session history log page
-    const openSessionHistory = (name, arr) => {
-        setDropdown(false);
-        if (arr?.length > 0) {
-            let params = name.split("%");
-            getHistoryList(`${params[1]}/${params[0]}`, arr);
-        } else
-            history.push(`/manage-user/${name}`);
     }
 
     // To select one by one user from the class students' list
@@ -151,27 +138,6 @@ export default function Result({
                 </Tooltip>
             </ListItem>}
 
-            {/* Session history */}
-            {SessionPasswordsList().length > 0 &&
-                <>
-                    <Button variant='text' onClick={() => setDropdown(!dropdown)} color={dropdown ? "primary" : "inherit"}>
-                        Historik &nbsp;&nbsp;{dropdown ? <ArrowDropUp /> : <ArrowDropDown />}
-                    </Button>
-                    <ul className={`selected-list history-list dropdown-div ${dropdown ? "dropdown-open" : ""}`}>
-                        {SessionPasswordsList().map((x, index) => (
-                            <Tooltip arrow
-                                key={index}
-                                title={x.users?.length > 0 ? x.users.map((y, ind) => (
-                                    <pre key={ind}><b><font color='#000000'>{y.username} :</font></b> {y.password}</pre>
-                                )) : <pre><b><font color='#000000'>Lösenord : </font></b> {x.password}</pre>}
-                                classes={{ tooltip: "tooltip tooltip-blue tooltip-margin", arrow: "arrow-blue" }}>
-                                <li onClick={() => openSessionHistory(x.username, x.users)}>
-                                    {x.username.replace("%", " ")}
-                                </li>
-                            </Tooltip>
-                        ))}
-                    </ul>
-                </>}
 
             {/* Visible image under search progress// && users && users.length === 0 */}
             {isLoading && <Loading />}

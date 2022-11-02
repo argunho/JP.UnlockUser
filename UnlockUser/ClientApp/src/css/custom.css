@@ -113,7 +113,7 @@ body {
   opacity: 0;
   z-index: -1;
   position: absolute;
-  bottom: -185px;
+  bottom: -220px;
   right: 0;
   width: max-content;
   overflow: hidden;
@@ -149,7 +149,7 @@ body {
 .visible-menu-wrapper {
   visibility: visible;
   opacity: 1;
-  bottom: -150px;
+  bottom: -185px;
   z-index: 3000;
   display: block;
 }

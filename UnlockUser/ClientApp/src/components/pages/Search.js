@@ -41,7 +41,6 @@ export class Search extends Component {
         }
 
         this.checkboxHandle = this.checkboxHandle.bind(this);
-        this.getHistoryList = this.getHistoryList.bind(this);
 
         this.source = axios.CancelToken.source();
 
@@ -226,28 +225,28 @@ export class Search extends Component {
     }
 
 
-    // Get user from session history list
-   async getHistoryList(link, list){
+//     // Get user from session history list
+//    async getHistoryList(link, list){
 
-        // Update state parameters
-        this.setState({ isLoading: true, users: null });
+//         // Update state parameters
+//         this.setState({ isLoading: true, users: null });
 
-        // To authorize
-        let _config = TokenConfig();
-        _config.cancelToken = this.source.token;
+//         // To authorize
+//         let _config = TokenConfig();
+//         _config.cancelToken = this.source.token;
 
-        await axios.get("search/members/" + link, _config).then(res => {
-            // Response
-            const { users } = res.data;
-            const filteredList = users?.filter(x => list.some(s => s.username === x.name))
+//         await axios.get("search/members/" + link, _config).then(res => {
+//             // Response
+//             const { users } = res.data;
+//             const filteredList = users?.filter(x => list.some(s => s.username === x.name))
 
-            // Update state parameters
-            this.setState({
-                users: filteredList,
-                isLoading: false
-            })
-        })
-    }
+//             // Update state parameters
+//             this.setState({
+//                 users: filteredList,
+//                 isLoading: false
+//             })
+//         })
+//     }
 
 
     render() {
@@ -406,7 +405,6 @@ export class Search extends Component {
                     response={response}
                     resultBlock={true}
                     cancelRequest={() => this.source.cancel("Pågående sökning har avbrutits ...")}
-                    getHistoryList={this.getHistoryList}
                     resetResult={this.resetResult.bind(this)}
                 />
             </div >

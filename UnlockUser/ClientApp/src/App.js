@@ -13,6 +13,7 @@ import Contacts from './components/pages/Contacts';
 import LogFiles from './components/pages/LogFiles';
 import Members from './components/pages/Members';
 import TokenConfig from './components/functions/TokenConfig';
+import SessionHistory from './components/pages/SessionHistory';
 
 class App extends Component {
   static displayName = App.name;
@@ -42,8 +43,9 @@ class App extends Component {
           <Route exact path='/find-user' component={Search} />
           <Route exact path='/manage-user/:id' component={UserManager} />
           <Route exact path='/manage-users/:cls/:school' component={UsersManager} />
-          <Route exact path='/contact' component={Contacts} />
+          <Route exact path='/history' component={SessionHistory} />
           <Route exact path='/logfiles' component={LogFiles} />
+          <Route exact path='/contact' component={Contacts} />
           <Route exact path='/members/:office/:department' component={Members} />
           <Route component={NotFound} />
         </Switch>
