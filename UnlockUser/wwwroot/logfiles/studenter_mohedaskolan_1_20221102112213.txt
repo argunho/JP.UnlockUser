@@ -1,0 +1,79 @@
+ Anställd
+ - Användarnamn: Aslan Khadizov
+ - Namn: 790822asla
+ - E-postadress: aslan.khadizov@alvesta.se
+ - Arbetsplats: IT Serviceavdelning
+ - Tjänst: Systemutvecklare
+
+ Dator
+ - Datornamn: ACPF37BZ75
+ - IpAddress: ::1
+
+ Hantering
+ - Gruppnamn: Studenter
+ - Skolan: Mohedaskolan
+ - Klassnamn: 1
+ - Lösenord till 60 studenter:
+	- Student: 150102nova
+	- Student: 150104lely
+	- Student: 150108juli
+	- Student: 150121eddi
+	- Student: 150122tuva
+	- Student: 150124lill
+	- Student: 150125majk
+	- Student: 150201elsa
+	- Student: 150202vilm
+	- Student: 150205bell
+	- Student: 150224hugo
+	- Student: 150302fann
+	- Student: 150317lou
+	- Student: 150321alma
+	- Student: 150321elna
+	- Student: 150322elia
+	- Student: 150324noah
+	- Student: 150325omar
+	- Student: 150403molt
+	- Student: 150411maj
+	- Student: 150418elli
+	- Student: 150420vilt
+	- Student: 150421vilm
+	- Student: 150508ali
+	- Student: 150508alva
+	- Student: 150517melv
+	- Student: 150610mare
+	- Student: 150613ludw
+	- Student: 150620elia
+	- Student: 150620juni
+	- Student: 150626liam
+	- Student: 150709nort
+	- Student: 150714elli
+	- Student: 150716agne
+	- Student: 150718alic
+	- Student: 150721klar
+	- Student: 150722nell
+	- Student: 150724robe
+	- Student: 150803deli
+	- Student: 150814vigg
+	- Student: 150919jami
+	- Student: 150922zigg
+	- Student: 150925celi
+	- Student: 150925sall
+	- Student: 150925tuva
+	- Student: 150928helm
+	- Student: 151009hugo
+	- Student: 151009will
+	- Student: 151020alva
+	- Student: 151025elsy
+	- Student: 151103lill
+	- Student: 151112babi
+	- Student: 151112naka
+	- Student: 151114vill
+	- Student: 151121kevi
+	- Student: 151209elto
+	- Student: 151212uno
+	- Student: 151222soph
+	- Student: 151223gust
+	- Student: 151225ebbo
+
+
+ Datum: 2022.11.02 11:22:13
