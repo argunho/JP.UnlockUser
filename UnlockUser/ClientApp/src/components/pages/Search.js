@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
-import axios from 'axios'
-import { capitalize } from '@mui/material'
+import axios from 'axios';
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material'
 import {
-    Button, Checkbox, FormControl, FormControlLabel, Tooltip,
+    Button, FormControl, FormControlLabel, Tooltip,
     Radio, RadioGroup, TextField, Switch, Autocomplete
 } from '@mui/material'
 import Result from '../blocks/Result'
@@ -33,14 +32,11 @@ export class Search extends Component {
             ],
             clsStudents: clsSearch,
             match: true,
-            isCapitalize: clsSearch,
             isOpen: false,
             isNoOptions: false,
             response: null,
             showTips: localStorage.getItem("showTips") === "true"
         }
-
-        this.checkboxHandle = this.checkboxHandle.bind(this);
 
         this.source = axios.CancelToken.source();
 
@@ -54,7 +50,6 @@ export class Search extends Component {
         this.helpTexts = [
             { label: "Änvändare", tip: "Det här alternativet är till för att söka efter en specifik användare. Välj rätt sökalternativ nedan för att få förväntad resultat.", value: "user", },
             { label: "Klass elever", tip: "Det här alternativet är till för att söka efter alla elever i en specifik klass med klass- och skolnamn.", value: "members" },
-            { label: "Versal", tip: "Matchning på Namn/Efternamn/Användarnamn vilka börjar med samma Versal.", value: "isCapitalize" },
             { label: "Match", tip: "Matchningen av det angivna sökordet bland alla elevers Namn/Efternamn/Användarnamn vilka innehåller angivet sökord.", value: "match" },
             { label: "Exakt", tip: "Matchning med exakt stavat Namn/Efternamn/Användarnamn.", value: "exact" },
             { label: "Tips", tip: "Genom att klicka på varje sökalternativ aktiveras en dold tipsruta som visas när du för musen över sökalternativen.", value: "tips" },
@@ -86,26 +81,10 @@ export class Search extends Component {
         const inp = e.target;
         const inpRadio = (inp.type === "radio");
         this.setState({
-            [inp.name]: inpRadio ? inp.value === "true"
-                : (this.state.isCapitalize ? capitalize(inp.value) : inp.value),
+            [inp.name]: inpRadio ? inp.value === "true" : inp.value,
             users: null,
             response: null,
-            isNoOptions: (open) ? schools.filter(x => x.value.includes(inp.value)).length === 0 : false,
-            isCapitalize: (inpRadio && inp.value !== "true") ? false : this.state.isCapitalize
-        })
-        // Capitalize i js
-        // str.charAt(0).toUpperCase() + str.slice(1)
-    }
-
-    // Handle a change of checkbox input value
-    checkboxHandle = (capitalized) => {
-        const { input } = this.state
-
-        this.setState({
-            input: capitalized ? capitalize(input) : input.toLowerCase(),
-            isCapitalize: capitalized,
-            users: null,
-            response: null
+            isNoOptions: (open) ? schools.filter(x => x.value.includes(inp.value)).length === 0 : false
         })
     }
 
@@ -123,8 +102,7 @@ export class Search extends Component {
             additionInput: "",
             users: null,
             match: this.state.clsStudents,
-            clsStudents: !this.state.clsStudents,
-            isCapitalize: !this.state.clsStudents
+            clsStudents: !this.state.clsStudents
         })
 
         //  Save choice of search parameters in sessionStorage to mind the user choice and use it with page refresh
@@ -169,8 +147,7 @@ export class Search extends Component {
         this.setState({ isLoading: true, users: null });
 
         // State parameters
-        const { input, match, isCapitalize, sOption, additionInput, clsStudents } = this.state;
-
+        const { input, match, sOption, additionInput, clsStudents } = this.state;
         // Return if form is invalid
         if (input.length < 1) {
             this.setState({ isLoading: false });
@@ -178,7 +155,7 @@ export class Search extends Component {
         }
 
         // API parameters by chosen searching alternative
-        const params = (!clsStudents) ? match + "/" + isCapitalize : additionInput;
+        const params = (!clsStudents) ? match : additionInput;
 
         // API request
         await axios.get("search/" + sOption + "/" + input + "/" + params, _config).then(res => {
@@ -253,7 +230,7 @@ export class Search extends Component {
         // State parameters
         const { users, isLoading,
             choiceList, match, response,
-            isCapitalize, sOption, showTips,
+            sOption, showTips,
             clsStudents, isOpen, isNoOptions } = this.state;
 
         // List of text fields
@@ -363,21 +340,7 @@ export class Search extends Component {
 
                     {/* Checkbox and radio with search parameters to choose for user search */}
                     <FormControl style={{ display: "block" }}>
-                        <RadioGroup row
-                            name="row-radio-buttons-group" >
-
-                            {/* Checkbox */}
-                            <Tooltip arrow disableHoverListener={!showTips} classes={{ tooltip: "tooltip tooltip-blue", arrow: "arrow-blue" }}
-                                title={this.returnToolTipByKeyword("Versal")} >
-                                <FormControlLabel
-                                    control={<Checkbox size='small'
-                                        checked={isCapitalize}
-                                        name="isCapitalize"
-                                        disabled={!match || clsStudents}
-                                        onClick={() => this.checkboxHandle(!isCapitalize)} />}
-                                    label="Versal" />
-                            </Tooltip>
-
+                        <RadioGroup row name="row-radio-buttons-group">
                             {/* Loop of radio input choices */}
                             {choiceList.map((c, index) => (
                                 <Tooltip key={index} arrow disableHoverListener={!showTips} title={this.returnToolTipByKeyword(c.label)} classes={{ tooltip: "tooltip tooltip-blue", arrow: "arrow-blue" }}>
