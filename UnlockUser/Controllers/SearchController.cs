@@ -4,6 +4,8 @@ using UnlockUser.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.DirectoryServices.AccountManagement;
+using System.Diagnostics;
+using System.DirectoryServices;
 
 namespace UnlockUser.Controllers
 {
@@ -23,87 +25,55 @@ namespace UnlockUser.Controllers
         }
 
         #region GET
-        [HttpGet("user/{name}/{match:bool}/{capitalize:bool}")] // Search one user
+        // Search one user
+        [HttpGet("user/{name}/{match:bool}/{capitalize:bool}")]
         public JsonResult FindUser(string name, bool match = false, bool capitalize = false)
         {
-            List<User> users = new List<User>(); // Empty list of user object
-
+            var members = new List<User>();
+            var groupName = User.Claims.ToList().FirstOrDefault(x => x.Type == "GroupToManage")?.Value ?? "Employees";
             try
             {
-                var groupName = User.Claims.ToList().FirstOrDefault(x => x.Type == "GroupToManage")?.Value ?? "";
-                var group = _provider.FindGroupName(groupName); // Get group by name
+                DirectoryEntry entry = new DirectoryEntry($"LDAP://OU={groupName},OU=Users,OU=Kommun,DC=alvesta,DC=local");
+                DirectorySearcher search = new DirectorySearcher(entry);
 
-                if (match) // If search is by keywords matching
-                {
-                    // Get all members into "Group to manage" group that matching with search keywords
-                    var members = group.GetMembers(true).Where(x => (!capitalize
-                            ? (x.Name.ToLower().Contains(name.ToLower()) || x.DisplayName.ToLower().Contains(name.ToLower()))
-                            : (x.Name.Contains(name) || x.DisplayName.Contains(name)))).ToList();
 
-                    if (members?.Count > 0)
-                    {
-                        // Loopin of all members
-                        foreach (Principal p in members)
-                        {
-                            var user = _provider.FindUserByExtensionProperty(p.Name); // Find users with extension property 
-                                                                                      // Add user to this empty list of users 
-                            users.Add(new User
-                            {
-                                Name = user.Name,
-                                DisplayName = user?.DisplayName ?? "",
-                                Email = user.UserPrincipalName,
-                                Office = user.Office,
-                                Department = user.Department
-                            });
-                        }
-                    }
-                }
+                if (match)
+                    search.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(displayName=*{name}*)(givenName=*{name}*)))";
                 else
+                    search.Filter = $"(&(objectClass=User)(|(cn={name})(displayName={name})(givenName={name})))";
+
+                search.PropertiesToLoad.Add("cn");
+
+                var list = search.FindAll();
+                foreach (SearchResult result in list)
                 {
-                    // Check if the person he is looking for is in the "Group to control" group
-                    var member = group?.GetMembers(true).FirstOrDefault(x => x.Name == name || x.DisplayName == name);
+                    var user = _provider.FindUserByExtensionProperty(result.Properties["cn"][0].ToString());
 
-                    if (member == null) // Return if member not found by name
-                        return new JsonResult(new
-                        {
-                            alert = "warning",
-                            warning = true,
-                            msg = $"Användaren {name} hittades inte. Deta kan bli så att användaren {name} tillhör " +
-                                        $"inte studentgruppen eller felstavat namn/användarnamn. " +
-                                        $"Var vänlig, kontrollera namn/användarnamn."
-                        });
-
-                    var user = _provider.FindUserByExtensionProperty(member.Name); // Find users with extension property 
-
-                    if (user != null)
+                    members.Add(new User
                     {
-                        users.Add(new User
-                        {
-                            Name = user.Name,
-                            DisplayName = user.DisplayName,
-                            Email = user.UserPrincipalName,
-                            Office = user.Office,
-                            Department = user.Department
-                        });
-                    }
+                        Name = user.Name,
+                        DisplayName = user?.DisplayName ?? "",
+                        Email = user.UserPrincipalName,
+                        Office = user.Office,
+                        Department = user.Department
+                    });
                 }
 
-                group.Dispose();
-
-                // If the search got a successful result
-                if (users.Count > 0)
-                    return new JsonResult(new { users = users.OrderBy(x => x.Name) });
-
-                // If search got no results
-                return new JsonResult(new { alert = "warning", msg = "Inga användarkonto hittades." });
+                entry.Close();
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return Error(ex.Message);
+                //requestMessage = $"<i>Det gick något snett vid försök att hämta AD konto. <br>Felmeddelande: {e.Message}</i>";
+                //Debug.WriteLine(e.Message);
+                return null;
             }
+
+            // If search got no results
+            return new JsonResult(new { alert = "warning", msg = "Inga användarkonto hittades." });
         }
 
-        [HttpGet("members/{department}/{office}")] // Search class students by class and school name
+        // Search class students by class and school name
+        [HttpGet("members/{department}/{office}")]
         public async Task<JsonResult> FindClassMembers(string department, string office)
         {
             try
@@ -154,6 +124,37 @@ namespace UnlockUser.Controllers
         #endregion
 
         #region Helpers
+        // Find goum medlemer
+        //public List<User> GetMembers(name)
+        //{
+        //    var members = new List<User>(); 
+        //    var groupName = User.Claims.ToList().FirstOrDefault(x => x.Type == "GroupToManage")?.Value ?? "";
+        //    try
+        //    {
+        //        DirectoryEntry entry = new DirectoryEntry($"LDAP://OU={groupName},OU=Users,OU=Kommun,DC=alvesta,DC=local");
+        //        DirectorySearcher search = new DirectorySearcher(entry);
+
+        //        search.PropertiesToLoad.Add("cn");
+        //        search.PropertiesToLoad.Add("DisplayName");
+        //        var list = search.FindAll();
+        //        foreach (SearchResult oResult in list)
+        //        {
+
+        //            var user = oResult.Properties["DisplayName"][0];
+        //        }
+        //        //if (user != null)
+        //        //    requestMessage = user.Properties["cn"][0].ToString();
+
+        //        //entry.Close();
+        //        return members;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        //requestMessage = $"<i>Det gick något snett vid försök att hämta AD konto. <br>Felmeddelande: {e.Message}</i>";
+        //        //Debug.WriteLine(e.Message);
+        //    return default(List<string>);
+        //    }
+        //}
         // Return message if sommething went wrong.
         public JsonResult Error(string msg)
         {
@@ -171,3 +172,82 @@ namespace UnlockUser.Controllers
         #endregion
     }
 }
+
+//List<User> users = new List<User>(); // Empty list of user object
+
+//try
+//{
+//    //var groupName = User.Claims.ToList().FirstOrDefault(x => x.Type == "GroupToManage")?.Value ?? "";
+//    //var group = _provider.FindGroupName(groupName); // Get group by name
+//    if(group == null)
+//        return new JsonResult(new { alert = "warning", msg = "Ingen grupp hittades" });
+
+//    if (match) // If search is by keywords matching
+//    {
+//        //// Get all members into "Group to manage" group that matching with search keywords
+
+//        //members = members.GetMembers(true).Where(x => (!capitalize
+//        //        ? (x.Name.ToLower().Contains(name.ToLower()) || x.DisplayName.ToLower().Contains(name.ToLower()))
+//        //        : (x.Name.Contains(name) || x.DisplayName.Contains(name)))).ToList();
+
+//        //if (members?.Count > 0)
+//        //{
+//        //    // Loopin of all members
+//        //    foreach (Principal p in members)
+//        //    {
+//        //        var user = _provider.FindUserByExtensionProperty(p.Name); // Find users with extension property 
+//        //                                                                  // Add user to this empty list of users 
+//        //        users.Add(new User
+//        //        {
+//        //            Name = user.Name,
+//        //            DisplayName = user?.DisplayName ?? "",
+//        //            Email = user.UserPrincipalName,
+//        //            Office = user.Office,
+//        //            Department = user.Department
+//        //        });
+//        //    }
+//        //}
+//    }
+//    else
+//    {
+//        // Check if the person he is looking for is in the "Group to control" group
+//        //var member = group?.GetMembers(true).FirstOrDefault(x => x.Name == name || x.DisplayName == name);
+
+//        //if (member == null) // Return if member not found by name
+//        //    return new JsonResult(new
+//        //    {
+//        //        alert = "warning",
+//        //        warning = true,
+//        //        msg = $"Användaren {name} hittades inte. Deta kan bli så att användaren {name} tillhör " +
+//        //                    $"inte studentgruppen eller felstavat namn/användarnamn. " +
+//        //                    $"Var vänlig, kontrollera namn/användarnamn."
+//        //    });
+
+//        //var user = _provider.FindUserByExtensionProperty(member.Name); // Find users with extension property 
+
+//        //if (user != null)
+//        //{
+//        //    users.Add(new User
+//        //    {
+//        //        Name = user.Name,
+//        //        DisplayName = user.DisplayName,
+//        //        Email = user.UserPrincipalName,
+//        //        Office = user.Office,
+//        //        Department = user.Department
+//        //    });
+//        //}
+//    }
+
+//    group.Dispose();
+
+//    // If the search got a successful result
+//    if (users.Count > 0)
+//        return new JsonResult(new { users = users.OrderBy(x => x.Name) });
+
+//    // If search got no results
+//    return new JsonResult(new { alert = "warning", msg = "Inga användarkonto hittades." });
+//}
+//catch (Exception ex)
+//{
+//    return Error(ex.Message);
+//}
