@@ -26,10 +26,10 @@ namespace UnlockUser.Controllers
 
         #region GET
         // Search one user
-        [HttpGet("user/{name}/{match:bool}/{capitalize:bool}")]
-        public JsonResult FindUser(string name, bool match = false, bool capitalize = false)
+        [HttpGet("user/{name}/{match:bool}")]
+        public JsonResult FindUser(string name, bool match = false)
         {
-            var members = new List<User>();
+            var users = new List<User>();
             var groupName = User.Claims.ToList().FirstOrDefault(x => x.Type == "GroupToManage")?.Value ?? "Employees";
             try
             {
@@ -43,13 +43,14 @@ namespace UnlockUser.Controllers
                     search.Filter = $"(&(objectClass=User)(|(cn={name})(displayName={name})(givenName={name})))";
 
                 search.PropertiesToLoad.Add("cn");
+                search.PropertiesToLoad.Add("displayName");
 
                 var list = search.FindAll();
                 foreach (SearchResult result in list)
                 {
                     var user = _provider.FindUserByExtensionProperty(result.Properties["cn"][0].ToString());
 
-                    members.Add(new User
+                    users.Add(new User
                     {
                         Name = user.Name,
                         DisplayName = user?.DisplayName ?? "",
@@ -63,10 +64,12 @@ namespace UnlockUser.Controllers
             }
             catch (Exception e)
             {
-                //requestMessage = $"<i>Det gick något snett vid försök att hämta AD konto. <br>Felmeddelande: {e.Message}</i>";
-                //Debug.WriteLine(e.Message);
-                return null;
+                return Error(e.Message);
             }
+
+            // If the search got a successful result
+            if (users.Count > 0)
+                return new JsonResult(new { users = users.OrderBy(x => x.Name) });
 
             // If search got no results
             return new JsonResult(new { alert = "warning", msg = "Inga användarkonto hittades." });
@@ -89,7 +92,7 @@ namespace UnlockUser.Controllers
                 using (PrincipalSearcher searcherDepartment = new PrincipalSearcher(searchDepartment))
                 using (Task<PrincipalSearchResult<Principal>> taskDepartment = Task.Run<PrincipalSearchResult<Principal>>(() => searcherDepartment.FindAll()))
                 {
-                    // Looping all members to search by department
+                    // Looping all users to search by department
                     foreach (UserPrincipalExtension member in (await taskDepartment))
                     {
                         using (member)
@@ -124,37 +127,6 @@ namespace UnlockUser.Controllers
         #endregion
 
         #region Helpers
-        // Find goum medlemer
-        //public List<User> GetMembers(name)
-        //{
-        //    var members = new List<User>(); 
-        //    var groupName = User.Claims.ToList().FirstOrDefault(x => x.Type == "GroupToManage")?.Value ?? "";
-        //    try
-        //    {
-        //        DirectoryEntry entry = new DirectoryEntry($"LDAP://OU={groupName},OU=Users,OU=Kommun,DC=alvesta,DC=local");
-        //        DirectorySearcher search = new DirectorySearcher(entry);
-
-        //        search.PropertiesToLoad.Add("cn");
-        //        search.PropertiesToLoad.Add("DisplayName");
-        //        var list = search.FindAll();
-        //        foreach (SearchResult oResult in list)
-        //        {
-
-        //            var user = oResult.Properties["DisplayName"][0];
-        //        }
-        //        //if (user != null)
-        //        //    requestMessage = user.Properties["cn"][0].ToString();
-
-        //        //entry.Close();
-        //        return members;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        //requestMessage = $"<i>Det gick något snett vid försök att hämta AD konto. <br>Felmeddelande: {e.Message}</i>";
-        //        //Debug.WriteLine(e.Message);
-        //    return default(List<string>);
-        //    }
-        //}
         // Return message if sommething went wrong.
         public JsonResult Error(string msg)
         {
@@ -184,16 +156,16 @@ namespace UnlockUser.Controllers
 
 //    if (match) // If search is by keywords matching
 //    {
-//        //// Get all members into "Group to manage" group that matching with search keywords
+//        //// Get all users into "Group to manage" group that matching with search keywords
 
-//        //members = members.GetMembers(true).Where(x => (!capitalize
+//        //users = users.GetMembers(true).Where(x => (!capitalize
 //        //        ? (x.Name.ToLower().Contains(name.ToLower()) || x.DisplayName.ToLower().Contains(name.ToLower()))
 //        //        : (x.Name.Contains(name) || x.DisplayName.Contains(name)))).ToList();
 
-//        //if (members?.Count > 0)
+//        //if (users?.Count > 0)
 //        //{
-//        //    // Loopin of all members
-//        //    foreach (Principal p in members)
+//        //    // Loopin of all users
+//        //    foreach (Principal p in users)
 //        //    {
 //        //        var user = _provider.FindUserByExtensionProperty(p.Name); // Find users with extension property 
 //        //                                                                  // Add user to this empty list of users 
