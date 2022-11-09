@@ -26,7 +26,6 @@ export class UserManager extends Component {
                 office: null,
                 department: null,
                 isLocked: false,
-                date: null,
                 passwordLength: 0
             },
             response: null,
@@ -64,7 +63,6 @@ export class UserManager extends Component {
                         office: user?.office,
                         department: user?.department,
                         isLocked: user.isLocked,
-                        date: user.date,
                         passwordLength: passwordLength,
                         subTitle: user?.office + (user.office !== user.department ? (" " + user?.department) : "")
                     },
@@ -115,7 +113,7 @@ export class UserManager extends Component {
     }
 
     render() {
-        const { user, noAccess, name, load, response, disabled, userIsFound } = this.state;
+        const { user, noAccess, load, response, disabled, userIsFound } = this.state;
 
         return (
             noAccess ? <Response response={null} noAccess={true} />

@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration; // ---
 
 // Add interfaces and repositories --- 
-builder.Services.AddScoped<IActiveDirectoryProvider, ActiveDirectoryProvider>();
+builder.Services.AddScoped<IActiveDirectory, ActiveDirectoryRepository>();
 builder.Services.AddScoped<IFunctions, FunctionsRepository>();
 
 // Authennticatio with Jwt ---

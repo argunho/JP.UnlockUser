@@ -10,5 +10,4 @@ public class User
     public string? Office { get; set; }
     public string? Title { get; set; }
     public bool IsLocked { get; set; }  
-    public Nullable<DateTime> Date { get; set; }
 }

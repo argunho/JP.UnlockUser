@@ -15,14 +15,12 @@ namespace UnlockUser.Controllers
         private readonly IConfiguration _config; // Implementation of configuration file => ActiveDerictory/appsettings.json
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ISession _session;
-        private readonly IFunctions _functions;
 
-        public DataController(IConfiguration config, IHttpContextAccessor contextAccessor, IFunctions functions)
+        public DataController(IConfiguration config, IHttpContextAccessor contextAccessor)
         {
             _config = config;
             _contextAccessor = contextAccessor;
             _session = _contextAccessor.HttpContext.Session;
-            _functions = functions;
         }
 
         #region GET
@@ -36,7 +34,7 @@ namespace UnlockUser.Controllers
                 var logs = Directory.GetFiles(path, "*.txt", SearchOption.AllDirectories).ToList();
 
                 // Remove old files
-                if (logs != null && logs?.Count() > 0)
+                if (logs != null && logs?.Count > 0)
                 {
                     var oldFiles = logs.Where(x => System.IO.File.GetLastWriteTime(x).AddMonths(3).Ticks < DateTime.Now.Ticks).ToList();
                     if (oldFiles.Count > 0)

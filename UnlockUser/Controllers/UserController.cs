@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Diagnostics;
 using System.Net;
+using System.DirectoryServices;
 
 namespace UnlockUser.Controllers;
 
@@ -16,11 +17,11 @@ namespace UnlockUser.Controllers;
 public class UserController : ControllerBase
 {
 
-    private readonly IActiveDirectoryProvider _provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
+    private readonly IActiveDirectory _provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly ISession _session;
     private readonly IFunctions _functions;
-    public UserController(IActiveDirectoryProvider provider, IHttpContextAccessor contextAccessor, IFunctions functions)
+    public UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IFunctions functions)
     {
         _provider = provider;
         _contextAccessor = contextAccessor;
@@ -32,24 +33,45 @@ public class UserController : ControllerBase
     [HttpGet("{name}")] // Get user information by username
     public JsonResult GetUser(string name)
     {
-        var user = _provider.FindUserByExtensionProperty(name);
-        var userData = new User
-        {
-            Name = user.Name,
-            DisplayName = user.DisplayName,
-            Email = user.UserPrincipalName,
-            Office = user.Office,
-            Department = user.Department,
-            IsLocked = user.IsAccountLockedOut(),
-            Date = user.AccountLockoutTime
-        };
+
+        DirectorySearcher members = _provider.GetMembers(_session.GetString("GroupName"));
+        members.Filter = $"(&(objectClass=User)(|(cn={name})(sAMAccountname={name})))";
+        var user = members.FindOne();
+
+        if (user == null)
+            return new JsonResult(new { warning = true, msg = $"Användaren med anvädarnamn {name} har inte hittats." });
+
+        var userData = SearchController.GetUsers(members);
+        //var prop = user.Properties;
+        //var userData = new User
+        //{
+        //    Name = prop.Contains("cn") ? prop["cn"][0].ToString() : "",
+        //    DisplayName = prop.Contains("displayName") ? prop["displayName"][0].ToString() : "",
+        //    Email = prop.Contains("userPrincipalName") ? prop["userPrincipalName"][0].ToString() : "",
+        //    Office = prop.Contains("physicalDeliveryOfficeName") ? prop["physicalDeliveryOfficeName"][0].ToString() : "",
+        //    Department = prop.Contains("department") ? prop["department"][0].ToString() : "",
+        //    IsLocked = prop.Contains("lockoutTime") ? int.Parse(prop["lockoutTime"][0].ToString()) >= 1 : false
+        //};
+
+
+        //var user = _provider.FindUserByExtensionProperty(name);
+        //var userData = new User
+        //{
+        //    Name = user.Name,
+        //    DisplayName = user.DisplayName,
+        //    Email = user.UserPrincipalName,
+        //    Office = user.Office,
+        //    Department = user.Department,
+        //    IsLocked = user.IsAccountLockedOut(),
+        //    Date = user.AccountLockoutTime
+        //};
 
         var charachtersLength = 8;
         if (_provider.MembershipCheck(name, "Password Twelve Characters"))
             charachtersLength = 12;
 
-        _session.SetString("Office", user.Office);
-        _session.SetString("Department", user.Department);
+        _session.SetString("Office", userData[0].Office);
+        _session.SetString("Department", userData[0].Department);
 
         return new JsonResult(new { user = userData, passwordLength = charachtersLength });
     }
@@ -60,7 +82,7 @@ public class UserController : ControllerBase
     public JsonResult SetMultiplePaswords(UsersList model)
     {
         // Check model is valid or not and return warning is true or false
-        if (model.Users.Count() == 0)
+        if (model.Users.Count == 0)
             return new JsonResult(new { alert = "warning", msg = "Användare för lösenordsåterställning har inte specificerats." }); // Password reset user not specified
 
         string message = string.Empty;
@@ -161,9 +183,11 @@ public class UserController : ControllerBase
     // Return extension of User
     public UserViewModel UpdatedUser(UserViewModel user)
     {
-        user.Credentials = new UserCredentials();
-        user.Credentials.Username = _session.GetString("Username");
-        user.Credentials.Password = _session.GetString("Password");
+        user.Credentials = new UserCredentials
+        {
+            Username = _session.GetString("Username"),
+            Password = _session.GetString("Password")
+        };
 
         return user;
     }
@@ -203,25 +227,27 @@ public class UserController : ControllerBase
         var user = _provider.FindUserByExtensionProperty(_session.GetString("Username"));
         string fileName = (model.Group?.ToLower() ?? "") + "_";
 
-        var contentList = new List<string>();
-        contentList.Add("\r Anställd");
-        contentList.Add(" - Användarnamn: " + (user?.DisplayName ?? ""));
-        contentList.Add(" - Namn: " + (user?.Name ?? ""));
-        contentList.Add(" - E-postadress: " + (user?.EmailAddress ?? ""));
-        contentList.Add(" - Arbetsplats: " + (user.Department ?? ""));
-        contentList.Add(" - Tjänst: " + (user.Title ?? ""));
-        contentList.Add("\n\r Dator");
-        contentList.Add(" - Datornamn: " + model?.ComputerName);
-        contentList.Add(" - IpAddress: " + model?.IpAddress);
-        contentList.Add("\n\r Hantering");
-        contentList.Add(" - Gruppnamn: " + model?.Group);
+        var contentList = new List<string>
+        {
+            "\r Anställd",
+            " - Användarnamn: " + (user?.DisplayName ?? ""),
+            " - Namn: " + (user?.Name ?? ""),
+            " - E-postadress: " + (user?.EmailAddress ?? ""),
+            " - Arbetsplats: " + (user.Department ?? ""),
+            " - Tjänst: " + (user.Title ?? ""),
+            "\n\r Dator",
+            " - Datornamn: " + model?.ComputerName,
+            " - IpAddress: " + model?.IpAddress,
+            "\n\r Hantering",
+            " - Gruppnamn: " + model?.Group
+        };
 
         if (model?.Group == "Studenter")
         {
             contentList.Add(" - Skolan: " + model?.Office);
             contentList.Add(" - Klassnamn: " + model?.Department);
-            contentList.Add($" - Lösenord till {model?.Users.Count()} student{(model?.Users.Count() > 1 ? "er" : "")}:" );
-            fileName += model?.Office + "_" + model?.Department + (model.Users.Count() == 1 ? "_" + model.Users[0] : "");
+            contentList.Add($" - Lösenord till {model?.Users.Count} student{(model?.Users.Count > 1 ? "er" : "")}:");
+            fileName += model?.Office + "_" + model?.Department + (model.Users.Count == 1 ? "_" + model.Users[0] : "");
             foreach (var student in model?.Users)
             {
                 contentList.Add("\t- Student: " + student);

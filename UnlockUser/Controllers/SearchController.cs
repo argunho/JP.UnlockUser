@@ -16,14 +16,16 @@ namespace UnlockUser.Controllers
     [Authorize]
     public class SearchController : ControllerBase
     {
-        private readonly IActiveDirectoryProvider _provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
+        private readonly IActiveDirectory _provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ISession _session;
-        public SearchController(IActiveDirectoryProvider provider, IHttpContextAccessor contextAccessor)
+        private readonly string _groupName = "";
+        public SearchController(IActiveDirectory provider, IHttpContextAccessor contextAccessor)
         {
             _provider = provider;
             _contextAccessor = contextAccessor;
             _session = _contextAccessor.HttpContext.Session;
+            _groupName = _session.GetString("GroupName");
         }
 
         #region GET
@@ -34,7 +36,7 @@ namespace UnlockUser.Controllers
             var users = new List<User>();
             try
             {
-                DirectorySearcher result = GetMembers();
+                DirectorySearcher result = _provider.GetMembers(_groupName);
 
                 if (match)
                     result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(displayName=*{name}*)(givenName=*{name}*)))";
@@ -62,16 +64,16 @@ namespace UnlockUser.Controllers
         {
             try
             {
-                List<User> users = new List<User>(); // Empty list of users
+                List<User> users = new(); // Empty list of users
                 var context = _provider.GetContext(); // Get active derictory context
 
                 _session.SetString("Office", office);
                 _session.SetString("Department", department);
 
-                DirectorySearcher result = GetMembers();
+                DirectorySearcher result = _provider.GetMembers(_groupName);
 
                 result.Filter = $"(&(objectClass=User)((physicalDeliveryOfficeName={office})(department={department})))";
-                users = GetUsers(result);
+                users = _provider.GetUsers(result);
 
                 if (users.Count > 0)
                     return new JsonResult(new { users = users.Distinct().OrderBy(x => x.Name) });
@@ -88,42 +90,47 @@ namespace UnlockUser.Controllers
 
         #region Helpers
         // Get members list
-        public DirectorySearcher GetMembers(){
+        public DirectorySearcher GetMembers()
+        {
             var groupName = User.Claims.ToList().FirstOrDefault(x => x.Type == "GroupToManage")?.Value ?? "";
-            DirectoryEntry entry = new DirectoryEntry($"LDAP://OU={groupName},OU=Users,OU=Kommun,DC=alvesta,DC=local");
-            DirectorySearcher search = new DirectorySearcher(entry);
+            DirectoryEntry entry = new($"LDAP://OU={groupName},OU=Users,OU=Kommun,DC=alvesta,DC=local");
+            DirectorySearcher search = new(entry);
 
             entry.Close();
             return search;
         }
 
         // Return a list of found users
-        public List<User> GetUsers(DirectorySearcher result) {
-            List<User> users = new List<User>();
+        public static List<User> GetUsers(DirectorySearcher result)
+        {
+            List<User> users = new();
             result.PropertiesToLoad.Add("cn");
             result.PropertiesToLoad.Add("displayName");
             result.PropertiesToLoad.Add("userPrincipalName");
             result.PropertiesToLoad.Add("physicalDeliveryOfficeName");
             result.PropertiesToLoad.Add("department");
             result.PropertiesToLoad.Add("title");
+            result.PropertiesToLoad.Add("lockoutTime");
 
             var list = result.FindAll();
             foreach (SearchResult res in list)
             {
-                var value = res.Properties;
+                var props = res.Properties;
                 users.Add(new User
                 {
-                    Name = value["cn"][0].ToString(),
-                    DisplayName = value.Contains("displayName") ? value["displayName"][0]?.ToString() : "",
-                    Email = value.Contains("userPrincipalName") ? value["userPrincipalName"][0]?.ToString() : "" ,
-                    Office = value.Contains("physicalDeliveryOfficeName") ? value["physicalDeliveryOfficeName"][0]?.ToString() : "",
-                    Department = value.Contains("department") ? value["department"][0]?.ToString() : "",
-                    Title = value.Contains("title") ? value["title"][0]?.ToString() : ""
+                    Name = props["cn"][0].ToString(),
+                    DisplayName = props.Contains("displayName") ? props["displayName"][0]?.ToString() : "",
+                    Email = props.Contains("userPrincipalName") ? props["userPrincipalName"][0]?.ToString() : "",
+                    Office = props.Contains("physicalDeliveryOfficeName") ? props["physicalDeliveryOfficeName"][0]?.ToString() : "",
+                    Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
+                    Title = props.Contains("title") ? props["title"][0]?.ToString() : "",
+                    IsLocked = props.Contains("lockoutTime") && int.Parse(props["lockoutTime"][0].ToString()) >= 1
                 });
             }
 
             return users;
         }
+
         // Return message if sommething went wrong.
         public JsonResult Error(string msg)
         {

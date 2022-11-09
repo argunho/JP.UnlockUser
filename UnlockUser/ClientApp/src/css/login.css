@@ -26,23 +26,30 @@
   margin-top: 15px !important;
 }
 
-.login-form > div:not(.login-form-alert) {
+.login-form>div:not(.login-form-alert) {
   width: 100% !important;
   margin: 10px 0 !important;
 }
 
 .login-label {
-  width: 100%;
-  display: block;
-  clear: both;
   text-align: left;
-  margin-bottom: 7px;
-  color: #666666;
+  color: #666666 !important;
+  font-size: 13px !important;
+  text-indent: 5px !important;
 }
 
-.login-radio span {
-  font-family: "Roboto", "Helvetica", "Arial", sans-serif !important;
-  font-size: 12px !important;
+.MuiPaper-root.MuiPaper-elevation {
+  padding: 12px !important;
+}
+
+.login-group-choice {
+  font-family: Calibri, 'Trebuchet MS', sans-serif !important;
+  font-size: 14px !important;
+  letter-spacing: 1px;
+}
+
+.login-group-choice:hover {
+  background-color: #b1b0b0 !important;
 }
 
 .login-form-img {
@@ -57,12 +64,13 @@
   float: right !important;
 }
 
-.login-form > button {
+.login-form>button {
   display: inline-block;
   margin: 10px 0 0 10px;
   overflow: hidden;
 }
-.login-form > button:disabled {
+
+.login-form>button:disabled {
   background-color: transparent !important;
   color: #c4c4c4 !important;
 }

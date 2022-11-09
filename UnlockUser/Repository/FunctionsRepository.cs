@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.DirectoryServices;
 using System.Text.RegularExpressions;
 using UnlockUser.Extensions;
 using UnlockUser.Interface;
@@ -9,7 +10,7 @@ namespace UnlockUser.Repository;
 public class FunctionsRepository : IFunctions
 {
 
-    public string Message { get; set; }
+    public string Message { get; set; } = "";
     private readonly IHttpContextAccessor _httpContext;
 
     public FunctionsRepository(IHttpContextAccessor httpContext)

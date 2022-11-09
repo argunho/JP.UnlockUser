@@ -8,8 +8,7 @@ namespace UnlockUser.Extensions;
 [DirectoryObjectClass("user")]
 public class UserPrincipalExtension : UserPrincipal
 {
-    public UserPrincipalExtension(PrincipalContext context)
-    : base(context) { }
+    public UserPrincipalExtension(PrincipalContext context) : base(context) { }
 
     [DirectoryProperty("department")]
     public string Department

@@ -2,15 +2,17 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import {
     Button, CircularProgress, FormControl,
-    FormControlLabel, Radio, RadioGroup,
-    TextField
+    InputLabel, MenuItem, RadioGroup, Select, TextField
 } from '@mui/material';
 import { withRouter } from 'react-router-dom'
-import { Label } from 'reactstrap';
 import Response from './../blocks/Response';
 
 import './../../css/login.css';
 import keys from './../../images/keys.png';
+
+const groups = [{ name: "Studenter", value: 'Students' },
+{ name: "Politiker", value: 'Politician' },
+{ name: "Personal", value: 'Employees' }]
 
 export class Login extends Component {
     static displayName = Login.name;
@@ -22,8 +24,7 @@ export class Login extends Component {
             form: {
                 username: "",
                 password: "",
-                group: "",
-                blockTime: localStorage.getItem("blockTime") || null
+                group: ""
             },
             formFields: [
                 { label: "Användarnamn", name: "username", type: "text" },
@@ -41,6 +42,7 @@ export class Login extends Component {
     }
 
     valueChangeHandler = (e) => {
+        console.log(e.target.value)
         this.setState({
             form: {
                 ...this.state.form, [e.target.name]: e.target.value
@@ -51,38 +53,35 @@ export class Login extends Component {
 
     submitForm = async (e) => {
         e.preventDefault();
-        const { form } = this.state;
+        const { form } = this.state; 
+        let data = form;
+        data.group = groups.find(x => x.name === form.group).value;
 
         this.setState({ load: true, response: null })
 
-        await axios.post("auth", form).then(res => {
-            const { alert, token, blockTime, errorMessage } = res.data;
+        await axios.post("auth", data).then(res => {
+            const { alert, token, errorMessage } = res.data;
 
             let success = alert === "success";
-                this.setState({
-                    load: success, response: res.data
-                })
+            this.setState({
+                load: success, response: res.data
+            })
 
-                if (success) {
-                    sessionStorage.setItem("group", form.group);
-                    sessionStorage.setItem("token", token);
-                    sessionStorage.setItem("credentials", "ok");
-                    localStorage.removeItem("blockTime");
+            if (success) {
+                sessionStorage.setItem("group", groups.find(x => x.name === form.group)?.name);
+                sessionStorage.setItem("token", token);
 
-                    setTimeout(() => {
-                        this.props.history.push("/find-user");
-                    }, 1000)
-                } else if (errorMessage)
-                    console.error("Error response => " + errorMessage);
-                else if (blockTime)
-                    localStorage.setItem("blockTime", blockTime);
+                setTimeout(() => {
+                    this.props.history.push("/find-user");
+                }, 1000)
+            } else if (errorMessage)
+                console.error("Error response => " + errorMessage);
         }, error => {
             this.setState({ load: true });
             console.error("Error => " + error);
         })
     }
 
-    // id="outlined-basic"
     render() {
         const { load, response, formFields, form } = this.state;
         return (
@@ -113,23 +112,22 @@ export class Login extends Component {
                 <FormControl className='checkbox-block-mobile' style={{ display: "inline-block" }}>
                     <RadioGroup row name="row-radio-buttons-group">
                         {/* Loop of radio input choices */}
-                        <Label className='login-label'>Hantera</Label>
-                        {[{ name: "Studenter", value: 'Students' },
-                        { name: "Politiker", value: 'Politician' }].map((p, index) => (
-                            <FormControlLabel
-                                key={index}
-                                value={p.value}
-                                control={<Radio
-                                    size='small'
-                                    checked={form.group === p.value}
-                                    color="success"
-                                    disabled={load} />}
-                                label={p.name}
+                        <FormControl variant="standard" sx={{ minWidth: 120 }}>
+                            <InputLabel>Hantera</InputLabel>
+                            <Select
                                 name="group"
+                                value={form.group}
+                                onChange={this.valueChangeHandler}
+                                label="Age"
+                                disabled={load}
+                                className='login-label'
                                 required
-                                className='login-radio'
-                                onChange={this.valueChangeHandler} />
-                        ))}
+                            >
+                                {groups.map((p, index) => (
+                                    <MenuItem key={index} className='login-group-choice' value={p.name}>{p.name}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </RadioGroup>
                 </FormControl>
 
