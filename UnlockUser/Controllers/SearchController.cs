@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.DirectoryServices.AccountManagement;
 using System.Diagnostics;
 using System.DirectoryServices;
+using System.Xml.Linq;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace UnlockUser.Controllers
 {
@@ -30,48 +32,27 @@ namespace UnlockUser.Controllers
         public JsonResult FindUser(string name, bool match = false)
         {
             var users = new List<User>();
-            var groupName = User.Claims.ToList().FirstOrDefault(x => x.Type == "GroupToManage")?.Value ?? "Employees";
             try
             {
-                DirectoryEntry entry = new DirectoryEntry($"LDAP://OU={groupName},OU=Users,OU=Kommun,DC=alvesta,DC=local");
-                DirectorySearcher search = new DirectorySearcher(entry);
-
+                DirectorySearcher result = GetMembers();
 
                 if (match)
-                    search.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(displayName=*{name}*)(givenName=*{name}*)))";
+                    result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(displayName=*{name}*)(givenName=*{name}*)))";
                 else
-                    search.Filter = $"(&(objectClass=User)(|(cn={name})(displayName={name})(givenName={name})))";
+                    result.Filter = $"(&(objectClass=User)(|(cn={name})(displayName={name})(givenName={name})))";
 
-                search.PropertiesToLoad.Add("cn");
-                search.PropertiesToLoad.Add("displayName");
-
-                var list = search.FindAll();
-                foreach (SearchResult result in list)
-                {
-                    var user = _provider.FindUserByExtensionProperty(result.Properties["cn"][0].ToString());
-
-                    users.Add(new User
-                    {
-                        Name = user.Name,
-                        DisplayName = user?.DisplayName ?? "",
-                        Email = user.UserPrincipalName,
-                        Office = user.Office,
-                        Department = user.Department
-                    });
-                }
-
-                entry.Close();
+                users = GetUsers(result);
             }
             catch (Exception e)
             {
                 return Error(e.Message);
             }
 
-            // If the search got a successful result
+            // If the result got a successful result
             if (users.Count > 0)
                 return new JsonResult(new { users = users.OrderBy(x => x.Name) });
 
-            // If search got no results
+            // If result got no results
             return new JsonResult(new { alert = "warning", msg = "Inga användarkonto hittades." });
         }
 
@@ -87,31 +68,10 @@ namespace UnlockUser.Controllers
                 _session.SetString("Office", office);
                 _session.SetString("Department", department);
 
-                // Methods to find the class students
-                using (UserPrincipalExtension searchDepartment = new UserPrincipalExtension(context) { Department = String.Format("*{0}*", department) }) // Using a user extension class whose job it is to extend user options.
-                using (PrincipalSearcher searcherDepartment = new PrincipalSearcher(searchDepartment))
-                using (Task<PrincipalSearchResult<Principal>> taskDepartment = Task.Run<PrincipalSearchResult<Principal>>(() => searcherDepartment.FindAll()))
-                {
-                    // Looping all users to search by department
-                    foreach (UserPrincipalExtension member in (await taskDepartment))
-                    {
-                        using (member)
-                        {
-                            if (member.Office.ToLower() == office.ToLower()) // If member has same office
-                            {
-                                users.Add(new User
-                                {
-                                    Name = member.Name,
-                                    DisplayName = member.DisplayName,
-                                    Email = member.UserPrincipalName,
-                                    Department = member.Department,
-                                    Office = member.Office,
-                                    Title = member.Title
-                                });
-                            }
-                        }
-                    }
-                }
+                DirectorySearcher result = GetMembers();
+
+                result.Filter = $"(&(objectClass=User)((physicalDeliveryOfficeName={office})(department={department})))";
+                users = GetUsers(result);
 
                 if (users.Count > 0)
                     return new JsonResult(new { users = users.Distinct().OrderBy(x => x.Name) });
@@ -127,6 +87,43 @@ namespace UnlockUser.Controllers
         #endregion
 
         #region Helpers
+        // Get members list
+        public DirectorySearcher GetMembers(){
+            var groupName = User.Claims.ToList().FirstOrDefault(x => x.Type == "GroupToManage")?.Value ?? "";
+            DirectoryEntry entry = new DirectoryEntry($"LDAP://OU={groupName},OU=Users,OU=Kommun,DC=alvesta,DC=local");
+            DirectorySearcher search = new DirectorySearcher(entry);
+
+            entry.Close();
+            return search;
+        }
+
+        // Return a list of found users
+        public List<User> GetUsers(DirectorySearcher result) {
+            List<User> users = new List<User>();
+            result.PropertiesToLoad.Add("cn");
+            result.PropertiesToLoad.Add("displayName");
+            result.PropertiesToLoad.Add("userPrincipalName");
+            result.PropertiesToLoad.Add("physicalDeliveryOfficeName");
+            result.PropertiesToLoad.Add("department");
+            result.PropertiesToLoad.Add("title");
+
+            var list = result.FindAll();
+            foreach (SearchResult res in list)
+            {
+                var value = res.Properties;
+                users.Add(new User
+                {
+                    Name = value["cn"][0].ToString(),
+                    DisplayName = value.Contains("displayName") ? value["displayName"][0]?.ToString() : "",
+                    Email = value.Contains("userPrincipalName") ? value["userPrincipalName"][0]?.ToString() : "" ,
+                    Office = value.Contains("physicalDeliveryOfficeName") ? value["physicalDeliveryOfficeName"][0]?.ToString() : "",
+                    Department = value.Contains("department") ? value["department"][0]?.ToString() : "",
+                    Title = value.Contains("title") ? value["title"][0]?.ToString() : ""
+                });
+            }
+
+            return users;
+        }
         // Return message if sommething went wrong.
         public JsonResult Error(string msg)
         {
@@ -154,9 +151,9 @@ namespace UnlockUser.Controllers
 //    if(group == null)
 //        return new JsonResult(new { alert = "warning", msg = "Ingen grupp hittades" });
 
-//    if (match) // If search is by keywords matching
+//    if (match) // If result is by keywords matching
 //    {
-//        //// Get all users into "Group to manage" group that matching with search keywords
+//        //// Get all users into "Group to manage" group that matching with result keywords
 
 //        //users = users.GetMembers(true).Where(x => (!capitalize
 //        //        ? (x.Name.ToLower().Contains(name.ToLower()) || x.DisplayName.ToLower().Contains(name.ToLower()))
@@ -212,14 +209,41 @@ namespace UnlockUser.Controllers
 
 //    group.Dispose();
 
-//    // If the search got a successful result
+//    // If the result got a successful result
 //    if (users.Count > 0)
 //        return new JsonResult(new { users = users.OrderBy(x => x.Name) });
 
-//    // If search got no results
+//    // If result got no results
 //    return new JsonResult(new { alert = "warning", msg = "Inga användarkonto hittades." });
 //}
 //catch (Exception ex)
 //{
 //    return Error(ex.Message);
+//}
+
+
+//// Methods to find the class students
+//using (UserPrincipalExtension searchDepartment = new UserPrincipalExtension(context) { Department = String.Format("*{0}*", department) }) // Using a user extension class whose job it is to extend user options.
+//using (PrincipalSearcher searcherDepartment = new PrincipalSearcher(searchDepartment))
+//using (Task<PrincipalSearchResult<Principal>> taskDepartment = Task.Run<PrincipalSearchResult<Principal>>(() => searcherDepartment.FindAll()))
+//{
+//    // Looping all users to result by department
+//    foreach (UserPrincipalExtension member in (await taskDepartment))
+//    {
+//        using (member)
+//        {
+//            if (member.Office.ToLower() == office.ToLower()) // If member has same office
+//            {
+//                users.Add(new User
+//                {
+//                    Name = member.Name,
+//                    DisplayName = member.DisplayName,
+//                    Email = member.UserPrincipalName,
+//                    Department = member.Department,
+//                    Office = member.Office,
+//                    Title = member.Title
+//                });
+//            }
+//        }
+//    }
 //}
