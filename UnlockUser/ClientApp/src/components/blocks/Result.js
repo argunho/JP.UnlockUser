@@ -18,7 +18,7 @@ export default function Result({
     list, clsStudents,
     isVisibleTips, isLoading, response,
     cancelRequest, resetResult,
-    resultBlock
+    resultBlock, group
 }) {
 
     const refResult = useRef(null);
@@ -182,6 +182,7 @@ export default function Result({
                         <Info
                             key={index}
                             user={s}
+                            group={group}
                             displayName={s.displayName}
                             subTitle={s.office + " " + (s.office !== s.department ? (" " + s?.department) : "")}
                             result={true}

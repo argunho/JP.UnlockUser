@@ -190,9 +190,8 @@ function PasswordGeneration({
         disabled={disabledClick}
         label={`Generera ${regenerate ? " andra" : ""} lösenord`} />;
 
-
     return (
-        (sessionStorage.getItem("group") !== "Students" || variousPasswords) ? clickSimpleButton : buttonCategoriesList
+        variousPasswords ? clickSimpleButton : buttonCategoriesList
     )
 }
 

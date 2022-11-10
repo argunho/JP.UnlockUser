@@ -4,13 +4,12 @@ import React, { useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import SessionTokenCheck from '../functions/SessionTokenCheck';
 
-export default function Info({ user, name, displayName, subTitle, result, check, children, updateSession, handleOutsideClick }) {
+export default function Info({ user, name, displayName, subTitle, group, result, check, children, updateSession, handleOutsideClick }) {
     const history = useHistory(null);
-    const group = sessionStorage.getItem("group").toLowerCase();
     const refGetMembers = useRef(null);
     const refButton = useRef(null);
 
-    const isDisabled = (!user || group !== "students" || (typeof children === 'object')
+    const isDisabled = (!user || group !== "studenter" || (typeof children === 'object')
         || !(user.office?.length > 0 && user.department?.length > 0));
 
     // Check current user authentication

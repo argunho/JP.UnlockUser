@@ -33,6 +33,7 @@ export default class UsersManager extends Component {
                 <Info
                     name={name}
                     displayName={displayName}
+                    group={this.props.group}
                     subTitle={`${users.length} elev${users.length === 1 ? "" : "er"}`}
                     check={true}
                 />

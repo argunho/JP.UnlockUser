@@ -408,6 +408,12 @@ body {
   background-color: #f0f0f0 !important;
 }
 
+.user-avatar > img{
+  width: 75%;
+  object-fit: contain;
+  -o-object-fit: contain;
+}
+
 .politician-avatar {
   width: 70% !important;
   opacity: 0.5;

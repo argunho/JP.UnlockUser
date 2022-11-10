@@ -56,7 +56,7 @@ export class Search extends Component {
             { label: "Resultat", tip: "Resultatet kan bli från 0 till flera hittade användare beroende på sökord och sökalternativ.", value: "", color: "#c00" }
         ]
 
-        if (sessionStorage.getItem("group") !== "Students") {
+        if (this.props.group !== "students") {
             this.sOptions.splice(1, 1);
             this.helpTexts.splice(1, 1);
         }
@@ -155,7 +155,7 @@ export class Search extends Component {
         }
 
         // API parameters by chosen searching alternative
-        const params = (!clsStudents) ? match : additionInput;
+        const params = (!clsStudents) ? this.props.group + "/" + match : additionInput;
 
         // API request
         await axios.get("search/" + sOption + "/" + input + "/" + params, _config).then(res => {
@@ -200,31 +200,6 @@ export class Search extends Component {
                 console.error("Error => " + error.response)
         });
     }
-
-
-//     // Get user from session history list
-//    async getHistoryList(link, list){
-
-//         // Update state parameters
-//         this.setState({ isLoading: true, users: null });
-
-//         // To authorize
-//         let _config = TokenConfig();
-//         _config.cancelToken = this.source.token;
-
-//         await axios.get("search/members/" + link, _config).then(res => {
-//             // Response
-//             const { users } = res.data;
-//             const filteredList = users?.filter(x => list.some(s => s.username === x.name))
-
-//             // Update state parameters
-//             this.setState({
-//                 users: filteredList,
-//                 isLoading: false
-//             })
-//         })
-//     }
-
 
     render() {
         // State parameters
@@ -364,6 +339,7 @@ export class Search extends Component {
                     list={users}
                     clsStudents={clsStudents}
                     isVisibleTips={showTips}
+                    group={this.props.group}
                     isLoading={isLoading}
                     response={response}
                     resultBlock={true}

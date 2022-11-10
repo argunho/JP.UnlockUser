@@ -16,6 +16,6 @@ public interface IActiveDirectory
     string ResetPassword(UserViewModel model);
     string UnlockUser(UserViewModel model);
     DirectorySearcher GetMembers(string? groupName);
-    List<User> GetUsers(DirectorySearcher result);
+    List<User> GetUsers(DirectorySearcher result, string groupName);
     PrincipalContext GetContext();
 }

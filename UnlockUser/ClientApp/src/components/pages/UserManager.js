@@ -114,7 +114,7 @@ export class UserManager extends Component {
 
     render() {
         const { user, noAccess, load, response, disabled, userIsFound } = this.state;
-
+console.log(user)
         return (
             noAccess ? <Response response={null} noAccess={true} />
                 : <div className='interior-div'>
@@ -122,6 +122,7 @@ export class UserManager extends Component {
                     <Info
                         check={true}
                         user={user}
+                        group={this.props.group}
                         displayName={user?.displayName}
                         subTitle={user?.subTitle}
                     />
@@ -146,7 +147,7 @@ export class UserManager extends Component {
                         </div>
                         
                         {/* Change password */}
-                        {!user.isLocked && <Form
+                        {(user && !user.isLocked) && <Form
                             title="Återställa lösenord"
                             // api="resetPasswords"
                             users={[user]}

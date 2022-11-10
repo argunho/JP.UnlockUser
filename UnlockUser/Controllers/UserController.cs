@@ -8,6 +8,8 @@ using System.Text;
 using System.Diagnostics;
 using System.Net;
 using System.DirectoryServices;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace UnlockUser.Controllers;
 
@@ -30,41 +32,17 @@ public class UserController : ControllerBase
     }
 
     #region GET
-    [HttpGet("{name}")] // Get user information by username
-    public JsonResult GetUser(string name)
+    [HttpGet("{name}/{group}")] // Get user information by username
+    public JsonResult GetUser(string name, string group)
     {
-
-        DirectorySearcher members = _provider.GetMembers(_session.GetString("GroupName"));
+        DirectorySearcher members = _provider.GetMembers(group);
         members.Filter = $"(&(objectClass=User)(|(cn={name})(sAMAccountname={name})))";
         var user = members.FindOne();
 
         if (user == null)
             return new JsonResult(new { warning = true, msg = $"Användaren med anvädarnamn {name} har inte hittats." });
 
-        var userData = SearchController.GetUsers(members);
-        //var prop = user.Properties;
-        //var userData = new User
-        //{
-        //    Name = prop.Contains("cn") ? prop["cn"][0].ToString() : "",
-        //    DisplayName = prop.Contains("displayName") ? prop["displayName"][0].ToString() : "",
-        //    Email = prop.Contains("userPrincipalName") ? prop["userPrincipalName"][0].ToString() : "",
-        //    Office = prop.Contains("physicalDeliveryOfficeName") ? prop["physicalDeliveryOfficeName"][0].ToString() : "",
-        //    Department = prop.Contains("department") ? prop["department"][0].ToString() : "",
-        //    IsLocked = prop.Contains("lockoutTime") ? int.Parse(prop["lockoutTime"][0].ToString()) >= 1 : false
-        //};
-
-
-        //var user = _provider.FindUserByExtensionProperty(name);
-        //var userData = new User
-        //{
-        //    Name = user.Name,
-        //    DisplayName = user.DisplayName,
-        //    Email = user.UserPrincipalName,
-        //    Office = user.Office,
-        //    Department = user.Department,
-        //    IsLocked = user.IsAccountLockedOut(),
-        //    Date = user.AccountLockoutTime
-        //};
+        var userData = _provider.GetUsers(members, group);
 
         var charachtersLength = 8;
         if (_provider.MembershipCheck(name, "Password Twelve Characters"))
@@ -73,7 +51,7 @@ public class UserController : ControllerBase
         _session.SetString("Office", userData[0].Office);
         _session.SetString("Department", userData[0].Department);
 
-        return new JsonResult(new { user = userData, passwordLength = charachtersLength });
+        return new JsonResult(new { user = userData[0], passwordLength = charachtersLength });
     }
     #endregion
 
@@ -202,13 +180,14 @@ public class UserController : ControllerBase
         List<string> compName = GetIPHost.HostName.ToString().Split('.').ToList();
         string pcName = compName.First();
         //string computerName = (Environment.MachineName ?? System.Net.Dns.GetHostName() ?? Environment.GetEnvironmentVariable("COMPUTERNAME"));
+
         try
         {
             return new Data
             {
                 Office = _session.GetString("Office"),
                 Department = _session.GetString("Department"),
-                Group = _session.GetString("Group"),
+                Group = _session.GetString("GroupName"),
                 ComputerName = pcName,
                 IpAddress = _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString()
             };

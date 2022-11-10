@@ -5,6 +5,7 @@ using UnlockUser.ViewModels;
 using System.DirectoryServices.AccountManagement;
 using UnlockUser.Models;
 using System.DirectoryServices;
+using System.Xml.Linq;
 
 namespace UnlockUser.Repository;
 
@@ -42,7 +43,9 @@ public class ActiveDirectoryRepository : IActiveDirectory // Help class inherit 
     public DirectorySearcher GetMembers(string? groupName)
     {
         //var groupName = User.Claims.ToList().FirstOrDefault(x => x.Type == "GroupToManage")?.Value ?? "";
-        DirectoryEntry entry = new($"LDAP://OU={groupName},OU=Users,OU=Kommun,DC=alvesta,DC=local");
+        var groupToFind = groupName.ToLower() == "studenter" ? "Students" : "Employees";
+
+        DirectoryEntry entry = new($"LDAP://OU={groupToFind},OU=Users,OU=Kommun,DC=alvesta,DC=local");
         DirectorySearcher search = new(entry);
 
         entry.Close();
@@ -50,7 +53,7 @@ public class ActiveDirectoryRepository : IActiveDirectory // Help class inherit 
     }
 
     // Return a list of found users
-    public List<User> GetUsers(DirectorySearcher result)
+    public List<User> GetUsers(DirectorySearcher result, string groupName)
     {
         List<User> users = new();
         result.PropertiesToLoad.Add("cn");
@@ -62,12 +65,22 @@ public class ActiveDirectoryRepository : IActiveDirectory // Help class inherit 
         result.PropertiesToLoad.Add("lockoutTime");
 
         var list = result.FindAll();
+        //if (groupName != "studenter")// If it is employee
+        //{
+        //    var checkGroup = GroupsList.Groups.FirstOrDefault(x => x.Name.ToLower() == "politiker")?.ToManage;
+        //    list.OfType<SearchResult>().ToList().Where(x => (groupName == "politiker"
+        //        ? MembershipCheck(x.Properties["cn"][0].ToString(), checkGroup)
+        //        : !MembershipCheck(x.Properties["cn"][0].ToString(), checkGroup))).ToList();
+        //}
+
         foreach (SearchResult res in list)
         {
             var props = res.Properties;
+            var username = props["cn"][0].ToString();
+
             users.Add(new User
             {
-                Name = props["cn"][0].ToString(),
+                Name = username,
                 DisplayName = props.Contains("displayName") ? props["displayName"][0]?.ToString() : "",
                 Email = props.Contains("userPrincipalName") ? props["userPrincipalName"][0]?.ToString() : "",
                 Office = props.Contains("physicalDeliveryOfficeName") ? props["physicalDeliveryOfficeName"][0]?.ToString() : "",

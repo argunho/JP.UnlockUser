@@ -20,7 +20,9 @@ class App extends Component {
 
   constructor() {
     super();
-    this.state = {};
+    this.state = {
+      group: sessionStorage.getItem("group")
+    };
   }
 
   componentDidMount() {
@@ -36,17 +38,19 @@ class App extends Component {
   }
 
   render() {
+    const {group, isAuthorized} = this.state;
+
     return (
-      <Layout isAuthorized={this.state.isAuthorized}>
+      <Layout isAuthorized={isAuthorized} group={group}>
         <Switch>
-          <Route exact path={['/', '/login']} component={Login} elem />
-          <Route exact path='/find-user' component={Search} />
-          <Route exact path='/manage-user/:id' component={UserManager} />
-          <Route exact path='/manage-users/:cls/:school' component={UsersManager} />
+          <Route exact path={['/', '/login']} render={(props) => <Login {...props} updateState={(val) => this.setState({group: val})} />} />
+          <Route exact path='/find-user' render={(props) => <Search {...props} group={group} />} />
+          <Route exact path='/manage-user/:id' render={(props) => <UserManager {...props} group={group} />}/>
+          <Route exact path='/manage-users/:cls/:school' render={(props) => <UsersManager {...props} group={group} />}/>
           <Route exact path='/history' component={SessionHistory} />
           <Route exact path='/logfiles' component={LogFiles} />
           <Route exact path='/contact' component={Contacts} />
-          <Route exact path='/members/:office/:department' component={Members} />
+          <Route exact path='/members/:office/:department' render={(props) => <Members {...props} group={group} />} />
           <Route component={NotFound} />
         </Switch>
       </Layout>

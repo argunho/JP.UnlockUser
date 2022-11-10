@@ -66,7 +66,8 @@ export default function Members(props) {
         <div className='interior-div'>
             {/* Info about user */}
             <Info name="Studenter"
-            check={true}
+                check={true}
+                group={props.group}
                 displayName={params.office + " " + params.department}
                 subTitle={list?.length > 0 && `Hittade ${list.length} matchningar`} />
 

@@ -48,7 +48,7 @@ export class Login extends Component {
 
     submitForm = async (e) => {
         e.preventDefault();
-        const { form } = this.state; 
+        const { form } = this.state;
 
         this.setState({ load: true, response: null })
 
@@ -61,9 +61,9 @@ export class Login extends Component {
             })
 
             if (success) {
-                sessionStorage.setItem("group", form.group);
                 sessionStorage.setItem("token", token);
-
+                sessionStorage.setItem("group", form.group?.toLowerCase());
+                this.props.updateState(form.group?.toLowerCase());
                 setTimeout(() => {
                     this.props.history.push("/find-user");
                 }, 1000)

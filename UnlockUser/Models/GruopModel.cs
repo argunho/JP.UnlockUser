@@ -1,7 +1,7 @@
 ﻿using System.DirectoryServices.AccountManagement;
 
 namespace UnlockUser.Models;
-public class GruopParameters
+public class GroupParameters
 {
     public string? Name { get; set; }
     public string? ToManage { get; set; }
@@ -11,10 +11,10 @@ public class GruopParameters
 public class GroupsList
 {
 
-    public static List<GruopParameters> Groups = new List<GruopParameters>
+    public static List<GroupParameters> Groups = new List<GroupParameters>
     {
-        new GruopParameters{Name = "Politiker", ToManage = "Ciceron-Assistentanvändare", WithCredentials = "Password Reset Politiker" },
-        new GruopParameters{Name = "Studenter", ToManage = "Students", WithCredentials = "Password Reset Students-EDU" },
-        new GruopParameters{Name = "Personal", ToManage = "Employees", WithCredentials = "Password Reset-ADM" }
+        new GroupParameters{Name = "Politiker", ToManage = "Ciceron-Assistentanvändare", WithCredentials = "Password Reset Politiker" },
+        new GroupParameters{Name = "Studenter", ToManage = "Students", WithCredentials = "Password Reset Students-EDU" },
+        new GroupParameters{Name = "Personal", ToManage = "Employees", WithCredentials = "Password Reset-ADM" }
     };
 }

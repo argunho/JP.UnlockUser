@@ -12,6 +12,7 @@ using System.DirectoryServices;
 using System.Runtime.CompilerServices;
 using UnlockUser.Models;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 
 namespace UnlockUser.Controllers;
 
@@ -90,12 +91,6 @@ public class AuthController : ControllerBase
             _session?.Remove("LoginAttempt");
             _session?.Remove("LoginBlockTime");
 
-            //// Define and save a group in which member/members will be managed in the current session
-            //var groupToManage = (model?.Group == "Politician") ? "Ciceron-Assistentanvändare" : model?.Group ?? "";
-
-            //// Define and save a group in which members have the right to administer this group which was defined above
-            //var administrationGroup = (model?.Group == "Students") ? "Password Reset Students-EDU" : "Password Reset Politiker";
-
             var group = GroupsList.Groups.FirstOrDefault(x => x.Name == model.Group);
 
             // Check the logged user's right to administer
@@ -103,9 +98,6 @@ public class AuthController : ControllerBase
             {
                 // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
                 var token = CreateJwtToken(_provider.FindUserByExtensionProperty(model?.Username ?? ""), model?.Password ?? "", group.Name);
-
-                // Save group name for search
-                _session.SetString("GroupName", (group.Name == "Students" ? "Students" : "Employees"));
 
                 // Your access has been confirmed.
                 return new JsonResult(new { alert = "success", token, msg = "Din åtkomstbehörighet har bekräftats." });
@@ -135,9 +127,6 @@ public class AuthController : ControllerBase
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
-        //IdentityOptions opt = new();
-
-        //var group = groupToManage.IndexOf("Students") > -1 ? "Studenter" : "Poliitiker";
 
         _session.SetString("Password", password);
         _session.SetString("Username", user.Name);
@@ -151,8 +140,7 @@ public class AuthController : ControllerBase
             new Claim("DisplayName", user.DisplayName),
             new Claim("Group", groupName)
         };
-        //claims.Add(new Claim("GroupToManage", groupToManage));
-        //claims.Add(new Claim("Group", group));
+
         if (_provider.MembershipCheck(user.Name, "TEIS IT Serviceavdelning"))
             claims.Add(new Claim("Support", "Ok"));
 
