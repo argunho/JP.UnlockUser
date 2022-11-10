@@ -102,7 +102,7 @@ public class AuthController : ControllerBase
             if (_provider.MembershipCheck(model?.Username, group.WithCredentials))
             {
                 // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
-                var token = CreateJwtToken(_provider.FindUserByExtensionProperty(model?.Username ?? ""), model?.Password ?? "");
+                var token = CreateJwtToken(_provider.FindUserByExtensionProperty(model?.Username ?? ""), model?.Password ?? "", group.Keywords);
 
                 // Save group name for search
                 _session.SetString("GroupName", (group.Keywords == "Students" ? "Students" : "Employees"));
@@ -131,7 +131,7 @@ public class AuthController : ControllerBase
 
     #region Helpers
     // Create Jwt Token for authenticating
-    private string CreateJwtToken(UserPrincipalExtension user, string password)
+    private string CreateJwtToken(UserPrincipalExtension user, string password, string groupName)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
@@ -148,7 +148,8 @@ public class AuthController : ControllerBase
         {
             new Claim(ClaimTypes.Name, user.Name),
             new Claim("Email", user.EmailAddress),
-            new Claim("DisplayName", user.DisplayName)
+            new Claim("DisplayName", user.DisplayName),
+            new Claim("Group", groupName)
         };
         //claims.Add(new Claim("GroupToManage", groupToManage));
         //claims.Add(new Claim("Group", group));
