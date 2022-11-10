@@ -96,16 +96,16 @@ public class AuthController : ControllerBase
             //// Define and save a group in which members have the right to administer this group which was defined above
             //var administrationGroup = (model?.Group == "Students") ? "Password Reset Students-EDU" : "Password Reset Politiker";
 
-            var group = GroupsList.Groups.FirstOrDefault(x => x.Keywords == model.Group);
+            var group = GroupsList.Groups.FirstOrDefault(x => x.Name == model.Group);
 
             // Check the logged user's right to administer
             if (_provider.MembershipCheck(model?.Username, group.WithCredentials))
             {
                 // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
-                var token = CreateJwtToken(_provider.FindUserByExtensionProperty(model?.Username ?? ""), model?.Password ?? "", group.Keywords);
+                var token = CreateJwtToken(_provider.FindUserByExtensionProperty(model?.Username ?? ""), model?.Password ?? "", group.Name);
 
                 // Save group name for search
-                _session.SetString("GroupName", (group.Keywords == "Students" ? "Students" : "Employees"));
+                _session.SetString("GroupName", (group.Name == "Students" ? "Students" : "Employees"));
 
                 // Your access has been confirmed.
                 return new JsonResult(new { alert = "success", token, msg = "Din åtkomstbehörighet har bekräftats." });

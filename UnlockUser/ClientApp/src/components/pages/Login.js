@@ -10,10 +10,6 @@ import Response from './../blocks/Response';
 import './../../css/login.css';
 import keys from './../../images/keys.png';
 
-const groups = [{ name: "Studenter", value: 'Students' },
-{ name: "Politiker", value: 'Politician' },
-{ name: "Personal", value: 'Employees' }]
-
 export class Login extends Component {
     static displayName = Login.name;
 
@@ -42,7 +38,6 @@ export class Login extends Component {
     }
 
     valueChangeHandler = (e) => {
-        console.log(e.target.value)
         this.setState({
             form: {
                 ...this.state.form, [e.target.name]: e.target.value
@@ -54,12 +49,10 @@ export class Login extends Component {
     submitForm = async (e) => {
         e.preventDefault();
         const { form } = this.state; 
-        let data = form;
-        data.group = groups.find(x => x.name === form.group).value;
 
         this.setState({ load: true, response: null })
 
-        await axios.post("auth", data).then(res => {
+        await axios.post("auth", form).then(res => {
             const { alert, token, errorMessage } = res.data;
 
             let success = alert === "success";
@@ -68,7 +61,7 @@ export class Login extends Component {
             })
 
             if (success) {
-                sessionStorage.setItem("group", groups.find(x => x.name === form.group)?.name);
+                sessionStorage.setItem("group", form.group);
                 sessionStorage.setItem("token", token);
 
                 setTimeout(() => {
@@ -123,8 +116,8 @@ export class Login extends Component {
                                 className='login-label'
                                 required
                             >
-                                {groups.map((p, index) => (
-                                    <MenuItem key={index} className='login-group-choice' value={p.name}>{p.name}</MenuItem>
+                                {["Studenter", "Politiker", "Personal"].map((name, index) => (
+                                    <MenuItem key={index} className='login-group-choice' value={name}>{name}</MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
