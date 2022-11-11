@@ -3,16 +3,18 @@
 import React, { useEffect, useRef, useState } from 'react'
 import {
     Avatar, Button, Checkbox, List, ListItem,
-    ListItemAvatar, ListItemText, Tooltip, Typography
+    ListItemAvatar, ListItemText, Skeleton, Tooltip, Typography
 } from '@mui/material'
 import { Cancel, DeleteSweep, Deselect, Edit, SelectAll } from '@mui/icons-material';
 import Loading from './Loading';
 import { useHistory } from 'react-router-dom';
 import Response from './Response';
 import Info from './Info';
+import { Label } from 'reactstrap';
 
 /* eslint-disable react-hooks/exhaustive-deps */  // <= Do not remove this line
 
+const colors = ["red", "blue", "yellow"];
 
 export default function Result({
     list, clsStudents,
@@ -178,26 +180,33 @@ export default function Result({
             {list?.length > 0 &&
                 <List sx={{ width: '100%' }}>
                     {list?.map((s, index) => (
-                        /* List object */
-                        <Info
-                            key={index}
-                            user={s}
-                            group={group}
-                            displayName={s.displayName}
-                            subTitle={s.office + " " + (s.office !== s.department ? (" " + s?.department) : "")}
-                            result={true}
-                            check={index === 0}
-                            updateSession={updateSession}
-                            handleOutsideClick={(e) => clickHandle(e, index, s)}>
+                        <div key={index}>
+                            {/* Name of department and office */}
+                            {(index === 0 || (index > 0 && list[index - 1].department !== list[index].department)) &&
+                                <Typography variant='caption' mt={2} mb={2} paragraph={true}>
+                                    {s.office + " " + s.department} {clsStudents && <span className='typography-span'>{list.filter(x => x.department === s.department)?.length} elever</span>}
+                                </Typography>}
 
-                            {/* Checkbox visible only if is success result after users search by class name */}
-                            {clsStudents && <Checkbox
-                                size='small'
-                                color="default"
-                                ref={checkbox => refCheckbox.current[index] = checkbox}
-                                checked={selectedList.indexOf(s.name) > -1}
-                            />}
-                        </Info>
+                            {/* List object */}
+                            <Info
+                                user={s}
+                                group={group}
+                                displayName={s.displayName}
+                                subTitle={s.office + " " + (s.office !== s.department ? (" " + s?.department) : "")}
+                                result={true}
+                                check={index === 0}
+                                updateSession={updateSession}
+                                handleOutsideClick={(e) => clickHandle(e, index, s)}>
+
+                                {/* Checkbox visible only if is success result after users search by class name */}
+                                {clsStudents && <Checkbox
+                                    size='small'
+                                    color="default"
+                                    ref={checkbox => refCheckbox.current[index] = checkbox}
+                                    checked={selectedList.indexOf(s.name) > -1}
+                                />}
+                            </Info>
+                        </div>
                     ))}
                 </List>}
 

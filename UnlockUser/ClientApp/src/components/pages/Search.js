@@ -58,7 +58,7 @@ export class Search extends Component {
 
         if (this.props.group !== "studenter") {
             this.sOptions = [];
-            this.helpTexts.splice(1, 1);
+            this.helpTexts.splice(0, 2);
         }
     }
 

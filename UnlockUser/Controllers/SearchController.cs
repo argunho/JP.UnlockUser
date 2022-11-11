@@ -71,11 +71,11 @@ namespace UnlockUser.Controllers
 
                 DirectorySearcher result = _provider.GetMembers("studenter");
 
-                result.Filter = $"(&(objectClass=User)((physicalDeliveryOfficeName={office})(department={department})))";
+                result.Filter = $"(&(objectClass=User)((physicalDeliveryOfficeName={office})(department=*{department}*)))";
                 users = _provider.GetUsers(result, "");
 
                 if (users.Count > 0)
-                    return new JsonResult(new { users = users.Distinct().OrderBy(x => x.Name) });
+                    return new JsonResult(new { users = users.Distinct().OrderBy(x => x.Department).ThenBy(x => x.Name) });
 
                 return new JsonResult(new { alert = "warning", msg = "Inga användarkonto hittades. Var vänlig kontrollera klass- och skolnamn." });
             }

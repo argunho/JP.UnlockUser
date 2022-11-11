@@ -61,6 +61,7 @@ export default function Members(props) {
                     console.error("Error => " + error.response)
             });
     }
+    console.log(props.group)
 
     return (
         <div className='interior-div'>
@@ -76,6 +77,7 @@ export default function Members(props) {
                 list={list}
                 clsStudents={true}
                 isLoading={isLoading}
+                group={props.group}
                 response={response}
                 resultBlock={false}
             />
