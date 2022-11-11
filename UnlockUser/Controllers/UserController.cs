@@ -175,7 +175,7 @@ public class UserController : ControllerBase
     {
         var ip = Request.HttpContext.Connection.RemoteIpAddress.ToString();
 
-        // get computer name
+        // Get computer name
         IPHostEntry GetIPHost = Dns.GetHostEntry(IPAddress.Parse(ip));
         List<string> compName = GetIPHost.HostName.ToString().Split('.').ToList();
         string pcName = compName.First();
@@ -221,7 +221,9 @@ public class UserController : ControllerBase
             " - Gruppnamn: " + model?.Group
         };
 
-        if (model?.Group == "Studenter")
+        var groupName = model.Group;
+
+        if (groupName == "Studenter")
         {
             contentList.Add(" - Skolan: " + model?.Office);
             contentList.Add(" - Klassnamn: " + model?.Department);
@@ -236,7 +238,7 @@ public class UserController : ControllerBase
         {
             contentList.Add(" - Arbetsplats: " + model?.Office);
             contentList.Add(" - Lösenord till:");
-            contentList.Add("\t-Politiker: " + model.Users[0]);
+            contentList.Add($"\t-{groupName}: {model.Users[0]}");
 
             fileName += model?.Office + "_" + model.Users[0];
         }
