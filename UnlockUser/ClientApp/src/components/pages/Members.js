@@ -61,7 +61,6 @@ export default function Members(props) {
                     console.error("Error => " + error.response)
             });
     }
-    console.log(props.group)
 
     return (
         <div className='interior-div'>

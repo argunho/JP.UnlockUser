@@ -65,6 +65,10 @@ body {
   font-weight: 600 !important;
 }
 
+.display-name {
+  margin-right: 10px !important;
+}
+
 .link-home {
   position: absolute;
   left: 0;
@@ -272,25 +276,36 @@ body {
   padding: 0 !important;
 }
 
-.selected-list>li {
+.selected-list>button:not(.tips-p) {
   list-style: none;
   width: max-content;
   text-align: left;
   color: #807f7f;
   margin: 5px 3px;
   padding: 3px 5px;
-  border-radius: 3px;
   border: 1px solid #807f7f;
   font-size: 14px;
   opacity: 0.8;
+  border-radius: 0 !important;
   width: min-content;
   min-width: calc((100% - 60px) / 10);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  text-transform: lowercase !important;
 }
 
-.selected-list>li:hover {
+.tips-p {
+  width: 100%;
+  display: block;
+  border: none;
+  padding: 3px;
+  margin: 15px 0 5px 0;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.selected-list>button:not(.tips-p):hover {
   cursor: pointer;
   color: #cc0000;
   border-color: #cc0000;
@@ -408,8 +423,8 @@ body {
   background-color: #f0f0f0 !important;
 }
 
-.user-avatar > img{
-  width: 75%;
+.user-avatar>img {
+  width: 90%;
   object-fit: contain;
   -o-object-fit: contain;
 }

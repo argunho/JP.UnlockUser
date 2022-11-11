@@ -1,6 +1,6 @@
 import { ArrowDropDown, ArrowDropUp, Close } from '@mui/icons-material';
-import { Tooltip, Button } from '@mui/material';
-import React, { Component } from 'react'
+import { Button } from '@mui/material';
+import React, { Component } from 'react';
 import Form from '../blocks/Form';
 import Info from '../blocks/Info';
 
@@ -10,9 +10,9 @@ export default class UsersManager extends Component {
     constructor(props) {
         super(props);
         const { cls, school } = this.props.match.params;
-        const users = JSON.parse(sessionStorage.getItem("selectedUsers")) ?? [];
+
         this.state = {
-            users: users,
+            users: JSON.parse(sessionStorage.getItem("selectedUsers")) ?? [],
             name: "Klass " + cls,
             displayName: school,
             dropdown: false
@@ -22,12 +22,14 @@ export default class UsersManager extends Component {
     }
 
     spliceUsersList = (user) => {
-        this.setState({ users: this.state.users.filter(x => x !== user) })
+        if (this.state.users.length === 1)
+            this.props.history.goBack();
+            this.setState({ users: this.state.users.filter(x => x !== user) });
     }
 
     render() {
-        const { users, name, displayName, dropdown } = this.state;
-
+        const { name, displayName, dropdown } = this.state;
+const users = this.state.users;
         return (
             <div className='interior-div'>
                 <Info
@@ -38,22 +40,18 @@ export default class UsersManager extends Component {
                     check={true}
                 />
 
-                {/* Edit class members listan */}
+                {/* Edit class members list */}
                 <Button variant='text' onClick={() => this.setState({ dropdown: !dropdown })} color={dropdown ? "primary" : "inherit"}>
-                    Klassmedlemar &nbsp;&nbsp;{dropdown ? <ArrowDropUp /> : <ArrowDropDown />}
+                    Klassmedlemmar &nbsp;&nbsp;{dropdown ? <ArrowDropUp /> : <ArrowDropDown />}
                 </Button>
-                <ul className={`selected-list dropdown-div ${dropdown ? "dropdown-open" : ""}`}>
+                <div className={`selected-list dropdown-div ${dropdown ? "dropdown-open" : ""}`}>
+                    <p className='tips-p'>Klicka på användare att radera från listan</p>
                     {users.map((user, index) => (
-                        <Tooltip arrow
-                            key={index}
-                            title={<pre>Klicka här, att radera <b><font color="#000000">{user.displayName}</font></b> från listan</pre>}
-                            classes={{ tooltip: "tooltip tooltip-error tooltip-margin", arrow: "arrow-error" }}>
-                            <li onClick={() => this.spliceUsersList(user)}>
-                                {user.name} <Close fontSize='10' />
-                            </li>
-                        </Tooltip>
+                        <Button variant='outlined' color='inherit' className='button-list' key={index} onClick={() => this.spliceUsersList(user)}>
+                            {user.name} <Close fontSize='10' />
+                        </Button>
                     ))}
-                </ul>
+                </div>
 
                 <Form
                     title={"Nya lösenord till " + users?.length + " elev" + (users?.length === 1 ? "er" : "")}
