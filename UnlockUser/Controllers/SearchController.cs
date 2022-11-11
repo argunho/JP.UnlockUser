@@ -71,7 +71,7 @@ namespace UnlockUser.Controllers
 
                 DirectorySearcher result = _provider.GetMembers("studenter");
 
-                result.Filter = $"(&(objectClass=User)((physicalDeliveryOfficeName={office})(department=*{department}*)))";
+                result.Filter = $"(&(objectClass=User)((physicalDeliveryOfficeName={office})(department={department})))";
                 users = _provider.GetUsers(result, "");
 
                 if (users.Count > 0)

@@ -183,7 +183,7 @@ export default function Result({
                         <div key={index}>
                             {/* Name of department and office */}
                             {(index === 0 || (index > 0 && list[index - 1].department !== list[index].department)) &&
-                                <Typography variant='caption' mt={2} mb={2} paragraph={true}>
+                                <Typography mt={2} mb={1} variant="body2">
                                     {s.office + " " + s.department} {clsStudents && <span className='typography-span'>{list.filter(x => x.department === s.department)?.length} elever</span>}
                                 </Typography>}
 
