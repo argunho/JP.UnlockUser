@@ -32,7 +32,6 @@ export class Search extends Component {
             ],
             clsStudents: clsSearch,
             match: true,
-            schoolsList: schools,
             isOpen: false,
             isNoOptions: false,
             response: null,
@@ -85,7 +84,7 @@ export class Search extends Component {
             [inp.name]: inpRadio ? inp.value === "true" : inp.value,
             users: null,
             response: null,
-            isNoOptions: (open) ? this.state.schoolsLis.filter(x => x.value.includes(inp.value)).length === 0 : false
+            isNoOptions: (open) ? schools.filter(x => x.value.includes(inp.value)).length === 0 : false
         })
     }
 
@@ -118,7 +117,7 @@ export class Search extends Component {
 
     // Reset form
     resetResult = () => {
-        this.setState({ users: null, response: null, schoolsList: schools });
+        this.setState({ users: null, response: null });
 
         // Remove result from sessionStorage
         sessionStorage.removeItem("users");
@@ -207,7 +206,7 @@ export class Search extends Component {
         const { users, isLoading,
             choiceList, match, response,
             sOption, showTips,
-            clsStudents, isOpen, isNoOptions, schoolsList } = this.state;
+            clsStudents, isOpen, isNoOptions } = this.state;
 
         // List of text fields
         const sFormParams = !clsStudents ? [{ name: "input", label: "Namn", placeholder: (!match) ? "Skriv exakt fullständigt namn eller anvädarnamn här ..." : "", autoOpen: false }]
@@ -228,7 +227,7 @@ export class Search extends Component {
                             freeSolo
                             disableClearable
                             className={s.clsName || 'search-input'}
-                            options={schoolsList}
+                            options={schools}
                             getOptionLabel={(option) => option.label || ""}
                             autoHighlight
                             open={s.autoOpen && isOpen && !isNoOptions}
@@ -333,7 +332,7 @@ export class Search extends Component {
                                 </Tooltip>
                             ))}
                         </RadioGroup>
-                    </FormControl >
+                    </FormControl>
                 </div >
 
                 {/* Result of search */}
