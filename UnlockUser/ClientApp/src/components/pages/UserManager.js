@@ -51,7 +51,7 @@ export class UserManager extends Component {
             return;
         }
 
-        await axios.get("user/" + id, TokenConfig()).then(res => {
+        await axios.get("user/" + this.props.group + "/" + id, TokenConfig()).then(res => {
             const { user, passwordLength } = res.data;
 
             if (user !== undefined && user !== null) {
@@ -114,7 +114,7 @@ export class UserManager extends Component {
 
     render() {
         const { user, noAccess, load, response, disabled, userIsFound } = this.state;
-console.log(user)
+
         return (
             noAccess ? <Response response={null} noAccess={true} />
                 : <div className='interior-div'>
@@ -149,9 +149,7 @@ console.log(user)
                         {/* Change password */}
                         {(user && !user.isLocked) && <Form
                             title="Återställa lösenord"
-                            // api="resetPasswords"
                             users={[user]}
-                            // name={name}
                             passwordLength={user.passwordLength} />}
                     </>}
 
