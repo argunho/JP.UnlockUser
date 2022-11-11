@@ -47,7 +47,7 @@ public class ActiveDirectoryRepository : IActiveDirectory // Help class inherit 
 
         DirectoryEntry entry = new($"LDAP://OU={groupToFind},OU=Users,OU=Kommun,DC=alvesta,DC=local");
         DirectorySearcher search = new(entry);
-
+        search.PropertiesToLoad.Add("memberOf");
         entry.Close();
         return search;
     }
@@ -64,23 +64,24 @@ public class ActiveDirectoryRepository : IActiveDirectory // Help class inherit 
         result.PropertiesToLoad.Add("title");
         result.PropertiesToLoad.Add("lockoutTime");
 
-        var list = result.FindAll();
-        //if (groupName != "studenter")// If it is employee
-        //{
-        //    var checkGroup = GroupsList.Groups.FirstOrDefault(x => x.Name.ToLower() == "politiker")?.ToManage;
-        //    list.OfType<SearchResult>().ToList().Where(x => (groupName == "politiker"
-        //        ? MembershipCheck(x.Properties["cn"][0].ToString(), checkGroup)
-        //        : !MembershipCheck(x.Properties["cn"][0].ToString(), checkGroup))).ToList();
-        //}
+        var list = result.FindAll().OfType<SearchResult>().ToList();
+        if (groupName != "studenter")
+        {
+            if (groupName == "politiker")
+                list = list.Where(x => x.Properties["memberOf"].OfType<string>().ToList().Any(x => x.Contains("Ciceron-Assistentanvändare"))).ToList();
+            else
+                list = list.Where(x => x.Properties["memberOf"].OfType<string>().ToList().All(x => !x.Contains("Ciceron-Assistentanvändare"))).ToList(); 
+        }
+
+        if(list.Count == 0) return users;
 
         foreach (SearchResult res in list)
         {
             var props = res.Properties;
-            var username = props["cn"][0].ToString();
 
             users.Add(new User
             {
-                Name = username,
+                Name = props["cn"][0].ToString(),
                 DisplayName = props.Contains("displayName") ? props["displayName"][0]?.ToString() : "",
                 Email = props.Contains("userPrincipalName") ? props["userPrincipalName"][0]?.ToString() : "",
                 Office = props.Contains("physicalDeliveryOfficeName") ? props["physicalDeliveryOfficeName"][0]?.ToString() : "",
