@@ -184,7 +184,7 @@ export default function Result({
                             {/* Name of department and office */}
                             {(index === 0 || (index > 0 && list[index - 1].department !== list[index].department)) &&
                                 <Typography mt={2} mb={1} variant="body2">
-                                    {s.office + " " + s.department} {clsStudents && <span className='typography-span'>{list.filter(x => x.department === s.department)?.length} elever</span>}
+                                    {s.office + ((s.office !== s.department) ? " " + s.department : "")} {clsStudents && <span className='typography-span'>{list.filter(x => x.department === s.department)?.length} elever</span>}
                                 </Typography>}
 
                             {/* List object */}
