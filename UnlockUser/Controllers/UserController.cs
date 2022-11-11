@@ -32,7 +32,7 @@ public class UserController : ControllerBase
     }
 
     #region GET
-    [HttpGet("{name}/{group}")] // Get user information by username
+    [HttpGet("{group}/{name}")] // Get user information by username
     public JsonResult GetUser(string name, string group)
     {
         DirectorySearcher members = _provider.GetMembers(group);

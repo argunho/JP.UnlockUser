@@ -30,7 +30,6 @@ export default function Form(props) {
     Form.displayName = "Form";
 
     const { title, name, passwordLength, users } = props;
-console.log(users)
     const multiple = users.length > 1;
 
     const defaultForm = {
@@ -68,7 +67,7 @@ console.log(users)
     const regex = strongRegex ?
         /^(?=.*[0-9])(?=.*[!@?$&#^%*-,;._])[A-Za-z0-9!@?$&#^%*-,;._]{12,50}$/ : /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])[A-Za-z0-9]{8,50}$/;
     const eng = /^[A-Za-z]+$/;
-console.log(users[0])
+
     // Student school and class
     const location = users[0]?.office?.replace("%20", " ") + "%" + users[0]?.department?.replace("%20", " ");
 

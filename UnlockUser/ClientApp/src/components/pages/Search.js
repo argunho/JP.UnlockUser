@@ -42,13 +42,13 @@ export class Search extends Component {
 
         // Search options
         this.sOptions = [
-            { label: "Änvändare", value: "user" },
+            { label: "Användare", value: "user" },
             { label: "Klass elever", value: "members" }
         ]
 
         // Help texts
         this.helpTexts = [
-            { label: "Änvändare", tip: "Det här alternativet är till för att söka efter en specifik användare. Välj rätt sökalternativ nedan för att få förväntad resultat.", value: "user", },
+            { label: "Användare", tip: "Det här alternativet är till för att söka efter en specifik användare. Välj rätt sökalternativ nedan för att få förväntad resultat.", value: "user", },
             { label: "Klass elever", tip: "Det här alternativet är till för att söka efter alla elever i en specifik klass med klass- och skolnamn.", value: "members" },
             { label: "Match", tip: "Matchningen av det angivna sökordet bland alla elevers Namn/Efternamn/Användarnamn vilka innehåller angivet sökord.", value: "match" },
             { label: "Exakt", tip: "Matchning med exakt stavat Namn/Efternamn/Användarnamn.", value: "exact" },
@@ -56,8 +56,8 @@ export class Search extends Component {
             { label: "Resultat", tip: "Resultatet kan bli från 0 till flera hittade användare beroende på sökord och sökalternativ.", value: "", color: "#c00" }
         ]
 
-        if (this.props.group !== "students") {
-            this.sOptions.splice(1, 1);
+        if (this.props.group !== "studenter") {
+            this.sOptions = [];
             this.helpTexts.splice(1, 1);
         }
     }
@@ -293,7 +293,7 @@ export class Search extends Component {
                         label="Tips" />
 
                     {/* Radio buttons to choice one of search alternatives */}
-                    <FormControl className='checkbox-block-mobile' style={{ display: "inline-block" }}>
+                    {this.sOptions.length > 0 && <FormControl className='checkbox-block-mobile' style={{ display: "inline-block" }}>
                         <RadioGroup row name="row-radio-buttons-group">
                             {/* Loop of radio input choices */}
                             {this.sOptions.map((p, index) => (
@@ -311,10 +311,10 @@ export class Search extends Component {
                                 </Tooltip>
                             ))}
                         </RadioGroup>
-                    </FormControl>
+                    </FormControl>}
 
                     {/* Checkbox and radio with search parameters to choose for user search */}
-                    <FormControl style={{ display: "block" }}>
+                    <FormControl style={{ display: (this.sOptions.length === 0) ? "inline-block" : "block" }}>
                         <RadioGroup row name="row-radio-buttons-group">
                             {/* Loop of radio input choices */}
                             {choiceList.map((c, index) => (

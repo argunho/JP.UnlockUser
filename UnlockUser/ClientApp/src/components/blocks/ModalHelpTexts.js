@@ -33,7 +33,6 @@ function ModalHelpTexts({ arr, cls = " situated-btn", isTable = false, isSubmit 
 
     // Confirm handle
     const confirmHandle = (save) => {
-        console.log(save);
         setConfirm(true);
         setSavePdf(save);
     }
