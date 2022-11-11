@@ -32,6 +32,7 @@ export class Search extends Component {
             ],
             clsStudents: clsSearch,
             match: true,
+            schoolsList: schools,
             isOpen: false,
             isNoOptions: false,
             response: null,
@@ -84,7 +85,7 @@ export class Search extends Component {
             [inp.name]: inpRadio ? inp.value === "true" : inp.value,
             users: null,
             response: null,
-            isNoOptions: (open) ? schools.filter(x => x.value.includes(inp.value)).length === 0 : false
+            isNoOptions: (open) ? this.state.schoolsLis.filter(x => x.value.includes(inp.value)).length === 0 : false
         })
     }
 
@@ -117,7 +118,7 @@ export class Search extends Component {
 
     // Reset form
     resetResult = () => {
-        this.setState({ users: null, response: null });
+        this.setState({ users: null, response: null, schoolsList: schools });
 
         // Remove result from sessionStorage
         sessionStorage.removeItem("users");
@@ -206,7 +207,7 @@ export class Search extends Component {
         const { users, isLoading,
             choiceList, match, response,
             sOption, showTips,
-            clsStudents, isOpen, isNoOptions } = this.state;
+            clsStudents, isOpen, isNoOptions, schoolsList } = this.state;
 
         // List of text fields
         const sFormParams = !clsStudents ? [{ name: "input", label: "Namn", placeholder: (!match) ? "Skriv exakt fullständigt namn eller anvädarnamn här ..." : "", autoOpen: false }]
@@ -227,7 +228,7 @@ export class Search extends Component {
                             freeSolo
                             disableClearable
                             className={s.clsName || 'search-input'}
-                            options={schools}
+                            options={schoolsList}
                             getOptionLabel={(option) => option.label || ""}
                             autoHighlight
                             open={s.autoOpen && isOpen && !isNoOptions}
@@ -318,7 +319,8 @@ export class Search extends Component {
                         <RadioGroup row name="row-radio-buttons-group">
                             {/* Loop of radio input choices */}
                             {choiceList.map((c, index) => (
-                                <Tooltip key={index} arrow disableHoverListener={!showTips} title={this.returnToolTipByKeyword(c.label)} classes={{ tooltip: "tooltip tooltip-blue", arrow: "arrow-blue" }}>
+                                <Tooltip key={index} arrow disableHoverListener={!showTips} title={this.returnToolTipByKeyword(c.label)} 
+                                    classes={{ tooltip: "tooltip tooltip-blue", arrow: "arrow-blue" }}>
                                     <FormControlLabel
                                         value={c.match}
                                         control={<Radio
