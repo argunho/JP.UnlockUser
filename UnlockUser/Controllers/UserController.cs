@@ -209,8 +209,8 @@ public class UserController : ControllerBase
         var contentList = new List<string>
         {
             "\r Anställd",
-            " - Användarnamn: " + (user?.DisplayName ?? ""),
-            " - Namn: " + (user?.Name ?? ""),
+            " - Användarnamn: " + (user?.Name ?? ""),
+            " - Namn: " + (user?.DisplayName ?? ""),
             " - E-postadress: " + (user?.EmailAddress ?? ""),
             " - Arbetsplats: " + (user.Department ?? ""),
             " - Tjänst: " + (user.Title ?? ""),
