@@ -80,7 +80,6 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("unlock/{name}")] // Unlock user
-    [AllowAnonymous]
     public JsonResult UnlockUser(string name)
     {
         var model = new UserViewModel
