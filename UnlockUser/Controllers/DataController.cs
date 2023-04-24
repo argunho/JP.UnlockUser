@@ -53,7 +53,8 @@ namespace UnlockUser.Controllers
                     }
                 }
 
-                logs = logs?.OrderByDescending(x => System.IO.File.GetLastWriteTime(x).Ticks)?.Select(x => x.Replace("\\", "/").Substring(x.LastIndexOf("/") + 1).Replace(".txt", "")).ToList() ?? null;
+                logs = logs?.OrderByDescending(x => System.IO.File.GetLastWriteTime(x).Ticks)?
+                                .Select(x => x.Replace("\\", "/").Substring(x.LastIndexOf("/") + 1).Replace(".txt", "")).ToList() ?? null;
 
                 return new JsonResult(logs);
             }

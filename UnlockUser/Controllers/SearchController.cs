@@ -38,7 +38,7 @@ namespace UnlockUser.Controllers
                 DirectorySearcher result = _provider.GetMembers(group);
 
                 if (match)
-                    result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(|(displayName=*{name}*)(|(givenName=*{name}*))(sn=*{name}*))))";
+                    result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(|(displayName=*{name}*)(|(givenName=*{name}*))(|(upn=*{name.ToLower()}*))(sn=*{name}*))))";
                 else
                     result.Filter = $"(&(objectClass=User)(|(cn={name})(|(displayName={name})(|(givenName={name}))(sn={name}))))";
 

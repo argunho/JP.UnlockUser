@@ -79,6 +79,12 @@ public class ActiveDirectoryRepository : IActiveDirectory // Help class inherit 
         {
             var props = res.Properties;
 
+
+            var isLocked = false;
+            if (props.Contains("lockoutTime") && Int32.TryParse(props["lockoutTime"][0]?.ToString(), out int number))
+            {
+                isLocked = number >= 1;
+            }
             users.Add(new User
             {
                 Name = props["cn"][0].ToString(),
@@ -87,8 +93,8 @@ public class ActiveDirectoryRepository : IActiveDirectory // Help class inherit 
                 Office = props.Contains("physicalDeliveryOfficeName") ? props["physicalDeliveryOfficeName"][0]?.ToString() : "",
                 Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
                 Title = props.Contains("title") ? props["title"][0]?.ToString() : "",
-                IsLocked = props.Contains("lockoutTime") && int.Parse(props["lockoutTime"][0].ToString()) >= 1
-            });
+                IsLocked = isLocked
+        });
         }
 
         return users;

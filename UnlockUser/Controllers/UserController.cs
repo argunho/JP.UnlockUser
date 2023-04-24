@@ -137,7 +137,7 @@ public class UserController : ControllerBase
                 var user = _provider.FindUserByExtensionProperty(u.Name);
                 if (user != null && user.Title == "Systemutvecklare" && user.Department == "IT Serviceavdelning")
                 {
-                    model.Title = "Unlock User : Felmeddelande";
+                    model.Title = "Felmeddelande";
                     model.Text = "Något har gott snett på " + model.Link + "<br/><br/><b>Fel: </b>" + model.Error +
                         "<br/><br/>Avsändare: " + (_session.GetString("Username")?.Length > 0 ? _session.GetString("Username") : "Ej definerad");
                     model.Email = user.EmailAddress;

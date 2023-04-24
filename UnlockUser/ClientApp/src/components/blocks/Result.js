@@ -23,13 +23,13 @@ export default function Result({
     resultBlock, group
 }) {
 
-    const refResult = useRef(null);
     const [selectedList, setSelectedList] = useState([]);
     const [isOpenTip, setIsOpenTip] = useState(false);
 
     const history = useHistory();
     const sl = selectedList.length;
     const selected = (list?.length === sl);
+    const refResult = useRef(null);
     const refCheckbox = useRef([]);
 
     useEffect(() => {
