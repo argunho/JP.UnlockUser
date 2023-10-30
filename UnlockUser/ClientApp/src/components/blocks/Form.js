@@ -179,7 +179,7 @@ export default function Form(props) {
 
             // Check and set error to true if the value contains a non-English character
             value.split("").forEach(char => {
-                if (char.toLowerCase() !== char.toUpperCase())
+                if (char?.toLowerCase() !== char.toUpperCase())
                     setRegexError(!eng.test(char));
             });
 

@@ -359,7 +359,7 @@ export class Search extends Component {
                     list={users}
                     clsStudents={clsStudents}
                     isVisibleTips={showTips}
-                    group={group.toLowerCase()}
+                    group={group?.toLowerCase()}
                     isLoading={isLoading}
                     response={response}
                     resultBlock={true}

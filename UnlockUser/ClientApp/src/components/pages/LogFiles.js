@@ -37,7 +37,7 @@ export default function LogFiles() {
     const valueChangeHandler = (e) => {
         if (!e?.target) return;
         setFilter(e.target.value);
-        let list = initList.filter(x => x.toLowerCase().includes(e.target.value.toLowerCase().replace(" ", "_").replace(/[:-]/g, "")));
+        let list = initList.filter(x => x?.toLowerCase().includes(e.target.value?.toLowerCase().replace(" ", "_").replace(/[:-]/g, "")));
         setList(e.target.value?.length === 0 ? initList : list);
     }
 

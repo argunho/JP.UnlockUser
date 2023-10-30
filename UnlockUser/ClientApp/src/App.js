@@ -48,7 +48,7 @@ class App extends Component {
 
   render() {
     const {groups, currentGroup, isAuthorized} = this.state;
-    const group  = currentGroup.toLowerCase();
+    const group  = currentGroup?.toLowerCase();
 
     return (
       <Layout isAuthorized={isAuthorized} groups={groups}>
