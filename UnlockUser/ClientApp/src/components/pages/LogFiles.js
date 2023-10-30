@@ -29,6 +29,8 @@ export default function LogFiles() {
                 setInitList(res.data);
             }, error => console.error(error))
         }
+
+        document.title = "UnlockUser | Loggfiler";
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -45,11 +47,6 @@ export default function LogFiles() {
     }
 
     const downloadFile = async (file) => {
-        // saveAs(
-        //     "https://unlock.alvesta.se/logfiles/students20220811114001.txt",
-        //     file + ".md"
-        // )
-
         const fileDownload = require('react-file-download');
         await axios.get("data/readTextFile/" + file, TokenConfig()).then(res => {
             if (res.status === 200)

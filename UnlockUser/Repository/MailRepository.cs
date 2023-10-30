@@ -70,8 +70,8 @@ public class MailRepository
         try
         {
             var logo = ImageToBase64(@"wwwroot/alvestakommun.png");
-            MailMessage _mail = new MailMessage(new MailAddress("unlock.contact@alvesta.se", "Unlock User"), new MailAddress("aslan.khadizov@alvesta.se"));
-            SmtpClient _smtp = new SmtpClient("smtp.alvesta.local");
+            MailMessage _mail = new(new MailAddress("unlock.contact@alvesta.se", "Unlock User"), new MailAddress("aslan.khadizov@alvesta.se"));
+            SmtpClient _smtp = new("smtp.alvesta.local");
             _mail.Subject = model.Title;
             _mail.Body = mailHtml.Replace("{content}", model.Text).Replace("{logo}", logo);
             _mail.IsBodyHtml = true;

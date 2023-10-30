@@ -1,0 +1,26 @@
+{
+  "single": [
+    {
+      "name": "input",
+      "label": "Namn",
+      "placeholder": "Skriv exakt fullständigt namn eller anvädarnamn här ...",
+      "autoOpen": false
+    }
+  ],
+  "group": [
+    {
+      "name": "input",
+      "label": "Klassbeteckning",
+      "clsName": "search-first-input",
+      "placeholder": "Skriv exakt klassbeteckning här ...",
+      "autoOpen": false
+    },
+    {
+      "name": "additionInput",
+      "label": "Skolnamn",
+      "clsName": "search-second-input",
+      "placeholder": "Skriv exakt skolnamn här ..",
+      "autoOpen": true
+    }
+  ]
+}

@@ -28,7 +28,7 @@ export default function Header({ isAuthorized }) {
             document.removeEventListener("mousedown", clickHandler);
         }
     })
-    
+
 
     // Check current user authentication
     useEffect(() => {
@@ -38,16 +38,13 @@ export default function Header({ isAuthorized }) {
                 const decodedToken = jwt_decode(token);
                 // If the current user is logged in, the name of the user is visible in the navigation bar
                 setDisplayName(decodedToken?.DisplayName);
-                setLinkName(linkName + " | " + decodedToken.Group);
+                setLinkName(`UnlockUser<br/><span>${decodedToken.Groups.replaceAll(",", ", ")}<span/>`);
                 setIsSupport(decodedToken?.Support === "Ok");
             }
         }
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthorized])
-
-    useEffect(() => {
-        document.title = linkName;
-    }, [linkName])
 
     const goToPage = (page) => {
         if (visibleMenu) setVisibleMenu(false);
@@ -78,9 +75,9 @@ export default function Header({ isAuthorized }) {
             <nav className="nav-wrapper">
                 <ul className='container'>
                     <li className="link-home">
-                        <Link className="link" to="/find-user">
+                        <Link className="link link-logo d-row" to="/find-user">
                             <HomeSharp />
-                            <span>{linkName}</span>
+                            <p className='d-column' dangerouslySetInnerHTML={{__html: linkName}}></p>
                         </Link>
                     </li>
                     {isAuthorized && <>

@@ -43,7 +43,6 @@ export default function Response(props) {
                     props.reset();
                 }, 1000)
             }, error => {
-                console.log(error);
                 props.reset();
             })
     }

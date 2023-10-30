@@ -16,6 +16,7 @@ export default function Members(props) {
 
     useEffect(() => {
         if (!list) getMembers();
+       
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [list])
 
@@ -67,7 +68,7 @@ export default function Members(props) {
             {/* Info about user */}
             <Info name="Studenter"
                 check={true}
-                group={props.group}
+                group={props.groups}
                 displayName={params.office + " " + params.department}
                 subTitle={list?.length > 0 && `Hittade ${list.length} matchningar`} />
 
@@ -76,7 +77,7 @@ export default function Members(props) {
                 list={list}
                 clsStudents={true}
                 isLoading={isLoading}
-                group={props.group}
+                group={props.groups}
                 response={response}
                 resultBlock={false}
             />

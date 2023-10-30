@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ArrowDropDown, ArrowDropUp, History } from '@mui/icons-material';
 import { Alert, AlertTitle, Avatar, Button, Collapse, List, ListItem, ListItemAvatar, ListItemButton, ListItemText, Tooltip, Typography } from '@mui/material';
 import { useHistory } from 'react-router-dom';
@@ -7,10 +7,13 @@ import SessionPasswordsList from '../functions/SessionPasswordsList';
 export default function SessionHistory() {
     History.displayName = "History";
 
-
     const [dropdownId, setDropdownId] = useState(null);
     const historyList = SessionPasswordsList();
     const history = useHistory()
+
+    useEffect(() => {
+        document.title = "UnlockUser | Historik";
+    }, [])
 
     // Go to the current session history log page
     const openSessionHistory = (name) => {

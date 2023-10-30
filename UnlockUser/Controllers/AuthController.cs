@@ -91,19 +91,34 @@ public class AuthController : ControllerBase
             _session?.Remove("LoginAttempt");
             _session?.Remove("LoginBlockTime");
 
-            var group = GroupsList.Groups.FirstOrDefault(x => x.Name == model.Group);
+            var groupsList = _config.GetSection("Groups").Get<List<GroupParameters>>();
+            var groups = new List<GroupParameters>();
 
-            // Check the logged user's right to administer
-            if (_provider.MembershipCheck(model?.Username, group.WithCredentials))
+            foreach (var group in groupsList)
             {
-                // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
-                var token = CreateJwtToken(_provider.FindUserByExtensionProperty(model?.Username ?? ""), model?.Password ?? "", group.Name);
-
-                // Your access has been confirmed.
-                return new JsonResult(new { alert = "success", token, msg = "Din åtkomstbehörighet har bekräftats." });
+                // Check the logged user's right to administer
+                if (_provider.MembershipCheck(model?.Username, group.Group))
+                    groups.Add(group);
             }
-            else // Failed! You do not have permission to edit a student's password
-                return new JsonResult(new { alert = "warning", msg = "Åtkomst nekad! Du har inte behörighet att ändra lösenord." }); 
+
+
+            // Failed! Permission missed
+            if (groups.Count == 0)
+                return new JsonResult(new { alert = "warning", msg = "Åtkomst nekad! Behörighet saknas." });
+
+
+            var groupsNames = string.Join(",", groups.OrderBy(x => x.Name).Select(s => s.Name).ToList());
+            // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
+            var token = CreateJwtToken(_provider.FindUserByExtensionProperty(model?.Username ?? ""), model?.Password ?? "", groupsNames);
+
+            // Your access has been confirmed.
+            return new JsonResult(new
+            {
+                alert = "success",
+                token,
+                groups = groupsNames,
+                msg = $"Din åtkomstbehörighet har bekräftats. <br/><br/>Tillåtna behöregiheter för grupp(er):<br/> <b>&nbsp;&nbsp;&nbsp;- {groupsNames.Replace(",", "<br/>&nbsp;&nbsp;&nbsp;- ")}</b>."
+            });
         }
         catch (Exception ex)
         {
@@ -123,23 +138,22 @@ public class AuthController : ControllerBase
 
     #region Helpers
     // Create Jwt Token for authenticating
-    private string CreateJwtToken(UserPrincipalExtension user, string password, string groupName)
+    private string CreateJwtToken(UserPrincipalExtension user, string password, string groupsNames)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
-
         _session.SetString("Password", password);
         _session.SetString("Username", user.Name);
         _session.SetString("DisplayName", user.DisplayName);
         _session.SetString("Email", user.EmailAddress);
-        _session.SetString("GroupName", groupName);
+        _session.SetString("GroupNames", groupsNames);
 
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.Name, user.Name),
             new Claim("Email", user.EmailAddress),
             new Claim("DisplayName", user.DisplayName),
-            new Claim("Group", groupName)
+            new Claim("Groups", groupsNames)
         };
 
         if (_provider.MembershipCheck(user.Name, "TEIS IT Serviceavdelning"))
@@ -165,7 +179,7 @@ public class AuthController : ControllerBase
     // Protection against account blocking after several unsuccessful attempts to authenticate
     public JsonResult? ProtectAccount(int attempt)
     {
-        var blockTime = _session?.GetString("LoginBlockTime") ?? null; 
+        var blockTime = _session?.GetString("LoginBlockTime") ?? null;
         if (attempt >= 4)
         {
             blockTime = DateTime.Now.ToString();
@@ -175,7 +189,7 @@ public class AuthController : ControllerBase
 
         // Check if the user is blocked from further attempts to enter incorrect data
         // Unclock time after 4 incorrect passwords
-        
+
         if (blockTime == null)
             return null;
 

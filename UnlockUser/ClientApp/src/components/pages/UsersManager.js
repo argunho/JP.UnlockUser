@@ -19,23 +19,26 @@ export default class UsersManager extends Component {
         }
 
         this.spliceUsersList = this.spliceUsersList.bind(this);
+
+        
+        document.title = "UnlockUser | Användare";
     }
 
     spliceUsersList = (user) => {
         if (this.state.users.length === 1)
             this.props.history.goBack();
-            this.setState({ users: this.state.users.filter(x => x !== user) });
+        this.setState({ users: this.state.users.filter(x => x !== user) });
     }
 
     render() {
         const { name, displayName, dropdown } = this.state;
-const users = this.state.users;
+        const users = this.state.users;
         return (
             <div className='interior-div'>
                 <Info
                     name={name}
                     displayName={displayName}
-                    group={this.props.group}
+                    group={this.props.groups}
                     subTitle={`${users.length} elev${users.length === 1 ? "" : "er"}`}
                     check={true}
                 />

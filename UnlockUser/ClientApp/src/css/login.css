@@ -42,16 +42,6 @@
   padding: 12px !important;
 }
 
-.login-group-choice {
-  font-family: Calibri, 'Trebuchet MS', sans-serif !important;
-  font-size: 14px !important;
-  letter-spacing: 1px;
-}
-
-.login-group-choice:hover {
-  background-color: #b1b0b0 !important;
-}
-
 .login-form-img {
   width: 15%;
   position: absolute;

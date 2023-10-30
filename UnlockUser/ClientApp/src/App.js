@@ -7,7 +7,6 @@ import { UserManager } from './components/pages/UserManager';
 import UsersManager from './components/pages/UsersManager';
 import { Search } from './components/pages/Search';
 
-import './css/custom.css'
 import NotFound from './components/pages/NotFound';
 import Contacts from './components/pages/Contacts';
 import LogFiles from './components/pages/LogFiles';
@@ -15,13 +14,18 @@ import Members from './components/pages/Members';
 import TokenConfig from './components/functions/TokenConfig';
 import SessionHistory from './components/pages/SessionHistory';
 
+// Css
+import './css/custom.css'
+
 class App extends Component {
   static displayName = App.name;
 
   constructor() {
     super();
+    const groups = sessionStorage.getItem("groups");
     this.state = {
-      group: sessionStorage.getItem("group")
+      groups: groups,
+      currentGroup: sessionStorage.getItem("group") ?? (!!groups ? groups.split(",")[0] : null)
     };
   }
 
@@ -37,14 +41,20 @@ class App extends Component {
     }
   }
 
+  updateGroup = (value) => {
+    sessionStorage.setItem("group", value);
+    this.setState({currentGroup: value});
+  }
+
   render() {
-    const {group, isAuthorized} = this.state;
+    const {groups, currentGroup, isAuthorized} = this.state;
+    const group  = currentGroup.toLowerCase();
 
     return (
-      <Layout isAuthorized={isAuthorized} group={group}>
+      <Layout isAuthorized={isAuthorized} groups={groups}>
         <Switch>
-          <Route exact path={['/', '/login']} render={(props) => <Login {...props} updateState={(val) => this.setState({group: val})} />} />
-          <Route exact path='/find-user' render={(props) => <Search {...props} group={group} />} />
+          <Route exact path={['/', '/login']} render={(props) => <Login {...props} updateState={(value) => this.setState({groups: value})} />} />
+          <Route exact path='/find-user' render={(props) => <Search {...props} groups={groups} group={currentGroup} updateState={this.updateGroup}/>} />
           <Route exact path='/manage-user/:id' render={(props) => <UserManager {...props} group={group} />}/>
           <Route exact path='/manage-users/:cls/:school' render={(props) => <UsersManager {...props} group={group} />}/>
           <Route exact path='/history' component={SessionHistory} />

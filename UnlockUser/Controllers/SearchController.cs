@@ -19,12 +19,14 @@ namespace UnlockUser.Controllers
         private readonly IActiveDirectory _provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ISession _session;
+        private readonly IConfiguration _config;
 
-        public SearchController(IActiveDirectory provider, IHttpContextAccessor contextAccessor)
+        public SearchController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IConfiguration config)
         {
             _provider = provider;
             _contextAccessor = contextAccessor;
             _session = _contextAccessor.HttpContext.Session;
+            _config = config;
         }
 
         #region GET
@@ -33,21 +35,24 @@ namespace UnlockUser.Controllers
         public JsonResult FindUser(string name, string group, bool match = false)
         {
             var users = new List<User>();
+
             try
             {
-                DirectorySearcher result = _provider.GetMembers(group);
+                    var groupName = group.ToLower();
+                    DirectorySearcher? result = _provider.GetMembers(groupName);
 
-                if (match)
-                    result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(|(displayName=*{name}*)(|(givenName=*{name}*))(|(upn=*{name.ToLower()}*))(sn=*{name}*))))";
-                else
-                    result.Filter = $"(&(objectClass=User)(|(cn={name})(|(displayName={name})(|(givenName={name}))(sn={name}))))";
+                    if (match)
+                        result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(|(displayName=*{name}*)(|(givenName=*{name}*))(|(upn=*{name.ToLower()}*))(sn=*{name}*))))";
+                    else
+                        result.Filter = $"(&(objectClass=User)(|(cn={name})(|(displayName={name})(|(givenName={name}))(sn={name}))))";
 
-                users = _provider.GetUsers(result, group);
+                    users = _provider.GetUsers(result, groupName);
             }
             catch (Exception e)
             {
                 return Error(e.Message);
             }
+
 
             // If the result got a successful result
             if (users.Count > 0)

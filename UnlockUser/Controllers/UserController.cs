@@ -8,8 +8,6 @@ using System.Text;
 using System.Diagnostics;
 using System.Net;
 using System.DirectoryServices;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 
 namespace UnlockUser.Controllers;
 

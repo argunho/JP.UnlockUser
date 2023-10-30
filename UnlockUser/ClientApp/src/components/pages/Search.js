@@ -1,15 +1,25 @@
-import React, { Component } from 'react'
-import { withRouter } from 'react-router-dom'
+import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
+
+// Installed
 import axios from 'axios';
-import { SearchOffSharp, SearchSharp } from '@mui/icons-material'
+import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
 import {
     Button, FormControl, FormControlLabel, Tooltip,
-    Radio, RadioGroup, TextField, Switch, Autocomplete
+    Radio, RadioGroup, TextField, Switch, Autocomplete, Select, MenuItem, InputLabel, Box
 } from '@mui/material'
+
+// Blocks
 import Result from '../blocks/Result'
-import ModalHelpTexts from './../blocks/ModalHelpTexts'
-import schools from './../../json/schools.json'; // List of all schools in Alvesta municipalities
-import TokenConfig from '../functions/TokenConfig'
+import ModalHelpTexts from './../blocks/ModalHelpTexts'// List of all schools in Alvesta municipalities
+
+// Functions
+import TokenConfig from '../functions/TokenConfig';
+
+// Json
+import params from './../../json/helpTexts.json';
+import schools from './../../json/schools.json'; 
+import forms from './../../json/forms.json'; 
 
 
 export class Search extends Component {
@@ -17,9 +27,10 @@ export class Search extends Component {
 
     constructor(props) {
         super(props);
-
         const sOption = sessionStorage.getItem("sOption");
         const clsSearch = (sOption === "members");
+        const groups = props?.groups?.split(",");
+
         this.state = {
             input: "",
             additionInput: "",
@@ -33,33 +44,14 @@ export class Search extends Component {
             clsStudents: clsSearch,
             match: true,
             isOpen: false,
+            groups: groups,
+            group: props.group,
             isNoOptions: false,
             response: null,
             showTips: localStorage.getItem("showTips") === "true"
         }
 
         this.source = axios.CancelToken.source();
-
-        // Search options
-        this.sOptions = [
-            { label: "Användare", value: "user" },
-            { label: "Klass elever", value: "members" }
-        ]
-
-        // Help texts
-        this.helpTexts = [
-            { label: "Användare", tip: "Det här alternativet är till för att söka efter en specifik användare. Välj rätt sökalternativ nedan för att få förväntad resultat.", value: "user", },
-            { label: "Klass elever", tip: "Det här alternativet är till för att söka efter alla elever i en specifik klass med klass- och skolnamn.", value: "members" },
-            { label: "Match", tip: "Matchningen av det angivna sökordet bland alla elevers Namn/Efternamn/Användarnamn vilka innehåller angivet sökord.", value: "match" },
-            { label: "Exakt", tip: "Matchning med exakt stavat Namn/Efternamn/Användarnamn.", value: "exact" },
-            { label: "Tips", tip: "Genom att klicka på varje sökalternativ aktiveras en dold tipsruta som visas när du för musen över sökalternativen.", value: "tips" },
-            { label: "Resultat", tip: "Resultatet kan bli från 0 till flera hittade användare beroende på sökord och sökalternativ.", value: "", color: "#c00" }
-        ]
-
-        if (this.props.group !== "studenter") {
-            this.sOptions = [];
-            this.helpTexts.splice(0, 2);
-        }
     }
 
     componentDidMount() {
@@ -69,6 +61,8 @@ export class Search extends Component {
             this.props.history.push("/login");
         else if (this.props.history.action === "POP") // Clean the old result if the page is refreshed
             sessionStorage.removeItem("users");
+
+        document.title = "UnlockUser | Sök";
     }
 
     componentWillUnmount() {
@@ -89,9 +83,9 @@ export class Search extends Component {
     }
 
     // Return one from help texts found by the keyword
-    returnToolTipByKeyword(keyword) {
+    returnToolTipByKeyword(keyword, students) {
         if (!this.state.showTips) return "";
-        return this.helpTexts.find(x => x.label === keyword)?.tip;
+        return (students ? params.studentsList : params.defaultList).find(x => x.label === keyword)?.tip;
     }
 
     // Handle changes in search alternatives and parameters
@@ -147,7 +141,7 @@ export class Search extends Component {
         this.setState({ isLoading: true, users: null });
 
         // State parameters
-        const { input, match, sOption, additionInput, clsStudents } = this.state;
+        const { input, match, group, sOption, additionInput, clsStudents } = this.state;
         // Return if form is invalid
         if (input.length < 1) {
             this.setState({ isLoading: false });
@@ -155,7 +149,7 @@ export class Search extends Component {
         }
 
         // API parameters by chosen searching alternative
-        const params = (!clsStudents) ? this.props.group + "/" + match : additionInput;
+        const params = (!clsStudents) ? group + "/" + match : additionInput;
 
         // API request
         await axios.get("search/" + sOption + "/" + input + "/" + params, _config).then(res => {
@@ -203,87 +197,111 @@ export class Search extends Component {
 
     render() {
         // State parameters
-        const { users, isLoading,
-            choiceList, match, response,
-            sOption, showTips,
-            clsStudents, isOpen, isNoOptions } = this.state;
+        const { users, isLoading, choiceList, match, response,
+            sOption, showTips, groups, group, clsStudents, isOpen, isNoOptions } = this.state;
 
-        // List of text fields
-        const sFormParams = !clsStudents ? [{ name: "input", label: "Namn", placeholder: (!match) ? "Skriv exakt fullständigt namn eller anvädarnamn här ..." : "", autoOpen: false }]
-            : [{ name: "input", label: "Klassbeteckning", clsName: "search-first-input", placeholder: "Skriv exakt klassbeteckning här ...", autoOpen: false },
-            { name: "additionInput", label: "Skolnamn", clsName: "search-second-input", placeholder: "Skriv exakt skolnamn här ..", autoOpen: true }];
+        const { optionsList, studentsList, defaultList } = params;
+        const sFormParams = !clsStudents ? forms.single : forms.group;
 
         const isActive = (this.state.input || this.state.additionInput).length > 0;
+        const students = group === "Studenter";
+        const arrayTexts = students ? studentsList.concat(defaultList) : defaultList;
 
         return (
             <div className='interior-div' onSubmit={this.getSearchResult.bind(this)}>
 
                 {/* Search form */}
-                <form className='search-wrapper'>
-                    {/* List loop of text fields */}
-                    {sFormParams.map((s, index) => (
-                        <Autocomplete
-                            key={index}
-                            freeSolo
-                            disableClearable
-                            className={s.clsName || 'search-input'}
-                            options={schools}
-                            getOptionLabel={(option) => option.label || ""}
-                            autoHighlight
-                            open={s.autoOpen && isOpen && !isNoOptions}
-                            inputValue={this.state[s.name]}
-                            onChange={(e, option) => (e.key === "Enter") ? this.handleKeyDown : this.setState({ [s.name]: option.value })}
-                            onBlur={() => this.setState({ isOpen: false })}
-                            onClose={() => this.setState({ isOpen: false })}
-                            onFocus={() => this.setState({ isOpen: (s.autoOpen && !isNoOptions) })}
-                            renderInput={(params) =>
-                                <TextField
-                                    {...params}
-                                    name={s.name}
-                                    label={s.label}
-                                    error={response?.warning || false}
-                                    required
-                                    InputProps={{
-                                        ...params.InputProps,
-                                        maxLength: 30,
-                                        minLength: 2
-                                    }}
-                                    value={this.state[s.name]}
-                                    disabled={isLoading}
-                                    placeholder={s.placeholder}
-                                    onKeyDown={this.handleKeyDown}
-                                    onChange={(e) => this.valueChangeHandler(e, s.autoOpen)}
-                                    helperText={this.state[s.name].length > 0
-                                        ? `${30 - this.state[s.name].length} tecken kvar` : "Min 2 & Max 30 tecken"}
-                                />}
-                        />
-                    ))}
+                <div className='d-row search-container'>
+                    <form className='search-wrapper'>
+                        {/* List loop of text fields */}
+                        {sFormParams.map((s, index) => (
+                            <Autocomplete
+                                key={index}
+                                freeSolo
+                                disableClearable
+                                className={s.clsName || 'search-input'}
+                                options={schools}
+                                getOptionLabel={(option) => option.label || ""}
+                                autoHighlight
+                                open={s.autoOpen && isOpen && !isNoOptions}
+                                inputValue={this.state[s.name]}
+                                onChange={(e, option) => (e.key === "Enter") ? this.handleKeyDown : this.setState({ [s.name]: option.value })}
+                                onBlur={() => this.setState({ isOpen: false })}
+                                onClose={() => this.setState({ isOpen: false })}
+                                onFocus={() => this.setState({ isOpen: (s.autoOpen && !isNoOptions) })}
+                                renderInput={(params) =>
+                                    <TextField
+                                        {...params}
+                                        name={s.name}
+                                        label={s.label}
+                                        error={response?.warning || false}
+                                        required
+                                        InputProps={{
+                                            ...params.InputProps,
+                                            maxLength: 30,
+                                            minLength: 2
+                                        }}
+                                        value={this.state[s.name]}
+                                        disabled={isLoading}
+                                        placeholder={!match ? s.placeholder : ""}
+                                        onKeyDown={this.handleKeyDown}
+                                        onChange={(e) => this.valueChangeHandler(e, s.autoOpen)}
+                                        helperText={this.state[s.name].length > 0
+                                            ? `${30 - this.state[s.name].length} tecken kvar` : "Min 2 & Max 30 tecken"}
+                                    />}
+                            />
+                        ))}
 
-                    {/* Submit form - button */}
-                    <Button
-                        variant={isActive ? "contained" : "outlined"}
-                        color={isActive ? "primary" : "inherit"}
-                        className="search-button search-button-mobile"
-                        type="submit"
-                        disabled={!isActive || isLoading}>
-                        <SearchSharp /></Button>
+                        {/* Submit form - button */}
+                        <Button variant={isActive ? "contained" : "outlined"}
+                            color={isActive ? "primary" : "inherit"}
+                            className="search-button search-button-mobile"
+                            type="submit"
+                            disabled={!isActive || isLoading}>
+                            <SearchSharp /></Button>
 
-                    {/* Reset form - button */}
-                    {isActive && <Button
-                        variant="text"
-                        color="error"
-                        className="search-reset search-button-mobile"
-                        disabled={isLoading}
-                        onClick={() => this.setState({ input: "", additionInput: "", isOpen: false })}>
-                        <SearchOffSharp />
-                    </Button>}
-                </form>
+                        {/* Reset form - button */}
+                        {isActive && <Button
+                            variant="text"
+                            color="error"
+                            className="search-reset search-button-mobile"
+                            disabled={isLoading}
+                            onClick={() => this.setState({ input: "", additionInput: "", isOpen: false })}>
+                            <SearchOffSharp />
+                        </Button>}
+                    </form>
+
+                    {/* Choose group */}
+                    <Box sx={{ minWidth: 160 }}>
+                        <FormControl fullWidth>
+                            <InputLabel id="demo-simple-select-label">Hanteras</InputLabel>
+                            <Select
+                                value={group}
+                                label="Hanteras"
+                                labelId="demo-simple-select-label"
+                                onChange={(e) => { 
+                                    this.setState({group: e.target.value});                  
+                                    this.props.updateState(e.target.value);
+                                }}
+                                sx={{ height: 50, color: "#1976D2" }}
+                                disabled={groups.length === 1 || sFormParams.length > 1}
+                            >
+                                {groups?.map((name, index) => (
+                                    <MenuItem value={name} key={index}>
+                                        <span style={{ marginLeft: "10px" }}> - {name}</span>
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
+                </div>
+
 
                 {/* The search parameters to choice */}
                 <div className="checkbox-radio-wrapper" >
 
                     {/* Modal  window with help texts */}
-                    <ModalHelpTexts arr={this.helpTexts} cls="" isTitle="Förklaring av sökparametrar" />
+                    <ModalHelpTexts arr={arrayTexts} cls="" isTitle="Förklaring av sökparametrar" />
 
                     {/* Switchable box */}
                     <FormControlLabel className='switch-btn'
@@ -293,11 +311,11 @@ export class Search extends Component {
                         label="Tips" />
 
                     {/* Radio buttons to choice one of search alternatives */}
-                    {this.sOptions.length > 0 && <FormControl className='checkbox-block-mobile' style={{ display: "inline-block" }}>
+                    {students && <FormControl className='checkbox-block-mobile' style={{ display: "inline-block" }}>
                         <RadioGroup row name="row-radio-buttons-group">
                             {/* Loop of radio input choices */}
-                            {this.sOptions.map((p, index) => (
-                                <Tooltip key={index} arrow disableHoverListener={!showTips} title={this.returnToolTipByKeyword(p.label)}
+                            {optionsList?.map((p, index) => (
+                                <Tooltip key={index} arrow disableHoverListener={!showTips} title={this.returnToolTipByKeyword(p.label, true)}
                                     classes={{ tooltip: "tooltip tooltip-green", arrow: "arrow-green" }}>
                                     <FormControlLabel
                                         value={sOption === p.value}
@@ -314,11 +332,12 @@ export class Search extends Component {
                     </FormControl>}
 
                     {/* Checkbox and radio with search parameters to choose for user search */}
-                    <FormControl style={{ display: (this.sOptions.length === 0) ? "inline-block" : "block" }}>
+                    {/* <FormControl style={{ display: (this.sOptions.length === 0) ? "inline-block" : "block" }}> */}
+                    <FormControl style={{ display: "block" }}>
                         <RadioGroup row name="row-radio-buttons-group">
                             {/* Loop of radio input choices */}
                             {choiceList.map((c, index) => (
-                                <Tooltip key={index} arrow disableHoverListener={!showTips} title={this.returnToolTipByKeyword(c.label)} 
+                                <Tooltip key={index} arrow disableHoverListener={!showTips} title={this.returnToolTipByKeyword(c.label)}
                                     classes={{ tooltip: "tooltip tooltip-blue", arrow: "arrow-blue" }}>
                                     <FormControlLabel
                                         value={c.match}
@@ -340,7 +359,7 @@ export class Search extends Component {
                     list={users}
                     clsStudents={clsStudents}
                     isVisibleTips={showTips}
-                    group={this.props.group}
+                    group={group.toLowerCase()}
                     isLoading={isLoading}
                     response={response}
                     resultBlock={true}

@@ -41,6 +41,8 @@ export class UserManager extends Component {
 
     componentDidMount() {
         this.getUser();
+  
+        document.title = "UnlockUser | Användare";
     }
 
     async getUser() {

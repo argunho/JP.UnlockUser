@@ -3,18 +3,15 @@
 import React, { useEffect, useRef, useState } from 'react'
 import {
     Avatar, Button, Checkbox, List, ListItem,
-    ListItemAvatar, ListItemText, Skeleton, Tooltip, Typography
+    ListItemAvatar, ListItemText, Tooltip, Typography
 } from '@mui/material'
 import { Cancel, DeleteSweep, Deselect, Edit, SelectAll } from '@mui/icons-material';
 import Loading from './Loading';
 import { useHistory } from 'react-router-dom';
 import Response from './Response';
 import Info from './Info';
-import { Label } from 'reactstrap';
 
 /* eslint-disable react-hooks/exhaustive-deps */  // <= Do not remove this line
-
-const colors = ["red", "blue", "yellow"];
 
 export default function Result({
     list, clsStudents,

@@ -1,10 +1,14 @@
 import { AccessTime, Phone, Web } from '@mui/icons-material'
 import { Alert, AlertTitle } from '@mui/material'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import support from './../../images/support.png'
 
 export default function Contacts() {
+
+  useEffect(() => {
+    document.title = "UnlockUser | Kontakta oss";
+  }, [])
 
   return (
     // Contact information
