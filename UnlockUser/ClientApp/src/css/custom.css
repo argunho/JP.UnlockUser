@@ -219,16 +219,27 @@ body {
   margin-top: 20px;
 }
 
-.search-wrapper {
+.search-wrapper,
+.search-wrapper-logs {
   position: relative;
-  margin: 15px 10px 0 0 !important;
   display: inline-flex;
-  min-width: calc(100% - 172px);
 }
 
-.search-input {
+.search-wrapper {
+  min-width: calc(100% - 172px);
+  margin: 15px 10px 0 0 !important;
+}
+
+.search-wrapper-logs {
+  margin: 20px 0 !important;
+}
+
+.search-wrapper-logs,
+.search-full-width { 
   width: 100%;
 }
+
+
 
 .input-root {
   padding: 0 !important;

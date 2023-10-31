@@ -54,6 +54,8 @@ export default function Header({ isAuthorized }) {
     const logout = async () => {
         // If the user is logged out, clear and remove all credential which was saved for the current session
         sessionStorage.clear();
+        sessionStorage.removeItem("group");
+        sessionStorage.removeItem("groups");
         sessionStorage.setItem("login", "true");
         await axios.get("auth/logout").then(res => {
             if (res.data?.errorMessage)
@@ -88,7 +90,7 @@ export default function Header({ isAuthorized }) {
                             </Button>
                             <ul className={`menu-wrapper ${visibleMenu && 'visible-menu-wrapper'}`} ref={refMenu}>
                                 <li className='display-name'>{displayName}</li>
-                                {isSupport && <li onClick={() => goToPage("logfiles")}>
+                                {isSupport && <li onClick={() => goToPage("logs")}>
                                     <InsertDriveFile />&nbsp;&nbsp;<span>Loggfiler</span>
                                 </li>}
                                 <li onClick={() => goToPage("contact")}>

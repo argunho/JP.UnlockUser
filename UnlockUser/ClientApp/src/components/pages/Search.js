@@ -219,7 +219,7 @@ export class Search extends Component {
                                 key={index}
                                 freeSolo
                                 disableClearable
-                                className={s.clsName || 'search-input'}
+                                className={s.clsName || 'search-full-width'}
                                 options={schools}
                                 getOptionLabel={(option) => option.label || ""}
                                 autoHighlight
@@ -272,7 +272,7 @@ export class Search extends Component {
                     </form>
 
                     {/* Choose group */}
-                    <Box sx={{ minWidth: 160 }}>
+                    <Box sx={{ minWidth: 160, marginBottom: "9px" }}>
                         <FormControl fullWidth>
                             <InputLabel id="demo-simple-select-label">Hanteras</InputLabel>
                             <Select

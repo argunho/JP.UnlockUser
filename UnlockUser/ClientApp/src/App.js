@@ -23,9 +23,10 @@ class App extends Component {
   constructor() {
     super();
     const groups = sessionStorage.getItem("groups");
+    const currentGroup = sessionStorage.getItem("group");
     this.state = {
       groups: groups,
-      currentGroup: sessionStorage.getItem("group") ?? (!!groups ? groups.split(",")[0] : null)
+      currentGroup: currentGroup ?? (!!groups ? groups.split(",")[0] : null)
     };
   }
 
@@ -41,26 +42,35 @@ class App extends Component {
     }
   }
 
+  updateState = (value) => {
+    this.setState({ 
+      groups: value,
+      group: value.split(",")[0]
+    })
+  }
+
   updateGroup = (value) => {
     sessionStorage.setItem("group", value);
-    this.setState({currentGroup: value});
+    this.setState({ currentGroup: value });
   }
 
   render() {
-    const {groups, currentGroup, isAuthorized} = this.state;
-    const group  = currentGroup?.toLowerCase();
+    const { groups, currentGroup, isAuthorized } = this.state;
+    const group = currentGroup?.toLowerCase();
 
     return (
       <Layout isAuthorized={isAuthorized} groups={groups}>
         <Switch>
-          <Route exact path={['/', '/login']} render={(props) => <Login {...props} updateState={(value) => this.setState({groups: value})} />} />
-          <Route exact path='/find-user' render={(props) => <Search {...props} groups={groups} group={currentGroup} updateState={this.updateGroup}/>} />
-          <Route exact path='/manage-user/:id' render={(props) => <UserManager {...props} group={group} />}/>
-          <Route exact path='/manage-users/:cls/:school' render={(props) => <UsersManager {...props} group={group} />}/>
-          <Route exact path='/history' component={SessionHistory} />
-          <Route exact path='/logfiles' component={LogFiles} />
-          <Route exact path='/contact' component={Contacts} />
-          <Route exact path='/members/:office/:department' render={(props) => <Members {...props} group={group} />} />
+          {!isAuthorized && <Route exact path={['/', '/login']} render={(props) => <Login {...props} updateState={this.updateState} />} />}
+          {isAuthorized && <>
+            <Route exact path='/find-user' render={(props) => <Search {...props} groups={groups} group={currentGroup} updateState={this.updateGroup} />} />
+            <Route exact path='/manage-user/:id' render={(props) => <UserManager {...props} group={group} />} />
+            <Route exact path='/manage-users/:cls/:school' render={(props) => <UsersManager {...props} group={group} />} />
+            <Route exact path='/history' component={SessionHistory} />
+            <Route exact path='/logs' component={LogFiles} />
+            <Route exact path='/contact' component={Contacts} />
+            <Route exact path='/members/:office/:department' render={(props) => <Members {...props} group={group} />} />
+          </>}
           <Route component={NotFound} />
         </Switch>
       </Layout>

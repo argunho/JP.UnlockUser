@@ -58,10 +58,10 @@ export default function LogFiles() {
 
     return (
         <div className='interior-div'>
-            <div className='search-wrapper'>
+            <div className='search-wrapper-logs'>
                 <TextField
                     label="Sök loggfil ..."
-                    className='search-input'
+                    className='search-full-width'
                     value={filter}
                     placeholder="Anvädarnamn, school, klass, datum, gruppnamn ..."
                     onChange={valueChangeHandler}
