@@ -73,7 +73,7 @@ class App extends Component {
             <Route exact path='/contact' component={Contacts} />
             <Route exact path='/members/:office/:department' render={(props) => <Members {...props} group={group} />} />
           </>}
-          {(!loading || isAuthorized) && <Route component={NotFound} />}
+          {!loading && <Route component={NotFound} />}
         </Switch>
       </Layout>
     );
