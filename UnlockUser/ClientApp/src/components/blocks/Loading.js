@@ -8,7 +8,7 @@ export default function Loading({ img, msg, src }) {
   return (
     <div className='block-centered'>
       <img src={src ? src : require(`./../../images/${loadImage}`)} className='loading' alt="loading" />
-      <p>Var vänlig och vänta, {loadText}</p>
+      {!!msg && <p>Var vänlig och vänta, {loadText}</p>}
     </div>
   )
 }

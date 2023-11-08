@@ -1,6 +1,4 @@
-﻿using System.DirectoryServices.AccountManagement;
-
-namespace UnlockUser.Models;
+﻿namespace UnlockUser.Models;
 public class GroupParameters
 {
     public string? Name { get; set; }
