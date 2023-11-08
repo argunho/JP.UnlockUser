@@ -28,12 +28,16 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      currentGroup: sessionStorage.getItem("group") ?? ""
+      currentGroup: sessionStorage.getItem("group") ?? "",
+      loading: false
     };
   }
 
   componentDidMount() {  
-    this.setState({ isAuthorized: TokenConfig(true) })
+    this.setState({ 
+      isAuthorized: TokenConfig(true),
+      loading: false
+    })
   }
 
   componentDidUpdate(prevProps) {
@@ -46,11 +50,14 @@ class App extends Component {
 
   updateGroup = (value) => {
     sessionStorage.setItem("group", value);
-    this.setState({ currentGroup: value });
+    this.setState({ 
+      currentGroup: value,
+      loading: true
+    });
   }
 
   render() {
-    const { currentGroup, isAuthorized } = this.state;
+    const { currentGroup, isAuthorized, loading } = this.state;
     const group = currentGroup?.toLowerCase();
 
     return (
@@ -66,7 +73,7 @@ class App extends Component {
             <Route exact path='/contact' component={Contacts} />
             <Route exact path='/members/:office/:department' render={(props) => <Members {...props} group={group} />} />
           </>}
-          <Route component={NotFound} />
+          {(!loading || isAuthorized) && <Route component={NotFound} />}
         </Switch>
       </Layout>
     );

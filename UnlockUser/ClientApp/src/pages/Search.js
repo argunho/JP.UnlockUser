@@ -50,7 +50,6 @@ function Search({ group, updateGroup }) {
     const history = useHistory();
 
     useEffect(() => {
-        console.log(source)
         document.title = "UnlockUser | Sök";
         if (history.action === "POP") // Clean the old result if the page is refreshed
             sessionStorage.removeItem("users");

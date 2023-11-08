@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 
 // Installed
 import { Button, CircularProgress, FormControl, TextField } from '@mui/material';
@@ -16,116 +16,107 @@ import keys from './../assets/images/keys.png';
 // Css
 import './../assets/css/login.css';
 
-export class Login extends Component {
-    static displayName = Login.name;
+const formFields = [
+    { label: "Användarnamn", name: "username", type: "text" },
+    { label: "Lösenord", name: "password", type: "password" }
+];
 
-    constructor(props) {
-        super(props);
+function Login({updateGroup}) {
+    Login.displayName = "Login";
 
-        this.state = {
-            form: {
-                username: "",
-                password: ""
-            },
-            formFields: [
-                { label: "Användarnamn", name: "username", type: "text" },
-                { label: "Lösenord", name: "password", type: "password" }
-            ],
-            response: null,
-            load: false
-        }
-    }
+    const [formData, setFormData] = useState({
+        username: "",
+        password: ""
+    });
+    const [response, setResponse] = useState();
+    const [loading, setLoading] = useState(false);
 
-    componentDidMount() {
+    const history = useHistory();
+
+    useEffect(() => {
         const token = sessionStorage.getItem("token");
         if (token !== null && token !== undefined)
-            this.props.history.push("/find-user");
-            document.title = "UnlockUser | Logga in";
+            history.push("/find-user");
+        document.title = "UnlockUser | Logga in";
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+
+    const changeHandler = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+        if (!!response)
+            setResponse();
     }
 
-    valueChangeHandler = (e) => {
-        this.setState({
-            form: {
-                ...this.state.form, [e.target.name]: e.target.value
-            },
-            response: null
-        })
-    }
-
-    submitForm = async (e) => {
+    const submitForm = async (e) => {
         e.preventDefault();
-        const { form } = this.state;
 
-        this.setState({ load: true, response: null })
+setLoading(true);
 
-        await ApiRequest("auth", "post", form).then(res => {
+        await ApiRequest("auth", "post", formData).then(res => {
             const { alert, token, groups, errorMessage } = res.data;
 
             let success = alert === "success";
-            this.setState({
-                load: success,
-                response: res.data
-            })
+            setResponse(res.data);
+            setLoading(false);
 
             if (success) {
-                this.props.updateGroup(groups.split(",")[0]);
+                updateGroup(groups.split(",")[0]);
                 sessionStorage.setItem("token", token);
                 sessionStorage.setItem("groups", groups);
                 setTimeout(() => {
-                    this.props.history.push("/find-user");
+                   history.push("/find-user");
                 }, 2000)
             } else if (errorMessage)
                 console.error("Error response => " + errorMessage);
         }, error => {
-            this.setState({ load: true });
+            setLoading(false);
             console.error("Error => " + error);
         })
     }
 
-    resetResponse = () => {
-        if (this.state.response?.alert === "success")
-            this.props.history.push("/find-user");
+    const resetResponse = () => {
+        if (response?.alert === "success")
+            history.push("/find-user");
         else
-            this.setState({ response: null })
+            setResponse();
     };
 
-    render() {
-        const { load, response, formFields, form } = this.state;
-        return (
-            <form className='login-form' onSubmit={this.submitForm}>
-                <p className='form-title'>Logga in</p>
-                {!!response && <Response response={response} reset={this.resetResponse} />}
-                {!response && formFields.map((x, i) => (
-                    <FormControl key={i}>
-                        <TextField
-                            label={x.label}
-                            name={x.name}
-                            type={x.type}
-                            value={form[x.name]}
-                            variant="outlined"
-                            required
-                            inputProps={{
-                                maxLength: 20,
-                                minLength: 5,
-                                autoComplete: form[x.name],
-                                form: { autoComplete: 'off', }
-                            }}
-                            disabled={load}
-                            onChange={this.valueChangeHandler} />
-                    </FormControl>
-                ))}
 
-                {!response && <Button variant="outlined"
-                    className='button-btn'
-                    color="inherit"
-                    type="submit"
-                    title="Logga in"
-                    disabled={load || form.username.length < 5 || form.password.length < 5} >
-                    {load ? <CircularProgress style={{ width: "12px", height: "12px", marginTop: "3px" }} /> : "Skicka"}</Button>}
-                <img src={keys} alt="UnlockUser" className='login-form-img' />
-            </form>
-        )
-    }
+    return (
+        <form className='login-form' onSubmit={submitForm}>
+            <p className='form-title'>Logga in</p>
+            {!!response && <Response response={response} reset={resetResponse} />}
+            {!response && formFields.map((x, i) => (
+                <FormControl key={i}>
+                    <TextField
+                        label={x.label}
+                        name={x.name}
+                        type={x.type}
+                        value={formData[x.name]}
+                        variant="outlined"
+                        required
+                        inputProps={{
+                            maxLength: 20,
+                            minLength: 5,
+                            autoComplete: formData[x.name],
+                            form: { autoComplete: 'off', }
+                        }}
+                        disabled={loading}
+                        onChange={changeHandler} />
+                </FormControl>
+            ))}
+
+            {!response && <Button variant="outlined"
+                className='button-btn'
+                color="inherit"
+                type="submit"
+                title="Logga in"
+                disabled={loading || formData.username.length < 5 || formData.password.length < 5} >
+                {loading ? <CircularProgress style={{ width: "12px", height: "12px", marginTop: "3px" }} /> : "Skicka"}</Button>}
+            <img src={keys} alt="UnlockUser" className='login-form-img' />
+        </form>
+    )
 }
 
-export default withRouter(Login);
+export default Login;
