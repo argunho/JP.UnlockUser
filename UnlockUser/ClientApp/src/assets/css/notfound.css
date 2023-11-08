@@ -1,0 +1,89 @@
+.notfound-container {
+  width: 100%;
+  height: calc(100vh - 220px);
+  max-width: 600px;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.notfound-wrapper {
+  position: absolute;
+  right: 15px;
+  top: 56%;
+  padding: 15px 10px;
+  opacity: 0.95;
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#fb1574+0,fb1574+22,f60300+51,f60300+100 */
+  background: #fb1574; /* Old browsers */
+  background: -moz-linear-gradient(
+    left,
+    #fb1574 0%,
+    #fb1574 22%,
+    #f60300 51%,
+    #f60300 100%
+  ); /* FF3.6-15 */
+  background: -webkit-linear-gradient(
+    left,
+    #fb1574 0%,
+    #fb1574 22%,
+    #f60300 51%,
+    #f60300 100%
+  ); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(
+    to right,
+    #fb1574 0%,
+    #fb1574 22%,
+    #f60300 51%,
+    #f60300 100%
+  ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fb1574', endColorstr='#f60300',GradientType=1 ); /* IE6-9 */
+}
+
+.notfound-img {
+  width: 100%;
+  height: auto;
+  margin: auto;
+  box-shadow: 0 0 2px 2px #858585;
+}
+
+.notfound-title {
+  font-size: 24px;
+  text-transform: uppercase;
+  margin: 0 auto 0 auto;
+  text-align: center;
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+}
+
+.notfound-url {
+  padding: 0 10px;
+  margin: 0;
+  color: #fff;
+  cursor: no-drop !important;
+  font-size: 17px;
+}
+.notfound-url > span {
+  height: 100%;
+  vertical-align: middle;
+}
+
+@media(max-width: 768px) {
+  .notfound-container {
+    height: max-content;
+    margin-top: 50px;
+  }
+  .notfound-img {
+    width: 95%;
+  }
+  .notfound-wrapper {
+    top: 61%;
+    right: calc(2.5% + 5px);
+    padding: 7px;
+  }
+  .notfound-title {
+    font-size: 3.7vw;
+  }
+  .notfound-url {
+    font-size: 2.8vw;
+  }
+}

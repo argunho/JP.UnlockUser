@@ -51,6 +51,22 @@ public class UserController : ControllerBase
 
         return new JsonResult(new { user = userData[0], passwordLength = charachtersLength });
     }
+
+
+    [HttpGet("unlock/{name}")] // Unlock user
+    public JsonResult UnlockUser(string name)
+    {
+        var model = new UserViewModel
+        {
+            Username = name
+        };
+
+        var message = _provider.UnlockUser(UpdatedUser(model));
+        if (message.Length > 0)
+            return new JsonResult(new { alert = "warning", msg = message });
+
+        return new JsonResult(new { success = true, unlocked = true, alert = "success", msg = "Användaren har låsts upp!" });
+    }
     #endregion
 
     #region POST
@@ -75,21 +91,6 @@ public class UserController : ControllerBase
         SaveLogFile(log);
 
         return ReturnResultMessage(message);
-    }
-
-    [HttpPost("unlock/{name}")] // Unlock user
-    public JsonResult UnlockUser(string name)
-    {
-        var model = new UserViewModel
-        {
-            Username = name
-        };
-
-        var message = _provider.UnlockUser(UpdatedUser(model));
-        if (message.Length > 0)
-            return new JsonResult(new { alert = "warning", msg = message });
-
-        return new JsonResult(new { success = true, unlocked = true, alert = "success", msg = "Användaren har låsts upp!" });
     }
 
     [HttpPost("mail/{str}")] // Send email to current logged admin

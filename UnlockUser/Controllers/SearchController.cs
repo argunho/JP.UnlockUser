@@ -38,15 +38,15 @@ namespace UnlockUser.Controllers
 
             try
             {
-                    var groupName = group.ToLower();
-                    DirectorySearcher? result = _provider.GetMembers(groupName);
+                var groupName = group.ToLower();
+                DirectorySearcher? result = _provider.GetMembers(groupName);
 
-                    if (match)
-                        result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(|(displayName=*{name}*)(|(givenName=*{name}*))(|(upn=*{name.ToLower()}*))(sn=*{name}*))))";
-                    else
-                        result.Filter = $"(&(objectClass=User)(|(cn={name})(|(displayName={name})(|(givenName={name}))(sn={name}))))";
+                if (match)
+                    result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(|(displayName=*{name}*)(|(givenName=*{name}*))(|(upn=*{name.ToLower()}*))(sn=*{name}*))))";
+                else
+                    result.Filter = $"(&(objectClass=User)(|(cn={name})(|(displayName={name})(|(givenName={name}))(sn={name}))))";
 
-                    users = _provider.GetUsers(result, groupName);
+                users = _provider.GetUsers(result, groupName);
             }
             catch (Exception e)
             {
@@ -56,7 +56,10 @@ namespace UnlockUser.Controllers
 
             // If the result got a successful result
             if (users.Count > 0)
+            {
+                _session.SetString("GroupName", group);
                 return new JsonResult(new { users = users.OrderBy(x => x.Name) });
+            }
 
             // If result got no results
             return new JsonResult(new { alert = "warning", msg = "Inga användarkonto hittades." });
@@ -73,6 +76,7 @@ namespace UnlockUser.Controllers
 
                 _session.SetString("Office", office);
                 _session.SetString("Department", department);
+                _session.SetString("GroupName", "Studenter");
 
                 DirectorySearcher result = _provider.GetMembers("studenter");
 
