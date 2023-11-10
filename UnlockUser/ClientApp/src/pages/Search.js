@@ -121,7 +121,7 @@ source.token.reason = null;
         const params = (!clsStudents) ? group + "/" + match : additionInput;
 
         // API request
-        await axios.get("search/" + sOption + "/" + input + "/" + params, _config).then(res => {
+        await axios.get("search/" + option + "/" + input + "/" + params, _config).then(res => {
             // Response
             const { users, errorMessage } = res.data;
             setUsers(users || []);
