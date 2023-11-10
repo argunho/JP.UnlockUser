@@ -75,7 +75,7 @@ function Members(props) {
             {/* Info about user */}
             <Info name="Studenter"
                 check={true}
-                group={props.groups}
+                group={props.group}
                 displayName={params.office + " " + params.department}
                 subTitle={list?.length > 0 && `Hittade ${list.length} matchningar`} />
 
@@ -84,7 +84,7 @@ function Members(props) {
                 list={list}
                 clsStudents={true}
                 loading={loading}
-                group={props.groups}
+                group={props.group}
                 response={response}
                 resultBlock={false}
             />

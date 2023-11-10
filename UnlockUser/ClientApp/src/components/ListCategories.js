@@ -10,7 +10,7 @@ import words from './../assets/json/words.json';
 
 // List of alternative to select words list category to generate password
 const passwordKeys = [
-    { label: "Komplicerd", value: null },
+    { label: "Komplicerad", value: null },
     { label: "Länder", value: "countries" },
     { label: "Alla städer/tätort", value: "cities" },
     { label: "Svenska städer/tätort", value: "svCities" },
