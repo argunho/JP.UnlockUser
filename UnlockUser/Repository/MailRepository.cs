@@ -42,13 +42,13 @@ public class MailRepository
                         + attachedFile.ContentType.Substring(attachedFile.ContentType.IndexOf("/") + 1)));
             }
 
-            SmtpClient _smtp = new SmtpClient();
+            SmtpClient _smtp = new();
             _smtp.Host = "smtp.alvesta.local";
             _smtp.Port = 25;
             _smtp.EnableSsl = false;
             _smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
 
-            NetworkCredential credential = new NetworkCredential();
+            NetworkCredential credential = new();
             credential.UserName = emailFrom;
             credential.Password = password;
             _smtp.UseDefaultCredentials = false;
