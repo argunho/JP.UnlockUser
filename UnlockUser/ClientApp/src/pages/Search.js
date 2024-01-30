@@ -114,7 +114,7 @@ function Search({ group, updateGroup }) {
         // To authorize
         let _config = TokenConfig();
         _config.cancelToken = source.token;
-source.token.reason = null;
+        source.token.reason = null;
         reset();
 
         // API parameters by chosen searching alternative

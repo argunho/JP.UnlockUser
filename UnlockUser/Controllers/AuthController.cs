@@ -150,13 +150,13 @@ public class AuthController : ControllerBase
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, user.Name),
-            new Claim("Email", user.EmailAddress),
-            new Claim("DisplayName", user.DisplayName),
-            new Claim("Groups", groupsNames)
+            new(ClaimTypes.Name, user.Name),
+            new("Email", user.EmailAddress),
+            new("DisplayName", user.DisplayName),
+            new("Groups", groupsNames)
         };
 
-        if (_provider.MembershipCheck(user.Name, "TEIS IT Serviceavdelning"))
+        if (_provider.MembershipCheck(user.Name, "TEIS IT avdelning"))
             claims.Add(new Claim("Support", "Ok"));
 
         //foreach (var r in roles)
