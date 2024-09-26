@@ -7,7 +7,7 @@ using System.DirectoryServices;
 
 namespace UnlockUser.Repository;
 
-public class ADRepository : IActiveDirectory // Help class inherit an interface and this class is a provider to use interface methods into another controller
+public class ADService : IActiveDirectory // Help class inherit an interface and this class is a provider to use interface methods into another controller
 {
     private readonly string domain = "alvesta";
     private readonly string defaultOU = "DC=alvesta,DC=local";
@@ -26,15 +26,25 @@ public class ADRepository : IActiveDirectory // Help class inherit an interface 
         => PContext().ValidateCredentials(name, password); // Method to authenticate a user
 
     // Check user's membership in a specific group in which members have access  to change student password 
-    public bool MembershipCheck(string? username, string? groupName)
+    public bool MembershipCheck(UserPrincipal user, string? groupName)
     {
-        var userPrincipal = FindUserByName(username);
-        if (userPrincipal == null) // User does not exist.
+        if (user == null) // User does not exist.
             return false;
 
-        List<Principal> groups = userPrincipal.GetAuthorizationGroups().ToList();
+        List<Principal> groups = user.GetAuthorizationGroups().ToList();
 
         return groups.Find(x => x.Name == groupName) != null;
+    }
+
+    // Check user's membership in a specific group in which members have access  to change student password 
+    public List<string>? GetUserGroups(UserPrincipalExtension user)
+    {
+        if (user == null) // User does not exist.
+            return null;
+
+        List<Principal> groups = user.GetAuthorizationGroups().ToList();
+
+        return groups?.Select(s => s.Name).ToList();
     }
 
     // Get members list
@@ -58,11 +68,12 @@ public class ADRepository : IActiveDirectory // Help class inherit an interface 
         result?.PropertiesToLoad.Add("displayName");
         result?.PropertiesToLoad.Add("userPrincipalName");
         result?.PropertiesToLoad.Add("physicalDeliveryOfficeName");
+        result?.PropertiesToLoad.Add("manager");
         result?.PropertiesToLoad.Add("department");
         result?.PropertiesToLoad.Add("title");
         result?.PropertiesToLoad.Add("lockoutTime");
 
-        var list = result.FindAll().OfType<SearchResult>().ToList() ?? null;
+        List<SearchResult> list = result.FindAll().OfType<SearchResult>().ToList() ?? null;
         if (groupName != "studenter" && list != null)
         {
                 list = list.Where(x => x.Properties["memberOf"].OfType<string>().ToList()
@@ -70,7 +81,7 @@ public class ADRepository : IActiveDirectory // Help class inherit an interface 
                                                          : !x.Contains("Ciceron-Assistentanvändare"))).ToList();
         }
 
-        if(list.Count == 0) return users;
+        if(list?.Count == 0) return users;
 
         foreach (SearchResult res in list)
         {
@@ -87,6 +98,7 @@ public class ADRepository : IActiveDirectory // Help class inherit an interface 
                 Name = props["cn"][0].ToString(),
                 DisplayName = props.Contains("displayName") ? props["displayName"][0]?.ToString() : "",
                 Email = props.Contains("userPrincipalName") ? props["userPrincipalName"][0]?.ToString() : "",
+                Manager = props.Contains("manager") ? props["manager"][0]?.ToString() : "",
                 Office = props.Contains("physicalDeliveryOfficeName") ? props["physicalDeliveryOfficeName"][0]?.ToString() : "",
                 Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
                 Title = props.Contains("title") ? props["title"][0]?.ToString() : "",

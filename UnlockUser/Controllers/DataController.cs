@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using UnlockUser.Interface;
-using UnlockUser.Models;
 
 namespace UnlockUser.Controllers
 {

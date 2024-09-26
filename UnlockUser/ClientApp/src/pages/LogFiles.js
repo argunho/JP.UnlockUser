@@ -2,13 +2,14 @@
 import React, { useEffect, useState } from 'react';
 
 //  Installed
-import { FileOpen, SearchOffSharp, SearchSharp } from '@mui/icons-material';
-import { Avatar, Button, List, ListItem, ListItemAvatar, ListItemText, TextField } from '@mui/material';
+import { CancelOutlined, Close, FileOpen, Remove, SearchOffSharp, SearchSharp, Upload } from '@mui/icons-material';
+import { Avatar, Button, IconButton, List, ListItem, ListItemAvatar, ListItemText, TextField } from '@mui/material';
 import moment from "moment";
 
 // Components
 import Response from './../components/Response';
 import Loading from './../components/Loading';
+import ModalHelpTexts from './../components/ModalHelpTexts'
 
 // Functions
 import SessionTokenCheck from './../functions/SessionTokenCheck';
@@ -23,6 +24,7 @@ function LogFiles() {
     const [initList, setInitList] = useState([])
     const [filter, setFilter] = useState("");
     const [loading, setLoading] = useState(true);
+    const [viewFile, setFileView] = useState();
 
     // Check current user authentication
     SessionTokenCheck("/");
@@ -56,11 +58,16 @@ function LogFiles() {
         setFilter("");
     }
 
-    const downloadFile = async (file) => {
+    const handleFile = async (file, download = false) => {
         const fileDownload = require('react-file-download');
         await ApiRequest("data/readTextFile/" + file).then(res => {
-            if (res.status === 200)
-                fileDownload(res.data, file.slice(file.lastIndexOf("_") + 1) + ".txt");
+            console.log(res.data)
+            if (res.status === 200) {
+                if (download)
+                    fileDownload(res.data, file.slice(file.lastIndexOf("_") + 1) + ".txt");
+                else
+                    setFileView(res.data.replaceAll("\n", "</br>"));
+            }
             else
                 console.error(res.data);
         }, error => console.error(error))
@@ -68,6 +75,8 @@ function LogFiles() {
 
     return (
         <div className='interior-div'>
+
+            {/* Search filter */}
             <div className='search-wrapper-logs'>
                 <TextField
                     label="Sök loggfil ..."
@@ -106,11 +115,12 @@ function LogFiles() {
             </ListItem>
 
             {/* Loop of list */}
-            {list?.length > 0 &&
+            {(list?.length > 0 && !viewFile) &&
                 <List sx={{ width: '100%' }}>
                     {list.map((s, index) => (
                         /* List object */
-                        <ListItem key={index} className="list-link link-files" onClick={() => downloadFile(s)}>
+                        <ListItem key={index} className="list-link link-files" onClick={() => handleFile(s)}
+                            secondaryAction={<IconButton onClick={() => handleFile(s, true)} color="primary"><Upload /></IconButton>}>
                             <div className='links-wrapper'>
                                 {/* Avatar */}
                                 <ListItemAvatar>
@@ -128,11 +138,19 @@ function LogFiles() {
                     ))}
                 </List>}
 
+            {/* View log file content in the modal window */}
+            {viewFile && <ModalHelpTexts data={viewFile} isTable={true} view={true} isTitle="Logfilen">
+                <IconButton onClick={() => setFileView()}>
+                    <Close color="error" />
+                </IconButton>
+            </ModalHelpTexts>}
+
             {/* Loading symbol */}
             {loading && <Loading msg="söker efter loggfiler." />}
 
             {/* Message if result is null */}
-            {(list.length === 0 && !loading) && <Response response={{ alert: "info", msg: "Här finns inga loggfiler" }} />}
+            {(list.length === 0 && !loading) &&
+                <Response response={{ alert: "info", msg: "Här finns inga loggfiler" }} reset={resetFilter} />}
         </div>
     )
 }

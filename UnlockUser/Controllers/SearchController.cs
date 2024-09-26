@@ -46,7 +46,7 @@ namespace UnlockUser.Controllers
                 else
                     result.Filter = $"(&(objectClass=User)(|(cn={name})(|(displayName={name})(|(givenName={name}))(sn={name}))))";
 
-                users = _provider.GetUsers(result, groupName);
+                users = FilteredListOfUsers(_provider.GetUsers(result, groupName), groupName);
             }
             catch (Exception e)
             {
@@ -67,7 +67,7 @@ namespace UnlockUser.Controllers
 
         // Search class students by class and school name
         [HttpGet("members/{department}/{office}")]
-        public async Task<JsonResult> FindClassMembers(string department, string office)
+        public JsonResult FindClassMembers(string department, string office)
         {
             try
             {
@@ -81,7 +81,7 @@ namespace UnlockUser.Controllers
                 DirectorySearcher result = _provider.GetMembers("studenter");
 
                 result.Filter = $"(&(objectClass=User)((physicalDeliveryOfficeName={office})(department={department})))";
-                users = _provider.GetUsers(result, "");
+                users = FilteredListOfUsers(_provider.GetUsers(result, ""), "studenter");
 
                 if (users.Count > 0)
                     return new JsonResult(new { users = users.Distinct().OrderBy(x => x.Department).ThenBy(x => x.Name) });
@@ -110,6 +110,48 @@ namespace UnlockUser.Controllers
                 repeatedError = repeated,
                 errorMessage = msg
             }); //Something went wrong, please try again later
+        }
+
+        // Get claim
+        public string? GetClaim(string? name)
+        {
+            try
+            {
+                var claims = User.Claims;
+                if (!claims.Any()) return null;
+
+                return claims.FirstOrDefault(x => x.Type?.ToLower() == name?.ToLower())?.Value?.ToString();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        
+        // Filter
+        public List<User> FilteredListOfUsers(List<User> users, string groupName)
+        {
+            var roles = GetClaim("roles");
+
+            // If user is not a member from developers group, filter users result
+            if (roles != null && !roles.Contains("Developer", StringComparison.CurrentCulture))
+            {
+                var manager = GetClaim("manager");
+                var office = GetClaim("office");
+                var userName = GetClaim("username");
+
+                if (groupName != "studenter")
+                {
+                    if (!roles.Contains("Manager", StringComparison.CurrentCulture))
+                        users = users.Where(x => x.Manager == manager).ToList();
+                    else
+                        users = users.Where(x => x.Manager == manager || x.Manager.Contains($"CN={userName}")).ToList();
+                }
+                else if (!roles.Contains("Support", StringComparison.CurrentCulture))
+                    users.RemoveAll(x => x.Office != office);
+            }
+
+            return users;
         }
         #endregion
     }

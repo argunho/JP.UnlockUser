@@ -7,13 +7,13 @@ using UnlockUser.Models;
 
 namespace UnlockUser.Repository;
 
-public class FunctionsRepository : IFunctions
+public class FunctionsService : IFunctions
 {
 
     public string Message { get; set; } = "";
     private readonly IHttpContextAccessor _httpContext;
 
-    public FunctionsRepository(IHttpContextAccessor httpContext)
+    public FunctionsService(IHttpContextAccessor httpContext)
     {
         _httpContext = httpContext;
     }

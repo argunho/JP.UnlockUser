@@ -323,7 +323,7 @@ function Search({ group, updateGroup }) {
                         control={<Switch checked={showTips} color='info'
                             onChange={switchShowTips} />} label="Tips" />
                     {/* Modal  window with help texts */}
-                    <ModalHelpTexts arr={arrayTexts} isTitle="Förklaring av sökparametrar" />
+                    <ModalHelpTexts data={arrayTexts} isTitle="Förklaring av sökparametrar" />
                 </div>
             </div>
 

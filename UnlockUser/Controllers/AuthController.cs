@@ -1,18 +1,13 @@
 ﻿using UnlockUser.Extensions;
 using UnlockUser.Interface;
 using UnlockUser.ViewModels;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Diagnostics;
-using System.DirectoryServices;
-using System.Runtime.CompilerServices;
 using UnlockUser.Models;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
+using Microsoft.AspNetCore.Identity;
 
 namespace UnlockUser.Controllers;
 
@@ -91,25 +86,36 @@ public class AuthController : ControllerBase
             _session?.Remove("LoginAttempt");
             _session?.Remove("LoginBlockTime");
 
-            var groupsList = _config.GetSection("Groups").Get<List<GroupParameters>>();
-            var groups = new List<GroupParameters>();
+            var permissionGroups = _config.GetSection("Groups").Get<List<GroupParameters>>();
+            var user = _provider.FindUserByExtensionProperty(model.Username);
+            var userGroups = _provider.GetUserGroups(user);
+            permissionGroups.RemoveAll(x => !userGroups.Contains(x.Group));
+            if (permissionGroups == null)
+                permissionGroups = new List<GroupParameters>();
 
-            foreach (var group in groupsList)
+            // Acces if user are a manager
+            bool manager = false;
+            if (permissionGroups.Count == 0 || permissionGroups.FindIndex(x => x.Name?.ToLower() == "personal") == -1)
             {
-                // Check the logged user's right to administer
-                if (_provider.MembershipCheck(model?.Username, group.Group))
-                    groups.Add(group);
+                manager = user.Title.ToLower().Contains("chef") || user.Title.ToLower().Contains("rektor");
+                var groupsList = _config.GetSection("Groups").Get<List<GroupParameters>>();
+                if (manager)
+                    permissionGroups.Add(groupsList.Find(x => x.Name.ToLower() == "personal"));
             }
 
-
             // Failed! Permission missed
-            if (groups.Count == 0)
+            if (permissionGroups.Count == 0)
                 return new JsonResult(new { alert = "warning", msg = "Åtkomst nekad! Behörighet saknas." });
 
+            var groupsNames = string.Join(",", permissionGroups.OrderBy(x => x.Name).Select(s => s.Name).ToList());
 
-            var groupsNames = string.Join(",", groups.OrderBy(x => x.Name).Select(s => s.Name).ToList());
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
-            var token = CreateJwtToken(_provider.FindUserByExtensionProperty(model?.Username ?? ""), model?.Password ?? "", groupsNames);
+            var token = CreateJwtToken(user, model?.Password ?? "", groupsNames);
+
+            // Response message
+            var responseMessage = $"Tillåtna behöregiheter för grupp(er):<br/> <b>&nbsp;&nbsp;&nbsp;- {groupsNames.Replace(",", "<br/>&nbsp;&nbsp;&nbsp; -")}</b>.";
+            if (manager)
+                responseMessage = $"Du som {user.Title} har för närvarande inte behörighet att ändra lösenord.";
 
             // Your access has been confirmed.
             return new JsonResult(new
@@ -117,7 +123,7 @@ public class AuthController : ControllerBase
                 alert = "success",
                 token,
                 groups = groupsNames,
-                msg = $"Din åtkomstbehörighet har bekräftats. <br/><br/>Tillåtna behöregiheter för grupp(er):<br/> <b>&nbsp;&nbsp;&nbsp;- {groupsNames.Replace(",", "<br/>&nbsp;&nbsp;&nbsp;- ")}</b>."
+                msg = $"Din åtkomstbehörighet har bekräftats.<br/><br/> {responseMessage}"
             });
         }
         catch (Exception ex)
@@ -138,10 +144,15 @@ public class AuthController : ControllerBase
 
     #region Helpers
     // Create Jwt Token for authenticating
-    private string CreateJwtToken(UserPrincipalExtension user, string password, string groupsNames)
+    private string? CreateJwtToken(UserPrincipalExtension user, string password, string groupsNames)
     {
+        if (user == null)
+            return null;
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+        IdentityOptions opt = new();
+
         _session.SetString("Password", password);
         _session.SetString("Username", user.Name);
         _session.SetString("DisplayName", user.DisplayName);
@@ -153,14 +164,28 @@ public class AuthController : ControllerBase
             new(ClaimTypes.Name, user.Name),
             new("Email", user.EmailAddress),
             new("DisplayName", user.DisplayName),
+            new("Username", user.Name),
+            new("Manager", user.Manager),
+            new("Office", user.Office),
             new("Groups", groupsNames)
         };
 
-        if (_provider.MembershipCheck(user.Name, "TEIS IT avdelning"))
-            claims.Add(new Claim("Support", "Ok"));
+        var roles = new List<string>(){"Employee"};
+        var userPrincipial = _provider.FindUserByName(user.Name);
+        if (_provider.MembershipCheck(userPrincipial, "TEIS IT avdelning"))
+            roles.Add("Support");
+            //claims.Add(new Claim("Support", "Ok"));
+        
+        if (_provider.MembershipCheck(userPrincipial, "Azure-Utvecklare Test"))
+            roles.Add("Developer");
 
-        //foreach (var r in roles)
-        //    claim.Add(new Claim(opt.ClaimsIdentity.RoleClaimType, r));
+        if (user.Title.ToLower().Contains("chef") || user.Title.ToLower().Contains("rektor"))
+            roles.Add("Manager");
+
+        claims.Add(new Claim("Roles", string.Join(",", roles)));
+
+        foreach (var role in roles)
+            claims.Add(new Claim(opt.ClaimsIdentity.RoleClaimType, role));
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {

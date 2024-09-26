@@ -1,13 +1,14 @@
 ﻿using UnlockUser.ViewModels;
 using UnlockUser.Interface;
 using UnlockUser.Models;
-using UnlockUser.Repositories;
+using UnlockUser.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Diagnostics;
 using System.Net;
 using System.DirectoryServices;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace UnlockUser.Controllers;
 
@@ -21,12 +22,15 @@ public class UserController : ControllerBase
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly ISession _session;
     private readonly IFunctions _functions;
-    public UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IFunctions functions)
+    private readonly IConfiguration _config;
+
+    public UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IFunctions functions, IConfiguration config)
     {
         _provider = provider;
         _contextAccessor = contextAccessor;
         _session = _contextAccessor.HttpContext.Session;
         _functions = functions;
+        _config = config;
     }
 
     #region GET
@@ -43,7 +47,7 @@ public class UserController : ControllerBase
         var userData = _provider.GetUsers(members, group);
 
         var charachtersLength = 8;
-        if (_provider.MembershipCheck(name, "Password Twelve Characters"))
+        if (_provider.MembershipCheck(_provider.FindUserByName(name), "Password Twelve Characters"))
             charachtersLength = 12;
 
         _session.SetString("Office", userData[0].Office);
@@ -51,7 +55,6 @@ public class UserController : ControllerBase
 
         return new JsonResult(new { user = userData[0], passwordLength = charachtersLength });
     }
-
 
     [HttpGet("unlock/{name}")] // Unlock user
     public JsonResult UnlockUser(string name)
@@ -79,18 +82,61 @@ public class UserController : ControllerBase
 
         string message = string.Empty;
 
-        Data log = GetLogData();
+        Data currentUserData = GetLogData();
 
-        // Set password to class students
-        foreach (var user in model.Users)
+        var manager = GetClaim("manager");
+
+        var roles = GetClaim("roles");
+        var stoppedToEdit = new List<string>();
+
+        var permissionGroups = _config.GetSection("Groups").Get<List<GroupParameters>>();
+
+        if (roles != null && !roles.Contains("Developer", StringComparison.CurrentCulture))
         {
-            message += _provider.ResetPassword(UpdatedUser(user));
-            log.Users.Add(user?.Username ?? "");
+            var users = model.Users.Select(s => s.Username).ToList();
+            foreach (var username in users)
+            {
+                var user = _provider.FindUserByExtensionProperty(username);
+                if (user == null)
+                    continue;
+
+                var userGroups = _provider.GetUserGroups(user);
+                permissionGroups.RemoveAll(x => !userGroups.Contains(x.Group));
+                if (permissionGroups == null || permissionGroups.Count == 0)
+                {
+                    stoppedToEdit.Add(username);
+                    model.Users.RemoveAll(x => x.Username == username);
+                    continue;
+                }
+                else if (user.Office != currentUserData.Office)
+                {
+                    stoppedToEdit.Add(username);
+                    model.Users.RemoveAll(x => x.Username == username);
+                }
+            }
+
         }
 
-        SaveLogFile(log);
+        // Set password to class students
+        if (model.Users.Count > 0)
+        {
+            foreach (var user in model.Users)
+            {
+                message += _provider.ResetPassword(UpdatedUser(user));
+                currentUserData.Users.Add(user?.Username ?? "");
+            }
 
-        return ReturnResultMessage(message);
+            SaveLogFile(currentUserData);
+        }
+
+        if (message?.Length > 0)
+            return new JsonResult(new { alert = "warning", msg = message });
+        else if (stoppedToEdit?.Count > 0 && stoppedToEdit.Count == model.Users.Count)
+            return new JsonResult(new { alert = "error", msg = "Du saknar behörigheter att ändra lösenord till valda person(er)!" }); // Warning!
+        else if (stoppedToEdit?.Count > 0)
+            return new JsonResult(new { alert = "info", msg = $"Lösenordsåterställningen lyckades men inte till alla! Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!" });
+
+        return new JsonResult(new { success = true, alert = "success", msg = "Lösenordsåterställningen lyckades!" }); //Success! Password reset was successful!
     }
 
     [HttpPost("mail/{str}")] // Send email to current logged admin
@@ -98,7 +144,7 @@ public class UserController : ControllerBase
     {
         try
         {
-            MailRepository ms = new(); // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
+            MailService ms = new(); // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
 
             string mail = _session?.GetString("Email") ?? String.Empty;
 
@@ -110,7 +156,7 @@ public class UserController : ControllerBase
                 {
                     alert = "warning",
                     msg = $"Det gick inte att skicka e-post med pdf dokument till e-postadress {mail}",
-                    errorMessage = MailRepository._message
+                    errorMessage = MailService._message
                 });
         }
         catch (Exception ex)
@@ -130,7 +176,7 @@ public class UserController : ControllerBase
             var group = _provider.FindGroupName("Topdesk-Operator IT");
             var members = group?.GetMembers(true)?.ToList();
 
-            MailRepository ms = new();
+            MailService ms = new();
             foreach (var u in members)
             {
                 var user = _provider.FindUserByExtensionProperty(u.Name);
@@ -147,7 +193,7 @@ public class UserController : ControllerBase
         catch (Exception ex)
         {
             Debug.WriteLine(ex.Message);
-            return new JsonResult(new { errorMessage = MailRepository._message });
+            return new JsonResult(new { errorMessage = MailService._message });
         }
 
         return new JsonResult(true);
@@ -196,6 +242,22 @@ public class UserController : ControllerBase
         }
 
         return new Data();
+    }
+
+    // Get claim
+    public string? GetClaim(string? name)
+    {
+        try
+        {
+            var claims = User.Claims;
+            if (!claims.Any()) return null;
+
+            return claims.FirstOrDefault(x => x.Type?.ToLower() == name?.ToLower())?.Value?.ToString();
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     // Save log file
@@ -255,15 +317,6 @@ public class UserController : ControllerBase
             return new JsonResult(new { alert = "warning", msg = "Användare för lösenordsåterställning har inte specificerats." }); // Password reset user not specified
 
         return null;
-    }
-
-    // Help method to structure a result message
-    public JsonResult ReturnResultMessage(string? message)
-    {
-        if (message?.Length > 0)
-            return new JsonResult(new { alert = "warning", msg = message });
-
-        return new JsonResult(new { success = true, alert = "success", msg = "Lösenordsåterställningen lyckades!" }); //Success! Password reset was successful!
     }
 
     // Return Error response

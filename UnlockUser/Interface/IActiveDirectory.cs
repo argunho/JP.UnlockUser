@@ -12,10 +12,11 @@ public interface IActiveDirectory
     UserPrincipalExtension FindUserByExtensionProperty(string name);
     GroupPrincipal FindGroupName(string name);
     bool AccessValidation(string? name, string? password);
-    bool MembershipCheck(string? username, string? groupName);
+    bool MembershipCheck(UserPrincipal user, string? groupName);
     string ResetPassword(UserViewModel model);
     string UnlockUser(UserViewModel model);
     DirectorySearcher GetMembers(string? groupName);
+    List<string> GetUserGroups(UserPrincipalExtension user);
     List<User> GetUsers(DirectorySearcher result, string groupName);
     PrincipalContext GetContext();
 }

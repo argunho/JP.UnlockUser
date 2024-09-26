@@ -12,6 +12,7 @@ import { Close, HelpOutline, LiveHelpOutlined, Refresh } from '@mui/icons-materi
 
 // Components
 import Table from './Table';
+import { isArray } from 'jquery';
 
 function PaperComponent(props) {
     return (
@@ -23,16 +24,16 @@ function PaperComponent(props) {
     );
 }
 
-function ModalHelpTexts({ arr, cls = " situated-btn", isTable = false, isSubmit = false,
-    isTitle, inverseFunction, regeneratePassword }, ref) {
+function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false, isSubmit = false,
+    isTitle, inverseFunction, regeneratePassword, view }, ref) {
 
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = React.useState(view);
     const [confirm, setConfirm] = React.useState(false);
     const [savePdf, setSavePdf] = React.useState(false);
 
-    const keys = arr.length > 0 ? Object.keys(arr[0]) : [];
+    const keys = data.length > 0 ? Object.keys(data[0]) : [];
     const refPrint = React.useRef(null);
-
+console.log(data)
     // Confirm handle
     const confirmHandle = (save) => {
         setConfirm(true);
@@ -51,7 +52,7 @@ function ModalHelpTexts({ arr, cls = " situated-btn", isTable = false, isSubmit 
 
     return (
         <>
-            <FormControlLabel
+            {!view && <FormControlLabel
                 className={'help-btn' + cls}
                 control={<Checkbox size='small'
                     color="primary"
@@ -61,7 +62,7 @@ function ModalHelpTexts({ arr, cls = " situated-btn", isTable = false, isSubmit 
                     checkedIcon={<LiveHelpOutlined />}
                     onClick={() => setOpen(true)}
                     inputProps={{ 'aria-label': 'controlled', color: "primary" }} />}
-                label="Hjälp" />
+                label="Hjälp" />}
 
             <Dialog
                 open={open}
@@ -76,12 +77,13 @@ function ModalHelpTexts({ arr, cls = " situated-btn", isTable = false, isSubmit 
                     id="draggable-dialog-title"
                     dangerouslySetInnerHTML={{ __html: isTitle }}>
                 </DialogTitle>
-
-                <DialogContent style={{ marginBottom: "25px" }}>
+                
+                {/* View this block if data is an array */}
+                {Array.isArray(data) && <DialogContent style={{ marginBottom: "25px" }}>
                     {isTable ? <Table
                         name={isTitle}
-                        names={["Namn", "Lösenord"]} list={arr} /> // The table component is required to display the list of students and a list of generated passwords for them.
-                        : arr.map((a, i) => ( // Loop of help texts
+                        names={["Namn", "Lösenord"]} list={data} /> // The table component is required to display the list of students and a list of generated passwords for them.
+                        : data.map((a, i) => ( // Loop of help texts
                             <div key={i} className="modal_content">
                                 <AlertTitle style={{ fontWeight: 600 }}>
                                     <span style={{ color: (a?.color ? a.color : "#000") }}>{a[keys[0]]}</span>
@@ -93,9 +95,14 @@ function ModalHelpTexts({ arr, cls = " situated-btn", isTable = false, isSubmit 
                                 ))}
                             </div>
                         ))}
-                </DialogContent>
+                </DialogContent>}
 
-                <DialogActions className="no-print modal-buttons-wrapper">
+                {/* View this block if datat is a text */}
+                {!Array.isArray(data) && <DialogContent style={{ marginBottom: "25px" }}>
+                    <div dangerouslySetInnerHTML={{__html: data}}></div>
+                </DialogContent>}
+
+                {!children && <DialogActions className="no-print modal-buttons-wrapper">
                     {(isSubmit && !confirm) &&
                         <>
                             <Button variant="text"
@@ -122,11 +129,13 @@ function ModalHelpTexts({ arr, cls = " situated-btn", isTable = false, isSubmit 
 
                     {/* Confirm actions block */}
                     {confirm && <>
-                        <p className='confirm-title'>Är du säker att du vill göra det?</p>
+                        <p className='confirm-title'>Skicka?</p>
                         <Button className='button-btn button-action' onClick={() => clickHandle(true)} variant='contained' color="error">Ja</Button>
                         <Button className='button-btn button-action' variant='contained' color="primary" autoFocus onClick={() => clickHandle(false)}>Nej</Button>
                     </>}
-                </DialogActions>
+                </DialogActions>}
+
+                {children && <DialogActions className="no-print modal-buttons-wrapper">{children}</DialogActions>}
             </Dialog>
 
         </>

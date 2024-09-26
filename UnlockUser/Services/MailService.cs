@@ -1,17 +1,12 @@
 ﻿using UnlockUser.ViewModels;
-using UnlockUser.Controllers;
-using UnlockUser.Interface;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
 
-namespace UnlockUser.Repositories;
+namespace UnlockUser.Services;
 
-public class MailRepository
+public class MailService
 {
 
     // Template params

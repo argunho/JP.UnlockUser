@@ -45,7 +45,8 @@ function Header({ isAuthorized }) {
                 // If the current user is logged in, the name of the user is visible in the navigation bar
                 setDisplayName(decodedToken?.DisplayName);
                 setLinkName(`UnlockUser<br/><span>${decodedToken.Groups.replaceAll(",", ", ")}<span/>`);
-                setIsSupport(decodedToken?.Support === "Ok");
+                console.log(decodedToken)
+                setIsSupport(decodedToken?.Roles?.indexOf("Support") > -1);
             }
         }
 

@@ -38,6 +38,21 @@ public class UserPrincipalExtension : UserPrincipal
         set { ExtensionSet("title", value); }
     }
 
+    [DirectoryProperty("manager")]
+    public string Manager
+    {
+        get
+        {
+            if (ExtensionGet("manager").Length != 1)
+                return string.Empty;
+
+            return (string)ExtensionGet("manager")[0];
+        }
+
+        set { ExtensionSet("manager", value); }
+
+    }
+
     [DirectoryProperty("physicalDeliveryOfficeName")]
     public string Office
     {

@@ -316,7 +316,7 @@ export default function Form(props) {
                 {load && <div className='curtain-block'></div>}
 
                 {/* Modal  window with help texts */}
-                <ModalHelpTexts arr={helpTexts} isTitle="Lösenordskrav" />
+                <ModalHelpTexts data={helpTexts} isTitle="Lösenordskrav" />
 
                 {/* Title */}
                 <p className='form-title'>{title}</p>
@@ -526,7 +526,7 @@ export default function Form(props) {
 
                         {/* Confirm actions block */}
                         {confirm && <div className='buttons-wrapper confirm-wrapper'>
-                            <p className='confirm-title'>Är du säker att du vill göra det?</p>
+                            <p className='confirm-title'>Skicka?</p>
                             <Button className='button-btn button-action' type="submit" variant='contained' color="error">Ja</Button>
                             <Button className='button-btn button-action' variant='contained' color="primary" onClick={() => resetForm(true)}>Nej</Button>
                         </div>}
@@ -535,7 +535,7 @@ export default function Form(props) {
 
                 {/* Preview the list of generated passwords */}
                 {multiple && <ModalHelpTexts
-                    arr={previewList}
+                    data={previewList}
                     cls={" none"}
                     isTitle={`${title} <span class='typography-span'>${location.replace("%", " ")}</span>`}
                     isTable={true}
