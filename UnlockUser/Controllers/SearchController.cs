@@ -137,14 +137,15 @@ namespace UnlockUser.Controllers
             {
                 var manager = GetClaim("manager");
                 var office = GetClaim("office")?.ToLower();
+                var division = GetClaim("division")?.ToLower();
                 var userName = GetClaim("username");
 
                 if (groupName != "studenter")
                 {
                     if (!roles.Contains("Manager", StringComparison.CurrentCulture))
-                        users = users.Where(x => x.Manager == manager).ToList();
+                        users = users.Where(x => x.Manager == manager || x.Division == division).ToList();
                     else
-                        users = users.Where(x => x.Manager == manager || x.Manager.Contains($"CN={userName}")).ToList();
+                        users = users.Where(x => x.Manager == manager || x.Manager.Contains($"CN={userName}") || x.Division == division).ToList();
                 }
                 else if (!roles.Contains("Support", StringComparison.CurrentCulture))
                 {

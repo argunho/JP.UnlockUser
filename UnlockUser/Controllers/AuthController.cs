@@ -86,19 +86,19 @@ public class AuthController : ControllerBase
             _session?.Remove("LoginAttempt");
             _session?.Remove("LoginBlockTime");
 
-            var permissionGroups = _config.GetSection("Groups").Get<List<GroupParameters>>();
+            var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
             var user = _provider.FindUserByExtensionProperty(model.Username);
             var userGroups = _provider.GetUserGroups(user);
             permissionGroups.RemoveAll(x => !userGroups.Contains(x.Group));
             if (permissionGroups == null)
-                permissionGroups = new List<GroupParameters>();
+                permissionGroups = new List<GroupModel>();
 
             // Acces if user are a manager
             bool manager = false;
             if (permissionGroups.Count == 0 || permissionGroups.FindIndex(x => x.Name?.ToLower() == "personal") == -1)
             {
                 manager = user.Title.ToLower().Contains("chef") || user.Title.ToLower().Contains("rektor");
-                var groupsList = _config.GetSection("Groups").Get<List<GroupParameters>>();
+                var groupsList = _config.GetSection("Groups").Get<List<GroupModel>>();
                 if (manager)
                     permissionGroups.Add(groupsList.Find(x => x.Name.ToLower() == "personal"));
             }
@@ -109,8 +109,20 @@ public class AuthController : ControllerBase
 
             var groupsNames = string.Join(",", permissionGroups.OrderBy(x => x.Name).Select(s => s.Name).ToList());
 
+
+            var roles = new List<string>() { "Employee" };
+            if (_provider.MembershipCheck(user, "TEIS IT avdelning"))
+                roles.Add("Support");
+            //claims.Add(new Claim("Support", "Ok"));
+
+            if (_provider.MembershipCheck(user, "Azure-Utvecklare Test"))
+                roles.Add("Developer");
+
+            if (user.Title.ToLower().Contains("chef") || user.Title.ToLower().Contains("rektor"))
+                roles.Add("Manager");
+
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
-            var token = CreateJwtToken(user, model?.Password ?? "", groupsNames);
+            var token = CreateJwtToken(user, roles, model?.Password ?? "", groupsNames);
 
             // Response message
             var responseMessage = $"Tillåtna behöregiheter för grupp(er):<br/> <b>&nbsp;&nbsp;&nbsp;- {groupsNames.Replace(",", "<br/>&nbsp;&nbsp;&nbsp; -")}</b>.";
@@ -144,7 +156,7 @@ public class AuthController : ControllerBase
 
     #region Helpers
     // Create Jwt Token for authenticating
-    private string? CreateJwtToken(UserPrincipalExtension user, string password, string groupsNames)
+    private string? CreateJwtToken(UserPrincipalExtension user, List<string> roles, string password, string groupsNames)
     {
         if (user == null)
             return null;
@@ -157,6 +169,7 @@ public class AuthController : ControllerBase
         _session.SetString("Username", user.Name);
         _session.SetString("DisplayName", user.DisplayName);
         _session.SetString("Office", user.Office);
+        _session.SetString("Division", user.Division);
         _session.SetString("Email", user.EmailAddress);
         _session.SetString("Department", user.Department);
         _session.SetString("GroupNames", groupsNames);
@@ -169,22 +182,10 @@ public class AuthController : ControllerBase
             new("Username", user.Name),
             new("Manager", user.Manager),
             new("Office", user.Office),
-            new("Groups", groupsNames)
+            new("Division", user.Division),
+            new("Groups", groupsNames),
+            new("Roles", string.Join(",", roles))
         };
-
-        var roles = new List<string>(){"Employee"};
-        var userPrincipial = _provider.FindUserByName(user.Name);
-        if (_provider.MembershipCheck(userPrincipial, "TEIS IT avdelning"))
-            roles.Add("Support");
-            //claims.Add(new Claim("Support", "Ok"));
-        
-        if (_provider.MembershipCheck(userPrincipial, "Azure-Utvecklare Test"))
-            roles.Add("Developer");
-
-        if (user.Title.ToLower().Contains("chef") || user.Title.ToLower().Contains("rektor"))
-            roles.Add("Manager");
-
-        claims.Add(new Claim("Roles", string.Join(",", roles)));
 
         foreach (var role in roles)
             claims.Add(new Claim(opt.ClaimsIdentity.RoleClaimType, role));

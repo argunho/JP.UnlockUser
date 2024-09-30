@@ -1,5 +1,5 @@
 ﻿namespace UnlockUser.Models;
-public class GroupParameters
+public class GroupModel
 {
     public string? Name { get; set; }
     public string? Manage { get; set; }

@@ -1,3 +1,6 @@
+global using UnlockUser.Models;
+global using UnlockUser.ViewModels;
+
 using UnlockUser.Interface;
 using UnlockUser.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

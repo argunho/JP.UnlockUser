@@ -48,7 +48,7 @@ public class UserController : ControllerBase
         var userData = _provider.GetUsers(members, group);
 
         var charachtersLength = 8;
-        if (_provider.MembershipCheck(_provider.FindUserByName(name), "Password Twelve Characters"))
+        if (_provider.MembershipCheck(_provider.FindUserByExtensionProperty(name), "Password Twelve Characters"))
             charachtersLength = 12;
 
         _session.SetString("ManagedOffice", userData[0].Office);
@@ -89,11 +89,12 @@ public class UserController : ControllerBase
             sessionOffice = "Allbo Lärcenter gymnasieskola".ToLower();
 
         var manager = GetClaim("manager");
+        var division = GetClaim("division");
 
         var roles = GetClaim("roles");
         var stoppedToEdit = new List<string>();
 
-        var permissionGroups = (_config.GetSection("Groups").Get<List<GroupParameters>>()).Select(s => s.Group).ToList();
+        var permissionGroups = (_config.GetSection("Groups").Get<List<GroupModel>>()).Select(s => s.Group).ToList();
 
         if (roles != null && !roles.Contains("Developer", StringComparison.CurrentCulture))
         {
@@ -117,7 +118,7 @@ public class UserController : ControllerBase
                     model.Users.RemoveAll(x => x.Username == username);
                     continue;
                 }
-                else if (sessionUserData.Group?.ToLower() != "studenter" && user.Manager != manager)
+                else if (sessionUserData.Group?.ToLower() != "studenter" && user.Manager != manager && user.Division == division)
                 {
                     stoppedToEdit.Add(username);
                     model.Users.RemoveAll(x => x.Username == username);

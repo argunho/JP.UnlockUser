@@ -4,7 +4,7 @@ import { Link, useHistory } from 'react-router-dom';
 
 // Installed
 import jwt_decode from "jwt-decode";
-import { HomeSharp, InsertDriveFile, LiveHelp, Logout, Menu, Close, History } from '@mui/icons-material';
+import { HomeSharp, InsertDriveFile, LiveHelp, Logout, Menu, Close, History, SettingsApplications } from '@mui/icons-material';
 import { Button, Tooltip } from '@mui/material';
 
 // Services
@@ -20,6 +20,13 @@ function Header({ isAuthorized }) {
     const [linkName, setLinkName] = useState("UnlockUser");
     const [isSupport, setIsSupport] = useState(false);
     const [visibleMenu, setVisibleMenu] = useState(false);
+    
+    const links = [
+        { label: "Loggfiler", url: "logs", icon: <InsertDriveFile />, access: isSupport},
+        { label: "Session historik", url: "history", icon: <History />, access: isSupport},
+        { label: "Behöriga användare", url: "members", icon: <SettingsApplications/>, access: isSupport},
+        { label: "Kontakta support", url: "contact", icon: <LiveHelp />, access: !isSupport}
+    ].filter(x => x.access === isSupport);
 
     const refMenu = useRef();
 
@@ -97,7 +104,13 @@ function Header({ isAuthorized }) {
                             </Button>
                             <ul className={`menu-wrapper ${visibleMenu && 'visible-menu-wrapper'}`} ref={refMenu}>
                                 <li className='display-name'>{displayName}</li>
-                                {isSupport && <li onClick={() => goToPage("logs")}>
+                                {/* Loop links */}
+                                {links.map((link, ind) => {
+                                    return <li className='d-row' onClick={() => goToPage(link.url)}>
+                                        {link.icon} {link.label}
+                                    </li>
+                                })}
+                                {/* {isSupport && <li >
                                     <InsertDriveFile />&nbsp;&nbsp;<span>Loggfiler</span>
                                 </li>}
                                 <li onClick={() => goToPage("contact")}>
@@ -105,7 +118,7 @@ function Header({ isAuthorized }) {
                                 </li>
                                 <li onClick={() => goToPage("history")}>
                                     <History />&nbsp;&nbsp;<span>Session historik</span>
-                                </li>
+                                </li> */}
                                 <li onClick={() => logout()}>
                                     <Logout />&nbsp;&nbsp;<span>Logga ut</span>
                                 </li>

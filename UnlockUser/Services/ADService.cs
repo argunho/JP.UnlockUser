@@ -26,7 +26,7 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
         => PContext().ValidateCredentials(name, password); // Method to authenticate a user
 
     // Check user's membership in a specific group in which members have access  to change student password 
-    public bool MembershipCheck(UserPrincipal user, string? groupName)
+    public bool MembershipCheck(UserPrincipalExtension user, string? groupName)
     {
         if (user == null) // User does not exist.
             return false;

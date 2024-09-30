@@ -9,6 +9,7 @@ public class User
     public string? Manager { get; set; }
     public string? Department { get; set; }
     public string? Office { get; set; }
+    public string? Division { get; set; }
     public string? Title { get; set; }
     public bool IsLocked { get; set; }  
 }

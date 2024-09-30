@@ -36,6 +36,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\logfiles\" />
+    <Folder Include="wwwroot\json\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
