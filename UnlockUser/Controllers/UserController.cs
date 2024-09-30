@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Net;
 using System.DirectoryServices;
 using static Org.BouncyCastle.Math.EC.ECCurve;
+using Microsoft.IdentityModel.Tokens;
 
 namespace UnlockUser.Controllers;
 
@@ -50,8 +51,8 @@ public class UserController : ControllerBase
         if (_provider.MembershipCheck(_provider.FindUserByName(name), "Password Twelve Characters"))
             charachtersLength = 12;
 
-        _session.SetString("Office", userData[0].Office);
-        _session.SetString("Department", userData[0].Department);
+        _session.SetString("ManagedOffice", userData[0].Office);
+        _session.SetString("ManagedDepartment", userData[0].Department);
 
         return new JsonResult(new { user = userData[0], passwordLength = charachtersLength });
     }
@@ -82,39 +83,50 @@ public class UserController : ControllerBase
 
         string message = string.Empty;
 
-        Data currentUserData = GetLogData();
+        Data sessionUserData = GetLogData();
+        string sessionOffice = sessionUserData.Office?.ToLower();
+        if (sessionOffice == "Gymnasiet yrkesvux lärvux".ToLower())
+            sessionOffice = "Allbo Lärcenter gymnasieskola".ToLower();
 
         var manager = GetClaim("manager");
 
         var roles = GetClaim("roles");
         var stoppedToEdit = new List<string>();
 
-        var permissionGroups = _config.GetSection("Groups").Get<List<GroupParameters>>();
+        var permissionGroups = (_config.GetSection("Groups").Get<List<GroupParameters>>()).Select(s => s.Group).ToList();
 
         if (roles != null && !roles.Contains("Developer", StringComparison.CurrentCulture))
         {
-            var users = model.Users.Select(s => s.Username).ToList();
-            foreach (var username in users)
+            // Get all usernamse as a list
+            var usernames = model.Users.Select(s => s.Username).ToList();
+
+            //Loop each username
+            foreach (var username in usernames)
             {
                 var user = _provider.FindUserByExtensionProperty(username);
                 if (user == null)
                     continue;
 
+                // Get all user groups to check users membership in permission groups
                 var userGroups = _provider.GetUserGroups(user);
-                permissionGroups.RemoveAll(x => !userGroups.Contains(x.Group));
-                if (permissionGroups == null || permissionGroups.Count == 0)
+                var forbidden = userGroups.Exists(x => permissionGroups.Contains(x));
+
+                if (forbidden)
                 {
                     stoppedToEdit.Add(username);
                     model.Users.RemoveAll(x => x.Username == username);
                     continue;
                 }
-                else if (user.Office != currentUserData.Office)
+                else if (sessionUserData.Group?.ToLower() != "studenter" && user.Manager != manager)
+                {
+                    stoppedToEdit.Add(username);
+                    model.Users.RemoveAll(x => x.Username == username);
+                } else if(user.Office.ToLower() != sessionOffice && (!user.Office.IsNullOrEmpty() && !sessionOffice.Contains(user.Office.ToLower())))
                 {
                     stoppedToEdit.Add(username);
                     model.Users.RemoveAll(x => x.Username == username);
                 }
             }
-
         }
 
         // Set password to class students
@@ -123,16 +135,16 @@ public class UserController : ControllerBase
             foreach (var user in model.Users)
             {
                 message += _provider.ResetPassword(UpdatedUser(user));
-                currentUserData.Users.Add(user?.Username ?? "");
+                sessionUserData.Users.Add(user?.Username ?? "");
             }
 
-            SaveLogFile(currentUserData);
+            SaveLogFile(sessionUserData);
         }
 
         if (message?.Length > 0)
             return new JsonResult(new { alert = "warning", msg = message });
-        else if (stoppedToEdit?.Count > 0 && stoppedToEdit.Count == model.Users.Count)
-            return new JsonResult(new { alert = "error", msg = "Du saknar behörigheter att ändra lösenord till valda person(er)!" }); // Warning!
+        else if (stoppedToEdit?.Count > 0 && model.Users.Count == 0)
+            return new JsonResult(new { alert = "error", msg = $"Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!" }); // Warning!
         else if (stoppedToEdit?.Count > 0)
             return new JsonResult(new { alert = "info", msg = $"Lösenordsåterställningen lyckades men inte till alla! Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!" });
 
@@ -231,6 +243,8 @@ public class UserController : ControllerBase
             {
                 Office = _session.GetString("Office"),
                 Department = _session.GetString("Department"),
+                ManagedUserOffice = _session.GetString("ManagedOffice"),
+                ManagedUserDepartment = _session.GetString("ManagedDepartment"),
                 Group = _session.GetString("GroupName"),
                 ComputerName = pcName,
                 IpAddress = _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString()
@@ -266,6 +280,17 @@ public class UserController : ControllerBase
         var user = _provider.FindUserByExtensionProperty(_session.GetString("Username"));
         string fileName = (model.Group?.ToLower() ?? "") + "_";
 
+        var groupName = model.Group.ToLower();
+        if (groupName != "studenter")
+        {
+            var managedUser = _provider.FindUserByExtensionProperty(model.Users[0]);
+            if (managedUser != null)
+            {
+                model.Office = user.Office;
+                model.Department = user.Department;
+            }
+        }
+
         var contentList = new List<string>
         {
             "\r Anställd",
@@ -281,14 +306,13 @@ public class UserController : ControllerBase
             " - Gruppnamn: " + model?.Group
         };
 
-        var groupName = model.Group;
 
-        if (groupName == "Studenter")
+        if (groupName == "studenter")
         {
-            contentList.Add(" - Skolan: " + model?.Office);
-            contentList.Add(" - Klassnamn: " + model?.Department);
+            contentList.Add(" - Skolan: " + model?.ManagedUserOffice);
+            contentList.Add(" - Klassnamn: " + model?.ManagedUserDepartment);
             contentList.Add($" - Lösenord till {model?.Users.Count} student{(model?.Users.Count > 1 ? "er" : "")}:");
-            fileName += model?.Office + "_" + model?.Department + (model.Users.Count == 1 ? "_" + model.Users[0] : "");
+            fileName += model?.Office + "_" + model?.ManagedUserDepartment + (model.Users.Count == 1 ? "_" + model.Users[0] : "");
             foreach (var student in model?.Users)
             {
                 contentList.Add("\t- Student: " + student);
@@ -298,7 +322,7 @@ public class UserController : ControllerBase
         {
             contentList.Add(" - Arbetsplats: " + model?.Office);
             contentList.Add(" - Lösenord till:");
-            contentList.Add($"\t-{groupName}: {model.Users[0]}");
+            contentList.Add($"\t-{model.Group}: {model.Users[0]}");
 
             fileName += model?.Office + "_" + model.Users[0];
         }

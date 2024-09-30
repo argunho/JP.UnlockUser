@@ -53,7 +53,6 @@ namespace UnlockUser.Controllers
                 return Error(e.Message);
             }
 
-
             // If the result got a successful result
             if (users.Count > 0)
             {
@@ -74,8 +73,8 @@ namespace UnlockUser.Controllers
                 List<User> users = new(); // Empty list of users
                 var context = _provider.GetContext(); // Get active derictory context
 
-                _session.SetString("Office", office);
-                _session.SetString("Department", department);
+                _session.SetString("ManagedOffice", office);
+                _session.SetString("ManagedDepartment", department);
                 _session.SetString("GroupName", "Studenter");
 
                 DirectorySearcher result = _provider.GetMembers("studenter");
@@ -127,7 +126,7 @@ namespace UnlockUser.Controllers
                 return null;
             }
         }
-        
+
         // Filter
         public List<User> FilteredListOfUsers(List<User> users, string groupName)
         {
@@ -137,7 +136,7 @@ namespace UnlockUser.Controllers
             if (roles != null && !roles.Contains("Developer", StringComparison.CurrentCulture))
             {
                 var manager = GetClaim("manager");
-                var office = GetClaim("office");
+                var office = GetClaim("office")?.ToLower();
                 var userName = GetClaim("username");
 
                 if (groupName != "studenter")
@@ -148,7 +147,16 @@ namespace UnlockUser.Controllers
                         users = users.Where(x => x.Manager == manager || x.Manager.Contains($"CN={userName}")).ToList();
                 }
                 else if (!roles.Contains("Support", StringComparison.CurrentCulture))
-                    users.RemoveAll(x => x.Office != office);
+                {
+                    if (office == "Gymnasiet yrkesvux lärvux".ToLower())
+                        office = "Allbo Lärcenter gymnasieskola".ToLower();
+
+                    if (users.Count(x => x.Office.ToLower() == office) > 0)
+                        users.RemoveAll(x => x.Office.ToLower() != office);
+                    else
+                        users.RemoveAll(x => !office.Contains(x.Office.ToLower()));
+
+                }
             }
 
             return users;

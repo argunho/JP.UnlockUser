@@ -156,7 +156,9 @@ public class AuthController : ControllerBase
         _session.SetString("Password", password);
         _session.SetString("Username", user.Name);
         _session.SetString("DisplayName", user.DisplayName);
+        _session.SetString("Office", user.Office);
         _session.SetString("Email", user.EmailAddress);
+        _session.SetString("Department", user.Department);
         _session.SetString("GroupNames", groupsNames);
 
         var claims = new List<Claim>
