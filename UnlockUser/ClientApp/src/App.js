@@ -15,6 +15,7 @@ import LogFiles from './pages/LogFiles';
 import Contacts from './pages/Contacts';
 import Members from './pages/Members';
 import NotFound from './pages/NotFound';
+import ViewList from './pages/ViewList';
 
 // Functions
 import TokenConfig from './services/TokenConfig';
@@ -66,7 +67,8 @@ class App extends Component {
           {!isAuthorized && <Route exact path={['/', '/login']} render={(props) => <Login {...props} updateGroup={this.updateGroup} />} />}
           {isAuthorized && <>
             <Route exact path='/find-user' render={(props) => <Search {...props} group={currentGroup} updateGroup={this.updateGroup} />} />
-            <Route exact path='/members' render={(props) => <Search {...props} group={currentGroup} updateGroup={this.updateGroup} />} />
+            <Route exact path='/members' render={(props) => <ViewList />} />
+            <Route exact path='/members/:number' render={(props) => <ViewList />} />
             <Route exact path='/manage-user/:id' render={(props) => <UserManager {...props} group={group} />} />
             <Route exact path='/manage-users/:cls/:school' render={(props) => <UsersManager {...props} group={group} />} />
             <Route exact path='/history' component={SessionHistory} />

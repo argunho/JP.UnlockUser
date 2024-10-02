@@ -1,13 +1,7 @@
-﻿using UnlockUser.Extensions;
-using UnlockUser.Interface;
-using UnlockUser.Models;
+﻿using UnlockUser.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.DirectoryServices.AccountManagement;
-using System.Diagnostics;
 using System.DirectoryServices;
-using System.Xml.Linq;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace UnlockUser.Controllers
 {
@@ -39,7 +33,7 @@ namespace UnlockUser.Controllers
             try
             {
                 var groupName = group.ToLower();
-                DirectorySearcher? result = _provider.GetMembers(groupName);
+                DirectorySearcher? result = _provider.GetMembers(group);
 
                 if (match)
                     result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(|(displayName=*{name}*)(|(givenName=*{name}*))(|(upn=*{name.ToLower()}*))(sn=*{name}*))))";
@@ -143,20 +137,20 @@ namespace UnlockUser.Controllers
                 if (groupName != "studenter")
                 {
                     if (!roles.Contains("Manager", StringComparison.CurrentCulture))
-                        users = users.Where(x => x.Manager == manager || x.Division == division).ToList();
+                        users = users.Where(x => x.Manager == manager || x.Division?.ToLower() == division).ToList();
                     else
-                        users = users.Where(x => x.Manager == manager || x.Manager.Contains($"CN={userName}") || x.Division == division).ToList();
+                        users = users.Where(x => x.Manager == manager || x.Manager.Contains($"CN={userName}", StringComparison.CurrentCulture) || x.Division?.ToLower() == division).ToList();
                 }
                 else if (!roles.Contains("Support", StringComparison.CurrentCulture))
                 {
                     if (office == "Gymnasiet yrkesvux lärvux".ToLower())
                         office = "Allbo Lärcenter gymnasieskola".ToLower();
 
-                    if (users.Count(x => x.Office.ToLower() == office) > 0)
-                        users.RemoveAll(x => x.Office.ToLower() != office);
-                    else
-                        users.RemoveAll(x => !office.Contains(x.Office.ToLower()));
-
+                    users = users.Where(x => x.Office == office || x.Division?.ToLower() == division).ToList();
+                    //if (users?.Count(x => x.Office?.ToLower() == office) > 0)
+                    //    users.RemoveAll(x => x.Office?.ToLower() != office);
+                    //else
+                    //    users.RemoveAll(x => !office.Contains(x.Office.ToLower()));
                 }
             }
 

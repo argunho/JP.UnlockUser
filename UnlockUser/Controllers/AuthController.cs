@@ -1,12 +1,10 @@
 ﻿using UnlockUser.Extensions;
 using UnlockUser.Interface;
-using UnlockUser.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using UnlockUser.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace UnlockUser.Controllers;

@@ -22,10 +22,10 @@ function Header({ isAuthorized }) {
     const [visibleMenu, setVisibleMenu] = useState(false);
     
     const links = [
-        { label: "Loggfiler", url: "logs", icon: <InsertDriveFile />, access: isSupport},
-        { label: "Session historik", url: "history", icon: <History />, access: isSupport},
+        { label: "Session historik", url: "history", icon: <History />, access: isSupport || isSupport},
         { label: "Behöriga användare", url: "members", icon: <SettingsApplications/>, access: isSupport},
-        { label: "Kontakta support", url: "contact", icon: <LiveHelp />, access: !isSupport}
+        { label: "Loggfiler", url: "logs", icon: <InsertDriveFile />, access: isSupport},
+        { label: "Kontakta support", url: "contact", icon: <LiveHelp />, access: !isSupport || isSupport}
     ].filter(x => x.access === isSupport);
 
     const refMenu = useRef();
@@ -110,15 +110,6 @@ function Header({ isAuthorized }) {
                                         {link.icon} {link.label}
                                     </li>
                                 })}
-                                {/* {isSupport && <li >
-                                    <InsertDriveFile />&nbsp;&nbsp;<span>Loggfiler</span>
-                                </li>}
-                                <li onClick={() => goToPage("contact")}>
-                                    <LiveHelp />&nbsp;&nbsp;<span>Kontakta support</span>
-                                </li>
-                                <li onClick={() => goToPage("history")}>
-                                    <History />&nbsp;&nbsp;<span>Session historik</span>
-                                </li> */}
                                 <li onClick={() => logout()}>
                                     <Logout />&nbsp;&nbsp;<span>Logga ut</span>
                                 </li>

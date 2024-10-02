@@ -3,5 +3,5 @@
 public class GroupUsersViewModel
 {
     public GroupModel? Group { get; set; }
-    public List<User> Members { get; set; } = new List<User>();
+    public List<User>? Employees { get; set; }
 }

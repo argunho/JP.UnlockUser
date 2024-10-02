@@ -2,14 +2,15 @@
 import React, { useEffect, useState } from 'react';
 
 //  Installed
-import { CancelOutlined, Close, FileOpen, Remove, SearchOffSharp, SearchSharp, Upload } from '@mui/icons-material';
-import { Avatar, Button, IconButton, List, ListItem, ListItemAvatar, ListItemText, TextField } from '@mui/material';
+import { Close, FileOpen, Upload } from '@mui/icons-material';
+import { Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import moment from "moment";
 
 // Components
 import Response from './../components/Response';
 import Loading from './../components/Loading';
 import ModalHelpTexts from './../components/ModalHelpTexts'
+import SearchFilter from '../components/SearchFilter';
 
 // Functions
 import SessionTokenCheck from './../functions/SessionTokenCheck';
@@ -22,7 +23,6 @@ function LogFiles() {
 
     const [list, setList] = useState([]);
     const [initList, setInitList] = useState([])
-    const [filter, setFilter] = useState("");
     const [loading, setLoading] = useState(true);
     const [viewFile, setFileView] = useState();
 
@@ -46,16 +46,11 @@ function LogFiles() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    const valueChangeHandler = (e) => {
-        if (!e?.target) return;
-        setFilter(e.target.value);
-        let list = initList.filter(x => x?.toLowerCase().includes(e.target.value?.toLowerCase().replace(" ", "_").replace(/[:-]/g, "")));
-        setList(e.target.value?.length === 0 ? initList : list);
-    }
-
-    const resetFilter = (e) => {
-        setList(initList);
-        setFilter("");
+    const valueChangeHandler = (value) => {
+        // if (!e?.target) return;
+        // setFilter(e.target.value);
+        let list = initList.filter(x => x?.toLowerCase().includes(value?.toLowerCase().replace(" ", "_").replace(/[:-]/g, "")));
+        setList(value?.length === 0 ? initList : list);
     }
 
     const handleFile = async (file, download = false) => {
@@ -77,33 +72,7 @@ function LogFiles() {
         <div className='interior-div'>
 
             {/* Search filter */}
-            <div className='search-wrapper-logs'>
-                <TextField
-                    label="Sök loggfil ..."
-                    className='search-full-width'
-                    value={filter}
-                    placeholder="Anvädarnamn, school, klass, datum, gruppnamn ..."
-                    onChange={valueChangeHandler}
-                />
-
-                {/* Disabled button */}
-                <Button
-                    variant="outlined"
-                    color="inherit"
-                    className="search-button search-button-mobile"
-                    type="button"
-                    disabled={true}>
-                    <SearchSharp /></Button>
-
-                {/* Reset form - button */}
-                {list !== initList && <Button
-                    variant="text"
-                    color="error"
-                    className="search-reset search-button-mobile"
-                    onClick={resetFilter}>
-                    <SearchOffSharp />
-                </Button>}
-            </div>
+            <SearchFilter onChange={valueChangeHandler} onReset={() => setList(initList)} label="logfil" />
 
             {/* Result info box */}
             <ListItem className='search-result'>
@@ -150,7 +119,7 @@ function LogFiles() {
 
             {/* Message if result is null */}
             {(list.length === 0 && !loading) &&
-                <Response response={{ alert: "info", msg: "Här finns inga loggfiler" }} reset={resetFilter} />}
+                <Response response={{ alert: "info", msg: "Här finns inga loggfiler" }} reset={() => setList(initList)} />}
         </div>
     )
 }

@@ -1,0 +1,41 @@
+.view-list-container>div {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+}
+
+.view-list-container>div:last-child {
+    margin-left: 15px !important;
+}
+
+.list-container {
+    width: 100% !important;
+    margin: 20px auto !important;
+    justify-content: flex-end !important;
+    flex-wrap: wrap !important;
+}
+
+li.list-item {
+    height: 70px !important;
+    box-shadow: 0 0 1px 1px #7e7c7c !important;
+    width: calc(50% - 12px) !important;
+    margin: 4px 3px !important;
+}
+
+li.list-item:hover {
+    cursor: pointer !important;
+    background-color: #6363632a !important;
+}
+
+
+li.list-item-last {
+    width: calc(50% - 6px) !important;
+}
+
+.pagination {
+    width: 100%;
+    margin: 50px auto;
+}
+
+.pagination>nav {
+    margin: auto !important;
+}

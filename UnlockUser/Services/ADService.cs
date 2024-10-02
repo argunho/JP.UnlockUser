@@ -46,7 +46,7 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
 
         return groups?.Select(s => s.Name).ToList();
     }
-
+   
     // Get members list
     public DirectorySearcher GetMembers(string? groupName)
     {
@@ -60,6 +60,16 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
         return search;
     }
 
+    // Get memebrs from security group
+    public List<string> GetSecurityGroupMembers(string? groupName)
+    {
+        using GroupPrincipal group = GroupPrincipal.FindByIdentity(PContext(), IdentityType.SamAccountName, groupName);
+        //var members = group.GetMembers(true).ToList();
+        List<string> members = group.GetMembers(true).Select(s => s.SamAccountName).ToList();
+
+        return members;
+    }
+
     // Return a list of found users
     public List<User> GetUsers(DirectorySearcher result, string groupName)
     {
@@ -68,6 +78,7 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
         result?.PropertiesToLoad.Add("displayName");
         result?.PropertiesToLoad.Add("userPrincipalName");
         result?.PropertiesToLoad.Add("physicalDeliveryOfficeName");
+        result?.PropertiesToLoad.Add("division");
         result?.PropertiesToLoad.Add("manager");
         result?.PropertiesToLoad.Add("department");
         result?.PropertiesToLoad.Add("title");
@@ -76,12 +87,12 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
         List<SearchResult> list = result.FindAll().OfType<SearchResult>().ToList() ?? null;
         if (groupName != "studenter" && list != null)
         {
-                list = list.Where(x => x.Properties["memberOf"].OfType<string>().ToList()
-                    .Any(x => (groupName == "politiker") ? x.Contains("Ciceron-Assistentanvändare") 
-                                                         : !x.Contains("Ciceron-Assistentanvändare"))).ToList();
+            list = list.Where(x => x.Properties["memberOf"].OfType<string>().ToList()
+                .Any(x => (groupName == "politiker") ? x.Contains("Ciceron-Assistentanvändare")
+                                                     : !x.Contains("Ciceron-Assistentanvändare"))).ToList();
         }
 
-        if(list?.Count == 0) return users;
+        if (list?.Count == 0) return users;
 
         foreach (SearchResult res in list)
         {
@@ -100,6 +111,7 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
                 Email = props.Contains("userPrincipalName") ? props["userPrincipalName"][0]?.ToString() : "",
                 Manager = props.Contains("manager") ? props["manager"][0]?.ToString() : "",
                 Office = props.Contains("physicalDeliveryOfficeName") ? props["physicalDeliveryOfficeName"][0]?.ToString() : "",
+                Division = props.Contains("division") ? props["division"][0]?.ToString() : "",
                 Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
                 Title = props.Contains("title") ? props["title"][0]?.ToString() : "",
                 IsLocked = isLocked

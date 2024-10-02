@@ -8,7 +8,6 @@ using System.Text;
 using System.Diagnostics;
 using System.Net;
 using System.DirectoryServices;
-using static Org.BouncyCastle.Math.EC.ECCurve;
 using Microsoft.IdentityModel.Tokens;
 
 namespace UnlockUser.Controllers;
@@ -118,11 +117,13 @@ public class UserController : ControllerBase
                     model.Users.RemoveAll(x => x.Username == username);
                     continue;
                 }
-                else if (sessionUserData.Group?.ToLower() != "studenter" && user.Manager != manager && user.Division == division)
+                //else if (sessionUserData.Group?.ToLower() != "studenter" && user.Manager != manager && user.Division == division)
+                else if (user.Division == division)
                 {
                     stoppedToEdit.Add(username);
                     model.Users.RemoveAll(x => x.Username == username);
-                } else if(user.Office.ToLower() != sessionOffice && (!user.Office.IsNullOrEmpty() && !sessionOffice.Contains(user.Office.ToLower())))
+                }
+                else if (user.Office.ToLower() != sessionOffice && (!user.Office.IsNullOrEmpty() && !sessionOffice.Contains(user.Office.ToLower())))
                 {
                     stoppedToEdit.Add(username);
                     model.Users.RemoveAll(x => x.Username == username);
