@@ -56,7 +56,6 @@ function LogFiles() {
     const handleFile = async (file, download = false) => {
         const fileDownload = require('react-file-download');
         await ApiRequest("data/readTextFile/" + file).then(res => {
-            console.log(res.data)
             if (res.status === 200) {
                 if (download)
                     fileDownload(res.data, file.slice(file.lastIndexOf("_") + 1) + ".txt");

@@ -21,12 +21,15 @@ function Header({ isAuthorized }) {
     const [isSupport, setIsSupport] = useState(false);
     const [visibleMenu, setVisibleMenu] = useState(false);
     
-    const links = [
-        { label: "Session historik", url: "history", icon: <History />, access: isSupport || isSupport},
-        { label: "Behöriga användare", url: "members", icon: <SettingsApplications/>, access: isSupport},
-        { label: "Loggfiler", url: "logs", icon: <InsertDriveFile />, access: isSupport},
-        { label: "Kontakta support", url: "contact", icon: <LiveHelp />, access: !isSupport || isSupport}
-    ].filter(x => x.access === isSupport);
+    let links = [
+        { label: "Session historik", url: "history", icon: <History />, access: false},
+        { label: "Behöriga användare", url: "members", icon: <SettingsApplications/>, access: true},
+        { label: "Loggfiler", url: "logs", icon: <InsertDriveFile />, access: true},
+        { label: "Kontakta support", url: "contact", icon: <LiveHelp />, access: false}
+    ];
+
+    if(!isSupport)
+        links = links.filter(x => !x.access);
 
     const refMenu = useRef();
 
@@ -52,8 +55,9 @@ function Header({ isAuthorized }) {
                 // If the current user is logged in, the name of the user is visible in the navigation bar
                 setDisplayName(decodedToken?.DisplayName);
                 setLinkName(`UnlockUser<br/><span>${decodedToken.Groups.replaceAll(",", ", ")}<span/>`);
-                console.log(decodedToken)
-                setIsSupport(decodedToken?.Roles?.indexOf("Support") > -1);
+               
+                setIsSupport(decodedToken?.Roles?.indexOf("Support") > -1); 
+                // console.log(decodedToken)
             }
         }
 
@@ -106,7 +110,7 @@ function Header({ isAuthorized }) {
                                 <li className='display-name'>{displayName}</li>
                                 {/* Loop links */}
                                 {links.map((link, ind) => {
-                                    return <li className='d-row' onClick={() => goToPage(link.url)}>
+                                    return <li className='d-row' key={ind} onClick={() => goToPage(link.url)}>
                                         {link.icon} {link.label}
                                     </li>
                                 })}

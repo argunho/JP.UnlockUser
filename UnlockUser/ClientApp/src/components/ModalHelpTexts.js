@@ -33,7 +33,7 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
 
     const keys = data.length > 0 ? Object.keys(data[0]) : [];
     const refPrint = React.useRef(null);
-console.log(data)
+
     // Confirm handle
     const confirmHandle = (save) => {
         setConfirm(true);

@@ -33,24 +33,25 @@ public class AppController : ControllerBase
         {
             foreach (var group in groups)
             {
-                var members = _provider.GetSecurityGroupMembers(group.Group);
-                List<UserPrincipalExtension> users = new List<UserPrincipalExtension>();    
-                foreach (var member in members)
-                    users.Add(_provider.FindUserByExtensionProperty(member));
+                List<Principal> members = _provider.GetSecurityGroupMembers(group.Group);
+                //List<UserPrincipalExtension> users = new List<UserPrincipalExtension>();    
+                //foreach (var member in members)
+                //    users.Add(_provider.FindUserByExtensionProperty(member));
+
                 groupMemebers.Add(new GroupUsersViewModel
                 {
                     Group = group,
                     //Employees = members.OrderBy(x => x.Office).ToList()
-                    Employees = users.Select(s => new User
+                    Employees = members.Select(s => new User
                     {
                        Name = s.Name,
                        DisplayName = s.DisplayName,
-                       Office = s.Office,
-                       Email = s.EmailAddress,
-                       Title = s.Title,
-                       Department = s.Department,
-                       Division = s.Division,
-                       Manager = s.Manager
+                       Email = s.UserPrincipalName
+                       //Office = s.Office,
+                       //Title = s.Title,
+                       //Department = s.Department,
+                       //Division = s.Division,
+                       //Manager = s.Manager
                     }).Distinct().ToList().OrderBy(o => o.Office).ToList()
                 });
             }

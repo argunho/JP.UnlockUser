@@ -134,24 +134,28 @@ namespace UnlockUser.Controllers
                 var division = GetClaim("division")?.ToLower();
                 var userName = GetClaim("username");
 
-                if (groupName != "studenter")
-                {
-                    if (!roles.Contains("Manager", StringComparison.CurrentCulture))
-                        users = users.Where(x => x.Manager == manager || x.Division?.ToLower() == division).ToList();
-                    else
-                        users = users.Where(x => x.Manager == manager || x.Manager.Contains($"CN={userName}", StringComparison.CurrentCulture) || x.Division?.ToLower() == division).ToList();
-                }
-                else if (!roles.Contains("Support", StringComparison.CurrentCulture))
-                {
-                    if (office == "Gymnasiet yrkesvux lärvux".ToLower())
-                        office = "Allbo Lärcenter gymnasieskola".ToLower();
+                users = users.Where(x => x.Office == office || 
+                    (x.Division != null && x.Division.ToLower().Contains(division, StringComparison.CurrentCulture) 
+                    || division.Contains(x.Division.ToLower(), StringComparison.CurrentCulture))).ToList();
 
-                    users = users.Where(x => x.Office == office || x.Division?.ToLower() == division).ToList();
-                    //if (users?.Count(x => x.Office?.ToLower() == office) > 0)
-                    //    users.RemoveAll(x => x.Office?.ToLower() != office);
-                    //else
-                    //    users.RemoveAll(x => !office.Contains(x.Office.ToLower()));
-                }
+                //if (groupName != "studenter")
+                //{
+                //    if (!roles.Contains("Manager", StringComparison.CurrentCulture))
+                //        users = users.Where(x => x.Manager == manager || x.Division?.ToLower() == division).ToList();
+                //    else
+                //        users = users.Where(x => x.Manager == manager || x.Manager.Contains($"CN={userName}", StringComparison.CurrentCulture) || (x.Division != null && x.Division.ToLower().Contains(division, StringComparison.CurrentCulture) || division.Contains(x.Division.ToLower())).ToList();
+                //}
+                //else if (!roles.Contains("Support", StringComparison.CurrentCulture))
+                //{
+                //    if (office == "Gymnasiet yrkesvux lärvux".ToLower())
+                //        office = "Allbo Lärcenter gymnasieskola".ToLower();
+
+                //    users = users.Where(x => x.Office == office || (x.Division != null && x.Division.ToLower().Contains(division, StringComparison.CurrentCulture) || division.Contains(x.Division.ToLower()))).ToList();
+                //    //if (users?.Count(x => x.Office?.ToLower() == office) > 0)
+                //    //    users.RemoveAll(x => x.Office?.ToLower() != office);
+                //    //else
+                //    //    users.RemoveAll(x => !office.Contains(x.Office.ToLower()));
+                //}
             }
 
             return users;

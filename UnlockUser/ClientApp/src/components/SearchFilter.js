@@ -12,7 +12,6 @@ function SearchFilter({onChange, onReset, label}) {
     const changeHandler = (e) => {
         if (!e?.target) return;
         let value = e.target.value;
-        console.log(value)
         onChange(value);
         setKeyword(value);
     }

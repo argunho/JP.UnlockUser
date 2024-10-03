@@ -88,7 +88,7 @@ public class UserController : ControllerBase
             sessionOffice = "Allbo Lärcenter gymnasieskola".ToLower();
 
         var manager = GetClaim("manager");
-        var division = GetClaim("division");
+        var division = GetClaim("division")?.ToLower();
 
         var roles = GetClaim("roles");
         var stoppedToEdit = new List<string>();
@@ -107,6 +107,8 @@ public class UserController : ControllerBase
                 if (user == null)
                     continue;
 
+                var ud = user.Division.ToLower();
+
                 // Get all user groups to check users membership in permission groups
                 var userGroups = _provider.GetUserGroups(user);
                 var forbidden = userGroups.Exists(x => permissionGroups.Contains(x));
@@ -118,16 +120,16 @@ public class UserController : ControllerBase
                     continue;
                 }
                 //else if (sessionUserData.Group?.ToLower() != "studenter" && user.Manager != manager && user.Division == division)
-                else if (user.Division == division)
+                else if(!ud.Contains(division, StringComparison.CurrentCulture) && !division.Contains(ud, StringComparison.CurrentCulture))
                 {
                     stoppedToEdit.Add(username);
                     model.Users.RemoveAll(x => x.Username == username);
                 }
-                else if (user.Office.ToLower() != sessionOffice && (!user.Office.IsNullOrEmpty() && !sessionOffice.Contains(user.Office.ToLower())))
-                {
-                    stoppedToEdit.Add(username);
-                    model.Users.RemoveAll(x => x.Username == username);
-                }
+                //else if (user.Office.ToLower() != sessionOffice && (!user.Office.IsNullOrEmpty() && !sessionOffice.Contains(user.Office.ToLower())))
+                //{
+                //    stoppedToEdit.Add(username);
+                //    model.Users.RemoveAll(x => x.Username == username);
+                //}
             }
         }
 

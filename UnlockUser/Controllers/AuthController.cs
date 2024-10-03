@@ -86,6 +86,7 @@ public class AuthController : ControllerBase
 
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
             var user = _provider.FindUserByExtensionProperty(model.Username);
+            //var user = _provider.FindUserByExtensionProperty("800702huss");
             var userGroups = _provider.GetUserGroups(user);
             permissionGroups.RemoveAll(x => !userGroups.Contains(x.Group));
             if (permissionGroups == null)

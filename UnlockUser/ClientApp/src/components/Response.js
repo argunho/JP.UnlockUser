@@ -42,7 +42,7 @@ export default function Response(props) {
         await ApiRequest("user/contact/error", "post", model)
             .then(res => {
                 if (res.data.errorMessage)
-                    console.log(res.data.errorMessage)
+                    console.warn(res.data.errorMessage)
                 setTimeout(() => {
                     props.reset();
                 }, 1000)

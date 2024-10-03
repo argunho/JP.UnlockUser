@@ -35,6 +35,7 @@ function ViewList() {
             await ApiRequest("app/authorized/personnel").then(response => {
                 const res = response.data;
                 setInit(res)
+        console.log(res)
                 setLoading(false);
                 if (res === null || res?.length === 0)
                     setResponse(noResult);
@@ -49,6 +50,7 @@ function ViewList() {
                 setResponse({ alert: "warning", msg: `Något har gått snett: Fel: ${error}` });
                 setLoading(false);
             })
+            
         }
 
         getData();
@@ -58,12 +60,16 @@ function ViewList() {
     useEffect(() => {
         console.log(group)
         setList([]);
-        setLoading(true);
         setTimeout(() => {
-            resetActions();
+            getListPerPage(1);
         }, 100)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [group])
+
+    const getListPerPage = (number) => {
+        setList(initList?.find(x => x.group?.name === group)?.employees.slice((perPage * (number - 1))));
+        setLoading(false);
+    }
 
     const valueChangeHandler = (value) => {
         let groupList = initList.find(x => x.group?.name === group)?.employees ?? [];
@@ -76,10 +82,12 @@ function ViewList() {
 
     const handlePageChange = (e, value) => {
         setPage(value);
+        getListPerPage(value);
     }
 
     const resetActions = () => {
-        setList(initList?.find(x => x.group?.name === group)?.employees ?? []);
+        console.log(initList?.find(x => x.group?.name === group))
+        setList(initList?.find(x => x.group?.name === group)?.employees);
         setResponse();
         setLoading(false);
     }
@@ -119,7 +127,7 @@ function ViewList() {
 
             {/* Result list */}
             {(list?.length > 0 && !loading) && <List className="d-row list-container">
-                {list?.slice(page * perPage, perPage).map((item, index) => {
+                {list.map((item, index) => {
                     console.log(list.length)
                     return <ListItem key={index} className={`list-item w-100`}
                         secondaryAction={<IconButton>
