@@ -1,0 +1,75 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser\\controllers\\appcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|solutionrelative:unlockuser\\controllers\\appcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser\\interface\\iactivedirectory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|solutionrelative:unlockuser\\interface\\iactivedirectory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser\\services\\adservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|solutionrelative:unlockuser\\services\\adservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ADService.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Services\\ADService.cs",
+              "RelativeDocumentMoniker": "UnlockUser\\Services\\ADService.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Services\\ADService.cs",
+              "RelativeToolTip": "UnlockUser\\Services\\ADService.cs",
+              "ViewState": "AQIAABsAAAAAAAAAAAAcwD8AAAAWAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-03T13:34:00.296Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "IActiveDirectory.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Interface\\IActiveDirectory.cs",
+              "RelativeDocumentMoniker": "UnlockUser\\Interface\\IActiveDirectory.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Interface\\IActiveDirectory.cs",
+              "RelativeToolTip": "UnlockUser\\Interface\\IActiveDirectory.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAADwvxAAAAAPAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-03T13:33:00.479Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AppController.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Controllers\\AppController.cs",
+              "RelativeDocumentMoniker": "UnlockUser\\Controllers\\AppController.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Controllers\\AppController.cs",
+              "RelativeToolTip": "UnlockUser\\Controllers\\AppController.cs",
+              "ViewState": "AQIAABkAAAAAAAAAAAAkwCYAAAAIAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-03T11:17:32.133Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -61,11 +61,11 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
     }
 
     // Get memebrs from security group
-    public List<Principal> GetSecurityGroupMembers(string? groupName)
+    public List<string> GetSecurityGroupMembers(string? groupName)
     {
         using GroupPrincipal group = GroupPrincipal.FindByIdentity(PContext(), IdentityType.SamAccountName, groupName);
-        var members = group.GetMembers(true).ToList();
-        //List<string> members = group.GetMembers(true).Select(s => s.SamAccountName).ToList();
+        //var members = group.GetMembers(true).ToList();
+        List<string> members = group.GetMembers(true).Select(s => s.SamAccountName).ToList();
 
         return members;
     }

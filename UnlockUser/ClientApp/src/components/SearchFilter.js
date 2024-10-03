@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
 import { Button, TextField } from '@mui/material';
 
-function SearchFilter({onChange, onReset, label}) {
+function SearchFilter({label, disabled, onChange, onReset}) {
     SearchFilter.displayName = "SearchFilter";
 
     const [keyword, setKeyword] = useState("");
@@ -26,6 +26,7 @@ function SearchFilter({onChange, onReset, label}) {
             label={`Sök ${label} ...`}
             className='search-full-width'
             value={keyword}
+            disabled={disabled}
             placeholder="Anvädarnamn, school, klass, datum, gruppnamn ..."
             onChange={changeHandler}
         />
