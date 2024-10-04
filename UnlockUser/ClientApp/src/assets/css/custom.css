@@ -37,6 +37,25 @@ body {
   flex-direction: row;
 }
 
+.w100 {
+  width: 100% !important;
+}
+
+.w-100 {
+  width: -webkit-fill-available !important;
+  width: -moz-available !important;
+}
+
+.wh-100 {
+  width: -webkit-fill-available;
+  width: -moz-available;
+  height: 100% !important;
+  height: -webkit-fill-available;
+  height: -moz-available;
+  height: fill-available;
+  overflow-y: auto;
+}
+
 /* #region Header*/
 .logo-wrapper {
   display: block;

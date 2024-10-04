@@ -27,58 +27,66 @@ public class AppController : ControllerBase
     }
 
     #region GET
-    [HttpGet("authorized/personnel")]
-    public List<GroupUsersViewModel> GetMemebers()
+    [HttpGet("authorized/employees")]
+    public List<GroupUsersViewModel> GetAuthorizedEmployees()
     {
-        List<GroupUsersViewModel> groupMembers = new();
+        List<GroupUsersViewModel> groupEmployees = new();
         try
         {
             using StreamReader reader = new(@"wwwroot/json/employees.json");
             var employeesJson = reader.ReadToEnd();
-            groupMembers = JsonConvert.DeserializeObject<List<GroupUsersViewModel>>(employeesJson);
+            groupEmployees = JsonConvert.DeserializeObject<List<GroupUsersViewModel>>(employeesJson);
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error UnlockUser: GetEmployees: {ex.Message}");
         }
 
-        return groupMembers;
+        return groupEmployees;
     }
 
-    [HttpGet("renew/authorized/personnel/list")]
-    public async Task<IActionResult> RenewMemebersList()
+    [HttpGet("renew/authorized/employees/list")]
+    public async Task<IActionResult> RenewEmployeesList()
     {
 
-        var groupMembers = new List<GroupUsersViewModel>();
+        var groupEmployees = new List<GroupUsersViewModel>();
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
+        var currentList = GetAuthorizedEmployees();
         try
         {
             foreach (var group in groups)
             {
                 List<string> members = _provider.GetSecurityGroupMembers(group.Group);
-                List<UserPrincipalExtension> users = new List<UserPrincipalExtension>();
+                List<UserPrincipalExtension> users = new();
+                var cListByGroup = currentList.FirstOrDefault(x => x.Group?.Name == group.Name)?.Employees;
                 foreach (var member in members)
+                {
                     users.Add(_provider.FindUserByExtensionProperty(member));
+                }
 
-                groupMembers.Add(new GroupUsersViewModel
+                groupEmployees.Add(new GroupUsersViewModel
                 {
                     Group = group,
-                    Employees = users.Where(x => x?.SamAccountName.Length > 6 && int.TryParse(x?.SamAccountName.Substring(0,6), out int number)).Select(s => new User
+                    Employees = users.Where(x => x.SamAccountName?.Length > 6 && int.TryParse(x?.SamAccountName.Substring(0, 6), out int number)).Select(s => new User
                     {
-                        Name = s.Name,
+                        Name = s.SamAccountName,
                         DisplayName = s.DisplayName,
                         Email = s.DisplayName,
                         Office = s.Office,
                         Title = s.Title,
                         Department = s.Department,
                         Division = s.Division,
-                        Manager = s.Manager
-                    }).Distinct().ToList().OrderBy(o => o.Office).ToList()
+                        Manager = s.Manager,
+                        Permissions = (cListByGroup != null && cListByGroup.Exists(x => x.Name == s.SamAccountName))
+                                        ? cListByGroup.FirstOrDefault(x => x.Name == s.SamAccountName).Permissions
+                                        : new List<string> { s.Office }
+                    }).Distinct().ToList().OrderBy(o => o.DisplayName).ToList()
                 });
+
             }
 
             await using FileStream stream = System.IO.File.Create(@"wwwroot/json/employees.json");
-            await System.Text.Json.JsonSerializer.SerializeAsync(stream, groupMembers);
+            await System.Text.Json.JsonSerializer.SerializeAsync(stream, groupEmployees);
         }
         catch (Exception ex)
         {
@@ -91,12 +99,31 @@ public class AppController : ControllerBase
     #endregion
 
     #region POST
-
     #endregion
 
     #region PUT
+    [HttpPut("update/employee/data/{username}")]
+    public async Task<JsonResult> PutUpdateEmployeeData(string username, User model)
+    {
+        var groupEmployees = GetAuthorizedEmployees();
+        var groups = groupEmployees.Where(x => x.Employees.Any(e => e.Name == username)).ToList();
+        if (groups.Count == 0)
+            return new JsonResult(new { msg = "Ingen anställd hittade med matchande användarnamn" });
 
-    #endregion
+        foreach (var group in groups)
+        {
+            foreach (var employee in group.Employees)
+            {
+                employee.Permissions = model.Permissions.Count > 0 ? model.Permissions : new List<string> { model.Office };
+            }
+        }
+
+        await using FileStream stream = System.IO.File.Create(@"wwwroot/json/employees.json");
+        await System.Text.Json.JsonSerializer.SerializeAsync(stream, groupEmployees);
+
+        return new JsonResult(null);
+    }
+    #endregion{
 
     #region DELETE
 

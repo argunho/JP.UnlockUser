@@ -22,21 +22,26 @@
 }
 
 .view-list-result button {
-   margin-right: -15px !important;
+    margin-right: -15px !important;
 }
 
-.list-container {
+.list-container,
+.view-modal-list {
     width: 100% !important;
     margin: -20px auto 20px auto !important;
-    justify-content: flex-end !important;
+    justify-content: center !important;
     flex-wrap: wrap !important;
 }
 
 li.list-item {
     height: 70px !important;
     box-shadow: 0 0 1px 1px #7e7c7c !important;
-    width: calc(50% - 12px) !important;
+    width: calc(50% - 12px);
     margin: 4px 3px !important;
+}
+
+li.last {
+    margin: 4px 9px !important;
 }
 
 li.list-item:hover {
@@ -44,18 +49,47 @@ li.list-item:hover {
     background-color: #6363632a !important;
 }
 
-li.list-item-last {
-    width: calc(50% - 6px) !important;
-}
-
 .pagination {
-    width: max-content;
     margin: 50px auto 0 auto;
     position: absolute;
-    bottom: 25px;
+    bottom: 0;
     right: 0;
+    padding: 20px;
+    background-color: #FFFFFF;
+    border: 1px solid #7e7c7c9f;
 }
 
 .pagination>nav {
     margin: auto !important;
+}
+
+.view-modal-label {
+    padding: 15px 10px;
+    background-color: rgb(2, 172, 30);
+    color: #FFFFFF;
+    margin-bottom: 20px !important;
+}
+
+.view-modal-list {
+    justify-content: flex-start !important;
+}
+
+li.modal-list-item {
+    box-shadow: 0 0 1px 1px #7e7c7c91 !important;
+    border-radius: 3px !important;
+    width: calc(50% - 12px);
+    margin: 4px 3px !important;
+}
+
+.view-modal-form {
+    border-top: 2px solid #b3b3b3;
+    margin: 70px 0 30px 0;
+    padding-top: 30px;
+    justify-content: space-between;
+}
+
+.view-modal-form>button {
+    width: 120px !important;
+    margin-left: 10px;
+    height: 50px !important;
 }

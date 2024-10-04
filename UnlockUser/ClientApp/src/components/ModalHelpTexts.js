@@ -12,7 +12,6 @@ import { Close, HelpOutline, LiveHelpOutlined, Refresh } from '@mui/icons-materi
 
 // Components
 import Table from './Table';
-import { isArray } from 'jquery';
 
 function PaperComponent(props) {
     return (

@@ -11,5 +11,6 @@ public class User
     public string? Office { get; set; }
     public string? Division { get; set; }
     public string? Title { get; set; }
+    public List<string> Permissions { get; set; }
     public bool IsLocked { get; set; }  
 }
