@@ -71,7 +71,7 @@ public class AppController : ControllerBase
                     {
                         Name = s.SamAccountName,
                         DisplayName = s.DisplayName,
-                        Email = s.DisplayName,
+                        Email = s.EmailAddress,
                         Office = s.Office,
                         Title = s.Title,
                         Department = s.Department,
@@ -108,17 +108,19 @@ public class AppController : ControllerBase
         try
         {
             var groupEmployees = GetAuthorizedEmployees();
-            var groups = groupEmployees.Where(x => x.Employees.Any(e => e.Name == username)).ToList();
-            if (groups.Count == 0)
-                return new JsonResult(new { alert = "warning",  msg = "Ingen anställd hittade med matchande användarnamn" });
-
-            foreach (var group in groups)
+            var exists = false;
+            foreach(var group in groupEmployees)
             {
-                foreach (var employee in group.Employees)
+                var employee = group.Employees.FirstOrDefault(x => x.Name == username);
+                if (employee != null)
                 {
                     employee.Permissions = model.Permissions.Count > 0 ? model.Permissions : new List<string> { model.Office };
+                    exists = true;
                 }
             }
+
+            if (!exists)
+                return new JsonResult(new { alert = "warning",  msg = "Ingen anställd hittade med matchande användarnamn" });
 
             await using FileStream stream = System.IO.File.Create(@"wwwroot/json/employees.json");
             await System.Text.Json.JsonSerializer.SerializeAsync(stream, groupEmployees);

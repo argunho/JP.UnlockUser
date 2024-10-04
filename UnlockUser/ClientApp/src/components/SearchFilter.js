@@ -1,13 +1,21 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // Installed
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
 import { Button, TextField } from '@mui/material';
 
-function SearchFilter({label, disabled, onChange, onReset}) {
+function SearchFilter({label, disabled, clean, onChange, onReset}) {
     SearchFilter.displayName = "SearchFilter";
 
     const [keyword, setKeyword] = useState("");
+
+    useEffect(() => {
+
+        console.log(clean)
+        if(clean && keyword?.length > 0)
+            setKeyword("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [clean])
 
     const changeHandler = (e) => {
         if (!e?.target) return;

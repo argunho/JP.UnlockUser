@@ -37,10 +37,10 @@ function ViewList() {
     const [group, setGroup] = useState("");
     const [page, setPage] = useState(1);
     const [userData, setUserData] = useState();
-    const [listLength, setListLength] = useState(0);
     const [confirm, setConfirm] = useState(false);
     const [permission, setPermission] = useState("");
     const [updating, setUpdating] = useState(false);
+    const [changed, setChanged] = useState(false);
 
     const perPage = 20;
 
@@ -67,7 +67,6 @@ function ViewList() {
         await ApiRequest("app/authorized/employees").then(response => {
             const res = response.data;
             setInit(res)
-            console.log(res)
             setLoading(false);
             if (res === null || res?.length === 0)
                 setResponse(noResult);
@@ -88,17 +87,23 @@ function ViewList() {
         const groupList = initList?.find(x => x.group?.name === group)?.employees;
         if (!groupList) return;
 
-        setListLength(groupList?.length);
         setList(groupList);
         setLoading(false);
     }
 
-    function valueChangeHandler(value) {
-        if (value !== "") {
-            let filteredList = list?.filter(x => (x?.name || x?.division || x?.office || x?.email || x.displayName)?.toLowerCase().includes(value));
-            console.log(filteredList)
-            setList(value?.length === 0 ? filteredList : list);
-        } else
+    function listFilterBySearchKeyword(value) {
+        if (page > 1)
+            setPage(1);
+        if (value?.length >= 3) {
+            value = value.toLowerCase();
+            const employees = initList.find(x => x.group?.name === group)?.employees;
+            let filteredList = employees?.filter(x => x?.name?.toLowerCase().includes(value) || x?.division?.toLowerCase().includes(value)
+                || x?.office?.toLowerCase().includes(value) || x?.email?.toLowerCase().includes(value)
+                || x?.displayName?.toLowerCase().includes(value));
+            setTimeout(() => {
+                setList(filteredList);
+            }, 100)
+        } else if (value === "")
             resetActions();
     }
 
@@ -108,7 +113,6 @@ function ViewList() {
 
     async function renewList() {
         setLoading(true);
-        setListLength(0);
         setList([]);
         await ApiRequest("app/renew/authorized/employees/list").then(res => {
             if (res.status === 200)
@@ -128,34 +132,41 @@ function ViewList() {
 
     function updatePermissions() {
         let permissions = [...userData?.permissions];
-        if(permissions.indexOf(permission) > -1)
+        if (permissions.indexOf(permission) > -1)
             return;
         permissions.push(permission);
         setPermission("");
-        setUserData({...userData, permissions: permissions});
+        setChanged(true);
+        setUserData({ ...userData, permissions: permissions });
     }
 
     function removePermission(name) {
-        setUserData({...userData, permissions: userData.permissions.filter(x => x !== name)});
+        setUserData({ ...userData, permissions: userData.permissions.filter(x => x !== name) });
+        setChanged(true);
     }
 
     async function onSubmit() {
         setConfirm(false);
         setUpdating(true);
         await ApiRequest(`app/update/employee/data/${userData?.name}`, "put", userData).then(res => {
-            setUpdating(false);
-            setUserData();
             if (res.data !== null)
                 setResponse(res.data);
+            setTimeout(() => {
+                closeModal(!res?.data);
+            }, 1000)
         }, error => {
             setResponse({ alert: "warning", msg: `Något har gått snett: Fel: ${error}` });
-            setLoading(false);
+            closeModal();
         })
     }
 
-    function closeModal() {
+    function closeModal(update) {
+        setConfirm(false);
+        setChanged(false);
+        setUpdating(false);
         setUserData(null);
-        setConfirm(false)
+        if (update)
+            getData();
     }
 
     function resetActions() {
@@ -170,19 +181,14 @@ function ViewList() {
             {/* List filter */}
             <div className="d-row view-list-container search-container">
                 {/* Search filter */}
-                <SearchFilter label="anställda" disabled={loading || list?.length === 0} onChange={valueChangeHandler} onReset={resetActions} />
+                <SearchFilter label="anställda" disabled={loading || response} clean={list?.length === 0} onChange={listFilterBySearchKeyword} onReset={resetActions} />
 
                 {/* Groups filter */}
                 <Box sx={{ minWidth: 160, marginBottom: "9px" }}>
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Grupper</InputLabel>
-                        <Select
-                            value={group}
-                            label="Grupper"
-                            labelId="demo-simple-select-label"
-                            onChange={(e) => setGroup(e.target.value)}
-                            sx={{ height: 50, color: "#1976D2" }}
-                            disabled={loading || list?.length === 0}>
+                        <Select value={group} label="Grupper" labelId="demo-simple-select-label"
+                            onChange={(e) => setGroup(e.target.value)} sx={{ height: 50, color: "#1976D2" }} disabled={loading}>
                             {groups?.map((name, index) => (
                                 <MenuItem value={name} key={index}>
                                     <span style={{ marginLeft: "10px" }}> - {name}</span>
@@ -198,17 +204,18 @@ function ViewList() {
                 {/* Actions/Info */}
                 <ListItem className='view-list-result' secondaryAction={<Button size='large' variant='outlined'
                     disabled={loading} endIcon={<Update />} onClick={renewList}>
-                    Updatera listan
+                    Uppdatera listan
                 </Button>}>
-                    <ListItemText primary="Antal anställda" secondary={listLength} />
+                    <ListItemText primary="Behöriga användare" secondary={loading ? "Data hämtning pågå ..." : `Antal: ${list?.length}`} />
                 </ListItem>
 
                 {/* Loop of result list */}
                 {(list?.length > 0 && !loading) && list?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, index) => {
-                    return <ListItem key={index} className={`list-item${(index + 1 === list?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}`}
+                    const calculatedIndex = (perPage * (page - 1)) + (index + 1);
+                    return <ListItem key={index} className={`list-item${(calculatedIndex === list?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}`}
                         secondaryAction={<IconButton onClick={() => expandModal(item)}><OpenInFull /></IconButton>}>
                         <ListItemIcon>
-                            {page > 1 ? (perPage * (page - 1)) + (index + 1) : index + 1}
+                            {page > 1 ? calculatedIndex : index + 1}
                         </ListItemIcon>
                         <ListItemText primary={item?.displayName} secondary={item?.office} />
                     </ListItem>
@@ -216,35 +223,30 @@ function ViewList() {
             </List>
 
             {/* Loading symbol */}
-            {loading && <Loading msg="data hämtas ..." />}           
-            
+            {loading && <Loading msg="data hämtas ..." />}
+
             {/* Message if result is null */}
             {(response && !loading) && <Response response={response} reset={resetActions} />}
 
             {/* Pagination */}
-            {(listLength > 0 && !loading) && <div className="pagination w-100">
+            {(list?.length > 0 && !loading) && <div className="pagination w-100">
                 <Pagination count={Math.ceil(initList.find(x => x.group?.name === group)?.employees?.length / perPage)}
                     page={page} onChange={handlePageChange} variant="outlined" shape="rounded" />
             </div>}
-        
+
             {/* Modal form */}
-            <Dialog
-                open={!!userData}
-                onClose={closeModal}
-                PaperComponent={PaperComponent}
-                aria-labelledby="draggable-dialog-title"
-                className='modal-wrapper print-page' id="content" >
+            <Dialog open={!!userData} onClose={closeModal} PaperComponent={PaperComponent}
+                aria-labelledby="draggable-dialog-title" className='modal-wrapper print-page' id="content" >
 
                 <DialogTitle className='view-modal-label'
-                    id="draggable-dialog-title"
-                    dangerouslySetInnerHTML={{ __html: userData?.displayName }}>
+                    id="draggable-dialog-title" dangerouslySetInnerHTML={{ __html: userData?.displayName + "<span>" + userData?.title + "</span>" }}>
                 </DialogTitle>
 
                 {/* View this block if datat is a text */}
                 <DialogContent className=''>
                     <List className="d-row view-modal-list">
                         <ListItem className='view-list-result'>
-                            <ListItemText primary="Behörogheter" secondary={userData?.permissions?.length} />
+                            <ListItemText primary="Behörogheter" />
                         </ListItem>
                         {userData?.permissions?.map((name, ind) => {
                             return <ListItem key={ind} className='modal-list-item' secondaryAction={<IconButton onClick={() => removePermission(name)}>
@@ -257,7 +259,7 @@ function ViewList() {
 
                     {/* Textfield */}
                     <div className='d-row view-modal-form w-100'>
-                        <TextField id="permission" className="w-100" label="Ny behörighet" value={permission} 
+                        <TextField id="permission" className="w-100" label="Ny behörighet" value={permission}
                             onChange={(e) => setPermission(e.target.value)} />
                         <Button variant="outlined" onClick={updatePermissions} disabled={!permission}>
                             Lägg till
@@ -266,17 +268,18 @@ function ViewList() {
                 </DialogContent>
 
                 <DialogActions className="no-print modal-buttons-wrapper">
-                    {!confirm &&
-                        <><Button variant="text"
+                    {!confirm && <>
+                        <Button variant="text"
                             className='button-btn'
                             color="primary"
+                            disabled={!changed}
                             onClick={() => setConfirm(true)}>
-                            {updating ? <CircularProgress size={20}/> : "Spara"}
+                            {updating ? <CircularProgress size={20} /> : "Spara"}
                         </Button>
-                            {!updating && <Button variant='contained' color="error" autoFocus onClick={closeModal}>
-                                <Close />
-                            </Button>}
-                        </>}
+                        {!updating && <Button variant='contained' color="error" autoFocus onClick={closeModal}>
+                            <Close />
+                        </Button>}
+                    </>}
 
                     {/* Confirm actions block */}
                     {confirm && <>

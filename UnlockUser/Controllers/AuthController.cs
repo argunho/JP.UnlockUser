@@ -6,6 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 
 namespace UnlockUser.Controllers;
 
@@ -172,6 +173,11 @@ public class AuthController : ControllerBase
         _session.SetString("Email", user.EmailAddress);
         _session.SetString("Department", user.Department);
         _session.SetString("GroupNames", groupsNames);
+
+        using StreamReader reader = new(@"wwwroot/json/employees.json");
+        var employeesJson = reader.ReadToEnd();
+        var groupEmployees = JsonConvert.DeserializeObject<List<GroupUsersViewModel>>(employeesJson);
+        //var employee = groupEmployees.FirstOrDefault(x => x.Group.Eemployee);
 
         var claims = new List<Claim>
         {

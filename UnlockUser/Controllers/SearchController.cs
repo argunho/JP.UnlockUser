@@ -133,6 +133,7 @@ namespace UnlockUser.Controllers
                 var office = GetClaim("office")?.ToLower();
                 var division = GetClaim("division")?.ToLower();
                 var userName = GetClaim("username");
+                var permissions = GetClaim("permissions").ToLower().Split(",");
 
                 users = users.Where(x => x.Office == office || 
                     (x.Division != null && x.Division.ToLower().Contains(division, StringComparison.CurrentCulture) 

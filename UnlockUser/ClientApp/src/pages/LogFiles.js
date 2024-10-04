@@ -77,9 +77,8 @@ function LogFiles() {
             <ListItem className='search-result'>
                 {/* Result info */}
                 <ListItemText
-                    primary="Result"
-                    secondary={loading ? "Sökning pågår, loggfiler kommer att visas här nedan ..."
-                        : "Hittades: " + list?.length + " loggfiler"} />
+                    primary="Logfiler"
+                    secondary={loading ? "Data hämtning pågå ..." : `Antal: ${list?.length}`} />
             </ListItem>
 
             {/* Loop of list */}
