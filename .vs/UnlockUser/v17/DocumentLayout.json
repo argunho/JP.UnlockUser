@@ -1,0 +1,138 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser\\controllers\\searchcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|solutionrelative:unlockuser\\controllers\\searchcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser\\controllers\\appcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|solutionrelative:unlockuser\\controllers\\appcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|solutionrelative:unlockuser\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser\\models\\gruopmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|solutionrelative:unlockuser\\models\\gruopmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser\\models\\data.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|solutionrelative:unlockuser\\models\\data.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser\\interface\\iactivedirectory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|solutionrelative:unlockuser\\interface\\iactivedirectory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser\\services\\adservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5FA9E432-CF7C-4D5F-A96B-76CBF82CBC49}|UnlockUser\\UnlockUser.csproj|solutionrelative:unlockuser\\services\\adservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "SearchController.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Controllers\\SearchController.cs",
+              "RelativeDocumentMoniker": "UnlockUser\\Controllers\\SearchController.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Controllers\\SearchController.cs",
+              "RelativeToolTip": "UnlockUser\\Controllers\\SearchController.cs",
+              "ViewState": "AQIAAGAAAAAAAAAAAAAcwJYAAABCAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-04T07:59:09.265Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "GruopModel.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Models\\GruopModel.cs",
+              "RelativeDocumentMoniker": "UnlockUser\\Models\\GruopModel.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Models\\GruopModel.cs",
+              "RelativeToolTip": "UnlockUser\\Models\\GruopModel.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAADwvwAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-04T07:44:17.245Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Data.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Models\\Data.cs",
+              "RelativeDocumentMoniker": "UnlockUser\\Models\\Data.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Models\\Data.cs",
+              "RelativeToolTip": "UnlockUser\\Models\\Data.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAADwvwAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-04T07:44:15.753Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Models\\User.cs",
+              "RelativeDocumentMoniker": "UnlockUser\\Models\\User.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Models\\User.cs",
+              "RelativeToolTip": "UnlockUser\\Models\\User.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAADwvw0AAAAjAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-04T06:58:34.836Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ADService.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Services\\ADService.cs",
+              "RelativeDocumentMoniker": "UnlockUser\\Services\\ADService.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Services\\ADService.cs",
+              "RelativeToolTip": "UnlockUser\\Services\\ADService.cs",
+              "ViewState": "AQIAABsAAAAAAAAAAAAcwD8AAAAWAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-03T13:34:00.296Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "IActiveDirectory.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Interface\\IActiveDirectory.cs",
+              "RelativeDocumentMoniker": "UnlockUser\\Interface\\IActiveDirectory.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Interface\\IActiveDirectory.cs",
+              "RelativeToolTip": "UnlockUser\\Interface\\IActiveDirectory.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAADwvxAAAAAPAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-03T13:33:00.479Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AppController.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Controllers\\AppController.cs",
+              "RelativeDocumentMoniker": "UnlockUser\\Controllers\\AppController.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser\\Controllers\\AppController.cs",
+              "RelativeToolTip": "UnlockUser\\Controllers\\AppController.cs",
+              "ViewState": "AQIAAFgAAAAAAAAAAAAuwIsAAAAQAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-03T11:17:32.133Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

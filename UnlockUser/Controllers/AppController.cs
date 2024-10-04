@@ -105,21 +105,29 @@ public class AppController : ControllerBase
     [HttpPut("update/employee/data/{username}")]
     public async Task<JsonResult> PutUpdateEmployeeData(string username, User model)
     {
-        var groupEmployees = GetAuthorizedEmployees();
-        var groups = groupEmployees.Where(x => x.Employees.Any(e => e.Name == username)).ToList();
-        if (groups.Count == 0)
-            return new JsonResult(new { msg = "Ingen anställd hittade med matchande användarnamn" });
-
-        foreach (var group in groups)
+        try
         {
-            foreach (var employee in group.Employees)
+            var groupEmployees = GetAuthorizedEmployees();
+            var groups = groupEmployees.Where(x => x.Employees.Any(e => e.Name == username)).ToList();
+            if (groups.Count == 0)
+                return new JsonResult(new { alert = "warning",  msg = "Ingen anställd hittade med matchande användarnamn" });
+
+            foreach (var group in groups)
             {
-                employee.Permissions = model.Permissions.Count > 0 ? model.Permissions : new List<string> { model.Office };
+                foreach (var employee in group.Employees)
+                {
+                    employee.Permissions = model.Permissions.Count > 0 ? model.Permissions : new List<string> { model.Office };
+                }
             }
+
+            await using FileStream stream = System.IO.File.Create(@"wwwroot/json/employees.json");
+            await System.Text.Json.JsonSerializer.SerializeAsync(stream, groupEmployees);
+        } catch(Exception ex)
+        {
+            Debug.WriteLine($"Fel: {ex.Message}");
+            return new JsonResult(new { alert = "error", msg = $"Något har gått snett. Fel: {ex.Message}" });
         }
 
-        await using FileStream stream = System.IO.File.Create(@"wwwroot/json/employees.json");
-        await System.Text.Json.JsonSerializer.SerializeAsync(stream, groupEmployees);
 
         return new JsonResult(null);
     }

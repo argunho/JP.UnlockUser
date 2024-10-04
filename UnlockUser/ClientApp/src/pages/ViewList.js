@@ -55,7 +55,7 @@ function ViewList() {
         setList([]);
         setPage(1);
         setTimeout(() => {
-            getListPerGroup(1);
+            getListPerGroup();
         }, 100)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [group])
@@ -84,28 +84,26 @@ function ViewList() {
         })
     }
 
-    function getListPerGroup(number) {
+    function getListPerGroup() {
         const groupList = initList?.find(x => x.group?.name === group)?.employees;
         if (!groupList) return;
 
         setListLength(groupList?.length);
-        const listPerPage = groupList?.filter((x, index) => (index + 1) > perPage * (number - 1) && (index + 1) <= (perPage * number));
-        setList(listPerPage);
+        setList(groupList);
         setLoading(false);
     }
 
     function valueChangeHandler(value) {
-        let groupList = initList.find(x => x.group?.name === group)?.employees ?? [];
         if (value !== "") {
-            let list = groupList?.filter(x => (x?.name || x?.division || x?.office || x?.email || x.displayName)?.toLowerCase().includes(value));
-            setList(value?.length === 0 ? initList : list);
+            let filteredList = list?.filter(x => (x?.name || x?.division || x?.office || x?.email || x.displayName)?.toLowerCase().includes(value));
+            console.log(filteredList)
+            setList(value?.length === 0 ? filteredList : list);
         } else
             resetActions();
     }
 
     function handlePageChange(e, value) {
         setPage(value);
-        getListPerGroup(value);
     }
 
     async function renewList() {
@@ -143,11 +141,11 @@ function ViewList() {
 
     async function onSubmit() {
         setConfirm(false);
-        await ApiRequest(`update/employee/data/${userData?.name}`, "put", userData).then(res => {
+        setUpdating(true);
+        await ApiRequest(`app/update/employee/data/${userData?.name}`, "put", userData).then(res => {
+            setUpdating(false);
             setUserData();
-            if (res.data === null)
-                getData();
-            else
+            if (res.data !== null)
                 setResponse(res.data);
         }, error => {
             setResponse({ alert: "warning", msg: `Något har gått snett: Fel: ${error}` });
@@ -206,7 +204,7 @@ function ViewList() {
                 </ListItem>
 
                 {/* Loop of result list */}
-                {(list?.length > 0 && !loading) && list?.map((item, index) => {
+                {(list?.length > 0 && !loading) && list?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, index) => {
                     return <ListItem key={index} className={`list-item${(index + 1 === list?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}`}
                         secondaryAction={<IconButton onClick={() => expandModal(item)}><OpenInFull /></IconButton>}>
                         <ListItemIcon>
@@ -259,7 +257,8 @@ function ViewList() {
 
                     {/* Textfield */}
                     <div className='d-row view-modal-form w-100'>
-                        <TextField id="permission" className="w-100" label="Ny behörighet" value={permission} onChange={(e) => setPermission(e.target.value)} />
+                        <TextField id="permission" className="w-100" label="Ny behörighet" value={permission} 
+                            onChange={(e) => setPermission(e.target.value)} />
                         <Button variant="outlined" onClick={updatePermissions} disabled={!permission}>
                             Lägg till
                         </Button>
