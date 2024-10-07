@@ -1,13 +1,12 @@
-import React from 'react'
-
-export default function Loading({ img, msg, src }) {
+/* eslint-disable no-undef */
+export default function Loading({ img, msg }) {
 
   const loadImage = img || "search.gif";
   const loadText = msg || "sökning pågår."
 
   return (
     <div className='block-centered'>
-      <img src={src ? src : require(`./../assets/images/${loadImage}`)} className='loading' alt="loading" />
+      <img src={loadImage} className='loading' alt="loading" />
       {!!msg && <p>Var vänlig och vänta, {loadText}</p>}
     </div>
   )

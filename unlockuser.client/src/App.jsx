@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 
 // Components 
 import Header from "./components/Header";
@@ -30,6 +30,9 @@ function App() {
 }
 
 function Root() {
+
+    const [loading, setLoading] = useState(true);
+
     const authContext = useContext(AuthContext);
 
     useEffect(() => {
@@ -38,7 +41,12 @@ function Root() {
             authContext.authorize(token);
         else
             authContext.logout();
+
+        setLoading(false);
     }, [authContext])
+
+    if (loading)
+        return null;
 
     return (
         <>

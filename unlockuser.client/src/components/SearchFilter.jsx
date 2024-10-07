@@ -12,7 +12,7 @@ function SearchFilter({label, disabled, clean, onChange, onReset}) {
     useEffect(() => {
         if(clean && keyword?.length > 0)
             setKeyword("");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [clean])
 
     const changeHandler = (e) => {

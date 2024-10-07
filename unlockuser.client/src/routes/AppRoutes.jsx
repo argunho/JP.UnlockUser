@@ -5,12 +5,12 @@ import { Route, Routes } from "react-router-dom";
 import Login from "./../pages/open/Login";
 import NotFound from "./../pages/open/NotFound";
 
-function AppRoutes() {
+function AppRoutes({authContext}) {
   const routes = [
     {
       index: true,
       path: "/",
-      element: <Login />
+      element: <Login authContext={authContext}/>
     }
   ];
 

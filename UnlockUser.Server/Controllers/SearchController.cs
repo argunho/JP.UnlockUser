@@ -8,20 +8,12 @@ namespace UnlockUser.Controllers
     [Route("[controller]")]
     [ApiController]
     [Authorize]
-    public class SearchController : ControllerBase
+    public class SearchController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IConfiguration config) : ControllerBase
     {
-        private readonly IActiveDirectory _provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
-        private readonly IHttpContextAccessor _contextAccessor;
-        private readonly ISession _session;
-        private readonly IConfiguration _config;
-
-        public SearchController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IConfiguration config)
-        {
-            _provider = provider;
-            _contextAccessor = contextAccessor;
-            _session = _contextAccessor.HttpContext.Session;
-            _config = config;
-        }
+        private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
+        private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
+        private readonly ISession _session = contextAccessor.HttpContext.Session;
+        private readonly IConfiguration _config = config;
 
         #region GET
         // Search one user

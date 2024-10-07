@@ -7,18 +7,11 @@ namespace UnlockUser.Controllers
     [Route("[controller]")]
     [ApiController]
     [Authorize]
-    public class DataController : ControllerBase
+    public class DataController(IConfiguration config, IHttpContextAccessor contextAccessor) : ControllerBase
     {
-        private readonly IConfiguration _config; // Implementation of configuration file => ActiveDerictory/appsettings.json
-        private readonly IHttpContextAccessor _contextAccessor;
-        private readonly ISession _session;
-
-        public DataController(IConfiguration config, IHttpContextAccessor contextAccessor)
-        {
-            _config = config;
-            _contextAccessor = contextAccessor;
-            _session = _contextAccessor.HttpContext.Session;
-        }
+        private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
+        private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
+        private readonly ISession _session = contextAccessor.HttpContext.Session;
 
         #region GET
         // Get all files

@@ -11,10 +11,10 @@ import UsersManager from "./../pages/auth/UsersManager";
 import LogFiles from "./../pages/auth/LogFiles";
 import Contacts from "./../pages/auth/Contacts";
 import Members from "./../pages/auth/Members";
-import NotFound from "../pages/open/NotFound";
+import Search from "./../pages/auth/Search";
+import NotFound from "./../pages/open/NotFound";
 
 // Components
-import SearchFilter from "./../components/SearchFilter";
 
 // Functions
 import { ErrorHandle } from "../functions/ErrorHandle";
@@ -47,7 +47,7 @@ function AuthRoutes({authContext }) {
     {
       index: true,
       path: "/",
-      element: <SearchFilter group={group} updateGroup={updateGroup} />
+      element: <Search group={group} updateGroup={updateGroup} />
     },
     {
       path: "/members",
@@ -103,10 +103,6 @@ function AuthRoutes({authContext }) {
       joinConnection();
 
     checkStatusOfService();
-
-    
-    if (isLocalhost)
-      console.log(authContext.authToken)
   }, [])
 
   async function joinConnection() {

@@ -10,20 +10,12 @@ namespace UnlockUser.Server.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class AuthController : ControllerBase
+public class AuthController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor) : ControllerBase
 {
-    private readonly IActiveDirectory _provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
-    private readonly IConfiguration _config; // Implementation of configuration file => ActiveDerictory/appsettings.json
-    private readonly IHttpContextAccessor _contextAccessor;
-    private readonly ISession _session;
-
-    public AuthController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor)
-    {
-        _provider = provider;
-        _config = config;
-        _contextAccessor = contextAccessor;
-        _session = _contextAccessor.HttpContext.Session;
-    }
+    private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
+    private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
+    private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
+    private readonly ISession _session = contextAccessor.HttpContext.Session;
 
     #region GET
     // Logout

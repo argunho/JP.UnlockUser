@@ -15,23 +15,14 @@ namespace UnlockUser.Server.Controllers;
 [Route("[controller]")]
 [ApiController]
 [Authorize]
-public class UserController : ControllerBase
+public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IHelp functions, IConfiguration config) : ControllerBase
 {
 
-    private readonly IActiveDirectory _provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
-    private readonly IHttpContextAccessor _contextAccessor;
-    private readonly ISession _session;
-    private readonly IHelp _functions;
-    private readonly IConfiguration _config;
-
-    public UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IHelp functions, IConfiguration config)
-    {
-        _provider = provider;
-        _contextAccessor = contextAccessor;
-        _session = _contextAccessor.HttpContext.Session;
-        _functions = functions;
-        _config = config;
-    }
+    private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
+    private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
+    private readonly IHelp _functions = functions;
+    private readonly IConfiguration _config = config;
+    private readonly ISession _session = contextAccessor.HttpContext.Session;
 
     #region GET
     [HttpGet("{group}/{name}")] // Get user information by username
