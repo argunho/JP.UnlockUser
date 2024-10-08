@@ -14,7 +14,7 @@ namespace UnlockUser.Server.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-[Authorize]
+//[Authorize]
 public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IHelp functions, IConfiguration config) : ControllerBase
 {
 
@@ -44,6 +44,13 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         _session.SetString("ManagedOffice", userData[0].Office);
         _session.SetString("ManagedDepartment", userData[0].Department);
 
+        if (userData[0] == null)
+            return new JsonResult(new
+            {
+                alert = "warning",
+                msg = "Användaren hittades inte."
+            });
+        
         return new JsonResult(new { user = userData[0], passwordLength = charachtersLength });
     }
 

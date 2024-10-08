@@ -15,12 +15,8 @@ import Loading from './Loading';
 import Response from './Response';
 import Info from './Info';
 
-function Result({
-    list, clsStudents,
-    isVisibleTips, loading, response,
-    cancelRequest, resetResult,
-    resultBlock, group
-}) {
+function Result({ list, clsStudents, isVisibleTips, loading, response, cancelRequest, resetResult, resultBlock }) {
+    Result.displayName = "Result";
 
     const [selectedList, setSelectedList] = useState([]);
     const [isOpenTip, setIsOpenTip] = useState(false);
@@ -189,7 +185,6 @@ function Result({
                             {/* List object */}
                             <Info
                                 user={s}
-                                group={group}
                                 displayName={s.displayName}
                                 subTitle={s.office + " " + (s.office !== s.department ? (" " + s?.department) : "")}
                                 result={true}

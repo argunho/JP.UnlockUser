@@ -24,7 +24,7 @@ function Header({ authContext }) {
     
     let links = [
         { label: "Session historik", url: "history", icon: <History />, access: false},
-        { label: "Behöriga användare", url: "members", icon: <SettingsApplications/>, access: true},
+        { label: "Behöriga användare", url: "employees", icon: <SettingsApplications/>, access: true},
         { label: "Loggfiler", url: "logs", icon: <InsertDriveFile />, access: true},
         { label: "Kontakta support", url: "contact", icon: <LiveHelp />, access: false}
     ];
@@ -58,7 +58,6 @@ function Header({ authContext }) {
                 setLinkName(`UnlockUser<br/><span>${decodedToken.Groups.replaceAll(",", ", ")}<span/>`);
                
                 setIsSupport(decodedToken?.Roles?.indexOf("Support") > -1); 
-                // console.log(decodedToken)
             }
         }
     }, [authContext.isAuthorized])
@@ -70,9 +69,6 @@ function Header({ authContext }) {
 
     const logout = async () => {
         // If the user is logged out, clear and remove all credential which was saved for the current session
-
-        sessionStorage.removeItem("token");      
-
         setVisibleMenu(false);
         await ApiRequest("auth/logout").then(res => {
             if (res.data?.errorMessage)
@@ -95,7 +91,7 @@ function Header({ authContext }) {
             <nav className="nav-wrapper">
                 <ul className='container'>
                     <li className="link-home">
-                        <Link className="link link-logo d-row" to="/find-user">
+                        <Link className="link link-logo d-row" to="/">
                             <HomeSharp />
                             <p className='d-column' dangerouslySetInnerHTML={{__html: linkName}}></p>
                         </Link>
@@ -114,7 +110,7 @@ function Header({ authContext }) {
                                         {link.icon} {link.label}
                                     </li>
                                 })}
-                                <li onClick={() => logout()}>
+                                <li onClick={logout}>
                                     <Logout />&nbsp;&nbsp;<span>Logga ut</span>
                                 </li>
                             </ul>

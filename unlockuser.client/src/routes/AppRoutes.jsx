@@ -14,7 +14,6 @@ function AppRoutes({authContext}) {
     }
   ];
 
-
   return <Routes>
     {routes.map((route, index) => {
       const { element, ...rest } = route;

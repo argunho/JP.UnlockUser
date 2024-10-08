@@ -32,7 +32,7 @@ function SearchFilter({label, disabled, clean, onChange, onReset}) {
             label={`Sök ${label} ...`}
             className='search-full-width'
             value={keyword}
-            disabled={disabled}
+            disabled={!!disabled}
             placeholder="Anvädarnamn, school, klass, datum, gruppnamn ..."
             onChange={changeHandler}
         />

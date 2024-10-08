@@ -5,11 +5,12 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import { HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
 
 // Pages
-import ViewList from "./../pages/auth/ViewList";
+import EmployeesList from "../pages/auth/EmployeesList";
 import SessionHistory from "./../pages/auth/SessionHistory";
 import UsersManager from "./../pages/auth/UsersManager";
 import LogFiles from "./../pages/auth/LogFiles";
 import Contacts from "./../pages/auth/Contacts";
+import UserManager from "../pages/auth/UserManager";
 import Members from "./../pages/auth/Members";
 import Search from "./../pages/auth/Search";
 import NotFound from "./../pages/open/NotFound";
@@ -37,7 +38,6 @@ const isLocalhost = Boolean(
 
 function AuthRoutes({authContext }) {
 
-  const [group, setGroup] = useState((sessionStorage.getItem("group"))?.toLowerCase() ?? "");
   const [updatePage, setUpdatePage] = useState(false);
   const [connection, setConnection] = useState();
 
@@ -47,19 +47,19 @@ function AuthRoutes({authContext }) {
     {
       index: true,
       path: "/",
-      element: <Search group={group} updateGroup={updateGroup} />
+      element: <Search authContext={authContext} navigate={navigate} />
     },
     {
-      path: "/members",
-      element: <ViewList />
+      path: "/employees",
+      element: <EmployeesList />
     },
     {
       path: '/manage-user/:id',
-      element: <UsersManager group={group} />
+      element: <UserManager authContext={authContext} navigate={navigate} />
     },
     {
-      path: '/manage-users/:class/:school',
-      element: <UsersManager group={group} />
+      path: '/manage-users/:cls/:school',
+      element: <UsersManager navigate={navigate}/>
     },
     {
       path: '/history',
@@ -75,18 +75,14 @@ function AuthRoutes({authContext }) {
     },
     {
       path: '/members/:office/:department',
-      element: <Members group={group} />
-    },
-    // {
-    //   path: "/categories/:key/:path",
-    //   element: <Section update={updatePage} />,
+      element: <Members navigate={navigate} />,
     //   routes: [
     //     {
     //       path: "",
     //       element: <ListView api="form" />
     //     },
     //   ]
-    // },
+    },
     // {
     //       path: "/service/in/progress",
     //       element: <WorkInProgress authContext={authContext} navigate={navigate} />
@@ -107,16 +103,13 @@ function AuthRoutes({authContext }) {
 
   async function joinConnection() {
     if (isLocalhost) {
-      console.log(localStorage.getItem("token") || sessionStorage.getItem("token"))
+      // console.log(localStorage.getItem("token") || sessionStorage.getItem("token"))
       return;
     }
-    // const url = "wss://" + window.location.host + "/dashboard";
+
     const url = "https://" + window.location.host + "/dashboard";
     const email = DecodedToken(authContext.token)?.Email;
-    //        .withUrl(url,{
-    //     skipNegotiation: true,
-    //     transport: HttpTransportType.WebSockets
-    // })
+
     try {
       const connection = new HubConnectionBuilder()
         .withUrl(url)
@@ -127,7 +120,7 @@ function AuthRoutes({authContext }) {
         console.log(message)
       });
 
-      connection.on("UpdateSurvey", (user, msg) => {
+      connection.on("UpdateContent", (user, msg) => {
 
         setUpdatePage(user !== email);
         setTimeout(() => {
@@ -146,7 +139,7 @@ function AuthRoutes({authContext }) {
         authContext.updateServiceWorkStatus(status, user !== email);
       })
 
-      connection.onclose(e => {
+      connection.onclose(() => {
         setConnection();
       })
 
@@ -167,12 +160,6 @@ function AuthRoutes({authContext }) {
         navigate("/service/in/progress");
       // navigate("/service/in/progress", { state: { message: res.data } });
     }, error => console.warn(ErrorHandle(error, navigate)));
-  }
-
-
-  function updateGroup(value) {
-    sessionStorage.setItem("group", value?.toLowerCase());
-    setGroup(value?.toLowerCase());
   }
 
   return <Routes>

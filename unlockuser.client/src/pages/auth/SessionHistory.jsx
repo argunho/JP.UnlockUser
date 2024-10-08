@@ -14,7 +14,7 @@ function SessionHistory() {
 
     const [dropdownId, setDropdownId] = useState(null);
     const historyList = SessionPasswordsList();
-    const history = useNavigate()
+    const navigate = useNavigate()
 
     useEffect(() => {
         document.title = "UnlockUser | Historik";

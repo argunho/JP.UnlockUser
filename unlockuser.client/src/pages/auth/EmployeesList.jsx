@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 
 // Installed
 import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, 
-        InputLabel, List, ListItem, ListItemIcon, ListItemText, MenuItem, Pagination, Paper, Select, TextField } from '@mui/material';
+        InputLabel, List, ListItem, ListItemIcon, ListItemText, MenuItem, Pagination, Select, TextField } from '@mui/material';
 import { Close, Delete, OpenInFull, Refresh } from '@mui/icons-material';
-import Draggable from 'react-draggable';
+
 
 // Components
 import SearchFilter from '../../components/SearchFilter';
@@ -17,18 +17,8 @@ import ApiRequest from '../../services/ApiRequest';
 // Css
 import '../../assets/css/listview.css';
 
-function PaperComponent(props) {
-    return (
-        <Draggable
-            handle="#draggable-dialog-title"
-            cancel={'[class*="MuiDialogContent-root"]'}>
-            <Paper {...props} />
-        </Draggable>
-    );
-}
-
-function ViewList() {
-    ViewList.displayName = "ViewList";
+function EmployeesList() {
+    EmployeesList.displayName = "EmployeesList";
 
     const [initList, setInit] = useState([]);
     const [list, setList] = useState([]);
@@ -231,8 +221,7 @@ function ViewList() {
             </div>}
 
             {/* Modal form */}
-            <Dialog open={!!userData} onClose={closeModal} PaperComponent={PaperComponent}
-                aria-labelledby="draggable-dialog-title" className='modal-wrapper print-page' id="content" >
+            <Dialog open={!!userData} onClose={closeModal} aria-labelledby="draggable-dialog-title" className='modal-wrapper print-page' id="content" >
 
                 <DialogTitle className='view-modal-label'
                     id="draggable-dialog-title" dangerouslySetInnerHTML={{ __html: userData?.displayName + "<span>" + userData?.title + "</span>" }}>
@@ -289,4 +278,4 @@ function ViewList() {
     )
 }
 
-export default ViewList;
+export default EmployeesList;

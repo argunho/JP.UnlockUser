@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Installed
@@ -32,12 +32,14 @@ function Login({ authContext }) {
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
+    const refForm = useRef();
 
     useEffect(() => {
         const token = sessionStorage.getItem("token");
         if (token !== null && token !== undefined)
             navigate("/");
         document.title = "UnlockUser | Logga in";
+        refForm?.current.focus();
     }, [])
 
 
@@ -65,6 +67,7 @@ function Login({ authContext }) {
                 sessionStorage.setItem("group", groups.split(",")[0]);
                 if (token)
                     authContext.authorize(token);
+                authContext.updateGroupName(groups.split(",")[0]);
                 setTimeout(() => {
                     navigate("/");
                 }, 1500)
@@ -85,7 +88,7 @@ function Login({ authContext }) {
 
 
     return (
-        <form className='login-form' onSubmit={submitForm}>
+        <form className='login-form' onSubmit={submitForm} ref={refForm}>
             <p className='form-title'>Logga in</p>
             {!!response && <Response response={response} reset={resetResponse} />}
             {!response && formFields.map((x, i) => (

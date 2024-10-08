@@ -1,37 +1,28 @@
-import * as React from 'react';
+
+import React, { useRef, useState } from 'react';
+
+// Installed
+import { AlertTitle, Checkbox, FormControlLabel } from '@mui/material';
+import { Close, HelpOutline, LiveHelpOutlined, Refresh } from '@mui/icons-material';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Paper from '@mui/material/Paper';
-import Draggable from 'react-draggable';
-// Installed
-import { AlertTitle, Checkbox, FormControlLabel } from '@mui/material';
-import { Close, HelpOutline, LiveHelpOutlined, Refresh } from '@mui/icons-material';
 
 // Components
 import Table from './Table';
 
-function PaperComponent(props) {
-    return (
-        <Draggable
-            handle="#draggable-dialog-title"
-            cancel={'[class*="MuiDialogContent-root"]'}>
-            <Paper {...props} />
-        </Draggable>
-    );
-}
-
 function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false, isSubmit = false,
     isTitle, inverseFunction, regeneratePassword, view }, ref) {
+    ModalHelpTexts.displayName = "ModalHelpTexts";
 
-    const [open, setOpen] = React.useState(view);
-    const [confirm, setConfirm] = React.useState(false);
-    const [savePdf, setSavePdf] = React.useState(false);
+    const [open, setOpen] = useState(!!view);
+    const [confirm, setConfirm] = useState(false);
+    const [savePdf, setSavePdf] = useState(false);
 
     const keys = data.length > 0 ? Object.keys(data[0]) : [];
-    const refPrint = React.useRef(null);
+    const refPrint = useRef(null);
 
     // Confirm handle
     const confirmHandle = (save) => {
@@ -50,7 +41,7 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
     }
 
     return (
-        <>
+        <React.Fragment>
             {!view && <FormControlLabel
                 className={'help-btn' + cls}
                 control={<Checkbox size='small'
@@ -66,14 +57,15 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
             <Dialog
                 open={open}
                 onClose={() => setOpen(false)}
-                PaperComponent={PaperComponent}
-                aria-labelledby="draggable-dialog-title"
-                className='modal-wrapper print-page' id="content"
+                aria-labelledby="dialog-title"
+                draggable={false}
+                className='modal-wrapper print-page' 
+                id="content"
                 ref={refPrint}>
 
                 <DialogTitle
                     style={{ cursor: 'move' }}
-                    id="draggable-dialog-title"
+                    id="dialog-title"
                     dangerouslySetInnerHTML={{ __html: isTitle }}>
                 </DialogTitle>
                 
@@ -137,7 +129,7 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
                 {children && <DialogActions className="no-print modal-buttons-wrapper">{children}</DialogActions>}
             </Dialog>
 
-        </>
+        </React.Fragment>
     );
 }
 

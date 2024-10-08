@@ -1,5 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 
+// Installed
+import { Container } from "@mui/material";
+
 // Components 
 import Header from "./components/Header";
 
@@ -17,7 +20,6 @@ import AuthRoutes from "./routes/AuthRoutes";
 
 // Css
 import './assets/css/custom.css';
-import { Container } from "@mui/material";
 
 function App() {
     App.displayName = "App";

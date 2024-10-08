@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 // Installed
 import axios from 'axios';
@@ -21,9 +20,10 @@ import params from '../../assets/json/helpTexts.json';
 import schools from '../../assets/json/schools.json';
 import forms from '../../assets/json/forms.json';
 
+
 const source = axios.CancelToken.source();
 
-function Search({ group, updateGroup }) {
+function Search({ authContext, navigate }) {
     Search.displayName = "Search";
 
     const sOption = sessionStorage.getItem("sOption");
@@ -46,16 +46,17 @@ function Search({ group, updateGroup }) {
     const [hasNoOptions, setNoOptions] = useState(false);
     const [response, setResponse] = useState(null);
     const [showTips, setTips] = useState(localStorage.getItem("showTips") === "true");
-
-    const navigate = useNavigate();
+    const [group, setGroup] = useState(authContext.group);
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
-        if (history.action === "POP") // Clean the old result if the page is refreshed
-            sessionStorage.removeItem("users");
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        // if (history.action === "POP") // Clean the old result if the page is refreshed
+        //     sessionStorage.removeItem("users");
     }, []);
+
+    useEffect(() => {
+        setUsers([]);
+    }, [authContext.group])
 
     // Handle a change of text fields and radio input value
     const changeHandler = (e, open) => {
@@ -89,6 +90,13 @@ function Search({ group, updateGroup }) {
     const switchShowTips = () => {
         localStorage.setItem("showTips", !showTips)
         setTips(!showTips);
+    }
+
+    function switchGroup(e) {
+        const value = e.target.value;
+        sessionStorage.setItem("group", value);
+        authContext.updateGroupName(value);
+        setGroup(value);
     }
 
     // Recognize Enter press to submit search form
@@ -254,7 +262,7 @@ function Search({ group, updateGroup }) {
                             value={group}
                             label="Hanteras"
                             labelId="demo-simple-select-label"
-                            onChange={(e) => updateGroup(e.target.value)}
+                            onChange={switchGroup}
                             sx={{ height: 50, color: "#1976D2" }}
                             disabled={groups.length === 1 || sFormParams.length > 1}
                         >
@@ -279,8 +287,8 @@ function Search({ group, updateGroup }) {
                         <RadioGroup row name="row-radio-buttons-group">
                             {/* Loop of radio input choices */}
                             {optionsList?.map((p, index) => (
-                                <Tooltip key={index} arrow disableHoverListener={!showTips} title={returnToolTipByKeyword(p.label, true)}
-                                    classes={{ tooltip: "tooltip tooltip-green", arrow: "arrow-green" }}>
+                                <Tooltip key={index} disableHoverListener={!showTips} title={returnToolTipByKeyword(p.label, true)}
+                                    classes={{ tooltip: "tooltip tooltip-green", arrow: "arrow-green" }} arrow>
                                     <FormControlLabel
                                         value={option === p.value}
                                         control={<Radio
@@ -300,8 +308,8 @@ function Search({ group, updateGroup }) {
                         <RadioGroup row name="row-radio-buttons-group">
                             {/* Loop of radio input choices */}
                             {choices.map((c, index) => (
-                                <Tooltip key={index} arrow disableHoverListener={!showTips} title={returnToolTipByKeyword(c.label)}
-                                    classes={{ tooltip: "tooltip tooltip-blue", arrow: "arrow-blue" }}>
+                                <Tooltip key={index} disableHoverListener={!showTips} title={returnToolTipByKeyword(c.label)}
+                                    classes={{ tooltip: "tooltip tooltip-blue", arrow: "arrow-blue" }} arrow>
                                     <FormControlLabel
                                         value={c.match}
                                         control={<Radio
@@ -332,7 +340,6 @@ function Search({ group, updateGroup }) {
                 list={users}
                 clsStudents={clsStudents}
                 isVisibleTips={showTips}
-                group={group?.toLowerCase()}
                 loading={loading}
                 response={response}
                 resultBlock={true}

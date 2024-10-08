@@ -80,7 +80,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             var userGroups = _provider.GetUserGroups(user);
             permissionGroups.RemoveAll(x => !userGroups.Contains(x.Group));
             if (permissionGroups == null)
-                permissionGroups = new List<GroupModel>();
+                permissionGroups = [];
 
             // Acces if user are a manager
             bool manager = false;
@@ -96,7 +96,11 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             if (permissionGroups.Count == 0)
                 return new JsonResult(new { alert = "warning", msg = "Åtkomst nekad! Behörighet saknas." });
 
-            var groupsNames = string.Join(",", permissionGroups.OrderBy(x => x.Name).Select(s => s.Name).ToList());
+            var groups = string.Join(",", permissionGroups.OrderBy(x => x.Name).Select(s => new
+            {
+                s.Name,
+                s.Manage
+            }).ToList());
 
 
             var roles = new List<string>() { "Employee" };
@@ -111,7 +115,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
                 roles.Add("Manager");
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
-            var token = CreateJwtToken(user, roles, model?.Password ?? "", groupsNames);
+            var token = CreateJwtToken(user, roles, model?.Password ?? "", groups);
 
             // Response message
             var responseMessage = $"Tillåtna behöregiheter för grupp(er):<br/> <b>&nbsp;&nbsp;&nbsp;- {groupsNames.Replace(",", "<br/>&nbsp;&nbsp;&nbsp; -")}</b>.";
@@ -123,7 +127,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             {
                 alert = "success",
                 token,
-                groups = groupsNames,
+                groups,
                 msg = $"Din åtkomstbehörighet har bekräftats.<br/><br/> {responseMessage}"
             });
         }
@@ -145,7 +149,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
 
     #region Helpers
     // Create Jwt Token for authenticating
-    private string? CreateJwtToken(UserPrincipalExtension user, List<string> roles, string password, string groupsNames)
+    private string? CreateJwtToken(UserPrincipalExtension user, List<string> roles, string password, string groups)
     {
         if (user == null)
             return null;
@@ -174,7 +178,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             new("Manager", user.Manager),
             new("Office", user.Office),
             new("Division", user.Division),
-            new("Groups", groupsNames),
+            new("Groups", groups),
             new("Roles", string.Join(",", roles))
         };
 

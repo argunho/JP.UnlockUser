@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Installed
@@ -9,22 +9,34 @@ import { Avatar, Button, List, ListItem, ListItemAvatar, ListItemText, Tooltip, 
 // Functions
 import SessionTokenCheck from '../functions/SessionTokenCheck';
 
-function Info({ user, name, displayName, subTitle, group, 
-                            result, check, children, updateSession, handleOutsideClick }) {
-    const history = useNavigate(null);
+// Services
+import { AuthContext } from '../services/AuthContext';
+
+// Images
+import personal from "./../assets/images/personal.png";
+import politiker from "./../assets/images/politiker.png";
+import studenter from "./../assets/images/studenter.png";
+
+function Info({ user, name, displayName, subTitle, result, check, children, updateSession, handleOutsideClick }) {
+    Info.displayName = "Info";
+
+    const navigate = useNavigate(null);
+    const authContext = useContext(AuthContext);
+
     const refGetMembers = useRef(null);
     const refButton = useRef(null);
+    const group = authContext.group?.toLowerCase();
 
-    const isDisabled = (!user || group !== "studenter" || (typeof children === 'object')
+    const isDisabled = (!user || group?.toLowerCase() !== "studenter" || (typeof children === 'object')
         || !(user.office?.length > 0 && user.department?.length > 0));
-
+// console.log(images[group])
     // Check current user authentication
     if(check)
         SessionTokenCheck();
 
     const clickHandle = (e) => {
         if (!result && refButton?.current && refButton?.current.contains(e?.target)) {
-            history.goBack();
+            navigate(-1);
             return;
         } else if (!isDisabled && refGetMembers?.current && refGetMembers?.current.contains(e?.target)) {
             if (result)
@@ -40,9 +52,10 @@ function Info({ user, name, displayName, subTitle, group,
     const infoBlock = <ListItem className={(result ? "list-link" : "info-block")} onClick={(e) => clickHandle(e, user)}>
         <ListItemAvatar>
             <Avatar className="user-avatar">
-                <img className={`${group}-avatar`} src={require(`./../assets/images/${group}.png`)} alt="unlock user" />
+                <img className={`${group}-avatar`} src={eval(group)} alt="unlock user" />
             </Avatar>
         </ListItemAvatar>
+        
         {/* Users data */}
         <ListItemText
             primary={user?.name || name}

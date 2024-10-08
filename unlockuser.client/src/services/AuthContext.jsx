@@ -5,10 +5,12 @@ export const AuthContext = createContext({
     isOpenMenu: false,
     workInProgress: false,
     workStatus: false,
+    group: "",
     authorize: (token) => { },
     logout: () => { },
     handleMenu: () => { },
-    updateServiceWorkStatus: (value, hide = false) => { }
+    updateServiceWorkStatus: (value, hide = false) => { },
+    updateGroupName: (value) => {}
 })
 
 function AuthContextProvider({ children }) {
@@ -17,6 +19,7 @@ function AuthContextProvider({ children }) {
     const [openMenu, setOpenMenu] = useState(false);
     const [serviceWorkStatus, setServiceWorkStatus] = useState(false);
     const [serviceWorkInProgress, setServiceWorkInProgress] = useState(false);
+    const [groupName, setGroupName] = useState(sessionStorage.getItem("group"));
 
     function authorize(token) {
         sessionStorage.setItem("token", token);
@@ -26,7 +29,9 @@ function AuthContextProvider({ children }) {
     function logout() {
         setToken(null);
         localStorage.removeItem("token");
-        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("token"); 
+        sessionStorage.removeItem("group");    
+        sessionStorage.removeItem("groups"); 
     }
 
     function handleMenu() {
@@ -37,16 +42,22 @@ function AuthContextProvider({ children }) {
         setServiceWorkInProgress(hide ? value : false);
         setServiceWorkStatus(hide ? false : value);
     }
+
+    function updateGroupName(value){
+        setGroupName(value);
+    }
     
     const value = {
         isAuthorized: !!authToken,
         isOpenMenu: openMenu,
         workInProgress: serviceWorkInProgress,
         workStatus: serviceWorkStatus,
+        group: groupName,
         authorize: authorize,
         logout: logout,
         handleMenu: handleMenu,
-        updateServiceWorkStatus: updateServiceWorkStatus
+        updateServiceWorkStatus: updateServiceWorkStatus,
+        updateGroupName: updateGroupName
     }
 
 
