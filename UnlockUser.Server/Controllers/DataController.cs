@@ -71,5 +71,34 @@ public class DataController(IConfiguration config, IHttpContextAccessor contextA
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpGet("status/of/service/work")]
+    public JsonResult StatusOfServiceWork()
+    {
+        // Check the status of app service work
+        var appConfig = AppConfiguration.Load();
+        bool status = appConfig.ServiceWork?.ToLower() == "true";
+        var roles = GetClaim("Roles");
+        return new JsonResult(new { status, hide = roles?.IndexOf("support") == -1 });
+    }
+    #endregion
+
+
+    #region Help
+    // Get claim
+    public string? GetClaim(string? name)
+    {
+        try
+        {
+            var claims = User.Claims;
+            if (!claims.Any()) return null;
+
+            return claims.FirstOrDefault(x => x.Type?.ToLower() == name?.ToLower())?.Value?.ToString();
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
     #endregion
 }

@@ -154,7 +154,7 @@ function AuthRoutes({authContext }) {
 
   // Check the status of app service work
   async function checkStatusOfService() {
-    await ApiRequest("app/status/of/service/work").then(res => {
+    await ApiRequest("data/status/of/service/work").then(res => {
       authContext.updateServiceWorkStatus(res?.data?.status, res.data.hide);
       if (!!res?.data.status && !!res.data.hide)
         navigate("/service/in/progress");

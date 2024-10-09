@@ -18,4 +18,5 @@ public interface IActiveDirectory
     List<string> GetUserGroups(UserPrincipalExtension user);
     List<User> GetUsers(DirectorySearcher result, string groupName);
     PrincipalContext GetContext();
+    User GeUser(string managerString);
 }

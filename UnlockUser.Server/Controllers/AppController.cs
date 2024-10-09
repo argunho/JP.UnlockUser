@@ -50,30 +50,52 @@ public class AppController(IHttpContextAccessor contextAccessor, IConfiguration 
             foreach (var group in groups)
             {
                 List<string> members = _provider.GetSecurityGroupMembers(group.Group);
-                List<UserPrincipalExtension> users = new();
+                List<User> employees = [];
                 var cListByGroup = currentList.FirstOrDefault(x => x.Group?.Name == group.Name)?.Employees;
                 foreach (var member in members)
                 {
-                    users.Add(_provider.FindUserByExtensionProperty(member));
+                    List<string> managers = [];
+                    UserPrincipalExtension user = _provider.FindUserByExtensionProperty(member);
+                    bool hasManager = !string.IsNullOrEmpty(user.Manager);
+                    string userManager = user.Manager;
+                    do
+                    {
+                        var manager = _provider.GeUser(userManager);
+                        if (manager != null)
+                        {
+                            managers.Add(manager.Name);
+
+                            hasManager = !string.IsNullOrEmpty(manager.Manager) && manager.Title != "Kommunchef";
+
+                            if (hasManager)
+                                userManager = manager.Manager;
+                        }
+                        else
+                            hasManager = false;
+                    } while (hasManager && user.Title != "Kommunchef");
+
+
+                    employees.Add(new User
+                    {
+                        Name = user.SamAccountName,
+                        DisplayName = user.DisplayName,
+                        Email = user.EmailAddress,
+                        Office = user.Office,
+                        Title = user.Title,
+                        Department = user.Department,
+                        Division = user.Division,
+                        Manager = user.Manager,
+                        Managers = managers,
+                        Offices = (cListByGroup != null && cListByGroup.Exists(x => x.Name == user.SamAccountName))
+                                        ? cListByGroup.FirstOrDefault(x => x.Name == user.SamAccountName).Offices
+                                        : [user.Office]
+                    });
                 }
 
                 groupEmployees.Add(new GroupUsersViewModel
                 {
                     Group = group,
-                    Employees = users.Where(x => x.SamAccountName?.Length > 6 && int.TryParse(x?.SamAccountName.Substring(0, 6), out int number)).Select(s => new User
-                    {
-                        Name = s.SamAccountName,
-                        DisplayName = s.DisplayName,
-                        Email = s.EmailAddress,
-                        Office = s.Office,
-                        Title = s.Title,
-                        Department = s.Department,
-                        Division = s.Division,
-                        Manager = s.Manager,
-                        Permissions = (cListByGroup != null && cListByGroup.Exists(x => x.Name == s.SamAccountName))
-                                        ? cListByGroup.FirstOrDefault(x => x.Name == s.SamAccountName).Permissions
-                                        : new List<string> { s.Office }
-                    }).Distinct().ToList().OrderBy(o => o.DisplayName).ToList()
+                    Employees = [.. employees.Distinct().ToList().OrderBy(o => o.DisplayName)]
                 });
 
             }
@@ -90,18 +112,7 @@ public class AppController(IHttpContextAccessor contextAccessor, IConfiguration 
         return Ok();
     }
 
-    [HttpGet("status/of/service/work")]
-    public JsonResult StatusOfServiceWork()
-    {
-        // Check the status of app service work
-        var appConfig = AppConfiguration.Load();
-        bool status = appConfig.ServiceWork?.ToLower() == "true";
-        var roles = GetClaim("Roles");
-        return new JsonResult(new { status, hide = roles?.IndexOf("support") == -1 });
-    }
-
     [HttpGet("update/service/status/{status:bool}")]
-    [Authorize(Roles = "Support")]
     public async Task<IActionResult> UpdateServiceStatus(bool status)
     {
 
@@ -131,22 +142,23 @@ public class AppController(IHttpContextAccessor contextAccessor, IConfiguration 
         {
             var groupEmployees = GetAuthorizedEmployees();
             var exists = false;
-            foreach(var group in groupEmployees)
+            foreach (var group in groupEmployees)
             {
                 var employee = group.Employees.FirstOrDefault(x => x.Name == username);
                 if (employee != null)
                 {
-                    employee.Permissions = model.Permissions.Count > 0 ? model.Permissions : new List<string> { model.Office };
+                    employee.Offices = model.Offices.Count > 0 ? model.Offices : new List<string> { model.Office };
                     exists = true;
                 }
             }
 
             if (!exists)
-                return new JsonResult(new { alert = "warning",  msg = "Ingen anställd hittade med matchande användarnamn" });
+                return new JsonResult(new { alert = "warning", msg = "Ingen anställd hittade med matchande användarnamn" });
 
             await using FileStream stream = System.IO.File.Create(@"wwwroot/json/employees.json");
             await System.Text.Json.JsonSerializer.SerializeAsync(stream, groupEmployees);
-        } catch(Exception ex)
+        }
+        catch (Exception ex)
         {
             Debug.WriteLine($"Fel: {ex.Message}");
             return new JsonResult(new { alert = "error", msg = $"Något har gått snett. Fel: {ex.Message}" });

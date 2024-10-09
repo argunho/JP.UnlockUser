@@ -8,23 +8,27 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
     private readonly string domain = "alvesta";
     private readonly string defaultOU = "DC=alvesta,DC=local";
 
-    #region Interface methods
+    #region Interface methods 
+    // Method to get a user from Active Dericotry
     public UserPrincipal FindUserByName(string name)
-        => UserPrincipal.FindByIdentity(PContext(), name); // Method to get a user from Active Dericotry
+        => UserPrincipal.FindByIdentity(PContext(), name);
 
-    public UserPrincipalExtension FindUserByExtensionProperty(string name) // Method to get a user with extension parameters from Active Dericotry
+ // Method to get a user with extension parameters from Active Dericotry
+    public UserPrincipalExtension FindUserByExtensionProperty(string name)
         => UserPrincipalExtension.FindByIdentity(PContext(), name);
 
+ // Method to get a group by name
     public GroupPrincipal FindGroupName(string name)
-        => GroupPrincipal.FindByIdentity(PContext(), name); // Method to get a group by name
+        => GroupPrincipal.FindByIdentity(PContext(), name);
 
+ // Method to authenticate a user
     public bool AccessValidation(string? name, string? password = null)
-        => PContext().ValidateCredentials(name, password); // Method to authenticate a user
+        => PContext().ValidateCredentials(name, password);
 
     // Check user's membership in a specific group in which members have access  to change student password 
     public bool MembershipCheck(UserPrincipalExtension user, string? groupName)
     {
-        if (user == null) // User does not exist.
+        if (user == null)
             return false;
 
         List<Principal> groups = user.GetAuthorizationGroups().ToList();
@@ -69,16 +73,8 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
     // Return a list of found users
     public List<User> GetUsers(DirectorySearcher result, string groupName)
     {
-        List<User> users = new();
-        result?.PropertiesToLoad.Add("cn");
-        result?.PropertiesToLoad.Add("displayName");
-        result?.PropertiesToLoad.Add("userPrincipalName");
-        result?.PropertiesToLoad.Add("physicalDeliveryOfficeName");
-        result?.PropertiesToLoad.Add("division");
-        result?.PropertiesToLoad.Add("manager");
-        result?.PropertiesToLoad.Add("department");
-        result?.PropertiesToLoad.Add("title");
-        result?.PropertiesToLoad.Add("lockoutTime");
+        result = UpdatedProparties(result);
+        List<User> users = [];
 
         List<SearchResult> list = result.FindAll().OfType<SearchResult>().ToList() ?? null;
         if (groupName != "studenter" && list != null)
@@ -91,30 +87,19 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
         if (list?.Count == 0) return users;
 
         foreach (SearchResult res in list)
-        {
-            var props = res.Properties;
-
-
-            var isLocked = false;
-            if (props.Contains("lockoutTime") && int.TryParse(props["lockoutTime"][0]?.ToString(), out int number))
-            {
-                isLocked = number >= 1;
-            }
-            users.Add(new User
-            {
-                Name = props["cn"][0].ToString(),
-                DisplayName = props.Contains("displayName") ? props["displayName"][0]?.ToString() : "",
-                Email = props.Contains("userPrincipalName") ? props["userPrincipalName"][0]?.ToString() : "",
-                Manager = props.Contains("manager") ? props["manager"][0]?.ToString() : "",
-                Office = props.Contains("physicalDeliveryOfficeName") ? props["physicalDeliveryOfficeName"][0]?.ToString() : "",
-                Division = props.Contains("division") ? props["division"][0]?.ToString() : "",
-                Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
-                Title = props.Contains("title") ? props["title"][0]?.ToString() : "",
-                IsLocked = isLocked
-            });
-        }
-
+            users.Add(GetUserParams(res.Properties));
+        
         return users;
+    }
+
+    public User GeUser(string managerString)
+    {
+        DirectorySearcher search = new(PContext().Name);
+        search.Filter = String.Format("distinguishedName={0}", managerString);
+        search = UpdatedProparties(search);
+        var props = search.FindOne().Properties;
+
+        return GetUserParams(props);
     }
 
     public PrincipalContext GetContext() => PContext();
@@ -171,5 +156,43 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
     public PrincipalContext PContexAccessCheck(UserCredentials model)
         => new(ContextType.Domain, domain, defaultOU, model.Username, model.Password);
 
+    public DirectorySearcher? UpdatedProparties(DirectorySearcher? result)
+    {
+        if (result != null)
+        {
+            result?.PropertiesToLoad.Add("cn");
+            result?.PropertiesToLoad.Add("displayName");
+            result?.PropertiesToLoad.Add("userPrincipalName");
+            result?.PropertiesToLoad.Add("physicalDeliveryOfficeName");
+            result?.PropertiesToLoad.Add("division");
+            result?.PropertiesToLoad.Add("manager");
+            result?.PropertiesToLoad.Add("department");
+            result?.PropertiesToLoad.Add("title");
+            result?.PropertiesToLoad.Add("lockoutTime");
+        }
+
+        return result;
+    }
+
+    public User GetUserParams(ResultPropertyCollection props)
+    {
+        var isLocked = false;
+        if (props.Contains("lockoutTime") && int.TryParse(props["lockoutTime"][0]?.ToString(), out int number))
+        {
+            isLocked = number >= 1;
+        }
+        return new User
+        {
+            Name = props["cn"][0].ToString(),
+            DisplayName = props.Contains("displayName") ? props["displayName"][0]?.ToString() : "",
+            Email = props.Contains("userPrincipalName") ? props["userPrincipalName"][0]?.ToString() : "",
+            Manager = props.Contains("manager") ? props["manager"][0]?.ToString() : "",
+            Office = props.Contains("physicalDeliveryOfficeName") ? props["physicalDeliveryOfficeName"][0]?.ToString() : "",
+            Division = props.Contains("division") ? props["division"][0]?.ToString() : "",
+            Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
+            Title = props.Contains("title") ? props["title"][0]?.ToString() : "",
+            IsLocked = isLocked
+        };
+    }
     #endregion
 }
