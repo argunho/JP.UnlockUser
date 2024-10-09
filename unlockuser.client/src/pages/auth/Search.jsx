@@ -21,21 +21,21 @@ import schools from '../../assets/json/schools.json';
 import forms from '../../assets/json/forms.json';
 
 
+const choices = [
+    { label: "Match", match: true },
+    { label: "Exakt", match: false }
+]
 const source = axios.CancelToken.source();
 
 function Search({ authContext, navigate }) {
     Search.displayName = "Search";
 
     const sOption = sessionStorage.getItem("sOption");
-    const groups = sessionStorage.getItem("groups")?.split(",");
+    const groups = JSON.parse(sessionStorage.getItem("groups"));
     const defaultData = {
         input: "",
         additionInput: ""
     }
-    const choices = [
-        { label: "Match", match: true },
-        { label: "Exakt", match: false }
-    ]
     const [formData, setFormData] = useState(defaultData);
     const [users, setUsers] = useState(JSON.parse(sessionStorage.getItem("users")) || null);
     const [loading, setLoading] = useState(false);
@@ -47,6 +47,7 @@ function Search({ authContext, navigate }) {
     const [response, setResponse] = useState(null);
     const [showTips, setTips] = useState(localStorage.getItem("showTips") === "true");
     const [group, setGroup] = useState(authContext.group);
+
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
@@ -264,11 +265,11 @@ function Search({ authContext, navigate }) {
                             labelId="demo-simple-select-label"
                             onChange={switchGroup}
                             sx={{ height: 50, color: "#1976D2" }}
-                            disabled={groups.length === 1 || sFormParams.length > 1}
+                            disabled={groups?.length === 1 || sFormParams?.length > 1}
                         >
-                            {groups?.map((name, index) => (
-                                <MenuItem value={name} key={index}>
-                                    <span style={{ marginLeft: "10px" }}> - {name}</span>
+                            {groups?.map((group, index) => (
+                                <MenuItem value={group?.name} key={index}>
+                                    <span style={{ marginLeft: "10px" }}> - {group?.name}</span>
                                 </MenuItem>
                             ))}
                         </Select>

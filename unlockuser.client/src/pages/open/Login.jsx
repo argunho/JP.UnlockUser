@@ -63,11 +63,11 @@ function Login({ authContext }) {
 
             if (success) {
                 sessionStorage.setItem("token", token);
-                sessionStorage.setItem("groups", groups);
-                sessionStorage.setItem("group", groups.split(",")[0]);
+                sessionStorage.setItem("groups", JSON.stringify(groups));
+                sessionStorage.setItem("group", groups[0]?.name);
                 if (token)
                     authContext.authorize(token);
-                authContext.updateGroupName(groups.split(",")[0]);
+                authContext.updateGroupName(groups[0]?.name);
                 setTimeout(() => {
                     navigate("/");
                 }, 1500)

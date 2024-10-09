@@ -7,32 +7,32 @@
       "RelativeMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|solutionrelative:unlockuser.server\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser.server\\controllers\\searchcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|solutionrelative:unlockuser.server\\controllers\\searchcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser.server\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|solutionrelative:unlockuser.server\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser.server\\controllers\\datacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|solutionrelative:unlockuser.server\\controllers\\datacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser.server\\interface\\iactivedirectory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|solutionrelative:unlockuser.server\\interface\\iactivedirectory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser.server\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|solutionrelative:unlockuser.server\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser.server\\iservices\\iadservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|solutionrelative:unlockuser.server\\iservices\\iadservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser.server\\extensions\\principalextension.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|solutionrelative:unlockuser.server\\extensions\\principalextension.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser.server\\controllers\\appcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|solutionrelative:unlockuser.server\\controllers\\appcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser.server\\interface\\ihelp.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|solutionrelative:unlockuser.server\\interface\\ihelp.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser.server\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|solutionrelative:unlockuser.server\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser.server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|solutionrelative:unlockuser.server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser.server\\services\\hubservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|solutionrelative:unlockuser.server\\services\\hubservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|c:\\users\\790822asla\\desktop\\jobb\\webapps\\unlockuser\\unlockuser.server\\controllers\\searchcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{15F51D7F-BD04-4D83-9EDB-F2CD1C7ADE86}|UnlockUser.Server\\UnlockUser.Server.csproj|solutionrelative:unlockuser.server\\controllers\\searchcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -42,62 +42,34 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "AppController.cs",
               "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Controllers\\AppController.cs",
               "RelativeDocumentMoniker": "UnlockUser.Server\\Controllers\\AppController.cs",
               "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Controllers\\AppController.cs",
               "RelativeToolTip": "UnlockUser.Server\\Controllers\\AppController.cs",
-              "ViewState": "AQIAAAYAAAAAAAAAAAAAAG0AAABVAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAF0AAAArAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-07T09:35:31.795Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "UnlockUser.Server\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "UnlockUser.Server\\Controllers\\AuthController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAUAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-07T13:18:41.12Z",
               "IsPinned": true
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "DataController.cs",
-              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Controllers\\DataController.cs",
-              "RelativeDocumentMoniker": "UnlockUser.Server\\Controllers\\DataController.cs",
-              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Controllers\\DataController.cs",
-              "RelativeToolTip": "UnlockUser.Server\\Controllers\\DataController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAfAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-07T14:18:41.576Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "SearchController.cs",
-              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Controllers\\SearchController.cs",
-              "RelativeDocumentMoniker": "UnlockUser.Server\\Controllers\\SearchController.cs",
-              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Controllers\\SearchController.cs",
-              "RelativeToolTip": "UnlockUser.Server\\Controllers\\SearchController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAA5AAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-07T14:18:10.976Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "IHelp.cs",
-              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Interface\\IHelp.cs",
-              "RelativeDocumentMoniker": "UnlockUser.Server\\Interface\\IHelp.cs",
-              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Interface\\IHelp.cs",
-              "RelativeToolTip": "UnlockUser.Server\\Interface\\IHelp.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAABfAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-07T14:08:47.03Z"
             },
             {
               "$type": "Document",
@@ -107,46 +79,75 @@
               "RelativeDocumentMoniker": "UnlockUser.Server\\Controllers\\UserController.cs",
               "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Controllers\\UserController.cs*",
               "RelativeToolTip": "UnlockUser.Server\\Controllers\\UserController.cs*",
-              "ViewState": "AQIAAAMAAAAAAAAAAAAAABAAAAANAAAA",
+              "ViewState": "AQIAACwBAAAAAAAAAAAAwEMBAABAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-07T14:01:59.62Z",
+              "IsPinned": true,
               "EditorCaption": ""
             },
             {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "AuthController.cs",
-              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Controllers\\AuthController.cs",
-              "RelativeDocumentMoniker": "UnlockUser.Server\\Controllers\\AuthController.cs",
-              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Controllers\\AuthController.cs",
-              "RelativeToolTip": "UnlockUser.Server\\Controllers\\AuthController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABEAAAApAAAA",
+              "DocumentIndex": 1,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Models\\User.cs",
+              "RelativeDocumentMoniker": "UnlockUser.Server\\Models\\User.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Models\\User.cs",
+              "RelativeToolTip": "UnlockUser.Server\\Models\\User.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAADwvw4AAAAwAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-07T13:18:41.12Z"
+              "WhenOpened": "2024-10-09T10:09:26.859Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "PrincipalExtension.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Extensions\\PrincipalExtension.cs",
+              "RelativeDocumentMoniker": "UnlockUser.Server\\Extensions\\PrincipalExtension.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Extensions\\PrincipalExtension.cs",
+              "RelativeToolTip": "UnlockUser.Server\\Extensions\\PrincipalExtension.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-09T10:07:00.875Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "IActiveDirectory.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Interface\\IActiveDirectory.cs",
+              "RelativeDocumentMoniker": "UnlockUser.Server\\Interface\\IActiveDirectory.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Interface\\IActiveDirectory.cs",
+              "RelativeToolTip": "UnlockUser.Server\\Interface\\IActiveDirectory.cs",
+              "ViewState": "AQIAAAEAAAAAAAAAAAAswBEAAAA1AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-09T06:48:10.276Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 7,
-              "Title": "HubService.cs",
-              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Services\\HubService.cs",
-              "RelativeDocumentMoniker": "UnlockUser.Server\\Services\\HubService.cs",
-              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Services\\HubService.cs",
-              "RelativeToolTip": "UnlockUser.Server\\Services\\HubService.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAAPAAAA",
+              "Title": "SearchController.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Controllers\\SearchController.cs",
+              "RelativeDocumentMoniker": "UnlockUser.Server\\Controllers\\SearchController.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Controllers\\SearchController.cs",
+              "RelativeToolTip": "UnlockUser.Server\\Controllers\\SearchController.cs",
+              "ViewState": "AQIAAAsAAAAAAAAAAAAowBQAAAAEAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-07T13:16:35.123Z"
+              "WhenOpened": "2024-10-09T09:07:27.806Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Program.cs",
-              "RelativeDocumentMoniker": "UnlockUser.Server\\Program.cs",
-              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\Program.cs",
-              "RelativeToolTip": "UnlockUser.Server\\Program.cs",
-              "ViewState": "AQIAADIAAAAAAAAAAAAuwFQAAAAaAAAA",
+              "DocumentIndex": 3,
+              "Title": "IADService.cs",
+              "DocumentMoniker": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\IServices\\IADService.cs",
+              "RelativeDocumentMoniker": "UnlockUser.Server\\IServices\\IADService.cs",
+              "ToolTip": "C:\\Users\\790822asla\\Desktop\\Jobb\\WebApps\\UnlockUser\\UnlockUser.Server\\IServices\\IADService.cs",
+              "RelativeToolTip": "UnlockUser.Server\\IServices\\IADService.cs",
+              "ViewState": "AQIAADkAAAAAAAAAAAAqwEUAAAAQAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-07T13:15:46.326Z"
+              "WhenOpened": "2024-10-09T08:38:57.012Z"
             }
           ]
         }

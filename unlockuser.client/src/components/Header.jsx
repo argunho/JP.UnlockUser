@@ -53,6 +53,7 @@ function Header({ authContext }) {
             const token = sessionStorage.getItem("token");
             if (token !== null && token !== undefined) {
                 const decodedToken = jwtDecode(token);
+                console.log(decodedToken)
                 // If the current user is logged in, the name of the user is visible in the navigation bar
                 setDisplayName(decodedToken?.DisplayName);
                 setLinkName(`UnlockUser<br/><span>${decodedToken.Groups.replaceAll(",", ", ")}<span/>`);

@@ -33,7 +33,6 @@ export default [
       "no-extra-boolean-cast" : "off",
       "react-hooks/exhaustive-deps": "off",
       "no-unsafe-optional-chaining": "off",
-      "react-refresh/only-export-components": "off",
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },

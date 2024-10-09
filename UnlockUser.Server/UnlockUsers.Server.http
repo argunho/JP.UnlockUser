@@ -12,10 +12,10 @@ GET {{UnlockUser.Server_HostAddress}}/data/
 Accept: application/json
 ###
 
-GET {{UnlockUser.Server_HostAddress}}/Search/
+GET {{UnlockUser.Server_HostAddress}}/search/
 Accept: application/json
 ###
 
-GET {{UnlockUser.Server_HostAddress}}/User/
+GET {{UnlockUser.Server_HostAddress}}/user/
 Accept: application/json
-
+###

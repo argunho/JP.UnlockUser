@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.DirectoryServices.AccountManagement;
+﻿using System.DirectoryServices.AccountManagement;
 
 namespace UnlockUser.Server.Extensions;
 
@@ -67,7 +65,7 @@ public class UserPrincipalExtension : UserPrincipal
         set { ExtensionSet("physicalDeliveryOfficeName", value); }
 
     }
-
+    
     [DirectoryProperty("division")]
     public string Division
     {
@@ -87,4 +85,5 @@ public class UserPrincipalExtension : UserPrincipal
     {
         return (UserPrincipalExtension)FindByIdentityWithType(context, typeof(UserPrincipalExtension), identityValue);
     }
+
 }

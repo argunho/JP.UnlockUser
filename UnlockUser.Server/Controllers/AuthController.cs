@@ -96,11 +96,12 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             if (permissionGroups.Count == 0)
                 return new JsonResult(new { alert = "warning", msg = "Åtkomst nekad! Behörighet saknas." });
 
-            var groups = string.Join(",", permissionGroups.OrderBy(x => x.Name).Select(s => new
+            var groups = permissionGroups.OrderBy(x => x.Name).Select(s => new GroupModel
             {
-                s.Name,
-                s.Manage
-            }).ToList());
+               Name = s.Name,
+               Manage = s.Manage
+            }).ToList();
+            var groupsNames =  string.Join(",", groups.Select(s => s.Name));
 
 
             var roles = new List<string>() { "Employee" };
@@ -115,11 +116,11 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
                 roles.Add("Manager");
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
-            var token = CreateJwtToken(user, roles, model?.Password ?? "", groups);
+            var token = CreateJwtToken(user, roles, model?.Password ?? "", groupsNames);
 
             // Response message
             var responseMessage = $"Tillåtna behöregiheter för grupp(er):<br/> <b>&nbsp;&nbsp;&nbsp;- {groupsNames.Replace(",", "<br/>&nbsp;&nbsp;&nbsp; -")}</b>.";
-            if (manager)
+            if (manager && groups.Count == 0)
                 responseMessage = $"Du som {user.Title} har för närvarande inte behörighet att ändra lösenord.";
 
             // Your access has been confirmed.
@@ -142,7 +143,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
                 msg = "Något har gått snett. Var vänlig försök igen.",
                 repeatedError = repeated,
                 errorMessage = ex.Message
-            }); // Something went wrong, please try again later
+            }); 
         }
     }
     #endregion

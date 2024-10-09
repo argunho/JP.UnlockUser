@@ -1,57 +1,47 @@
-﻿using UnlockUser.Server.ViewModels;
-using UnlockUser.Server.Interface;
-using  UnlockUser.Server.Models;
-using UnlockUser.Services;
+﻿using UnlockUser.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Diagnostics;
 using System.Net;
 using System.DirectoryServices;
-//using Microsoft.IdentityModel.Tokens;
 
 namespace UnlockUser.Server.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-//[Authorize]
-public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IHelp functions, IConfiguration config) : ControllerBase
+[Authorize]
+public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IHelp help, IConfiguration config) : ControllerBase
 {
 
-    private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
+    private readonly IActiveDirectory _provider = provider;
     private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
-    private readonly IHelp _functions = functions;
-    private readonly IConfiguration _config = config;
     private readonly ISession _session = contextAccessor.HttpContext.Session;
+    private readonly IConfiguration _config = config;
+    private readonly IHelp _help = help;
 
     #region GET
+    [HttpGet("hello")]
+    public IActionResult Get() => Ok("OK");
+
     [HttpGet("{group}/{name}")] // Get user information by username
-    public JsonResult GetUser(string name, string group)
+    public JsonResult GetUser(string group, string name)
     {
         DirectorySearcher members = _provider.GetMembers(group);
         members.Filter = $"(&(objectClass=User)(|(cn={name})(sAMAccountname={name})))";
-        var user = members.FindOne();
 
-        if (user == null)
+        if (members.FindOne() == null)
             return new JsonResult(new { warning = true, msg = $"Användaren med anvädarnamn {name} har inte hittats." });
 
-        var userData = _provider.GetUsers(members, group);
+        var user = (_provider.GetUsers(members, group))?[0];
 
-        var charachtersLength = 8;
         if (_provider.MembershipCheck(_provider.FindUserByExtensionProperty(name), "Password Twelve Characters"))
-            charachtersLength = 12;
+            user.PasswordLength = 12;
 
-        _session.SetString("ManagedOffice", userData[0].Office);
-        _session.SetString("ManagedDepartment", userData[0].Department);
-
-        if (userData[0] == null)
-            return new JsonResult(new
-            {
-                alert = "warning",
-                msg = "Användaren hittades inte."
-            });
+        _session.SetString("ManagedOffice", user.Office);
+        _session.SetString("ManagedDepartment", user.Department);
         
-        return new JsonResult(new { user = userData[0], passwordLength = charachtersLength });
+        return new JsonResult(new { user });
     }
 
     [HttpGet("unlock/{name}")] // Unlock user
@@ -216,7 +206,6 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     #endregion
 
     #region Helpers
-
     // Return extension of User
     public UserViewModel UpdatedUser(UserViewModel user)
     {
@@ -332,7 +321,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
         fileName += "_" + DateTime.Now.ToString("yyyyMMddHHmmss");
 
-        _functions.SaveHistoryLogFile(contentList, fileName, ".txt");
+        _help.SaveHistoryLogFile(contentList, fileName, ".txt");
     }
 
     // Help method to structure a warning message
