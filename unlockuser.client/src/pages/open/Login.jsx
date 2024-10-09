@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Installed
@@ -32,14 +32,12 @@ function Login({ authContext }) {
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
-    const refForm = useRef();
 
     useEffect(() => {
         const token = sessionStorage.getItem("token");
         if (token !== null && token !== undefined)
             navigate("/");
         document.title = "UnlockUser | Logga in";
-        refForm?.current.focus();
     }, [])
 
 
@@ -88,24 +86,23 @@ function Login({ authContext }) {
 
 
     return (
-        <form className='login-form' onSubmit={submitForm} ref={refForm}>
+        <form className='login-form' onSubmit={submitForm}>
             <p className='form-title'>Logga in</p>
             {!!response && <Response response={response} reset={resetResponse} />}
-            {!response && formFields.map((x, i) => (
+            {!response && formFields?.map((x, i) => (
                 <FormControl key={i}>
                     <TextField
                         label={x.label}
                         name={x.name}
                         type={x.type}
-                        value={formData[x.name] ?? ""}
+                        value={formData[x.name]}
                         variant="outlined"
                         required
                         autoComplete='off'
+                        autoSave='off'
                         inputProps={{
                             maxLength: 20,
-                            minLength: 5,
-                            autoComplete: formData[x.name] ?? "",
-                            form: { autoComplete: 'off', }
+                            minLength: 5
                         }}
                         disabled={loading}
                         onChange={changeHandler} />
@@ -117,7 +114,7 @@ function Login({ authContext }) {
                 color="inherit"
                 type="submit"
                 title="Logga in"
-                disabled={loading || formData.username.length < 5 || formData.password.length < 5} >
+                disabled={loading || formData?.username.length < 5 || formData?.password.length < 5} >
                 {loading ? <CircularProgress style={{ width: "12px", height: "12px", marginTop: "3px" }} /> : "Skicka"}</Button>}
             <img src={keys} alt="UnlockUser" className='login-form-img' />
         </form>

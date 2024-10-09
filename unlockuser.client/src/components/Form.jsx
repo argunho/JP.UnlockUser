@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import _ from 'lodash'; // To compare two objects for identity
 
 // Installed
@@ -99,13 +99,11 @@ export default function Form(props) {
     useEffect(() => {
         resetForm(!variousPassword);
         setFormData(defaultForm);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [variousPassword])
 
     useEffect(() => {
         if (savedPdf != null && savePdf)
             sendEmailWithFile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [savedPdf])
 
     useEffect(() => {
@@ -115,7 +113,6 @@ export default function Form(props) {
         }
 
         resetError();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isGenerated])
 
     // Set password typesetPreviewList
@@ -140,7 +137,7 @@ export default function Form(props) {
     // Switch password numbers count
     const switchNumbersCount = (value) => {
         setNumbersCount(value);
-        setFormData(defaultForm);
+        // setFormData(defaultForm);
         setPreviewList([]);
     }
 
@@ -414,17 +411,17 @@ export default function Form(props) {
                                 {(wordsList.length > 0 && passType === "medium" && !limitedChars) &&
                                     <div className="last-options">
                                         <FormLabel className="label-small">Lösenords alternativ (antal siffror i lösenord)</FormLabel>
-                                        {["012", "01", "0"].map((param, index) => (
-                                            <FormControlLabel
+                                        {["012", "01", "0"].map((param, index) => {
+                                            return <FormControlLabel
                                                 key={index}
                                                 control={<Radio
                                                     size='small'
                                                     checked={param.length === numbersCount}
                                                     color="info" />}
-                                                label={"Password" + param}
+                                                label={<Tooltip title={`Lösenord med ${param.length} siffra i slutet`} arrow><span>Password{param}</span></Tooltip>}
                                                 name="digits"
                                                 onChange={() => switchNumbersCount(param.length)} />
-                                        ))}
+                                        })}
                                     </div>}
                             </div>
                         </div>

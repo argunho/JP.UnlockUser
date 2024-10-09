@@ -192,11 +192,11 @@ function Search({ authContext, navigate }) {
     const arrayTexts = group === "Studenter" ? studentsList.concat(defaultList) : defaultList;
 
     return (
-        <div className='interior-div' onSubmit={getSearchResult}>
+        <div className='interior-div'>
 
             {/* Search form */}
             <div className='d-row search-container'>
-                <form className='search-wrapper'>
+                <form className='search-wrapper w-100' onSubmit={getSearchResult}>
                     {/* List loop of text fields */}
                     {sFormParams.map((s, index) => (
                         <Autocomplete
@@ -230,8 +230,7 @@ function Search({ authContext, navigate }) {
                                     placeholder={!match ? s.placeholder : ""}
                                     onKeyDown={handleKeyDown}
                                     onChange={(e) => changeHandler(e, s.autoOpen)}
-                                    helperText={formData[s.name].length > 0
-                                        ? `${30 - formData[s.name].length} tecken kvar` : "Min 2 & Max 30 tecken"}
+                                    helperText={formData[s.name].length > 0 ? `${30 - formData[s.name].length} tecken kvar` : "Min 2 & Max 30 tecken"}
                                 />}
                         />
                     ))}
@@ -256,7 +255,7 @@ function Search({ authContext, navigate }) {
                 </form>
 
                 {/* Choose group */}
-                <Box sx={{ minWidth: 160, marginBottom: "9px" }}>
+                {groups?.length > 1 && <Box sx={{ minWidth: 160, marginBottom: "9px" }}>
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Hanteras</InputLabel>
                         <Select
@@ -274,7 +273,7 @@ function Search({ authContext, navigate }) {
                             ))}
                         </Select>
                     </FormControl>
-                </Box>
+                </Box>}
             </div>
 
 

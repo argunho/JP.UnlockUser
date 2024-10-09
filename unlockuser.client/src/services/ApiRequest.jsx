@@ -9,7 +9,7 @@ axios.defaults.baseURL = window.location.origin;
 let source = axios.CancelToken.source();
 
 async function ApiRequest(api, req, data) {
-console.log(window.location.origin)
+
     const config = TokenConfig();
     config.cancelToken = source.token;
     source.token.reason = null;

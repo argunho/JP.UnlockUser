@@ -62,7 +62,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
     #region POST
     [HttpPost("resetPassword")] // Reset class students passwords
-    public JsonResult SetMultiplePaswords(UsersList model)
+    public JsonResult SetPaswords(UsersList model)
     {
         // Check model is valid or not and return warning is true or false
         if (model.Users.Count == 0)
