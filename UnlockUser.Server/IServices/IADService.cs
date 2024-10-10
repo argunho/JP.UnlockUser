@@ -1,5 +1,7 @@
 ﻿using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices;
+using Newtonsoft.Json;
+using System.Diagnostics;
 
 namespace UnlockUser.Server.IServices;
 
@@ -8,22 +10,24 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
     private readonly string domain = "alvesta";
     private readonly string defaultOU = "DC=alvesta,DC=local";
 
-    #region Interface methods 
+    #region Find user   
     // Method to get a user from Active Dericotry
     public UserPrincipal FindUserByName(string name)
-        => UserPrincipal.FindByIdentity(PContext(), name);
+        => UserPrincipal.FindByIdentity(GetContext(), name);
 
- // Method to get a user with extension parameters from Active Dericotry
+    // Method to get a user with extension parameters from Active Dericotry
     public UserPrincipalExtension FindUserByExtensionProperty(string name)
-        => UserPrincipalExtension.FindByIdentity(PContext(), name);
+        => UserPrincipalExtension.FindByIdentity(GetContext(), name);
 
- // Method to get a group by name
+    // Method to get a group by name
     public GroupPrincipal FindGroupName(string name)
-        => GroupPrincipal.FindByIdentity(PContext(), name);
+        => GroupPrincipal.FindByIdentity(GetContext(), name);
+    #endregion
 
- // Method to authenticate a user
+    #region Validation
+    // Method to authenticate a user
     public bool AccessValidation(string? name, string? password = null)
-        => PContext().ValidateCredentials(name, password);
+        => GetContext().ValidateCredentials(name, password);
 
     // Check user's membership in a specific group in which members have access  to change student password 
     public bool MembershipCheck(UserPrincipalExtension user, string? groupName)
@@ -35,7 +39,9 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
 
         return groups.Find(x => x.Name == groupName) != null;
     }
+    #endregion
 
+    #region Get groups
     // Check user's membership in a specific group in which members have access  to change student password 
     public List<string>? GetUserGroups(UserPrincipalExtension user)
     {
@@ -46,7 +52,9 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
 
         return groups?.Select(s => s.Name).ToList();
     }
+    #endregion
 
+    #region Get users/members
     // Get members list
     public DirectorySearcher GetMembers(string? groupName)
     {
@@ -63,7 +71,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
     // Get memebrs from security group
     public List<string> GetSecurityGroupMembers(string? groupName)
     {
-        using GroupPrincipal group = GroupPrincipal.FindByIdentity(PContext(), IdentityType.SamAccountName, groupName);
+        using GroupPrincipal group = GroupPrincipal.FindByIdentity(GetContext(), IdentityType.SamAccountName, groupName);
         //var members = group.GetMembers(true).ToList();
         List<string> members = group.GetMembers(true).Select(s => s.SamAccountName).ToList();
 
@@ -88,23 +96,119 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
 
         foreach (SearchResult res in list)
             users.Add(GetUserParams(res.Properties));
-        
+
         return users;
     }
 
-    public User GeUser(string managerString)
+    // Get all employee's managers
+    public List<string> GetManagers(User user)
     {
-        DirectorySearcher search = new(PContext().Name);
-        search.Filter = String.Format("distinguishedName={0}", managerString);
-        search = UpdatedProparties(search);
-        var props = search.FindOne().Properties;
+        string? userManager = user.Manager;
+        bool hasManager = !string.IsNullOrEmpty(userManager);
+        List<string> managers = [];
 
-        return GetUserParams(props);
+        DirectorySearcher? search = new(GetContext().Name);
+        do
+        {
+            search.Filter = String.Format("distinguishedName={0}", userManager);
+            search = UpdatedProparties(search);
+
+            User? manager = GetUserParams(search?.FindOne().Properties);
+            if (hasManager = (manager != null) && manager.Manager != userManager)
+            {
+                managers.Add(manager.Name);
+
+                if (hasManager = !string.IsNullOrEmpty(manager.Manager) && manager.Title != "Kommunchef")
+                    userManager = manager.Manager;
+            }
+        } while (hasManager && user.Title != "Kommunchef");
+
+        return managers.Distinct().ToList() ?? [];
     }
 
-    public PrincipalContext GetContext() => PContext();
+    // Get all employyes from json file
+    public List<GroupUsersViewModel>? GetAuthorizedEmployees(string? group = null)
+    {
+        List<GroupUsersViewModel>? groupEmployees = [];
+        try
+        {
+            using StreamReader reader = new(@"wwwroot/json/employees.json");
+            var employeesJson = reader.ReadToEnd();
+            groupEmployees = JsonConvert.DeserializeObject<List<GroupUsersViewModel>>(employeesJson);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error UnlockUser: GetEmployees: {ex.Message}");
+        }
 
-    public string ResetPassword(UserViewModel model) // Method to reset user password
+        if (string.IsNullOrEmpty(group))
+            return groupEmployees;
+
+        return groupEmployees?.Where(x => x.Group?.Name == group).ToList();
+    }
+    #endregion
+
+    #region Actions
+    // Context to build a connection to local host
+    public PrincipalContext GetContext() => new(ContextType.Domain, domain, defaultOU);
+
+    // A function to API request Active Directory and refresh the json list of employees who have permission to change a user password.
+    public async Task<string> RenewUsersJsonList(IConfiguration config)
+    {
+        var groupEmployees = new List<GroupUsersViewModel>();
+        var groups = config.GetSection("Groups").Get<List<GroupModel>>();
+        var currentList = GetAuthorizedEmployees();
+        try
+        {
+            foreach (var group in groups)
+            {
+                List<string> members = GetSecurityGroupMembers(group.Group);
+                List<User> employees = [];
+                var cListByGroup = currentList.FirstOrDefault(x => x.Group?.Name == group.Name)?.Employees;
+                foreach (var member in members)
+                {
+                    UserPrincipalExtension user = FindUserByExtensionProperty(member);
+
+                    var userOffices = cListByGroup?.FirstOrDefault(x => x.Name == user.SamAccountName)?.Offices ?? [];
+                    if (userOffices.IndexOf(user.Office) == -1)
+                        userOffices = [user.Office];
+
+                    employees.Add(new User
+                    {
+                        Name = user.SamAccountName,
+                        DisplayName = user.DisplayName,
+                        Email = user.EmailAddress,
+                        Office = user.Office,
+                        Title = user.Title,
+                        Department = user.Department,
+                        Division = user.Division,
+                        Manager = user.Manager,
+                        Managers = group.Manage != "Students" ? GetManagers(new User { Title = user.Title, Manager = user.Manager}) : [],
+                        Offices = userOffices
+                    });
+                }
+
+                groupEmployees.Add(new GroupUsersViewModel
+                {
+                    Group = group,
+                    Employees = [.. employees.Distinct().ToList().OrderBy(o => o.DisplayName)]
+                });
+            }
+
+            await using FileStream stream = File.Create(@"wwwroot/json/employees.json");
+            await System.Text.Json.JsonSerializer.SerializeAsync(stream, groupEmployees);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error UnlockUser: GetEmployees: {ex.Message}");
+            return ex.Message;
+        }
+
+        return String.Empty;
+    }
+
+    // Method to reset user password
+    public string ResetPassword(UserViewModel model)
     {
         try
         {
@@ -124,12 +228,14 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
         }
     }
 
-    public string UnlockUser(UserViewModel model) // Method to unlock user
+    // Method to unlock user
+    public string UnlockUser(UserViewModel model)
     {
         using var context = PContexAccessCheck(model.Credentials);
         using AuthenticablePrincipal user = UserPrincipal.FindByIdentity(context, model.Username);
         if (user == null)
             return $"Användaren {model.Username} hittades inte."; // User not found
+
         try
         {
             if (user.IsAccountLockedOut())
@@ -148,10 +254,6 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
     #endregion
 
     #region Helpers
-    // Context to build a connection to local host
-    public PrincipalContext PContext() =>
-        new(ContextType.Domain, domain, defaultOU);
-
     // Context to build a connection with credentials to local host
     public PrincipalContext PContexAccessCheck(UserCredentials model)
         => new(ContextType.Domain, domain, defaultOU, model.Username, model.Password);
@@ -174,7 +276,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
         return result;
     }
 
-    public User GetUserParams(ResultPropertyCollection props)
+    public User GetUserParams(ResultPropertyCollection? props)
     {
         var isLocked = false;
         if (props.Contains("lockoutTime") && int.TryParse(props["lockoutTime"][0]?.ToString(), out int number))

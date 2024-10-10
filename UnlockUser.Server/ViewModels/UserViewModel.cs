@@ -9,6 +9,8 @@ public class UserViewModel
     [DataType(DataType.Password)]
     public string? Password { get; set; }
 
+    public  string? GroupName { get; set; }
+
     public UserCredentials? Credentials { get; set; }
 }
 
@@ -17,7 +19,7 @@ public class UserCredentials {
     public string? Password { get; set; }
 }
 
-public class UsersList
+public class UsersListViewModel
 {
-    public List<UserViewModel> Users { get; set; } = new List<UserViewModel>();
+    public List<UserViewModel> Users { get; set; } = [];
 }

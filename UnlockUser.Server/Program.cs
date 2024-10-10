@@ -11,7 +11,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Onboarding.Server.Services;
 
-
 namespace UnlockUser.Server;
 
 public class Program
@@ -22,6 +21,7 @@ public class Program
 
         #region Implemented
         ConfigurationManager configuration = builder.Configuration;
+
         // Services
         builder.Services.AddScoped<IActiveDirectory, IADService>();
         builder.Services.AddScoped<IHelp, IHelpService>();
@@ -62,10 +62,14 @@ public class Program
             options.Cookie.HttpOnly = true;
             options.Cookie.IsEssential = true;
         });
-        #endregion
 
         // Add services to the container.
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddControllersAsServices();
+
+        // Services
+        builder.Services.AddHostedService<TaskScheduleService>();
+        #endregion
+
 
         var app = builder.Build();
 

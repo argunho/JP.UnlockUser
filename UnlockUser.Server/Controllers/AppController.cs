@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json;
 using Onboarding.Server.Services;
 using System.Diagnostics;
+using System.Reflection.PortableExecutable;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -21,95 +22,14 @@ public class AppController(IHttpContextAccessor contextAccessor, IConfiguration 
 
     #region GET
     [HttpGet("authorized/employees")]
-    public List<GroupUsersViewModel> GetAuthorizedEmployees()
-    {
-        List<GroupUsersViewModel> groupEmployees = new();
-        try
-        {
-            using StreamReader reader = new(@"wwwroot/json/employees.json");
-            var employeesJson = reader.ReadToEnd();
-            groupEmployees = JsonConvert.DeserializeObject<List<GroupUsersViewModel>>(employeesJson);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error UnlockUser: GetEmployees: {ex.Message}");
-        }
-
-        return groupEmployees;
-    }
+    public List<GroupUsersViewModel>? GetAuthorizedEmployees()
+        => _provider.GetAuthorizedEmployees();
 
     [HttpGet("renew/authorized/employees/list")]
     public async Task<IActionResult> RenewEmployeesList()
     {
-
-        var groupEmployees = new List<GroupUsersViewModel>();
-        var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
-        var currentList = GetAuthorizedEmployees();
-        try
-        {
-            foreach (var group in groups)
-            {
-                List<string> members = _provider.GetSecurityGroupMembers(group.Group);
-                List<User> employees = [];
-                var cListByGroup = currentList.FirstOrDefault(x => x.Group?.Name == group.Name)?.Employees;
-                foreach (var member in members)
-                {
-                    List<string> managers = [];
-                    UserPrincipalExtension user = _provider.FindUserByExtensionProperty(member);
-                    bool hasManager = !string.IsNullOrEmpty(user.Manager);
-                    string userManager = user.Manager;
-                    do
-                    {
-                        var manager = _provider.GeUser(userManager);
-                        if (manager != null)
-                        {
-                            managers.Add(manager.Name);
-
-                            hasManager = !string.IsNullOrEmpty(manager.Manager) && manager.Title != "Kommunchef";
-
-                            if (hasManager)
-                                userManager = manager.Manager;
-                        }
-                        else
-                            hasManager = false;
-                    } while (hasManager && user.Title != "Kommunchef");
-
-
-                    employees.Add(new User
-                    {
-                        Name = user.SamAccountName,
-                        DisplayName = user.DisplayName,
-                        Email = user.EmailAddress,
-                        Office = user.Office,
-                        Title = user.Title,
-                        Department = user.Department,
-                        Division = user.Division,
-                        Manager = user.Manager,
-                        Managers = managers,
-                        Offices = (cListByGroup != null && cListByGroup.Exists(x => x.Name == user.SamAccountName))
-                                        ? cListByGroup.FirstOrDefault(x => x.Name == user.SamAccountName).Offices
-                                        : [user.Office]
-                    });
-                }
-
-                groupEmployees.Add(new GroupUsersViewModel
-                {
-                    Group = group,
-                    Employees = [.. employees.Distinct().ToList().OrderBy(o => o.DisplayName)]
-                });
-
-            }
-
-            await using FileStream stream = System.IO.File.Create(@"wwwroot/json/employees.json");
-            await System.Text.Json.JsonSerializer.SerializeAsync(stream, groupEmployees);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error UnlockUser: GetEmployees: {ex.Message}");
-            return BadRequest(ex.Message);
-        }
-
-        return Ok();
+        string res = await _provider.RenewUsersJsonList(_config);
+        return string.IsNullOrEmpty(res) ? Ok() : Ok(res);
     }
 
     [HttpGet("update/service/status/{status:bool}")]
@@ -191,3 +111,70 @@ public class AppController(IHttpContextAccessor contextAccessor, IConfiguration 
     }
     #endregion
 }
+
+#region Unsused
+//{
+//    List<GroupUsersViewModel> groupEmployees = new();
+//    try
+//    {
+//        using StreamReader reader = new (@"wwwroot/json/employees.json");
+//        var employeesJson = reader.ReadToEnd();
+//            groupEmployees = JsonConvert.DeserializeObject<List<GroupUsersViewModel>>(employeesJson);
+//    }
+//    catch (Exception ex)
+//    {
+//        Debug.WriteLine($"Error UnlockUser: GetEmployees: {ex.Message}");
+//    }
+
+//    return groupEmployees;
+//}
+
+//var groupEmployees = new List<GroupUsersViewModel>();
+//var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
+//var currentList = GetAuthorizedEmployees();
+//try
+//{
+//    foreach (var group in groups)
+//    {
+//        List<string> members = _provider.GetSecurityGroupMembers(group.Group);
+//        List<User> employees = [];
+//        var cListByGroup = currentList.FirstOrDefault(x => x.Group?.Name == group.Name)?.Employees;
+//        foreach (var member in members)
+//        {
+//            UserPrincipalExtension user = _provider.FindUserByExtensionProperty(member);
+
+//            var userOffices = cListByGroup?.FirstOrDefault(x => x.Name == user.SamAccountName)?.Offices ?? [];
+//            if (userOffices.IndexOf(user.Office) == -1)
+//                userOffices = [user.Office];
+
+//            employees.Add(new User
+//            {
+//                Name = user.SamAccountName,
+//                DisplayName = user.DisplayName,
+//                Email = user.EmailAddress,
+//                Office = user.Office,
+//                Title = user.Title,
+//                Department = user.Department,
+//                Division = user.Division,
+//                Manager = user.Manager,
+//                Managers = group.Manage != "Students" ? _provider.GetManagers(user) : [],
+//                Offices = userOffices
+//            });
+//        }
+
+//        groupEmployees.Add(new GroupUsersViewModel
+//        {
+//            Group = group,
+//            Employees = [.. employees.Distinct().ToList().OrderBy(o => o.DisplayName)]
+//        });
+//    }
+
+//    await using FileStream stream = System.IO.File.Create(@"wwwroot/json/employees.json");
+//    await System.Text.Json.JsonSerializer.SerializeAsync(stream, groupEmployees);
+//}
+//catch (Exception ex)
+//{
+//    Debug.WriteLine($"Error UnlockUser: GetEmployees: {ex.Message}");
+//    return BadRequest(ex.Message);
+//}
+#endregion

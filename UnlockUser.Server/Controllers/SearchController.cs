@@ -116,37 +116,32 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
     {
         var roles = GetClaim("roles");
 
-        // If user is not a member from developers group, filter users result
-        if (roles != null && !roles.Contains("Developer", StringComparison.CurrentCulture))
+        // If user is not a member from support group, filter users result
+        if (roles != null && !roles.Contains("Support", StringComparison.CurrentCulture))
         {
-            var manager = GetClaim("manager");
-            var office = GetClaim("office")?.ToLower();
-            var division = GetClaim("division")?.ToLower();
             var userName = GetClaim("username");
-            var permissions = GetClaim("permissions").ToLower().Split(",");
+            List<User>? employees = (_provider.GetAuthorizedEmployees(groupName))?.FirstOrDefault()?.Employees;
+            User? currentUser = employees?.FirstOrDefault(x => x.Name == userName);
+            List<User> usersToView = [];
 
-            users = users.Where(x => x.Office == office || 
-                (x.Division != null && x.Division.ToLower().Contains(division, StringComparison.CurrentCulture) 
-                || division.Contains(x.Division.ToLower(), StringComparison.CurrentCulture))).ToList();
+            if (currentUser?.Managers.Count > 0 && groupName != "Students")
+            {
+                foreach (var user in users)
+                {
+                    var managers = _provider.GetManagers(user);
 
-            //if (groupName != "studenter")
-            //{
-            //    if (!roles.Contains("Manager", StringComparison.CurrentCulture))
-            //        users = users.Where(x => x.Manager == manager || x.Division?.ToLower() == division).ToList();
-            //    else
-            //        users = users.Where(x => x.Manager == manager || x.Manager.Contains($"CN={userName}", StringComparison.CurrentCulture) || (x.Division != null && x.Division.ToLower().Contains(division, StringComparison.CurrentCulture) || division.Contains(x.Division.ToLower())).ToList();
-            //}
-            //else if (!roles.Contains("Support", StringComparison.CurrentCulture))
-            //{
-            //    if (office == "Gymnasiet yrkesvux lärvux".ToLower())
-            //        office = "Allbo Lärcenter gymnasieskola".ToLower();
+                    if (managers.Count > 0)
+                    {
+                        var matched = currentUser.Managers?.Intersect(managers);
+                        if (matched != null)
+                            usersToView.Add(user);
+                    }
+                }
+            }
+            else
+                users = users.Where(x => currentUser.Offices.Contains(x.Office)).ToList();
 
-            //    users = users.Where(x => x.Office == office || (x.Division != null && x.Division.ToLower().Contains(division, StringComparison.CurrentCulture) || division.Contains(x.Division.ToLower()))).ToList();
-            //    //if (users?.Count(x => x.Office?.ToLower() == office) > 0)
-            //    //    users.RemoveAll(x => x.Office?.ToLower() != office);
-            //    //else
-            //    //    users.RemoveAll(x => !office.Contains(x.Office.ToLower()));
-            //}
+            users = usersToView;
         }
 
         return users;

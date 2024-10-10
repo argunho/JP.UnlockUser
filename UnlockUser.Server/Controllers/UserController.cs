@@ -5,13 +5,14 @@ using System.Text;
 using System.Diagnostics;
 using System.Net;
 using System.DirectoryServices;
+using UnlockUser.Server.Models;
 
 namespace UnlockUser.Server.Controllers;
 
 [Route("[controller]")]
 [ApiController]
 [Authorize]
-public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IHelp help, IConfiguration config) : ControllerBase
+public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IHelp help, IConfiguration config, SearchController search) : ControllerBase
 {
 
     private readonly IActiveDirectory _provider = provider;
@@ -19,12 +20,11 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     private readonly ISession _session = contextAccessor.HttpContext.Session;
     private readonly IConfiguration _config = config;
     private readonly IHelp _help = help;
+    private readonly SearchController _search = search;
 
     #region GET
-    [HttpGet("hello")]
-    public IActionResult Get() => Ok("OK");
-
-    [HttpGet("{group}/{name}")] // Get user information by username
+    // Get user information by username
+    [HttpGet("{group}/{name}")] 
     public JsonResult GetUser(string group, string name)
     {
         DirectorySearcher members = _provider.GetMembers(group);
@@ -40,8 +40,11 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
         _session.SetString("ManagedOffice", user.Office);
         _session.SetString("ManagedDepartment", user.Department);
-        
-        return new JsonResult(new { user });
+
+        if ((_search.FilteredListOfUsers([user],group))?.Count > 0)
+            return new JsonResult(new { user });
+
+        return new JsonResult(null);
     }
 
     [HttpGet("unlock/{name}")] // Unlock user
@@ -62,7 +65,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
     #region POST
     [HttpPost("resetPassword")] // Reset class students passwords
-    public JsonResult SetPaswords(UsersList model)
+    public JsonResult SetPaswords(UsersListViewModel model)
     {
         // Check model is valid or not and return warning is true or false
         if (model.Users.Count == 0)
@@ -83,42 +86,27 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
         var permissionGroups = (_config.GetSection("Groups").Get<List<GroupModel>>()).Select(s => s.Group).ToList();
 
-        if (roles != null && !roles.Contains("Developer", StringComparison.CurrentCulture))
+        if (roles != null && !roles.Contains("Support", StringComparison.CurrentCulture))
         {
-            // Get all usernamse as a list
-            var usernames = model.Users.Select(s => s.Username).ToList();
-
             //Loop each username
-            foreach (var username in usernames)
+            foreach (var userModel in model.Users)
             {
+                var username = userModel.Username;
                 var user = _provider.FindUserByExtensionProperty(username);
-                if (user == null)
-                    continue;
-
-                var ud = user.Division.ToLower();
 
                 // Get all user groups to check users membership in permission groups
                 var userGroups = _provider.GetUserGroups(user);
                 var forbidden = userGroups.Exists(x => permissionGroups.Contains(x));
+                var filteredList = _search.FilteredListOfUsers([new User { Name = user.Name, Title = user.Title }], userModel.GroupName);
 
-                if (forbidden)
+                if (user == null || filteredList?.Count == 0 || forbidden)
                 {
                     stoppedToEdit.Add(username);
-                    model.Users.RemoveAll(x => x.Username == username);
                     continue;
                 }
-                //else if (sessionUserData.Group?.ToLower() != "studenter" && user.Manager != manager && user.Division == division)
-                else if(!ud.Contains(division, StringComparison.CurrentCulture) && !division.Contains(ud, StringComparison.CurrentCulture))
-                {
-                    stoppedToEdit.Add(username);
-                    model.Users.RemoveAll(x => x.Username == username);
-                }
-                //else if (user.Office.ToLower() != sessionOffice && (!user.Office.IsNullOrEmpty() && !sessionOffice.Contains(user.Office.ToLower())))
-                //{
-                //    stoppedToEdit.Add(username);
-                //    model.Users.RemoveAll(x => x.Username == username);
-                //}
             }
+
+            model.Users.RemoveAll(x => stoppedToEdit.Contains(x.Username));          
         }
 
         // Set password to class students

@@ -12,6 +12,7 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
     private readonly ILogger<TaskScheduleService> _logger = logger;
     private readonly IConfiguration _config = config;
 
+
     public Task StartAsync(CancellationToken cancellationToken)
     {
         _timer = new Timer(Run, null, TimeSpan.Zero, TimeSpan.FromHours(1));
@@ -32,24 +33,19 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
             {
                 // Send remind mail to participants
                 var appConfig = AppConfiguration.Load();
-                var reminded = Convert.ToDateTime(appConfig.LastRemindDate);
-                var cleaned = Convert.ToDateTime(appConfig.LastRemindDate);
+                var updated = Convert.ToDateTime(appConfig.LastUpdatedDate);
 
                 if (currentHour >= 8 && currentHour < 18)
                 {
                     _logger.LogInformation(currentDate.ToString());
 
-                    if (reminded.Day != currentDate.Day)
+                    if (updated.Day != currentDate.Day)
                     {
-
-                        UpdateConfigFile("appconfig", "LastRemindDate", currentDate.ToString("yyyy.MM.dd HH:mm:ss"));
+                        //await _provider.RenewUsersJsonList(config);
+                        UpdateConfigFile("appconfig", "LastUpdatedDate", currentDate.ToString("yyyy.MM.dd HH:mm:ss"));
                     }
 
-                    if (currentDate.Ticks - cleaned.Ticks > (secondsPerDay / 2))
-                        await CleanDb(currentDay);
                 }
-                else if (currentHour >= 22 && currentHour < 1 && (currentDate.Ticks - cleaned.Ticks > (secondsPerDay / 2)))
-                    await CleanDb(currentDay);
             });
 
         }
@@ -93,16 +89,6 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
         {
             Debug.WriteLine(ex.Message);
         }
-    }
-
-    // Clean db
-    public async Task CleanDb(int currentDay)
-    {
-
-        // Clean logs list
-
-
-        UpdateConfigFile("appconfig", "CleanedDate", DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
     }
     #endregion
 }

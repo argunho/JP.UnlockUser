@@ -103,14 +103,12 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             }).ToList();
             var groupsNames =  string.Join(",", groups.Select(s => s.Name));
 
-
             var roles = new List<string>() { "Employee" };
-            if (_provider.MembershipCheck(user, "TEIS IT avdelning"))
-                roles.Add("Support");
-            //claims.Add(new Claim("Support", "Ok"));
-
             if (_provider.MembershipCheck(user, "Azure-Utvecklare Test"))
                 roles.Add("Developer");
+
+            if (_provider.MembershipCheck(user, "TEIS IT avdelning") || roles.IndexOf("Developer") > -1)
+                roles.Add("Support");
 
             if (user.Title.ToLower().Contains("chef") || user.Title.ToLower().Contains("rektor"))
                 roles.Add("Manager");
@@ -160,15 +158,6 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
         IdentityOptions opt = new();
 
         _session.SetString("Password", password);
-
-        List<GroupUsersViewModel> groupEmployees = [];
-        try
-        {
-            using StreamReader reader = new(@"wwwroot/json/employees.json");
-            var employeesJson = reader.ReadToEnd();
-            groupEmployees = JsonConvert.DeserializeObject<List<GroupUsersViewModel>>(employeesJson);
-        }
-        catch (Exception) { }
 
         var claims = new List<Claim>
         {

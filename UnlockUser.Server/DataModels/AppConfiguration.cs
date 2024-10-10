@@ -2,8 +2,7 @@
 
 public class AppConfiguration
 {
-    public string? LastRemindDate { get; set; }
-    public string? CleandDate { get; set; }
+    public string? LastUpdatedDate { get; set; }
     public string? ServiceWork { get; set; }
 
     public static AppConfiguration Load()

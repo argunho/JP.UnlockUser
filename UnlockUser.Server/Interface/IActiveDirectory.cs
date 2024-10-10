@@ -1,4 +1,5 @@
-﻿using System.DirectoryServices;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 
 
@@ -9,14 +10,20 @@ public interface IActiveDirectory
     UserPrincipal FindUserByName(string name);
     UserPrincipalExtension FindUserByExtensionProperty(string name);
     GroupPrincipal FindGroupName(string name);
+
     bool AccessValidation(string? name, string? password);
     bool MembershipCheck(UserPrincipalExtension user, string? groupName);
-    string ResetPassword(UserViewModel model);
-    string UnlockUser(UserViewModel model); 
+
+    List<string> GetUserGroups(UserPrincipalExtension user);
+
     DirectorySearcher GetMembers(string? groupName);
     List<string> GetSecurityGroupMembers(string? groupName);
-    List<string> GetUserGroups(UserPrincipalExtension user);
     List<User> GetUsers(DirectorySearcher result, string groupName);
+    List<string> GetManagers(User user);
+    List<GroupUsersViewModel>? GetAuthorizedEmployees(string? gropu = null);
+
     PrincipalContext GetContext();
-    User GeUser(string managerString);
+    string ResetPassword(UserViewModel model);
+    string UnlockUser(UserViewModel model); 
+    Task<string> RenewUsersJsonList(IConfiguration config);
 }
