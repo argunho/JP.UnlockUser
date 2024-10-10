@@ -3,7 +3,7 @@
     "Group": {
       "Name": "Personal",
       "Manage": "Employees",
-      "Group": "Password Reset-ADM"
+      "PermissionGroup": "Password Reset-ADM"
     },
     "Employees": [
       {
@@ -1649,7 +1649,7 @@
     "Group": {
       "Name": "Politiker",
       "Manage": "Ciceron-Assistentanv\u00E4ndare",
-      "Group": "Password Reset Politiker"
+      "PermissionGroup": "Password Reset Politiker"
     },
     "Employees": [
       {
@@ -1923,11 +1923,11 @@
       }
     ]
   },
-  {
+ {
     "Group": {
       "Name": "Studenter",
       "Manage": "Students",
-      "Group": "Password Reset Students-EDU"
+      "PermissionGroup": "Password Reset Students-EDU"
     },
     "Employees": [
       {

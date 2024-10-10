@@ -59,7 +59,7 @@ function AuthRoutes({authContext }) {
     },
     {
       path: '/manage-users/:cls/:school',
-      element: <UsersManager navigate={navigate}/>
+      element: <UsersManager authContext={authContext} navigate={navigate}/>
     },
     {
       path: '/history',

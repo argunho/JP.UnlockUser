@@ -31,7 +31,8 @@ function Search({ authContext, navigate }) {
     Search.displayName = "Search";
 
     const sOption = sessionStorage.getItem("sOption");
-    const groups = JSON.parse(sessionStorage.getItem("groups"));
+    // const groups = JSON.parse(sessionStorage.getItem("groups"));
+    const groups = authContext.groups;
     const defaultData = {
         input: "",
         additionInput: ""

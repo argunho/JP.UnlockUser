@@ -27,10 +27,9 @@ const formList = [
     { name: "confirmPassword", label: "Bekräfta lösenord", placeholder: "" }
 ]
 
-export default function Form(props) {
+function Form({ title, name, passwordLength, users, authContext }) {
     Form.displayName = "Form";
 
-    const { title, name, passwordLength, users } = props;
     const multiple = users.length > 1;
 
     const defaultForm = {
@@ -250,7 +249,8 @@ export default function Form(props) {
             for (var i = 0; i < users.length; i++) {
                 usersArray.push({
                     username: users[i].name,
-                    password: formData.password
+                    password: formData.password,
+                    groupName: authContext?.group
                 })
             }
             data.users = usersArray;
@@ -552,3 +552,5 @@ export default function Form(props) {
             </div >
         )
 }
+
+export default Form;

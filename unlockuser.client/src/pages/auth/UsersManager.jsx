@@ -10,7 +10,7 @@ import { useParams } from 'react-router-dom';
 import Form from '../../components/Form';
 import Info from '../../components/Info';
 
-function UsersManager({ navigate }) {
+function UsersManager({ authContext, navigate }) {
     UsersManager.displayName = "UsersManager";
 
     const { cls, school } = useParams();
@@ -58,7 +58,8 @@ function UsersManager({ navigate }) {
 
             <Form title={"Nya lösenord till " + users?.length + " elev" + (users?.length === 1 ? "er" : "")}
                 users={users}
-                passwordLength={8} />
+                passwordLength={8}
+                authContext={authContext} />
         </div>
     )
 }
