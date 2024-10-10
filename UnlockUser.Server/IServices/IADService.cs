@@ -58,10 +58,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
     // Get members list
     public DirectorySearcher GetMembers(string? groupName)
     {
-        //var groupName = User.Claims.ToList().FirstOrDefault(x => x.Type == "GroupToManage")?.Value ?? "";
-        var groupToFind = groupName?.ToLower() == "studenter" ? "Students" : "Employees";
-
-        DirectoryEntry entry = new($"LDAP://OU={groupToFind},OU=Users,OU=Kommun,DC=alvesta,DC=local");
+        DirectoryEntry entry = new($"LDAP://OU={groupName == 'Studenter' ? 'Students' : 'Employees'},OU=Users,OU=Kommun,DC=alvesta,DC=local");
         DirectorySearcher search = new(entry);
         search.PropertiesToLoad.Add("memberOf");
         entry.Close();
@@ -170,7 +167,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
         {
             foreach (var group in groups)
             {
-                List<string> members = GetSecurityGroupMembers(group.Group);
+                List<string> members = GetSecurityGroupMembers(group.PermissionGroup);
                 List<User> employees = [];
                 var cListByGroup = currentList.FirstOrDefault(x => x.Group?.Name == group.Name)?.Employees;
                 foreach (var member in members)

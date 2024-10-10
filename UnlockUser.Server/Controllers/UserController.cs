@@ -84,7 +84,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         var roles = GetClaim("roles");
         var stoppedToEdit = new List<string>();
 
-        var permissionGroups = (_config.GetSection("Groups").Get<List<GroupModel>>()).Select(s => s.Group).ToList();
+        var permissionGroups = (_config.GetSection("Groups").Get<List<GroupModel>>()).Select(s => s.PermissionGroup).ToList();
 
         if (roles != null && !roles.Contains("Support", StringComparison.CurrentCulture))
         {

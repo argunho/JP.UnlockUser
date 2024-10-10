@@ -80,7 +80,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
             var user = _provider.FindUserByExtensionProperty(model.Username);
             var userGroups = _provider.GetUserGroups(user);
-            permissionGroups.RemoveAll(x => !userGroups.Contains(x.Group));
+            permissionGroups.RemoveAll(x => !userGroups.Contains(x.PermissionGroup));
             permissionGroups ??= [];
             var roles = new List<string>() { "Employee" };
 

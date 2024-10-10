@@ -7,24 +7,6 @@
     },
     "Employees": [
       {
-        "Name": "u0050",
-        "DisplayName": null,
-        "Email": null,
-        "Description": null,
-        "Manager": "",
-        "Department": "",
-        "Office": "",
-        "Division": "",
-        "Title": "",
-        "Offices": [
-          ""
-        ],
-        "Managers": [
-        ],
-        "PasswordLength": 8,
-        "IsLocked": false
-      },
-      {
         "Name": "541113agne",
         "DisplayName": "Agneta Gr\u00FCbb",
         "Email": "agneta.grubb@alvesta.se",
@@ -2608,24 +2590,6 @@
         "Title": "Yrkesl\u00E4rare",
         "Offices": [
           "Alvesta gymnasieskola"
-        ],
-        "Managers": [
-        ],
-        "PasswordLength": 8,
-        "IsLocked": false
-      },
-      {
-        "Name": "u0080",
-        "DisplayName": "Henrik Fransson",
-        "Email": null,
-        "Description": null,
-        "Manager": "CN=741126par,OU=Employees,OU=Users,OU=Graveyard,DC=alvesta,DC=local",
-        "Department": "IT-enheten",
-        "Office": "",
-        "Division": "",
-        "Title": "IT Tekniker",
-        "Offices": [
-          ""
         ],
         "Managers": [
         ],
