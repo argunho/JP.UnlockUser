@@ -24,7 +24,7 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
         using var scope = _serviceScope.CreateScope();
         try
         {
-            var secondsPerDay = 86400000;
+            //var secondsPerDay = 86400000;
             var currentDate = DateTime.Now;
             var currentHour = currentDate.Hour;
             var currentDay = currentDate.Day;
@@ -41,7 +41,8 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
 
                     if (updated.Day != currentDate.Day)
                     {
-                        //await _provider.RenewUsersJsonList(config);
+                        var provider = new IADService();
+                        await provider.RenewUsersJsonList(config);
                         UpdateConfigFile("appconfig", "LastUpdatedDate", currentDate.ToString("yyyy.MM.dd HH:mm:ss"));
                     }
 

@@ -108,20 +108,28 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
         List<string> managers = [];
 
         DirectorySearcher? search = new(GetContext().Name);
-        do
-        {
-            search.Filter = String.Format("distinguishedName={0}", userManager);
-            search = UpdatedProparties(search);
 
-            User? manager = GetUserParams(search?.FindOne().Properties);
-            if (hasManager = (manager != null) && manager.Manager != userManager)
+        while (hasManager && user.Title != "Kommunchef"){
+            try
             {
-                managers.Add(manager.Name);
+                search.Filter = String.Format("distinguishedName={0}", userManager);
+                search = UpdatedProparties(search);
 
-                if (hasManager = !string.IsNullOrEmpty(manager.Manager) && manager.Title != "Kommunchef")
-                    userManager = manager.Manager;
+                User? manager = GetUserParams(search?.FindOne().Properties);
+                if (hasManager = (manager != null) && manager.Manager != userManager)
+                {
+                    managers.Add(manager.Name);
+
+                    if (hasManager = !string.IsNullOrEmpty(manager.Manager) && manager.Title != "Kommunchef")
+                        userManager = manager.Manager;
+                }
             }
-        } while (hasManager && user.Title != "Kommunchef");
+            catch (Exception ex)
+            {
+                hasManager = false;
+                Debug.WriteLine(ex.Message);
+            }
+        }
 
         return managers.Distinct().ToList() ?? [];
     }
@@ -168,6 +176,8 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                 foreach (var member in members)
                 {
                     UserPrincipalExtension user = FindUserByExtensionProperty(member);
+                    if (user != null && (user.Equals(default(UserPrincipalExtension)) || user?.SamAccountName.Length < 6))
+                        continue;
 
                     var userOffices = cListByGroup?.FirstOrDefault(x => x.Name == user.SamAccountName)?.Offices ?? [];
                     if (userOffices.IndexOf(user.Office) == -1)

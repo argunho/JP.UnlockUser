@@ -55,7 +55,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
     {
         try
         {
-            List<User> users = new(); // Empty list of users
+            List<User> users = []; // Empty list of users
             var context = _provider.GetContext(); // Get active derictory context
 
             _session.SetString("ManagedOffice", office);
@@ -93,7 +93,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
             msg = "Något har gått snett. Var vänlig försök igen.",
             repeatedError = repeated,
             errorMessage = msg
-        }); //Something went wrong, please try again later
+        });
     }
 
     // Get claim

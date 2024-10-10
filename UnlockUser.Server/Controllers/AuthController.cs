@@ -58,7 +58,9 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             if (response != null) return response;
 
             // Validate username and password
-            var isAutheticated = _provider.AccessValidation(model?.Username, model?.Password);
+            var isAutheticated = _provider.AccessValidation(model?.Username, model?.Password); 
+            
+            //Incorrect username or password
             if (!isAutheticated)
             {
                 // If the user tried to put in a wrong password, save this like +1 a wrong attempt and the max is 4 attempts
@@ -69,7 +71,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
                     alert = "error",
                     loginAttempt,
                     msg = $"<b>Felaktig användarnamn eller lösenord.</b><br/> {4 - loginAttempt} försök kvar."
-                }); //Incorrect username or password
+                });
             }
 
             _session?.Remove("LoginAttempt");
@@ -79,17 +81,19 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             var user = _provider.FindUserByExtensionProperty(model.Username);
             var userGroups = _provider.GetUserGroups(user);
             permissionGroups.RemoveAll(x => !userGroups.Contains(x.Group));
-            if (permissionGroups == null)
-                permissionGroups = [];
+            permissionGroups ??= [];
+            var roles = new List<string>() { "Employee" };
 
-            // Acces if user are a manager
-            bool manager = false;
-            if (permissionGroups.Count == 0 || permissionGroups.FindIndex(x => x.Name?.ToLower() == "personal") == -1)
+            // Access if user are a manager
+            bool manager = user.Title.ToLower().Contains("chef", StringComparison.CurrentCultureIgnoreCase) 
+                           || user.Title.ToLower().Contains("rektor", StringComparison.CurrentCultureIgnoreCase);
+            if(manager)
+                 roles.Add("Manager");
+
+            if (permissionGroups.Count == 0 && manager)
             {
-                manager = user.Title.ToLower().Contains("chef") || user.Title.ToLower().Contains("rektor");
                 var groupsList = _config.GetSection("Groups").Get<List<GroupModel>>();
-                if (manager)
-                    permissionGroups.Add(groupsList.Find(x => x.Name.ToLower() == "personal"));
+                permissionGroups.Add(groupsList.Find(x => x.Name == "Personal"));
             }
 
             // Failed! Permission missed
@@ -98,20 +102,16 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
 
             var groups = permissionGroups.OrderBy(x => x.Name).Select(s => new GroupModel
             {
-               Name = s.Name,
-               Manage = s.Manage
+                Name = s.Name,
+                Manage = s.Manage
             }).ToList();
-            var groupsNames =  string.Join(",", groups.Select(s => s.Name));
+            var groupsNames = string.Join(",", groups.Select(s => s.Name));
 
-            var roles = new List<string>() { "Employee" };
             if (_provider.MembershipCheck(user, "Azure-Utvecklare Test"))
                 roles.Add("Developer");
 
             if (_provider.MembershipCheck(user, "TEIS IT avdelning") || roles.IndexOf("Developer") > -1)
                 roles.Add("Support");
-
-            if (user.Title.ToLower().Contains("chef") || user.Title.ToLower().Contains("rektor"))
-                roles.Add("Manager");
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
             var token = CreateJwtToken(user, roles, model?.Password ?? "", groupsNames);
@@ -141,7 +141,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
                 msg = "Något har gått snett. Var vänlig försök igen.",
                 repeatedError = repeated,
                 errorMessage = ex.Message
-            }); 
+            });
         }
     }
     #endregion
