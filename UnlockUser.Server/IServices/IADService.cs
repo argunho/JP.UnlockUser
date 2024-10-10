@@ -58,7 +58,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
     // Get members list
     public DirectorySearcher GetMembers(string? groupName)
     {
-        DirectoryEntry entry = new($"LDAP://OU={groupName == 'Studenter' ? 'Students' : 'Employees'},OU=Users,OU=Kommun,DC=alvesta,DC=local");
+        DirectoryEntry entry = new($"LDAP://OU={groupName},OU=Users,OU=Kommun,DC=alvesta,DC=local");
         DirectorySearcher search = new(entry);
         search.PropertiesToLoad.Add("memberOf");
         entry.Close();
@@ -76,20 +76,19 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
     }
 
     // Return a list of found users
-    public List<User> GetUsers(DirectorySearcher result, string groupName)
+    public List<User> GetUsers(DirectorySearcher? result, string? groupName)
     {
         result = UpdatedProparties(result);
         List<User> users = [];
 
-        List<SearchResult> list = result.FindAll().OfType<SearchResult>().ToList() ?? null;
-        if (groupName != "studenter" && list != null)
+        List<SearchResult> list = result.FindAll()?.OfType<SearchResult>().ToList();
+        if (groupName != "Studenter" && list != null)
         {
             list = list.Where(x => x.Properties["memberOf"].OfType<string>().ToList()
-                .Any(x => groupName == "politiker" ? x.Contains("Ciceron-Assistentanvändare")
-                                                     : !x.Contains("Ciceron-Assistentanvändare"))).ToList();
+                .Any(x => groupName == "Politiker" ? x.Contains("Ciceron-Assistentanvändare") : !x.Contains("Ciceron-Assistentanvändare"))).ToList();
         }
 
-        if (list?.Count == 0) return users;
+        if (list.Count == 0) return users;
 
         foreach (SearchResult res in list)
             users.Add(GetUserParams(res.Properties));

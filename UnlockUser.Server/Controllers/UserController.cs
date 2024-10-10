@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Net;
 using System.DirectoryServices;
 using UnlockUser.Server.Models;
+using System.DirectoryServices.AccountManagement;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -22,18 +23,20 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     private readonly IHelp _help = help;
     private readonly SearchController _search = search;
 
+
     #region GET
     // Get user information by username
     [HttpGet("{group}/{name}")] 
     public JsonResult GetUser(string group, string name)
     {
-        DirectorySearcher members = _provider.GetMembers(group);
+        var groupName = group == "Studenter" ? "Students" : "Employees";
+        DirectorySearcher members = _provider.GetMembers(groupName);
         members.Filter = $"(&(objectClass=User)(|(cn={name})(sAMAccountname={name})))";
 
         if (members.FindOne() == null)
             return new JsonResult(new { warning = true, msg = $"Användaren med anvädarnamn {name} har inte hittats." });
 
-        var user = (_provider.GetUsers(members, group))?[0];
+        var user = (_provider.GetUsers(members, group)).FirstOrDefault();
 
         if (_provider.MembershipCheck(_provider.FindUserByExtensionProperty(name), "Password Twelve Characters"))
             user.PasswordLength = 12;
@@ -41,7 +44,8 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         _session.SetString("ManagedOffice", user.Office);
         _session.SetString("ManagedDepartment", user.Department);
 
-        if ((_search.FilteredListOfUsers([user],group))?.Count > 0)
+        user = (_search.FilteredListOfUsers([user], group, GetClaim("roles"), GetClaim("username")))?.FirstOrDefault();
+        if (user != null)
             return new JsonResult(new { user });
 
         return new JsonResult(null);
@@ -97,7 +101,8 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 // Get all user groups to check users membership in permission groups
                 var userGroups = _provider.GetUserGroups(user);
                 var forbidden = userGroups.Exists(x => permissionGroups.Contains(x));
-                var filteredList = _search.FilteredListOfUsers([new User { Name = user.Name, Title = user.Title }], userModel.GroupName);
+                var filteredList = _search.FilteredListOfUsers([new User { Name = user.Name, Title = user.Title }], 
+                            userModel.GroupName, GetClaim("roles"), GetClaim("username"));
 
                 if (user == null || filteredList?.Count == 0 || forbidden)
                 {

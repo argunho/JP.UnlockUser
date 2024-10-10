@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.DirectoryServices;
+using System.Security.Claims;
+using System.Xml.Linq;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -23,15 +25,15 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
 
         try
         {
-            var groupName = group.ToLower();
-            DirectorySearcher? result = _provider.GetMembers(group);
+            var groupName = group == "Studenter" ? "Students" : "Employees";
+            DirectorySearcher? result = _provider.GetMembers(groupName);
 
             if (match)
                 result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(|(displayName=*{name}*)(|(givenName=*{name}*))(|(upn=*{name.ToLower()}*))(sn=*{name}*))))";
             else
                 result.Filter = $"(&(objectClass=User)(|(cn={name})(|(displayName={name})(|(givenName={name}))(sn={name}))))";
 
-            users = FilteredListOfUsers(_provider.GetUsers(result, groupName), groupName);
+            users = FilteredListOfUsers(_provider.GetUsers(result, group), groupName);
         }
         catch (Exception e)
         {
@@ -62,10 +64,10 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
             _session.SetString("ManagedDepartment", department);
             _session.SetString("GroupName", "Studenter");
 
-            DirectorySearcher result = _provider.GetMembers("studenter");
+            DirectorySearcher result = _provider.GetMembers("Students");
 
             result.Filter = $"(&(objectClass=User)((physicalDeliveryOfficeName={office})(department={department})))";
-            users = FilteredListOfUsers(_provider.GetUsers(result, ""), "studenter");
+            users = FilteredListOfUsers(_provider.GetUsers(result, ""), "Studenter");
 
             if (users.Count > 0)
                 return new JsonResult(new { users = users.Distinct().OrderBy(x => x.Department).ThenBy(x => x.Name) });
@@ -96,35 +98,19 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
         });
     }
 
-    // Get claim
-    public string? GetClaim(string? name)
-    {
-        try
-        {
-            var claims = User.Claims;
-            if (!claims.Any()) return null;
-            return claims.FirstOrDefault(x => x.Type?.ToLower() == name?.ToLower())?.Value?.ToString();
-        }
-        catch (Exception)
-        {
-            return null;
-        }
-    }
-
     // Filter
-    public List<User> FilteredListOfUsers(List<User> users, string groupName)
+    public List<User> FilteredListOfUsers(List<User> users, string groupName, string? roles = null, string? username = null)
     {
-        var roles = GetClaim("roles");
-
+        roles ??= GetClaim("roles");
         // If user is not a member from support group, filter users result
         if (roles != null && !roles.Contains("Support", StringComparison.CurrentCulture))
         {
-            var userName = GetClaim("username");
+            username ??= GetClaim("username");
             List<User>? employees = (_provider.GetAuthorizedEmployees(groupName))?.FirstOrDefault()?.Employees;
-            User? currentUser = employees?.FirstOrDefault(x => x.Name == userName);
+            User? currentUser = employees?.FirstOrDefault(x => x.Name == username);
             List<User> usersToView = [];
 
-            if (currentUser?.Managers.Count > 0 && groupName != "Students")
+            if (currentUser?.Managers.Count > 0 && groupName != "Studenter" && groupName != "Students")
             {
                 foreach (var user in users)
                 {
@@ -145,6 +131,21 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
         }
 
         return users;
+    }
+
+    // Get claim
+    public string? GetClaim(string? name)
+    {
+        try
+        {
+            var claims = User.Claims;
+            if (!claims.Any()) return null;
+            return claims.FirstOrDefault(x => x.Type?.ToLower() == name?.ToLower())?.Value?.ToString();
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
     #endregion
 }
