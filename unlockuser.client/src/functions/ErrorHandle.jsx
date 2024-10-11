@@ -4,7 +4,7 @@ export function ErrorHandle(error, navigate) {
         navigate("/session/expired");
 
     return {
-        error: true,
+        alert: "error",
         msg: `Något har gått snett.<br/>Fel: ${typeof error === "object" ? error?.message : error}`
     }
 }

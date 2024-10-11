@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Installed
-import { Alert, Button } from '@mui/material';
+import { Alert, Button, Collapse } from '@mui/material';
 
 // Services
 import ApiRequest from '../services/ApiRequest';
@@ -90,13 +90,15 @@ export default function Response(props) {
         }, 1000)
     }
 
-    return <Alert className='alert' severity={response?.alert} onClose={() => ((!props.noAccess && props.reset) ? props.reset() : {})}>
-        <span dangerouslySetInnerHTML={{ __html: (timeLeft ? response?.msg.replace(response?.timeLeft, timeLeft) : response?.msg) }}></span>
-        {supportLink && <Button variant="contained"
-            color='error'
-            style={{ display: "block", marginTop: "20px" }}
-            onClick={() => sendMsgToSupport()}>
-            Meddela systemadministratör
-        </Button>}
-    </Alert>;
+    return <Collapse in={true} className='d-row' timeout="auto" unmountOnExi>
+        <Alert className='alert' severity={response?.alert} onClose={() => ((!props.noAccess && props.reset) ? props.reset() : {})}>
+            <span dangerouslySetInnerHTML={{ __html: (timeLeft ? response?.msg.replace(response?.timeLeft, timeLeft) : response?.msg) }}></span>
+            {supportLink && <Button variant="contained"
+                color='error'
+                style={{ display: "block", marginTop: "20px" }}
+                onClick={() => sendMsgToSupport()}>
+                Meddela systemadministratör
+            </Button>}
+        </Alert>
+    </Collapse>;
 }

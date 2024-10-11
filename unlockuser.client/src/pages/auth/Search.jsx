@@ -9,15 +9,15 @@ import {
 } from '@mui/material'
 
 // Components
-import Result from '../../components/Result'
-import ModalHelpTexts from '../../components/ModalHelpTexts'// List of all schools in Alvesta municipalities
+import Result from '../../components/Result';
+import ModalHelpTexts from '../../components/ModalHelpTexts';
 
 // Services
 import { TokenConfig } from '../../services/TokenConfig';
+import ApiRequest from '../../services/ApiRequest';
 
 // Json
 import params from '../../assets/json/helpTexts.json';
-import schools from '../../assets/json/schools.json';
 import forms from '../../assets/json/forms.json';
 
 
@@ -48,10 +48,13 @@ function Search({ authContext, navigate }) {
     const [response, setResponse] = useState(null);
     const [showTips, setTips] = useState(localStorage.getItem("showTips") === "true");
     const [group, setGroup] = useState(authContext.group);
+    const [schools, setSchools] = useState([]);
 
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
+        if (schools.length == 0)
+            getSchools();
         // if (history.action === "POP") // Clean the old result if the page is refreshed
         //     sessionStorage.removeItem("users");
     }, []);
@@ -60,12 +63,18 @@ function Search({ authContext, navigate }) {
         setUsers([]);
     }, [authContext.group])
 
+    async function getSchools() {
+        await ApiRequest("data/schools").then(res => {
+            setSchools(res.data);
+        }, error => console.warn(`Get schools error: ${error}`))
+    }
+
     // Handle a change of text fields and radio input value
     const changeHandler = (e, open) => {
         const inp = e.target;
         if (!inp) return;
         setFormData({ ...formData, [inp.name]: inp.value })
-        setNoOptions((open) ? schools.filter(x => x.value.includes(inp.value)).length === 0 : false);
+        setNoOptions((open) ? schools.filter(x => x?.name.includes(inp.value)).length === 0 : false);
         reset();
     }
 
@@ -199,18 +208,18 @@ function Search({ authContext, navigate }) {
             <div className='d-row search-container'>
                 <form className='search-wrapper w-100' onSubmit={getSearchResult}>
                     {/* List loop of text fields */}
-                    {sFormParams.map((s, index) => (
+                    {sFormParams?.map((s, index) => (
                         <Autocomplete
                             key={index}
                             freeSolo
                             disableClearable
                             className={s.clsName || 'search-full-width'}
                             options={schools}
-                            getOptionLabel={(option) => option.label || ""}
+                            getOptionLabel={(option) => "- " + option?.name + " (" + option?.place + ")"}
                             autoHighlight
                             open={s.autoOpen && isOpen && !hasNoOptions}
                             inputValue={formData[s.name]}
-                            onChange={(e, option) => (e.key === "Enter") ? handleKeyDown : setFormData({ ...formData, [s.name]: option.value })}
+                            onChange={(e, option) => (e.key === "Enter") ? handleKeyDown : setFormData({ ...formData, [s.name]: option.name })}
                             onBlur={() => setOpen(false)}
                             onClose={() => setOpen(false)}
                             onFocus={() => setOpen(s.autoOpen && !hasNoOptions)}

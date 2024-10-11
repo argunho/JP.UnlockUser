@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 // Installed
 import { jwtDecode } from "jwt-decode";
-import { HomeSharp, InsertDriveFile, LiveHelp, Logout, Menu, Close, History, SettingsApplications } from '@mui/icons-material';
+import { HomeSharp, InsertDriveFile, LiveHelp, Logout, Menu, Close, History, SettingsApplications, School } from '@mui/icons-material';
 import { Button, Tooltip } from '@mui/material';
 
 // Services
@@ -26,6 +26,7 @@ function Header({ authContext }) {
         { label: "Session historik", url: "history", icon: <History />, access: false},
         { label: "Behöriga användare", url: "employees", icon: <SettingsApplications/>, access: true},
         { label: "Loggfiler", url: "logs", icon: <InsertDriveFile />, access: true},
+        { label: "Skolor", url: "schools", icon: <School />, access: true},
         { label: "Kontakta support", url: "contact", icon: <LiveHelp />, access: false}
     ];
 

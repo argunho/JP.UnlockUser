@@ -765,6 +765,73 @@ button {
   min-height: 38px;
 }
 
+/* #region Buttons */
+.form-buttons {
+  width: 100%;
+  margin: 10px 0 20px 0;
+  padding: 10px 0;
+  text-align: right;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  justify-content: flex-end;
+}
+
+
+.form-buttons.position-sticky {
+  position: sticky;
+  bottom: -10px;
+  left: 0;
+  z-index: 1000;
+}
+
+.position-sticky>button:not(button:first-of-type):not(.bg-unset),
+.position-sticky>span>button,
+.position-sticky .Mui-disabled {
+  background: #FFFFFF !important;
+}
+
+.position-sticky .Mui-disabled {
+  opacity: 1 !important;
+  color: #0000006f !important;
+}
+
+.form-buttons>span>button,
+.form-buttons>button:not(button:first-of-type) {
+  margin-left: 10px;
+}
+
+.confirm-question {
+  color: #cc0000 !important;
+  margin: auto 10px auto 0;
+  text-transform: capitalize;
+  letter-spacing: 1px;
+}
+
+.form-buttons>button {
+  min-height: 37px !important;
+  margin-left: 10px !important;
+}
+
+.form-buttons>.submit-btn {
+  min-width: 100px;
+}
+
+.submit-btn-hidden {
+  display: none !important;
+  z-index: -1 !important;
+  visibility: hidden !important;
+}
+
+.disabled input {
+  background: #f5f5f5e4;
+}
+
+.disabled input:hover {
+  cursor: no-drop !important;
+}
+
+/* #endregion */
+
+/* #region Tooltip */
 .tooltip {
   font-size: 12px !important;
   text-align: center !important;
@@ -801,6 +868,7 @@ button {
 .arrow-error {
   color: #d32f2f !important;
 }
+/* #endregion */
 
 .list-link:hover {
   cursor: pointer !important;

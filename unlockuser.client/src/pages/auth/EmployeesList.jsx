@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 
 // Installed
-import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, 
-        InputLabel, List, ListItem, ListItemIcon, ListItemText, MenuItem, Pagination, Select, TextField } from '@mui/material';
+import {
+    Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton,
+    InputLabel, List, ListItem, ListItemIcon, ListItemText, MenuItem, Pagination, Select
+} from '@mui/material';
 import { Close, Delete, OpenInFull, Refresh } from '@mui/icons-material';
-
 
 // Components
 import SearchFilter from '../../components/SearchFilter';
@@ -29,9 +30,10 @@ function EmployeesList() {
     const [page, setPage] = useState(1);
     const [userData, setUserData] = useState();
     const [confirm, setConfirm] = useState(false);
-    const [permission, setPermission] = useState("");
+    const [office, setOffice] = useState("");
     const [updating, setUpdating] = useState(false);
     const [changed, setChanged] = useState(false);
+    const [schools, setSchools] = useState([]);
 
     const perPage = 20;
 
@@ -48,7 +50,7 @@ function EmployeesList() {
         setTimeout(() => {
             getListPerGroup();
         }, 100)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+       getSchools();
     }, [group])
 
     async function getData() {
@@ -72,6 +74,12 @@ function EmployeesList() {
             setResponse({ alert: "warning", msg: `Något har gått snett: Fel: ${error}` });
             setLoading(false);
         })
+    }
+
+    async function getSchools(){
+        await ApiRequest("data/schools").then(res => {
+            setSchools(res.data);
+        }, error => console.warn(`Get schools error: ${error}`))
     }
 
     function getListPerGroup() {
@@ -116,18 +124,18 @@ function EmployeesList() {
         })
     }
 
-    function updatePermissions() {
-        let permissions = [...userData?.permissions];
-        if (permissions.indexOf(permission) > -1)
+    function updateOffices() {
+        let offices = [...userData?.offices];
+        if (offices.indexOf(office) > -1)
             return;
-        permissions.push(permission);
-        setPermission("");
+        offices.push(office);
+        setOffice("");
         setChanged(true);
-        setUserData({ ...userData, permissions: permissions });
+        setUserData({ ...userData, offices: offices });
     }
 
-    function removePermission(name) {
-        setUserData({ ...userData, permissions: userData.permissions.filter(x => x !== name) });
+    function removeOffice(name) {
+        setUserData({ ...userData, offices: userData.offices.filter(x => x !== name) });
         setChanged(true);
     }
 
@@ -231,10 +239,10 @@ function EmployeesList() {
                 <DialogContent className=''>
                     <List className="d-row view-modal-list">
                         <ListItem className='view-list-result'>
-                            <ListItemText primary="Behörogheter" />
+                            <ListItemText primary="Avdelning/Skola" />
                         </ListItem>
-                        {userData?.permissions?.map((name, ind) => {
-                            return <ListItem key={ind} className='modal-list-item' secondaryAction={<IconButton onClick={() => removePermission(name)}>
+                        {userData?.offices?.map((name, ind) => {
+                            return <ListItem key={ind} className='modal-list-item' secondaryAction={<IconButton onClick={() => removeOffice(name)}>
                                 <Delete color="error" />
                             </IconButton>}>
                                 <ListItemText primary={name} />
@@ -243,13 +251,28 @@ function EmployeesList() {
                     </List>
 
                     {/* Textfield */}
-                    <div className='d-row view-modal-form w-100'>
-                        <TextField id="permission" className="w-100" label="Ny behörighet" value={permission}
-                            onChange={(e) => setPermission(e.target.value)} />
-                        <Button variant="outlined" onClick={updatePermissions} disabled={!permission}>
+                    {schools?.length > 1 && <div className='d-row view-modal-form w-100'>
+                        <FormControl fullWidth>
+                                <InputLabel id="demo-simple-select-label">Skolor</InputLabel>
+                                <Select
+                                    value={office}
+                                    label="Skolor"
+                                    labelId="demo-simple-select-label"
+                                    onChange={(e) => setOffice(e.target.value)}
+                                    sx={{ height: 50, color: "#1976D2" }}
+                                >
+                                    {schools?.map((school, index) => (
+                                        <MenuItem value={school.name} key={index}>
+                                            <span style={{ marginLeft: "10px" }}>{` - ${school.name} (${school.place})`}</span>
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
+                        <Button variant="outlined" className="form-button" onClick={updateOffices} disabled={!office}>
                             Lägg till
                         </Button>
-                    </div>
+                    </div>}
                 </DialogContent>
 
                 <DialogActions className="no-print modal-buttons-wrapper">

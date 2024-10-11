@@ -13,6 +13,7 @@ import Contacts from "./../pages/auth/Contacts";
 import UserManager from "../pages/auth/UserManager";
 import Members from "./../pages/auth/Members";
 import Search from "./../pages/auth/Search";
+import Schools from "./../pages/auth/Schools";
 import NotFound from "./../pages/open/NotFound";
 
 // Components
@@ -68,6 +69,10 @@ function AuthRoutes({authContext }) {
     {
       path: '/logs',
       element: <LogFiles />
+    },
+    {
+      path: '/schools',
+      element: <Schools label="Skolor" api="data/schools" fields={{name: "", place: ""}} labels={["Namn", "Plats"]} navigate={navigate} />
     },
     {
       path: '/contact',

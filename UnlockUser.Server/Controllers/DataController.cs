@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace UnlockUser.Server.Controllers;
@@ -53,6 +54,23 @@ public class DataController(IConfiguration config, IHttpContextAccessor contextA
             Debug.WriteLine(e.Message);
             return new JsonResult(null);
         }
+    }
+
+    // Get schools
+    [HttpGet("schools")]
+    public List<School> GetSchools()
+    {
+        List<School> schools = [];
+        try
+        {
+            using StreamReader reader = new(@"wwwroot/json/employees.json");
+            schools = JsonConvert.DeserializeObject<List<School>>(reader.ReadToEnd());
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+        }
+        return [.. schools?.OrderBy(x => x.Name)];
     }
 
     // Get file to download
