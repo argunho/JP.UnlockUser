@@ -45,13 +45,14 @@ function EmployeesList() {
 
     useEffect(() => {
         setList([]);
-        setPage(1);
+
+        if (schools?.length == 0)
+            getSchools();
+
         setTimeout(() => {
             getListPerGroup();
         }, 100)
-
-        getSchools();
-    }, [group])
+    }, [groups])
 
     async function getData() {
         setLoading(true);
@@ -68,7 +69,8 @@ function EmployeesList() {
                     return item?.group?.name;
                 });
                 setGroups(groupNames)
-                setGroup(groupNames[0]);
+                if (group === "")
+                    setGroup(groupNames[0]);
             }
         }, error => {
             setResponse({ alert: "warning", msg: `Något har gått snett: Fel: ${error}` });
@@ -76,7 +78,7 @@ function EmployeesList() {
         })
     }
 
-    async function getSchools(){
+    async function getSchools() {
         await ApiRequest("data/schools").then(res => {
             setSchools(res.data);
         }, error => console.warn(`Get schools error: ${error}`))
@@ -148,7 +150,7 @@ function EmployeesList() {
                 setResponse(res.data);
 
             setTimeout(() => {
-                closeModal(!res?.data);
+                closeModal(true);
             }, 1000)
         }, error => {
             setResponse({ alert: "warning", msg: `Något har gått snett: Fel: ${error}` });
@@ -232,7 +234,7 @@ function EmployeesList() {
             </div>}
 
             {/* Modal form */}
-            <Dialog open={!!userData} onClose={closeModal} aria-labelledby="draggable-dialog-title" className='modal-wrapper print-page' id="content" >
+            <Dialog open={!!userData} onClose={() => closeModal()} aria-labelledby="draggable-dialog-title" className='modal-wrapper print-page' id="content" >
 
                 <DialogTitle className='view-modal-label'
                     id="draggable-dialog-title" dangerouslySetInnerHTML={{ __html: userData?.displayName + "<span>" + userData?.title + "</span>" }}>
@@ -256,21 +258,21 @@ function EmployeesList() {
                     {/* Textfield */}
                     {schools?.length > 1 && <div className='d-row view-modal-form w-100'>
                         <FormControl fullWidth>
-                                <InputLabel id="demo-simple-select-label">Skolor</InputLabel>
-                                <Select
-                                    value={office}
-                                    label="Skolor"
-                                    labelId="demo-simple-select-label"
-                                    onChange={(e) => setOffice(e.target.value)}
-                                    sx={{ height: 50, color: "#1976D2" }}
-                                >
-                                    {schools?.map((school, index) => (
-                                        <MenuItem value={school.name} key={index}>
-                                            <span style={{ marginLeft: "10px" }}>{` - ${school.name} (${school.place})`}</span>
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
+                            <InputLabel id="demo-simple-select-label">Skolor</InputLabel>
+                            <Select
+                                value={office}
+                                label="Skolor"
+                                labelId="demo-simple-select-label"
+                                onChange={(e) => setOffice(e.target.value)}
+                                sx={{ height: 50, color: "#1976D2" }}
+                            >
+                                {schools?.map((school, index) => (
+                                    <MenuItem value={school.name} key={index}>
+                                        <span style={{ marginLeft: "10px" }}>{` - ${school.name} (${school.place})`}</span>
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
                         <Button variant="outlined" className="form-button" onClick={updateOffices} disabled={!office}>
                             Lägg till
@@ -287,7 +289,7 @@ function EmployeesList() {
                             onClick={() => setConfirm(true)}>
                             {updating ? <CircularProgress size={20} /> : "Spara"}
                         </Button>
-                        {!updating && <Button variant='contained' color="error" autoFocus onClick={closeModal}>
+                        {!updating && <Button variant='contained' color="error" autoFocus onClick={() => closeModal()}>
                             <Close />
                         </Button>}
                     </>}
@@ -296,7 +298,7 @@ function EmployeesList() {
                     {confirm && <>
                         <p className='confirm-title'>Skicka?</p>
                         <Button className='button-btn button-action' onClick={onSubmit} variant='contained' color="error">Ja</Button>
-                        <Button className='button-btn button-action' variant='contained' color="primary" autoFocus onClick={closeModal}>Nej</Button>
+                        <Button className='button-btn button-action' variant='contained' color="primary" autoFocus onClick={() => closeModal()}>Nej</Button>
                     </>}
                 </DialogActions>
             </Dialog>
