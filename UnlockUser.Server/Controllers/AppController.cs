@@ -34,7 +34,6 @@ public class AppController(IHttpContextAccessor contextAccessor, IConfiguration 
     [HttpGet("update/service/status/{status:bool}")]
     public async Task<IActionResult> UpdateServiceStatus(bool status)
     {
-
         try
         {
             _help.UpdateConfigFile("appconfig", "ServiceWork", (!status).ToString());
@@ -82,7 +81,6 @@ public class AppController(IHttpContextAccessor contextAccessor, IConfiguration 
             Debug.WriteLine($"Fel: {ex.Message}");
             return new JsonResult(new { alert = "error", msg = $"Något har gått snett. Fel: {ex.Message}" });
         }
-
 
         return new JsonResult(null);
     }
