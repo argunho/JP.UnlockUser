@@ -13,7 +13,7 @@ import Response from "../../components/Response";
 import Loading from "../../components/Loading";
 import { ErrorHandle } from "../../functions/ErrorHandle";
 
-function Schools({ label, api, fields, labels, navigate }) {
+function Schools({ label, api, id, fields, labels, navigate }) {
     Schools.displayName = "Schools";
 
     const [list, setList] = useState([]);
@@ -71,8 +71,7 @@ function Schools({ label, api, fields, labels, navigate }) {
 
     async function removeItem(item) {
         setOpen(false);
-        const id = item?.id ?? item?.name;
-        await ApiRequest(`${api}/${id}`, "delete").then(res => {
+        await ApiRequest(`${api}/${item[id]}`, "delete").then(res => {
             if (res.status == 200 && !res.data) {
                 const index = list.findIndex(x => x === item);
                 setList(list.filter((x, ind) => ind !== index));
@@ -100,7 +99,7 @@ function Schools({ label, api, fields, labels, navigate }) {
 
         setLoading(true);
         await ApiRequest(`${api}`, "post", item).then(res => {
-            if (res.status == 200 && !res.data) 
+            if (res.status == 200 && !res.data)
                 setList(list => [...list, item]);
             else
                 setResponse({ alert: "error", msg: res.data })
@@ -108,7 +107,10 @@ function Schools({ label, api, fields, labels, navigate }) {
             setItem(null);
             setLoading(false);
             formHandle();
-        }, error => setResponse(ErrorHandle(error, navigate)))
+        }, error => {
+            setResponse(ErrorHandle(error, navigate));
+            formHandle();
+        })
     }
 
     return (

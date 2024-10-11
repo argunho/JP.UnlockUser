@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json;
 using Onboarding.Server.Services;
 using System.Diagnostics;
-using System.Reflection.PortableExecutable;
 
 namespace UnlockUser.Server.Controllers;
 

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using UnlockUser.Server.Models;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -63,7 +64,7 @@ public class DataController(IConfiguration config, IHttpContextAccessor contextA
         List<School> schools = [];
         try
         {
-            using StreamReader reader = new(@"wwwroot/json/employees.json");
+            using StreamReader reader = new(@"wwwroot/json/schools.json");
             schools = JsonConvert.DeserializeObject<List<School>>(reader.ReadToEnd());
         }
         catch (Exception ex)
@@ -101,6 +102,46 @@ public class DataController(IConfiguration config, IHttpContextAccessor contextA
     }
     #endregion
 
+    #region POST
+    [HttpPost("schools")]
+    public async Task<IActionResult> PostSchool(School school)
+    {
+        try
+        {
+            var schools = GetSchools();
+            schools.Add(school);
+            await UpdateSchoolsJson(schools);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Post school error: {ex.Message}");
+            return Ok($"Något har gått snett: Fel: {ex.Message}");
+        }
+
+        return Ok();
+    }
+
+    #endregion
+
+    #region DELETE
+    [HttpDelete("schools/{name}")]
+    public async Task<IActionResult> DeleteSchool(string name)
+    {
+        try
+        {
+            var schools = GetSchools();
+            schools.RemoveAll(x => x.Name == name);
+            await UpdateSchoolsJson(schools);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Post school error: {ex.Message}");
+            return Ok($"Något har gått snett: Fel: {ex.Message}");
+        }
+
+        return Ok();
+    }
+    #endregion
 
     #region Help
     // Get claim
@@ -117,6 +158,13 @@ public class DataController(IConfiguration config, IHttpContextAccessor contextA
         {
             return null;
         }
+    }
+   
+    // Update schools json
+    public async Task UpdateSchoolsJson(List<School> schools)
+    {
+        await using FileStream stream = System.IO.File.Create(@"wwwroot/json/schools.json");
+        await System.Text.Json.JsonSerializer.SerializeAsync(stream, schools);
     }
     #endregion
 }

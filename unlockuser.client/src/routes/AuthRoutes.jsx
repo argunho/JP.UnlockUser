@@ -72,7 +72,7 @@ function AuthRoutes({authContext }) {
     },
     {
       path: '/schools',
-      element: <Schools label="Skolor" api="data/schools" fields={{name: "", place: ""}} labels={["Namn", "Plats"]} navigate={navigate} />
+      element: <Schools label="Skolor" api="data/schools" id="name" fields={{name: "", place: ""}} labels={["Namn", "Plats"]} navigate={navigate} />
     },
     {
       path: '/contact',
