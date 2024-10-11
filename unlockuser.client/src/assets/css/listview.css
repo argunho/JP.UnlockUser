@@ -98,16 +98,17 @@ li.modal-list-item {
 
 .view-modal-form {
     border-top: 2px solid #b3b3b3;
-    margin: 100px 0 30px 0;
+    margin: 100px 0 30px 0 !important;
+    padding-top: 30px;
 }
 
 .view-list-form >*{
-margin-right: 10px !important;
+    margin-right: 10px !important;
 }
 
 .form-button {
     min-width: 120px !important;
-    margin-left: 10px;
+    margin-left: 10px !important;
     margin-right: 0 !important;
     height: 50px !important;
     max-width: unset !important;

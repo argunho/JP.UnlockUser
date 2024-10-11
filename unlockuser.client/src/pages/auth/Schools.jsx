@@ -49,6 +49,7 @@ function Schools({ label, api, id, fields, labels, navigate }) {
 
     function confirmHandle(item) {
         setOpen(!open);
+        setItem(item)
         if (!confirm)
             setConfirm(item);
         else {
@@ -60,6 +61,7 @@ function Schools({ label, api, id, fields, labels, navigate }) {
 
     function formHandle() {
         setOpen(!open);
+        setItem(fields);
         if (!visibleForm)
             setVisibleForm(true);
         else {
@@ -69,16 +71,20 @@ function Schools({ label, api, id, fields, labels, navigate }) {
         }
     }
 
-    async function removeItem(item) {
+    async function removeItem() {
         setOpen(false);
+
         await ApiRequest(`${api}/${item[id]}`, "delete").then(res => {
             if (res.status == 200 && !res.data) {
                 const index = list.findIndex(x => x === item);
-                setList(list.filter((x, ind) => ind !== index));
+                setTimeout(() => {
+                    setList(list.filter((x, ind) => ind !== index));
+                }, 100)
             } else
                 setResponse({ alert: "error", msg: res.data })
 
             setConfirm(null);
+            setItem(fields);
         }, error => setResponse(ErrorHandle(error, navigate)))
     }
 
@@ -86,7 +92,7 @@ function Schools({ label, api, id, fields, labels, navigate }) {
         e.preventDefault();
 
         let emptyFields = [];
-        console.log(item)
+
         Object.keys(item).map(name => {
             if (item[name]?.length < 3)
                 emptyFields.push(name);
@@ -104,7 +110,6 @@ function Schools({ label, api, id, fields, labels, navigate }) {
             else
                 setResponse({ alert: "error", msg: res.data })
 
-            setItem(null);
             setLoading(false);
             formHandle();
         }, error => {

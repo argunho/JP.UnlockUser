@@ -50,7 +50,8 @@ function EmployeesList() {
         setTimeout(() => {
             getListPerGroup();
         }, 100)
-       getSchools();
+
+        getSchools();
     }, [group])
 
     async function getData() {
@@ -143,8 +144,10 @@ function EmployeesList() {
         setConfirm(false);
         setUpdating(true);
         await ApiRequest(`app/update/employee/data/${userData?.name}`, "put", userData).then(res => {
+            console.log(res.data)
             if (res.data !== null)
                 setResponse(res.data);
+
             setTimeout(() => {
                 closeModal(!res?.data);
             }, 1000)
@@ -155,6 +158,7 @@ function EmployeesList() {
     }
 
     function closeModal(update = false) {
+        console.log(update)
         setConfirm(false);
         setChanged(false);
         setUpdating(false);
