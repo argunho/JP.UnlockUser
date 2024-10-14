@@ -1,5 +1,6 @@
-import { createContext, useState } from "react";
 
+import { createContext, useState } from "react";
+/* eslint-disable no-unused-vars */
 export const AuthContext = createContext({
     isAuthorized: false,
     isOpenMenu: false,

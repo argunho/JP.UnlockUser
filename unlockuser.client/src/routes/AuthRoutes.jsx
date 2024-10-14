@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 
@@ -25,10 +26,6 @@ import { DecodedToken } from "../functions/DecodedToken";
 // Services
 import ApiRequest from "../services/ApiRequest";
 
-// Storage
-
-// Css
-
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
   // [::1] is the IPv6 localhost address.
@@ -37,6 +34,7 @@ const isLocalhost = Boolean(
   window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/)
 );
 
+/* eslint-disable no-unused-vars */
 function AuthRoutes({authContext }) {
 
   const [updatePage, setUpdatePage] = useState(false);
