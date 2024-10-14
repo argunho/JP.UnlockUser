@@ -58,8 +58,8 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             if (response != null) return response;
 
             // Validate username and password
-            var isAutheticated = _provider.AccessValidation(model?.Username, model?.Password); 
-            
+            var isAutheticated = _provider.AccessValidation(model?.Username, model?.Password);
+
             //Incorrect username or password
             if (!isAutheticated)
             {
@@ -85,15 +85,16 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             var roles = new List<string>() { "Employee" };
 
             // Access if user are a manager
-            bool manager = user.Title.ToLower().Contains("chef", StringComparison.CurrentCultureIgnoreCase) 
+            bool manager = user.Title.ToLower().Contains("chef", StringComparison.CurrentCultureIgnoreCase)
                            || user.Title.ToLower().Contains("rektor", StringComparison.CurrentCultureIgnoreCase);
-            if(manager)
-                 roles.Add("Manager");
-
-            if (permissionGroups.Count == 0 && manager)
+            if (manager)
             {
-                var groupsList = _config.GetSection("Groups").Get<List<GroupModel>>();
-                permissionGroups.Add(groupsList.Find(x => x.Name == "Personal"));
+                roles.Add("Manager");
+                if (permissionGroups.Count == 0)
+                {
+                    var groupsList = _config.GetSection("Groups").Get<List<GroupModel>>();
+                    permissionGroups.Add(groupsList.Find(x => x.Name == "Personal"));
+                }
             }
 
             // Failed! Permission missed
@@ -114,7 +115,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
                 roles.Add("Support");
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
-            var token = CreateJwtToken(user, roles, model?.Password ?? "", groupsNames);
+            var token = CreateJwtToken(user, string.Join(",", roles), model?.Password ?? "", groupsNames);
 
             // Response message
             var responseMessage = $"Tillåtna behöregiheter för grupp(er):<br/> <b>&nbsp;&nbsp;&nbsp;- {groupsNames.Replace(",", "<br/>&nbsp;&nbsp;&nbsp; -")}</b>.";
@@ -148,7 +149,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
 
     #region Helpers
     // Create Jwt Token for authenticating
-    private string? CreateJwtToken(UserPrincipalExtension user, List<string> roles, string password, string groups)
+    private string? CreateJwtToken(UserPrincipalExtension user, params string[] str)
     {
         if (user == null)
             return null;
@@ -157,7 +158,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
         IdentityOptions opt = new();
 
-        _session.SetString("Password", password);
+        _session.SetString("Password", str[1]);
 
         var claims = new List<Claim>
         {
@@ -168,11 +169,11 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             new("Manager", user.Manager),
             new("Office", user.Office),
             new("Division", user.Division),
-            new("Groups", groups),
-            new("Roles", string.Join(",", roles))
+            new("Groups", str?[2] ?? ""),
+            new("Roles", str?[0] ?? "")
         };
 
-        foreach (var role in roles)
+        foreach (var role in str[0]?.Split(","))
             claims.Add(new Claim(opt.ClaimsIdentity.RoleClaimType, role));
 
         var tokenDescriptor = new SecurityTokenDescriptor

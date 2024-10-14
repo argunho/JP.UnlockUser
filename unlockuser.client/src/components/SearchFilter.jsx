@@ -12,7 +12,6 @@ function SearchFilter({label, disabled, clean, onChange, onReset}) {
     useEffect(() => {
         if(clean && keyword?.length > 0)
             setKeyword("");
-
     }, [clean])
 
     const changeHandler = (e) => {

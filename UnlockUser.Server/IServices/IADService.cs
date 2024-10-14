@@ -136,9 +136,9 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
         List<GroupUsersViewModel>? groupEmployees = [];
         try
         {
-            using StreamReader reader = new(@"wwwroot/json/employees.json");
-            var employeesJson = reader.ReadToEnd();
-            groupEmployees = JsonConvert.DeserializeObject<List<GroupUsersViewModel>>(employeesJson);
+            //using StreamReader reader = new(@"wwwroot/json/employees.json");
+            //groupEmployees = JsonConvert.DeserializeObject<List<GroupUsersViewModel>>(reader.ReadToEnd());
+            groupEmployees = GetJsonList<GroupUsersViewModel>("employees");
         }
         catch (Exception ex)
         {
@@ -178,6 +178,18 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                     var userOffices = cListByGroup?.FirstOrDefault(x => x.Name == user.SamAccountName)?.Offices ?? [];
                     if (userOffices.IndexOf(user.Office) == -1)
                         userOffices = [user.Office];
+
+                    if(group.Manage != "Students")
+                    {
+                        //using StreamReader reader = new(@"wwwroot/json/schools.json");
+                        //List<School> schools = JsonConvert.DeserializeObject<List<School>>(reader.ReadToEnd()) ?? [];
+                        var schools = GetJsonList<School>("schools");
+                        foreach (var school in schools)
+                        {
+                            if(user.Office.Contains(school.Name) && userOffices.IndexOf(school.Name) == -1)
+                                userOffices.Add(school.Name);
+                        }
+                    }
 
                     employees.Add(new User
                     {
@@ -301,6 +313,12 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
             Title = props.Contains("title") ? props["title"][0]?.ToString() : "",
             IsLocked = isLocked
         };
+    }
+
+    public static List<T> GetJsonList<T>(string fileName) where T : class
+    {
+        using StreamReader reader = new($@"wwwroot/json/{fileName}.json");
+        return JsonConvert.DeserializeObject<List<T>>(reader.ReadToEnd()) ?? [];
     }
     #endregion
 }

@@ -23,6 +23,12 @@ body {
   margin-bottom: 20px;
 }
 
+div.container {
+  max-width: 1400px !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
 .container:not(.l-centered):not(.logo-wrapper) {
   padding-bottom: 50px;
 }
@@ -996,6 +1002,9 @@ pre {
   .container {
     width: 100% !important;
     max-width: unset !important;
+    max-width: unset !important;
+    padding-left: 24px;
+    padding-right: 24px;
   }
 
   .logo-wrapper {

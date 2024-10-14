@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 // Installed
 import {
     Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton,
-    InputLabel, List, ListItem, ListItemIcon, ListItemText, MenuItem, Pagination, Select
+    InputLabel, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, MenuItem, Pagination, Select
 } from '@mui/material';
 import { Close, Delete, OpenInFull, Refresh } from '@mui/icons-material';
 
@@ -34,7 +34,6 @@ function EmployeesList() {
     const [updating, setUpdating] = useState(false);
     const [changed, setChanged] = useState(false);
     const [schools, setSchools] = useState([]);
-
     const perPage = 20;
 
     const noResult = { alert: "info", msg: "Inga personal hittades." };
@@ -84,12 +83,14 @@ function EmployeesList() {
         }, error => console.warn(`Get schools error: ${error}`))
     }
 
-    function getListPerGroup() {
-        const groupList = initList?.find(x => x.group?.name === group)?.employees;
-        if (!groupList) return;
-
-        setList(groupList);
-        setLoading(false);
+    function getListPerGroup(name = group) {
+        setLoading(true);
+        setGroup(name);
+        const groupList = initList?.find(x => x.group?.name === name)?.employees;
+        setTimeout(() => {
+            setList(groupList);
+            setLoading(false);
+        }, 500)
     }
 
     function listFilterBySearchKeyword(value) {
@@ -141,6 +142,21 @@ function EmployeesList() {
         setChanged(true);
     }
 
+    function closeModal(update = false) {
+        setConfirm(false);
+        setChanged(false);
+        setUpdating(false);
+        setUserData(null);
+        if (update)
+            getData();
+    }
+
+    function resetActions() {
+        setList(initList?.find(x => x.group?.name === group)?.employees);
+        setResponse();
+        setLoading(false);
+    }
+
     async function onSubmit() {
         setConfirm(false);
         setUpdating(true);
@@ -157,37 +173,20 @@ function EmployeesList() {
             closeModal();
         })
     }
-
-    function closeModal(update = false) {
-        console.log(update)
-        setConfirm(false);
-        setChanged(false);
-        setUpdating(false);
-        setUserData(null);
-        if (update)
-            getData();
-    }
-
-    function resetActions() {
-        setList(initList?.find(x => x.group?.name === group)?.employees);
-        setResponse();
-        setLoading(false);
-    }
-
     return (
         <div className='interior-div view-list'>
 
             {/* List filter */}
             <div className="d-row view-list-container search-container">
                 {/* Search filter */}
-                <SearchFilter label="anställda" disabled={loading || response} clean={list?.length === 0} onChange={listFilterBySearchKeyword} onReset={resetActions} />
+                <SearchFilter label="anställda" disabled={loading || response} clean={list?.length === 0 || loading} onChange={listFilterBySearchKeyword} onReset={resetActions} />
 
                 {/* Groups filter */}
                 <Box sx={{ minWidth: 160, marginBottom: "9px" }}>
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Grupper</InputLabel>
                         <Select value={group} label="Grupper" labelId="demo-simple-select-label"
-                            onChange={(e) => setGroup(e.target.value)} sx={{ height: 50, color: "#1976D2" }} disabled={loading}>
+                            onChange={(e) => getListPerGroup(e.target.value)} sx={{ height: 50, color: "#1976D2" }} disabled={loading}>
                             {groups?.map((name, index) => (
                                 <MenuItem value={name} key={index}>
                                     <span style={{ marginLeft: "10px" }}> - {name}</span>
@@ -205,7 +204,7 @@ function EmployeesList() {
                     disabled={loading} endIcon={<Refresh />} onClick={renewList}>
                     Uppdatera listan
                 </Button>}>
-                    <ListItemText primary="Behöriga användare" secondary={loading ? "Data hämtning pågå ..." : `Antal: ${list?.length}`} />
+                    <ListItemText primary="Behöriga användare" secondary={loading ? "Data hämtning pågår ..." : `Antal: ${list?.length}`} />
                 </ListItem>
 
                 {/* Loop of result list */}
@@ -244,19 +243,22 @@ function EmployeesList() {
                 <DialogContent className=''>
                     <List className="d-row view-modal-list">
                         <ListItem className='view-list-result'>
-                            <ListItemText primary="Avdelning/Skola" />
+                            <ListItemText primary={group === "Studenter" ? "Avdelning/Skola" : "Chefer"} />
                         </ListItem>
-                        {userData?.offices?.map((name, ind) => {
-                            return <ListItem key={ind} className='modal-list-item' secondaryAction={<IconButton onClick={() => removeOffice(name)}>
+                        {!!userData && userData[group === "Studenter" ? "offices" : "managers"]?.map((name, ind) => {
+                            return <ListItem key={ind} className='modal-list-item' secondaryAction={group === "Studenter" && <IconButton onClick={() => removeOffice(name)}>
                                 <Delete color="error" />
                             </IconButton>}>
+                            <ListItemAvatar>
+                                {ind+1}
+                            </ListItemAvatar>
                                 <ListItemText primary={name} />
                             </ListItem>
                         })}
                     </List>
 
                     {/* Textfield */}
-                    {schools?.length > 1 && <div className='d-row view-modal-form w-100'>
+                    {(schools?.length > 1 && group === "Studenter") && <div className='d-row view-modal-form w-100'>
                         <FormControl fullWidth>
                             <InputLabel id="demo-simple-select-label">Skolor</InputLabel>
                             <Select
@@ -281,18 +283,18 @@ function EmployeesList() {
                 </DialogContent>
 
                 <DialogActions className="no-print modal-buttons-wrapper">
-                    {!confirm && <>
+                    {(!confirm && group === "Studenter") &&
                         <Button variant="text"
                             className='button-btn'
                             color="primary"
                             disabled={!changed}
                             onClick={() => setConfirm(true)}>
                             {updating ? <CircularProgress size={20} /> : "Spara"}
-                        </Button>
-                        {!updating && <Button variant='contained' color="error" autoFocus onClick={() => closeModal()}>
-                            <Close />
                         </Button>}
-                    </>}
+
+                    {(!updating && !confirm) && <Button variant='contained' color="error" autoFocus onClick={() => closeModal()}>
+                        <Close />
+                    </Button>}
 
                     {/* Confirm actions block */}
                     {confirm && <>
