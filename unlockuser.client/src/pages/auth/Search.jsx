@@ -14,24 +14,22 @@ import ModalHelpTexts from '../../components/ModalHelpTexts';
 
 // Services
 import { TokenConfig } from '../../services/TokenConfig';
-import ApiRequest from '../../services/ApiRequest';
 
 // Json
 import params from '../../assets/json/helpTexts.json';
 import forms from '../../assets/json/forms.json';
 
-
 const choices = [
     { label: "Match", match: true },
     { label: "Exakt", match: false }
 ]
+
 const source = axios.CancelToken.source();
 
 function Search({ authContext, navigate }) {
     Search.displayName = "Search";
 
     const sOption = sessionStorage.getItem("sOption");
-    // const groups = JSON.parse(sessionStorage.getItem("groups"));
     const groups = authContext.groups;
     const defaultData = {
         input: "",
@@ -48,13 +46,14 @@ function Search({ authContext, navigate }) {
     const [response, setResponse] = useState(null);
     const [showTips, setTips] = useState(localStorage.getItem("showTips") === "true");
     const [group, setGroup] = useState(authContext.group);
-    const [schools, setSchools] = useState([]);
 
+    const { optionsList, studentsList, defaultList } = params;
+    const sFormParams = !clsStudents ? forms?.single : forms?.group;
+    const isActive = (formData.input || formData.additionInput).length > 0;
+    const arrayTexts = group === "Studenter" ? studentsList.concat(defaultList) : defaultList;
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
-        if (schools.length == 0)
-            getSchools();
         // if (history.action === "POP") // Clean the old result if the page is refreshed
         //     sessionStorage.removeItem("users");
     }, []);
@@ -63,18 +62,12 @@ function Search({ authContext, navigate }) {
         setUsers([]);
     }, [authContext.group])
 
-    async function getSchools() {
-        await ApiRequest("data/schools").then(res => {
-            setSchools(res.data);
-        }, error => console.warn(`Get schools error: ${error}`))
-    }
-
     // Handle a change of text fields and radio input value
     const changeHandler = (e, open) => {
         const inp = e.target;
         if (!inp) return;
         setFormData({ ...formData, [inp.name]: inp.value })
-        setNoOptions((open) ? schools.filter(x => x?.name.includes(inp.value)).length === 0 : false);
+        setNoOptions((open) ? authContext.schools.filter(x => x?.name.includes(inp.value)).length === 0 : false);
         reset();
     }
 
@@ -196,11 +189,6 @@ function Search({ authContext, navigate }) {
         setOpen(false);
     }
 
-    const { optionsList, studentsList, defaultList } = params;
-    const sFormParams = !clsStudents ? forms?.single : forms?.group;
-    const isActive = (formData.input || formData.additionInput).length > 0;
-    const arrayTexts = group === "Studenter" ? studentsList.concat(defaultList) : defaultList;
-
     return (
         <div className='interior-div'>
 
@@ -214,7 +202,7 @@ function Search({ authContext, navigate }) {
                             freeSolo
                             disableClearable
                             className={s.clsName || 'search-full-width'}
-                            options={schools}
+                            options={authContext?.schools}
                             getOptionLabel={(option) => "- " + option?.name + " (" + option?.place + ")"}
                             autoHighlight
                             open={s.autoOpen && isOpen && !hasNoOptions}

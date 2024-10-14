@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Close, FileOpen, Upload } from '@mui/icons-material';
 import { Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import moment from "moment";
+import fileDownload from 'js-file-download';
 
 // Components
 import Response from '../../components/Response';
@@ -43,18 +44,15 @@ function LogFiles() {
         }
 
         document.title = "UnlockUser | Loggfiler";
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const valueChangeHandler = (value) => {
-        // if (!e?.target) return;
-        // setFilter(e.target.value);
         let list = initList.filter(x => x?.toLowerCase().includes(value?.toLowerCase().replace(" ", "_").replace(/[:-]/g, "")));
         setList(value?.length === 0 ? initList : list);
     }
 
     const handleFile = async (file, download = false) => {
-        const fileDownload = require('js-file-download');
+        // const fileDownload = require('js-file-download');
         await ApiRequest("data/readTextFile/" + file).then(res => {
             if (res.status === 200) {
                 if (download)

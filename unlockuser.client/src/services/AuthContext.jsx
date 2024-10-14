@@ -8,11 +8,14 @@ export const AuthContext = createContext({
     workStatus: false,
     group: "",
     groups: [],
+    schools: [],
     authorize: (token) => { },
     logout: () => { },
     handleMenu: () => { },
     updateServiceWorkStatus: (value, hide = false) => { },
-    updateGroupName: (value) => {}
+    updateGroupName: (value) => { },
+    updateSchools: (value) => { },
+    cleanSession: () => {}
 })
 
 function AuthContextProvider({ children }) {
@@ -22,6 +25,7 @@ function AuthContextProvider({ children }) {
     const [serviceWorkStatus, setServiceWorkStatus] = useState(false);
     const [serviceWorkInProgress, setServiceWorkInProgress] = useState(false);
     const [groupName, setGroupName] = useState(sessionStorage.getItem("group"));
+    const [schoolsList, setSchoolsList] = useState(JSON.parse(sessionStorage.getItem("schools") ?? "[]"));
 
     function authorize(token) {
         sessionStorage.setItem("token", token);
@@ -31,9 +35,16 @@ function AuthContextProvider({ children }) {
     function logout() {
         setToken(null);
         localStorage.removeItem("token");
-        sessionStorage.removeItem("token"); 
-        sessionStorage.removeItem("group");    
-        sessionStorage.removeItem("groups"); 
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("group");
+        sessionStorage.removeItem("groups");
+        sessionStorage.removeItem("schools");
+        cleanSession();
+    }
+
+    function cleanSession(){
+        sessionStorage.removeItem("users");
+        sessionStorage.removeItem("sOption")
     }
 
     function handleMenu() {
@@ -45,10 +56,15 @@ function AuthContextProvider({ children }) {
         setServiceWorkStatus(hide ? false : value);
     }
 
-    function updateGroupName(value){
+    function updateGroupName(value) {
         setGroupName(value);
     }
-    
+
+    function updateSchools(value) {
+        setSchoolsList(value);
+        sessionStorage.setItem("schools", JSON.stringify(value));
+    }
+
     const value = {
         isAuthorized: !!authToken,
         isOpenMenu: openMenu,
@@ -56,11 +72,14 @@ function AuthContextProvider({ children }) {
         workStatus: serviceWorkStatus,
         group: groupName,
         groups: JSON.parse(sessionStorage.getItem("groups")),
+        schools: schoolsList,
         authorize: authorize,
         logout: logout,
         handleMenu: handleMenu,
         updateServiceWorkStatus: updateServiceWorkStatus,
-        updateGroupName: updateGroupName
+        updateGroupName: updateGroupName,
+        updateSchools: updateSchools,
+        cleanSession: cleanSession
     }
 
 

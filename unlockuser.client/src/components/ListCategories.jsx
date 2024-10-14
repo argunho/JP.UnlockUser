@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 // Installed
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import cities from 'cities.json';
-import colors from 'color-name-list';
+import { colorNameList } from 'color-name-list';
 
 // Json
 import words from '../assets/json/words.json';
@@ -46,7 +46,7 @@ export default function ListCategories({ limitedChars, label, reset, multiple, d
                 if (keyword === "cities")
                     wList = cities;
                 else if (keyword === "colors")
-                    wList = colors;
+                    wList = colorNameList;
                 else
                     wList = cities.filter(x => x.country === "SE");
 

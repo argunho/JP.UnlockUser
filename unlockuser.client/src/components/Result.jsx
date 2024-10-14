@@ -27,10 +27,10 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, cancelReq
     const refResult = useRef(null);
     const refCheckbox = useRef([]);
 
-    useEffect(() => {
-        if (resultBlock)
-            refResult.current.scrollIntoView();
-    }, [loading, list])
+    // useEffect(() => {
+    //     if (resultBlock)
+    //         refResult.current.scrollIntoView();
+    // }, [loading, list])
 
     useEffect(() => {
         if (isOpenTip)

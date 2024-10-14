@@ -122,12 +122,15 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             if (manager && groups.Count == 0)
                 responseMessage = $"Du som {user.Title} har för närvarande inte behörighet att ändra lösenord.";
 
+            var schools = IADService.GetJsonList<School>("schools");
+
             // Your access has been confirmed.
             return new JsonResult(new
             {
                 alert = "success",
                 token,
                 groups,
+                schools,
                 msg = $"Din åtkomstbehörighet har bekräftats.<br/><br/> {responseMessage}"
             });
         }

@@ -15,14 +15,20 @@ function Contacts() {
     document.title = "UnlockUser | Kontakta oss";
   }, [])
 
+  function navigate(){
+    window.open(
+      "https://alvesta.topdesk.net/tas/public/ssp/","_blank"
+    ) 
+  }
+
   return (
     // Contact information
     <div className="contacts-container">
       <div className='contacts-wrapper'>
         <img src={support} className="contact-img" alt="contact" />
         <h3>Kontakta oss</h3>
-        <p><Phone /> <Link to={{ pathname: "tel:+4647215033" }} target="_blank">0472 150 33</Link></p>
-        <p><Web /> <Link to={{ pathname: "https://alvesta.topdesk.net/tas/public/ssp/" }} target="_blank">Självbetjäningsportalen</Link></p>
+        <p className='d-flex'><Phone /> <span>0472 150 33</span></p>
+        <p className='d-flex'><Web /> <span onClick={navigate}>Självbetjäningsportalen</span></p>
         
         <Alert className="contact-info" severity='info' icon={<AccessTime/>}>
           <AlertTitle>Telefontid</AlertTitle>

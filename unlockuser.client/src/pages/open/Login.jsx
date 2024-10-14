@@ -53,7 +53,7 @@ function Login({ authContext }) {
         setLoading(true);
 
         await ApiRequest("auth", "post", formData).then(res => {
-            const { alert, token, groups, errorMessage } = res.data;
+            const { alert, token, groups, schools, errorMessage } = res.data;
 
             let success = alert === "success";
             setResponse(res.data);
@@ -66,6 +66,7 @@ function Login({ authContext }) {
                 if (token)
                     authContext.authorize(token);
                 authContext.updateGroupName(groups[0]?.name);
+                authContext.updateSchools(schools);
                 setTimeout(() => {
                     navigate("/");
                 }, 1500)

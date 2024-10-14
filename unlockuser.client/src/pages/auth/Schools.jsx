@@ -11,9 +11,11 @@ import FormButtons from "../../components/FormButtons";
 import ApiRequest from "../../services/ApiRequest";
 import Response from "../../components/Response";
 import Loading from "../../components/Loading";
+
+// Functions
 import { ErrorHandle } from "../../functions/ErrorHandle";
 
-function Schools({ label, api, id, fields, labels, navigate }) {
+function Schools({ authContext, label, api, id, fields, labels, navigate }) {
     Schools.displayName = "Schools";
 
     const [list, setList] = useState([]);
@@ -35,12 +37,17 @@ function Schools({ label, api, id, fields, labels, navigate }) {
                         alert: "info",
                         msg: "Ingen data att visa ..."
                     })
-                }
+                } else 
+                    authContext.updateSchools(res.data);
             })
         }
 
         getList();
     }, [])
+
+    useEffect(() => {
+        authContext.updateSchools(list);
+    }, [list])
 
     function onChange(e) {
         setRequired([]);

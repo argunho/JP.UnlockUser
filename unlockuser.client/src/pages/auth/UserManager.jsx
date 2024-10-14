@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-
 // Installed
 import { Lock, LockOpen } from '@mui/icons-material';
 import { Button, CircularProgress } from '@mui/material';

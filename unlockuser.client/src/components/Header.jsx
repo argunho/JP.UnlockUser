@@ -65,7 +65,9 @@ function Header({ authContext }) {
     }, [authContext.isAuthorized])
 
     const goToPage = (page) => {
-        if (visibleMenu) setVisibleMenu(false);
+        if (visibleMenu)
+            setVisibleMenu(false);
+        authContext.cleanSession();
         navigate("/" + page);
     }
 
@@ -90,41 +92,44 @@ function Header({ authContext }) {
                     <img alt="Alvesta Kommun" src={logo} />
                 </Link>
             </div>
-            <nav className="nav-wrapper d-flex w-100">
-                <div className="d-flex">
-                    <Link className="link link-logo d-row" to="/">
-                        <HomeSharp />
-                        <p className='d-column' dangerouslySetInnerHTML={{ __html: linkName }}></p>
-                    </Link>
-                </div>
-
-                {authContext.isAuthorized && <div className='d-flex'>
-                    <p className='display-name'>{displayName}</p>
-                    <div className='link-menu'>
-                        <Button variant='outlined' size="large" className={`nav-btn ${visibleMenu && 'nav-btn-active'}`} onClick={() => setVisibleMenu(!visibleMenu)}>
-                            {visibleMenu ? <Close /> : <Menu />}
-                        </Button>
-                        <ul className={`menu-wrapper ${visibleMenu && 'visible-menu-wrapper'}`} ref={refMenu}>
-                            <li className='display-name'>{displayName}</li>
-                            {/* Loop links */}
-                            {links.map((link, ind) => {
-                                return <li className='d-row' key={ind} onClick={() => goToPage(link.url)}>
-                                    {link.icon} {link.label}
-                                </li>
-                            })}
-                            <li onClick={logout}>
-                                <Logout />&nbsp;&nbsp;<span>Logga ut</span>
-                            </li>
-                        </ul>
+            <nav className="nav-wrapper">
+                <div className='d-flex w-100'>
+                    <div className="d-flex">
+                        <Link className="link link-logo d-row" to="/">
+                            <HomeSharp />
+                            <p className='d-column' dangerouslySetInnerHTML={{ __html: linkName }}></p>
+                        </Link>
                     </div>
-                </div>}
 
-                {!authContext.isAuthorized && <Tooltip arrow title="Kontakta support"
-                    classes={{ tooltip: "tooltip tooltip-margin" }}>
-                    <Button variant='outlined' size="large" className='nav-btn' onClick={() => navigate("/contact")}>
-                        <LiveHelp />
-                    </Button>
-                </Tooltip>}
+                    {authContext.isAuthorized && <div className='d-flex'>
+                        <p className='display-name'>{displayName}</p>
+                        <div className='link-menu'>
+                            <Button variant='outlined' size="large" className={`nav-btn ${visibleMenu && 'nav-btn-active'}`} onClick={() => setVisibleMenu(!visibleMenu)}>
+                                {visibleMenu ? <Close /> : <Menu />}
+                            </Button>
+                            <ul className={`menu-wrapper ${visibleMenu && 'visible-menu-wrapper'}`} ref={refMenu}>
+                                <li className='display-name'>{displayName}</li>
+                                {/* Loop links */}
+                                {links.map((link, ind) => {
+                                    return <li className='d-row' key={ind} onClick={() => goToPage(link.url)}>
+                                        {link.icon} {link.label}
+                                    </li>
+                                })}
+                                <li onClick={logout}>
+                                    <Logout />&nbsp;&nbsp;<span>Logga ut</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>}
+
+                    {!authContext.isAuthorized && <Tooltip arrow title="Kontakta support"
+                        classes={{ tooltip: "tooltip tooltip-margin" }}>
+                        <Button variant='outlined' size="large" className='nav-btn' onClick={() => navigate("/contact")}>
+                            <LiveHelp />
+                        </Button>
+                    </Tooltip>}
+
+                </div>
             </nav>
         </header>
     )

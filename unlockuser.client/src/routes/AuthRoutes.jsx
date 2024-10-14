@@ -17,8 +17,6 @@ import Search from "./../pages/auth/Search";
 import Schools from "./../pages/auth/Schools";
 import NotFound from "./../pages/open/NotFound";
 
-// Components
-
 // Functions
 import { ErrorHandle } from "../functions/ErrorHandle";
 import { DecodedToken } from "../functions/DecodedToken";
@@ -70,7 +68,8 @@ function AuthRoutes({authContext }) {
     },
     {
       path: '/schools',
-      element: <Schools label="Skolor" api="data/schools" id="name" fields={{name: "", place: ""}} labels={["Namn", "Plats"]} navigate={navigate} />
+      element: <Schools authContext={authContext} label="Skolor" api="data/schools" id="name" 
+                        fields={{name: "", place: ""}} labels={["Namn", "Plats"]} navigate={navigate} />
     },
     {
       path: '/contact',
