@@ -66,6 +66,13 @@ div.container {
 }
 
 /* #region Header*/
+header {
+  position: sticky;
+  top: 0;
+  z-index: 3000;
+  background-color: #FFFFFF;
+}
+
 .logo-wrapper {
   display: block;
   width: 100%;
