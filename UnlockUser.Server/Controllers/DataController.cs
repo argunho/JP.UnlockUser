@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Diagnostics;
-using UnlockUser.Server.Models;
 
 namespace UnlockUser.Server.Controllers;
 
