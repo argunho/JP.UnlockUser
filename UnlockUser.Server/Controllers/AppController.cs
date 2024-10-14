@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SignalR.Client;
-using Newtonsoft.Json;
-using Onboarding.Server.Services;
 using System.Diagnostics;
 
 namespace UnlockUser.Server.Controllers;
@@ -11,12 +7,11 @@ namespace UnlockUser.Server.Controllers;
 [Route("[controller]")]
 [ApiController]
 [Authorize(Roles = "Developer,Manager,Support")]
-public class AppController(IHttpContextAccessor contextAccessor, IConfiguration config, IActiveDirectory provider, IHubContext<HubService> hubConnection, IHelp help) : ControllerBase
+public class AppController(IHttpContextAccessor contextAccessor, IConfiguration config, IActiveDirectory provider, IHelp help) : ControllerBase
 {
     private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
     private readonly IConfiguration _config = config;
     private readonly IActiveDirectory _provider = provider;
-    private readonly IHubContext<HubService> _hubConnection = hubConnection;
     private readonly IHelp _help = help;
 
     #region GET
@@ -29,23 +24,6 @@ public class AppController(IHttpContextAccessor contextAccessor, IConfiguration 
     {
         string res = await _provider.RenewUsersJsonList(_config);
         return string.IsNullOrEmpty(res) ? Ok() : Ok(res);
-    }
-
-    [HttpGet("update/service/status/{status:bool}")]
-    public async Task<IActionResult> UpdateServiceStatus(bool status)
-    {
-        try
-        {
-            _help.UpdateConfigFile("appconfig", "ServiceWork", (!status).ToString());
-
-            var user = GetClaim("email");
-            await _hubConnection.Clients.Group("onboarding").SendAsync("UpdateServiceStatus", !status, user, $"Session updated: {DateTime.Now:yyyy.MM.dd HH:mm:ss}");
-        }
-        catch (Exception ex)
-        {
-            return Ok(status);
-        }
-        return Ok(!status);
     }
     #endregion
 

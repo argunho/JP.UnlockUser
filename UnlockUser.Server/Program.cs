@@ -9,7 +9,6 @@ global using UnlockUser.Server.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Onboarding.Server.Services;
 
 namespace UnlockUser.Server;
 
@@ -25,11 +24,6 @@ public class Program
         // Services
         builder.Services.AddScoped<IActiveDirectory, IADService>();
         builder.Services.AddScoped<IHelp, IHelpService>();
-
-        // Signalr
-        builder.Services.AddSignalR();
-        builder.Services.AddSingleton<IDictionary<string, UserConnection>>(options =>
-                new Dictionary<string, UserConnection>());
 
         // Authennticatio with Jwt ---
         builder.Services.AddAuthentication(options =>
@@ -86,7 +80,6 @@ public class Program
 
         app.MapControllers();
 
-        app.MapHub<HubService>("/hub");
         app.MapFallbackToFile("/index.html");
 
         app.Run();

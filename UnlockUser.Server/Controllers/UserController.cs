@@ -5,8 +5,6 @@ using System.Text;
 using System.Diagnostics;
 using System.Net;
 using System.DirectoryServices;
-using UnlockUser.Server.Models;
-using System.DirectoryServices.AccountManagement;
 
 namespace UnlockUser.Server.Controllers;
 

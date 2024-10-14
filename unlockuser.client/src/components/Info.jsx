@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+
 
 import React, { useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +14,7 @@ import SessionTokenCheck from '../functions/SessionTokenCheck';
 import { AuthContext } from '../services/AuthContext';
 
 // Images
+/* eslint-disable no-unused-vars */
 import personal from "./../assets/images/personal.png";
 import politiker from "./../assets/images/politiker.png";
 import studenter from "./../assets/images/studenter.png";

@@ -3,10 +3,10 @@ import { useEffect, useRef, useState } from 'react';
 // Installed
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import cities from 'cities.json';
-import { colorNameList } from 'color-name-list';
 
 // Json
 import words from '../assets/json/words.json';
+import colors from '../assets/json/colors.json';
 
 // List of alternative to select words list category to generate password
 const passwordKeys = [
@@ -46,11 +46,11 @@ export default function ListCategories({ limitedChars, label, reset, multiple, d
                 if (keyword === "cities")
                     wList = cities;
                 else if (keyword === "colors")
-                    wList = colorNameList;
+                    wList = colors;
                 else
                     wList = cities.filter(x => x.country === "SE");
 
-                wList = wList.filter(x => x.name.indexOf(" ") === -1 && x.name.length < 10);
+                wList = wList.filter(x => x.name?.indexOf(" ") === -1 && x.name.length < 10);
 
             } else if (wList.length > 0)
                 wList = wList.filter(x => x.indexOf(" ") === -1 && x.length < 10);

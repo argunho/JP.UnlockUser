@@ -87,16 +87,6 @@ public class DataController(IConfiguration config, IHttpContextAccessor contextA
             return BadRequest(ex.Message);
         }
     }
-
-    [HttpGet("status/of/service/work")]
-    public JsonResult StatusOfServiceWork()
-    {
-        // Check the status of app service work
-        var appConfig = AppConfiguration.Load();
-        bool status = appConfig.ServiceWork?.ToLower() == "true";
-        var roles = GetClaim("Roles");
-        return new JsonResult(new { status, hide = roles?.IndexOf("support") == -1 });
-    }
     #endregion
 
     #region POST
