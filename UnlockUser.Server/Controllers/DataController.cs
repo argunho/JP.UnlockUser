@@ -61,17 +61,16 @@ public class DataController(IConfiguration config, IHttpContextAccessor contextA
     [HttpGet("schools")]
     public List<School> GetSchools()
     {
-        List<School> schools = [];
         try
         {
-            using StreamReader reader = new(@"wwwroot/json/schools.json");
-            schools = JsonConvert.DeserializeObject<List<School>>(reader.ReadToEnd());
+            List<School> schools = IADService.GetJsonList<School>("schools");
+            return [.. schools?.OrderBy(x => x.Name)];
         }
         catch (Exception ex)
         {
             Debug.WriteLine(ex.Message);
+            return [];
         }
-        return [.. schools?.OrderBy(x => x.Name)];
     }
 
     // Get file to download
