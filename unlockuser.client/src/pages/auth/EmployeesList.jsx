@@ -147,6 +147,7 @@ function EmployeesList() {
         setChanged(false);
         setUpdating(false);
         setUserData(null);
+        setOffice(null);
         if (update)
             getData();
     }
@@ -173,6 +174,7 @@ function EmployeesList() {
             closeModal();
         })
     }
+
     return (
         <div className='interior-div view-list'>
 
