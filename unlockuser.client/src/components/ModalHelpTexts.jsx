@@ -13,6 +13,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 // Components
 import Table from './Table';
 
+// eslint-disable-next-line react-refresh/only-export-components
 function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false, isSubmit = false,
     isTitle, inverseFunction, regeneratePassword, view }, ref) {
     ModalHelpTexts.displayName = "ModalHelpTexts";

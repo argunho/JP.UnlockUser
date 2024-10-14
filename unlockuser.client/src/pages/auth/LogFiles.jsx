@@ -24,7 +24,7 @@ function LogFiles() {
     const [list, setList] = useState([]);
     const [initList, setInitList] = useState([])
     const [loading, setLoading] = useState(true);
-    const [viewFile, setFileView] = useState();
+    const [viewFile, setFileView] = useState(null);
 
     // Check current user authentication
     SessionTokenCheck("/");
@@ -54,7 +54,7 @@ function LogFiles() {
     }
 
     const handleFile = async (file, download = false) => {
-        const fileDownload = require('react-file-download');
+        const fileDownload = require('js-file-download');
         await ApiRequest("data/readTextFile/" + file).then(res => {
             if (res.status === 200) {
                 if (download)

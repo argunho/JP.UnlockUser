@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 // Installed
 import { jsPDF } from "jspdf";
@@ -12,7 +12,6 @@ export default function PDFConverter({ name, subTitle, names, list, savedPdf }) 
     
     useEffect(() => {
         saveApply();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const saveApply = () => {

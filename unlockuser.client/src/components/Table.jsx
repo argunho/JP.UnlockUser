@@ -1,5 +1,3 @@
-import React from 'react';
-
 function Table({ names, list, cls = "" }) {
 
     const keys = list.length > 0 ? Object.keys(list[0]) : [];

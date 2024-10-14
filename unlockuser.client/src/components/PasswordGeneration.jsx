@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 
 // Installed
@@ -11,6 +12,7 @@ import ListCategories from './ListCategories';
 // Functions
 import ReplaceLetters from '../functions/ReplaceLetters';
 
+/* eslint-disable react-refresh/only-export-components */
 function PasswordGeneration({
     disabledTooltip, disabledClick, regex, users, regenerate,
     wordsList, numbersCount, strongPassword, variousPasswords, passwordLength,
