@@ -6,11 +6,11 @@ import EmployeesList from "../pages/auth/EmployeesList";
 import SessionHistory from "./../pages/auth/SessionHistory";
 import UsersManager from "./../pages/auth/UsersManager";
 import LogFiles from "./../pages/auth/LogFiles";
-import Contacts from "./../pages/auth/Contacts";
 import UserManager from "../pages/auth/UserManager";
 import Members from "./../pages/auth/Members";
 import Search from "./../pages/auth/Search";
 import Schools from "./../pages/auth/Schools";
+import Contacts from "./../pages/open/Contacts";
 import NotFound from "./../pages/open/NotFound";
 
 

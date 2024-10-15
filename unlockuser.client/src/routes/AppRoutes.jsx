@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 
 // Pages
 import Login from "./../pages/open/Login";
+import Contacts from "./../pages/open/Contacts";
 import NotFound from "./../pages/open/NotFound";
 
 function AppRoutes({authContext}) {
@@ -11,7 +12,11 @@ function AppRoutes({authContext}) {
       index: true,
       path: "/",
       element: <Login authContext={authContext}/>
-    }
+      },
+      {
+          path: '/contact',
+          element: <Contacts />
+      },
   ];
 
   return <Routes>
