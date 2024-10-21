@@ -88,16 +88,18 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
             Data sessionUserData = GetLogData();
             string sessionOffice = sessionUserData.Office?.ToLower();
-            if (sessionOffice == "Gymnasiet yrkesvux lärvux".ToLower())
-                sessionOffice = "Allbo Lärcenter gymnasieskola".ToLower();
-
-            var manager = GetClaim("manager");
-            var division = GetClaim("division")?.ToLower();
 
             var roles = GetClaim("roles");
-            var stoppedToEdit = new List<string>();
+            var groups = (GetClaim("groups"))?.Split(",").ToList() ?? [];
 
-            var permissionGroups = (_config.GetSection("Groups").Get<List<GroupModel>>()).Select(s => s.PermissionGroup).ToList();
+
+            var groupsList = _config.GetSection("Groups").Get<List<GroupModel>>();
+            if(groupsList?.Select(s => s.Name).Intersect(groups) == null)
+                return new JsonResult(new { alert = "error", msg = $"Behörigheter saknas!" }); // Warning!
+
+
+            var stoppedToEdit = new List<string>();
+            var permissionGroups = groupsList.Select(s => s.PermissionGroup).ToList();
 
             if (roles != null && !roles.Contains("Support", StringComparison.CurrentCulture))
             {

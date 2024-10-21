@@ -20,10 +20,11 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
     public JsonResult FindUser(string name, string group, bool match = false)
     {
         var users = new List<User>();
+        var support = group == "Support";
 
         try
         {
-            List<string> groupNames = group == "Support" ? ["Students", "Employees"] : [(group == "Studenter" ? "Students" : "Employees")];
+            List<string> groupNames = support ? ["Students", "Employees"] : [(group == "Studenter" ? "Students" : "Employees")];
 
             foreach (string groupName in groupNames)
             {
@@ -34,7 +35,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
                 else
                     result.Filter = $"(&(objectClass=User)(|(cn={name})(|(displayName={name})(|(givenName={name}))(sn={name}))))";
 
-                users.AddRange(FilteredListOfUsers(_provider.GetUsers(result, (groupName == "Students" ? "Studenter" : "Personal")), groupName));
+                users.AddRange(FilteredListOfUsers(_provider.GetUsers(result, (groupName == "Students" ? "Studenter" : "Personal")), support, groupName));
             }
         }
         catch (Exception ex)
@@ -103,15 +104,16 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
     }
 
     // Filter
-    public List<User> FilteredListOfUsers(List<User> users, string groupName, string? roles = null, string? username = null)
+    public List<User> FilteredListOfUsers(List<User> users, bool support, params string[] args)
     {
         try
         {
-            roles ??= GetClaim("roles");
+            var groupName = args[0] ?? "";
+            var roles = args?[1] ?? GetClaim("roles") ?? "";
             // If user is not a member from support group, filter users result
-            if (roles != null && !roles.Contains("Support", StringComparison.CurrentCulture))
+            if (!roles.Contains("Support", StringComparison.CurrentCulture))
             {
-                username ??= GetClaim("username");
+                var username = args?[2] ?? GetClaim("username");
                 List<User>? employees = (_provider.GetAuthorizedEmployees(groupName))?.FirstOrDefault()?.Employees;
                 User? currentUser = employees?.FirstOrDefault(x => x.Name == username);
                 List<User> usersToView = [];
@@ -134,8 +136,11 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
                     users = users.Where(x => currentUser.Offices.Contains(x.Office)).ToList();
 
                 users = usersToView;
+            } else if(groupName != "Students")
+            {
+                foreach (var user in users)
+                    user.Managers = _provider.GetManagers(user);
             }
-
         }
         catch (Exception ex)
         {

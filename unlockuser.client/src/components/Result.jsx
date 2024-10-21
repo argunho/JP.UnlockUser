@@ -27,11 +27,6 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, cancelReq
     const refResult = useRef(null);
     const refCheckbox = useRef([]);
 
-    // useEffect(() => {
-    //     if (resultBlock)
-    //         refResult.current.scrollIntoView();
-    // }, [loading, list])
-
     useEffect(() => {
         if (isOpenTip)
             setTimeout(() => { setIsOpenTip(false); }, 2000)
@@ -200,6 +195,15 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, cancelReq
                                     checked={selectedList.indexOf(s.name) > -1}
                                 />}
                             </Info>
+
+                            {/* If a user has a managers list */}
+                            {s?.managers?.length > 0 && <div className='d-row'>
+                                {s.managers?.map((name, ind) => {
+                                    return <Button key={ind} disabled>
+                                        {name}
+                                    </Button>
+                                })}
+                            </div>}
                         </div>
                     ))}
                 </List>}

@@ -88,8 +88,8 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             bool manager = user.Title.ToLower().Contains("chef", StringComparison.CurrentCultureIgnoreCase)
                            || user.Title.ToLower().Contains("rektor", StringComparison.CurrentCultureIgnoreCase);
 
-            //if (_provider.MembershipCheck(user, "Azure-Utvecklare Test"))
-            //    roles.Add("Developer");
+            if (_provider.MembershipCheck(user, "Azure-Utvecklare Test"))
+                roles.Add("Developer");
 
             if (_provider.MembershipCheck(user, "TEIS IT avdelning") || roles.IndexOf("Developer") > -1)
                 roles.Add("Support");

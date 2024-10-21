@@ -231,7 +231,7 @@ function EmployeesList() {
                 })}
 
                 {/* If listan is empty */}
-                {list?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.length == 0 
+                {(!loading && list?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.length == 0)
                         && <Response response={{alert: "info", msg: "Inga anställda hittades med matchande sökord."}} reset={resetActions} />}
             </List>
 
