@@ -42,7 +42,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         _session.SetString("ManagedOffice", user.Office);
         _session.SetString("ManagedDepartment", user.Department);
 
-        user = (_search.FilteredListOfUsers([user], group, GetClaim("roles"), GetClaim("username")))?.FirstOrDefault();
+        user = (_search.FilteredListOfUsers([user], false, group, GetClaim("roles"), GetClaim("username")))?.FirstOrDefault();
         if (user != null)
             return new JsonResult(new { user });
 
@@ -112,7 +112,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                     // Get all user groups to check users membership in permission groups
                     var userGroups = _provider.GetUserGroups(user);
                     var forbidden = userGroups.Exists(x => permissionGroups.Contains(x));
-                    var filteredList = _search.FilteredListOfUsers([new User { Name = user.Name, Title = user.Title }],
+                    var filteredList = _search.FilteredListOfUsers([new User { Name = user.Name, Title = user.Title }], false,
                                 userModel.GroupName, GetClaim("roles"), GetClaim("username"));
 
                     if (user == null || filteredList?.Count == 0 || forbidden)

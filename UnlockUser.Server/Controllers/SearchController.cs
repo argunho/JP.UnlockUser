@@ -71,7 +71,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
             DirectorySearcher result = _provider.GetMembers("Students");
 
             result.Filter = $"(&(objectClass=User)((physicalDeliveryOfficeName={office})(department={department})))";
-            users = FilteredListOfUsers(_provider.GetUsers(result, ""), "Studenter");
+            users = FilteredListOfUsers(_provider.GetUsers(result, ""), false, "Studenter");
 
             if (users.Count > 0)
                 return new JsonResult(new { users = users.Distinct().OrderBy(x => x.Department).ThenBy(x => x.Name) });
