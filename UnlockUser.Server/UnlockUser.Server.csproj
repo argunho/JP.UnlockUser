@@ -30,6 +30,8 @@
   <ItemGroup>
     <Folder Include="wwwroot\json\" />
     <Folder Include="wwwroot\logfiles\" />
+    <Folder Include="wwwroot\logfiles\errors\" />
+    <Folder Include="wwwroot\logfiles\history\" />
   </ItemGroup>
 
 </Project>

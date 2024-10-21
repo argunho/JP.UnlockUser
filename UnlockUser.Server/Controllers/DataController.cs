@@ -33,7 +33,7 @@ public class DataController(IHelp help) : ControllerBase
     {
         try
         {
-            var logs = Directory.GetFiles($@"wwwroot/logfiles/{param}", "*.txt", SearchOption.AllDirectories).ToList();
+            var logs = Directory.GetFiles($@"wwwroot/logfiles/{param}/", "*.txt", SearchOption.AllDirectories).ToList();
 
             // Remove old files
             if (logs != null && logs?.Count > 0)
