@@ -28,7 +28,7 @@ public class DataController(IHelp help) : ControllerBase
     }
 
     // Get all txt files
-    [HttpGet("logifiles/{param}")]
+    [HttpGet("logfiles/{param}")]
     public JsonResult GetTextFiles(string param)
     {
         try
@@ -56,13 +56,13 @@ public class DataController(IHelp help) : ControllerBase
             }
 
             logs = logs?.OrderByDescending(x => System.IO.File.GetLastWriteTime(x).Ticks)?
-                            .Select(x => x.Replace("\\", "/").Substring(x.LastIndexOf("/") + 1).Replace(".txt", "")).ToList() ?? null;
+                            .Select(x => x.Replace("\\", "/")[(x.LastIndexOf("/") + 1)..].Replace(".txt", "")).ToList() ?? null;
 
             return new JsonResult(logs);
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.Message);
+            Debug.WriteLine($"{nameof(GetTextFiles)} Fel: {ex.Message}");
             return new JsonResult(null);
         }
     }
