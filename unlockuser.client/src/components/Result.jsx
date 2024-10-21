@@ -15,7 +15,7 @@ import Loading from './Loading';
 import Response from './Response';
 import Info from './Info';
 
-function Result({ list, clsStudents, isVisibleTips, loading, response, cancelRequest, resetResult, resultBlock }) {
+function Result({ list, clsStudents, isVisibleTips, loading, response, disabled, cancelRequest, resetResult, resultBlock }) {
     Result.displayName = "Result";
 
     const [selectedList, setSelectedList] = useState([]);
@@ -184,6 +184,7 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, cancelReq
                                 subTitle={s.office + " " + (s.office !== s.department ? (" " + s?.department) : "")}
                                 result={true}
                                 check={index === 0}
+                                disabled={disabled}
                                 updateSession={updateSession}
                                 handleOutsideClick={(e) => clickHandle(e, index, s)}>
 
@@ -195,15 +196,6 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, cancelReq
                                     checked={selectedList.indexOf(s.name) > -1}
                                 />}
                             </Info>
-
-                            {/* If a user has a managers list */}
-                            {s?.managers?.length > 0 && <div className='d-row'>
-                                {s.managers?.map((name, ind) => {
-                                    return <Button key={ind} disabled>
-                                        {name}
-                                    </Button>
-                                })}
-                            </div>}
                         </div>
                     ))}
                 </List>}

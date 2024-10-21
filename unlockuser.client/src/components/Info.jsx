@@ -4,7 +4,7 @@ import React, { useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Installed
-import { EventNote, KeyboardReturnTwoTone, School } from '@mui/icons-material'
+import { ArrowRight, EventNote, KeyboardReturnTwoTone, School } from '@mui/icons-material'
 import { Avatar, Button, List, ListItem, ListItemAvatar, ListItemText, Tooltip, Typography } from '@mui/material'
 
 // Functions
@@ -13,7 +13,7 @@ import SessionTokenCheck from '../functions/SessionTokenCheck';
 // Services
 import { AuthContext } from '../services/AuthContext';
 
-function Info({ user, name, displayName, subTitle, result, check, children, updateSession, handleOutsideClick }) {
+function Info({ children, user, name, displayName, subTitle, result, check, disabled, updateSession, handleOutsideClick }) {
     Info.displayName = "Info";
 
     const navigate = useNavigate(null);
@@ -27,10 +27,12 @@ function Info({ user, name, displayName, subTitle, result, check, children, upda
         || !(user.office?.length > 0 && user.department?.length > 0));
 
     // Check current user authentication
-    if(check)
+    if (check)
         SessionTokenCheck();
 
     const clickHandle = (e) => {
+        if (disabled) return;
+
         if (!result && refButton?.current && refButton?.current.contains(e?.target)) {
             navigate(-1);
             return;
@@ -48,10 +50,10 @@ function Info({ user, name, displayName, subTitle, result, check, children, upda
     const infoBlock = <ListItem className={(result ? "list-link" : "info-block")} onClick={(e) => clickHandle(e, user)}>
         <ListItemAvatar>
             <Avatar>
-                {group === "studenter" ? <School/> : <EventNote />}
+                {group === "studenter" ? <School /> : <EventNote />}
             </Avatar>
         </ListItemAvatar>
-        
+
         {/* Users data */}
         <ListItemText
             primary={user?.name || name}
@@ -70,6 +72,19 @@ function Info({ user, name, displayName, subTitle, result, check, children, upda
                         title={`Sök efter studenter från ${subTitle}`}>
                         <span className='typography-span' ref={refGetMembers}>{subTitle}</span>
                     </Tooltip>}
+
+                    {/* If a user has a managers list */}
+                    {user?.managers?.length > 0 && <div className='d-row'>
+                        <Typography sx={{ marginRight: "15px" }} variant="caption" color="-moz-initial">Chef: </Typography>
+                        {user.managers?.map((name, ind) => {
+                            return <Typography
+                                sx={{ margin: "3px" }}
+                                variant="caption" key={ind} disabled>
+                                {name} {((ind + 1) != user.managers?.length) && <ArrowRight />}
+                            </Typography>
+                        })}
+                    </div>}
+
                 </React.Fragment>} />
 
         {/* Go back */}

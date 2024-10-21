@@ -340,6 +340,7 @@ function Search({ authContext, navigate }) {
                 isVisibleTips={showTips}
                 loading={loading}
                 response={response}
+                disabled={group == "Support"}
                 resultBlock={true}
                 cancelRequest={() => source.cancel("Pågående sökning har avbrutits ...")}
                 resetResult={reset}

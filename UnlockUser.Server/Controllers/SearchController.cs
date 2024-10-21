@@ -104,16 +104,15 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
     }
 
     // Filter
-    public List<User> FilteredListOfUsers(List<User> users, bool support, params string[] args)
+    public List<User> FilteredListOfUsers(List<User> users, bool support, string? groupName = null, string? roles = null, string? username = null)
     {
         try
         {
-            var groupName = args[0] ?? "";
-            var roles = args?[1] ?? GetClaim("roles") ?? "";
+            roles ??= GetClaim("roles") ?? "";
             // If user is not a member from support group, filter users result
             if (!roles.Contains("Support", StringComparison.CurrentCulture))
             {
-                var username = args?[2] ?? GetClaim("username");
+                username ??= GetClaim("username") ?? "";
                 List<User>? employees = (_provider.GetAuthorizedEmployees(groupName))?.FirstOrDefault()?.Employees;
                 User? currentUser = employees?.FirstOrDefault(x => x.Name == username);
                 List<User> usersToView = [];
