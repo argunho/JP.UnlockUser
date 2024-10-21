@@ -18,6 +18,7 @@ import SessionTokenCheck from '../../functions/SessionTokenCheck';
 
 // Services
 import ApiRequest from '../../services/ApiRequest';
+import { useParams } from 'react-router-dom';
 
 function LogFiles() {
     LogFiles.displayName = "LogFiles";
@@ -27,13 +28,15 @@ function LogFiles() {
     const [loading, setLoading] = useState(true);
     const [viewFile, setFileView] = useState(null);
 
+    const { param } = useParams();
+
     // Check current user authentication
     SessionTokenCheck("/");
 
     useEffect(() => {
         if (list.length === 0) {
             async function getLogFiles() {
-                await ApiRequest("data/logFiles").then(res => {
+                await ApiRequest(`data/logfiles/${param}`).then(res => {
                     if (res.data !== null)
                         setList(res.data);
                     setLoading(false);

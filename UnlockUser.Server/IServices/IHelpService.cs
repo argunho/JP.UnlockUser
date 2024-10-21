@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace UnlockUser.Server.IServices;
@@ -10,10 +11,9 @@ public class IHelpService(IHttpContextAccessor httpContext) : IHelp
     private readonly IHttpContextAccessor _httpContext = httpContext;
 
     // Save history logfile
-    public void SaveHistoryLogFile(List<string> contentList, string fileName, string format)
+    public void SaveFile(List<string> contentList, string pathName, string fileName)
     {
-        var path = @"wwwroot\logfiles";
-
+        var path = $@"wwwroot\logfiles\{pathName}\";
         if (CheckDirectory(path))
         {
             try
@@ -21,10 +21,10 @@ public class IHelpService(IHttpContextAccessor httpContext) : IHelp
                 contentList.Add("\n\n Datum: " + DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
 
                 // Write the string array to a new file named ".txt".
-                string pathName = Path.Combine(path, fileName.ToLower().Replace(" ", "_").Replace("__", "_") + format);
+                pathName = Path.Combine(path, $"{fileName.ToLower().Replace(" ", "_").Replace("__", "_")}_{ DateTime.Now:f}.txt");
 
                 using StreamWriter outputFile = new(pathName, true);
-
+                
                 foreach (var contentLine in contentList)
                 {
                     //outputFile.WriteLine(contentLine + Environment.NewLine);
@@ -32,10 +32,10 @@ public class IHelpService(IHttpContextAccessor httpContext) : IHelp
                 }
                 outputFile.Close();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.WriteLine(e.Message);
-                Message += "\r" + e.Message;
+                Debug.WriteLine(ex.Message);
+                Message += "\r" + ex.Message;
             }
         }
 
@@ -49,9 +49,9 @@ public class IHelpService(IHttpContextAccessor httpContext) : IHelp
             if (!Directory.Exists(path)) // Check directory          
                 Directory.CreateDirectory(path); //Create directory if it doesn't exist
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Debug.WriteLine(e.Message);
+            Debug.WriteLine(ex.Message);
             return false;
         }
 
@@ -90,4 +90,18 @@ public class IHelpService(IHttpContextAccessor httpContext) : IHelp
             Debug.WriteLine(ex.Message);
         }
     }
+
+    #region Help
+    public static List<T> GetJsonList<T>(string fileName) where T : class
+    {
+        using StreamReader reader = new($@"wwwroot/json/{fileName}.json");
+        return JsonConvert.DeserializeObject<List<T>>(reader.ReadToEnd()) ?? [];
+    }
+
+    public static async Task SaveUpdateJsonFile<T>(List<T> list, string name) where T : class
+    {
+        await using FileStream stream = File.Create($@"wwwroot/json/{name}.json");
+        await System.Text.Json.JsonSerializer.SerializeAsync(stream, list);
+    }
+    #endregion
 }

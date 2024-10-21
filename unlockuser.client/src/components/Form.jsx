@@ -257,7 +257,7 @@ function Form({ title, name, passwordLength, users, authContext }) {
         }
 
         // Request
-        await ApiRequest("user/resetPassword/", "post", data).then(res => {
+        await ApiRequest("user/reset/password/", "post", data).then(res => {
             setResponse(res.data);
             if (res.data?.success) {
                 setSavePdf(true);

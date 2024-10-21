@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\json\" />
+    <Folder Include="wwwroot\logfiles\" />
   </ItemGroup>
 
 </Project>

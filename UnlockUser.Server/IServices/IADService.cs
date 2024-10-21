@@ -2,6 +2,7 @@
 using System.DirectoryServices;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.IO;
 
 namespace UnlockUser.Server.IServices;
 
@@ -105,7 +106,8 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
 
         DirectorySearcher? search = new(GetContext().Name);
 
-        while (hasManager && user.Title != "Kommunchef"){
+        while (hasManager && user.Title != "Kommunchef")
+        {
             try
             {
                 search.Filter = String.Format("distinguishedName={0}", userManager);
@@ -138,7 +140,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
         {
             //using StreamReader reader = new(@"wwwroot/json/employees.json");
             //groupEmployees = JsonConvert.DeserializeObject<List<GroupUsersViewModel>>(reader.ReadToEnd());
-            groupEmployees = GetJsonList<GroupUsersViewModel>("employees");
+            groupEmployees = IHelpService.GetJsonList<GroupUsersViewModel>("employees");
         }
         catch (Exception ex)
         {
@@ -179,14 +181,14 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                     if (userOffices.IndexOf(user.Office) == -1)
                         userOffices = [user.Office];
 
-                    if(group.Manage != "Students")
+                    if (group.Manage != "Students")
                     {
                         //using StreamReader reader = new(@"wwwroot/json/schools.json");
                         //List<School> schools = JsonConvert.DeserializeObject<List<School>>(reader.ReadToEnd()) ?? [];
-                        var schools = GetJsonList<School>("schools");
+                        var schools = IHelpService.GetJsonList<School>("schools");
                         foreach (var school in schools)
                         {
-                            if(user.Office.Contains(school.Name) && userOffices.IndexOf(school.Name) == -1)
+                            if (user.Office.Contains(school.Name) && userOffices.IndexOf(school.Name) == -1)
                                 userOffices.Add(school.Name);
                         }
                     }
@@ -201,7 +203,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                         Department = user.Department,
                         Division = user.Division,
                         Manager = user.Manager,
-                        Managers = group.Manage != "Students" ? GetManagers(new User { Title = user.Title, Manager = user.Manager}) : [],
+                        Managers = group.Manage != "Students" ? GetManagers(new User { Title = user.Title, Manager = user.Manager }) : [],
                         Offices = userOffices
                     });
                 }
@@ -213,8 +215,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                 });
             }
 
-            await using FileStream stream = File.Create(@"wwwroot/json/employees.json");
-            await System.Text.Json.JsonSerializer.SerializeAsync(stream, groupEmployees);
+            await IHelpService.SaveUpdateJsonFile(groupEmployees, "employees");
         }
         catch (Exception ex)
         {
@@ -313,12 +314,6 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
             Title = props.Contains("title") ? props["title"][0]?.ToString() : "",
             IsLocked = isLocked
         };
-    }
-
-    public static List<T> GetJsonList<T>(string fileName) where T : class
-    {
-        using StreamReader reader = new($@"wwwroot/json/{fileName}.json");
-        return JsonConvert.DeserializeObject<List<T>>(reader.ReadToEnd()) ?? [];
     }
     #endregion
 }

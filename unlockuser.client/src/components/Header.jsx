@@ -25,8 +25,9 @@ function Header({ authContext }) {
     let links = [
         { label: "Session historik", url: "history", icon: <History />, access: false },
         { label: "Behöriga användare", url: "employees", icon: <SettingsApplications />, access: true },
-        { label: "Loggfiler", url: "logs", icon: <InsertDriveFile />, access: true },
         { label: "Skolor", url: "schools", icon: <School />, access: true },
+        { label: "Historik", url: "logs/history", icon: <InsertDriveFile />, access: true },
+        { label: "Felhistorik", url: "logs/errors", icon: <InsertDriveFile />, access: true },
         { label: "Kontakta support", url: "contact", icon: <LiveHelp />, access: false }
     ];
 

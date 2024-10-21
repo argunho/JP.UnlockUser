@@ -41,7 +41,7 @@ function AuthRoutes({authContext }) {
       element: <SessionHistory />
     },
     {
-      path: '/logs',
+      path: '/logs/:param',
       element: <LogFiles />
     },
     {

@@ -24,7 +24,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
     #region GET
     // Get user information by username
-    [HttpGet("{group}/{name}")] 
+    [HttpGet("{group}/{name}")]
     public JsonResult GetUser(string group, string name)
     {
         var groupName = group == "Studenter" ? "Students" : "Employees";
@@ -52,86 +52,104 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     [HttpGet("unlock/{name}")] // Unlock user
     public JsonResult UnlockUser(string name)
     {
-        var model = new UserViewModel
+        try
         {
-            Username = name
-        };
+            var model = new UserViewModel
+            {
+                Username = name
+            };
 
-        var message = _provider.UnlockUser(UpdatedUser(model));
-        if (message.Length > 0)
-            return new JsonResult(new { alert = "warning", msg = message });
+            var message = _provider.UnlockUser(UpdatedUser(model));
+            if (message.Length > 0)
+                return new JsonResult(new { alert = "warning", msg = message });
+        }
+        catch (Exception ex)
+        {
+            _help.SaveFile(["UnlockUser", $"Fel: {ex.Message}"], "errors", "error");
+            return new JsonResult(new { alert = "error", msg = $"Något har gått snett. Fel: {ex.Message}" });
+        }
+
 
         return new JsonResult(new { success = true, unlocked = true, alert = "success", msg = "Användaren har låsts upp!" });
     }
     #endregion
 
     #region POST
-    [HttpPost("resetPassword")] // Reset class students passwords
+    [HttpPost("reset/password")] // Reset class students passwords
     public JsonResult SetPaswords(UsersListViewModel model)
     {
-        // Check model is valid or not and return warning is true or false
-        if (model.Users.Count == 0)
-            return new JsonResult(new { alert = "warning", msg = "Användare för lösenordsåterställning har inte specificerats." }); // Password reset user not specified
-
-        string message = string.Empty;
-
-        Data sessionUserData = GetLogData();
-        string sessionOffice = sessionUserData.Office?.ToLower();
-        if (sessionOffice == "Gymnasiet yrkesvux lärvux".ToLower())
-            sessionOffice = "Allbo Lärcenter gymnasieskola".ToLower();
-
-        var manager = GetClaim("manager");
-        var division = GetClaim("division")?.ToLower();
-
-        var roles = GetClaim("roles");
-        var stoppedToEdit = new List<string>();
-
-        var permissionGroups = (_config.GetSection("Groups").Get<List<GroupModel>>()).Select(s => s.PermissionGroup).ToList();
-
-        if (roles != null && !roles.Contains("Support", StringComparison.CurrentCulture))
+        try
         {
-            //Loop each username
-            foreach (var userModel in model.Users)
+            // Check model is valid or not and return warning is true or false
+            if (model.Users.Count == 0)
+                return new JsonResult(new { alert = "warning", msg = "Användare för lösenordsåterställning har inte specificerats." }); // Password reset user not specified
+
+            string message = string.Empty;
+
+            Data sessionUserData = GetLogData();
+            string sessionOffice = sessionUserData.Office?.ToLower();
+            if (sessionOffice == "Gymnasiet yrkesvux lärvux".ToLower())
+                sessionOffice = "Allbo Lärcenter gymnasieskola".ToLower();
+
+            var manager = GetClaim("manager");
+            var division = GetClaim("division")?.ToLower();
+
+            var roles = GetClaim("roles");
+            var stoppedToEdit = new List<string>();
+
+            var permissionGroups = (_config.GetSection("Groups").Get<List<GroupModel>>()).Select(s => s.PermissionGroup).ToList();
+
+            if (roles != null && !roles.Contains("Support", StringComparison.CurrentCulture))
             {
-                var username = userModel.Username;
-                var user = _provider.FindUserByExtensionProperty(username);
-
-                // Get all user groups to check users membership in permission groups
-                var userGroups = _provider.GetUserGroups(user);
-                var forbidden = userGroups.Exists(x => permissionGroups.Contains(x));
-                var filteredList = _search.FilteredListOfUsers([new User { Name = user.Name, Title = user.Title }], 
-                            userModel.GroupName, GetClaim("roles"), GetClaim("username"));
-
-                if (user == null || filteredList?.Count == 0 || forbidden)
+                //Loop each username
+                foreach (var userModel in model.Users)
                 {
-                    stoppedToEdit.Add(username);
-                    continue;
+                    var username = userModel.Username;
+                    var user = _provider.FindUserByExtensionProperty(username);
+
+                    // Get all user groups to check users membership in permission groups
+                    var userGroups = _provider.GetUserGroups(user);
+                    var forbidden = userGroups.Exists(x => permissionGroups.Contains(x));
+                    var filteredList = _search.FilteredListOfUsers([new User { Name = user.Name, Title = user.Title }],
+                                userModel.GroupName, GetClaim("roles"), GetClaim("username"));
+
+                    if (user == null || filteredList?.Count == 0 || forbidden)
+                    {
+                        stoppedToEdit.Add(username);
+                        continue;
+                    }
                 }
+
+                model.Users.RemoveAll(x => stoppedToEdit.Contains(x.Username));
             }
 
-            model.Users.RemoveAll(x => stoppedToEdit.Contains(x.Username));          
-        }
-
-        // Set password to class students
-        if (model.Users.Count > 0)
-        {
-            foreach (var user in model.Users)
+            // Set password to class students
+            if (model.Users.Count > 0)
             {
-                message += _provider.ResetPassword(UpdatedUser(user));
-                sessionUserData.Users.Add(user?.Username ?? "");
+                foreach (var user in model.Users)
+                {
+                    message += _provider.ResetPassword(UpdatedUser(user));
+                    sessionUserData.Users.Add(user?.Username ?? "");
+                }
+
+                SaveHistoryLogFile(sessionUserData);
             }
 
-            SaveLogFile(sessionUserData);
+            if (message?.Length > 0)
+                return new JsonResult(new { alert = "warning", msg = message });
+            else if (stoppedToEdit?.Count > 0 && model.Users.Count == 0)
+                return new JsonResult(new { alert = "error", msg = $"Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!" }); // Warning!
+            else if (stoppedToEdit?.Count > 0)
+                return new JsonResult(new { alert = "info", msg = $"Lösenordsåterställningen lyckades men inte till alla! Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!" });
+
+            return new JsonResult(new { success = true, alert = "success", msg = "Lösenordsåterställningen lyckades!" }); //Success! Password reset was successful!
         }
+        catch (Exception ex)
+        {
 
-        if (message?.Length > 0)
-            return new JsonResult(new { alert = "warning", msg = message });
-        else if (stoppedToEdit?.Count > 0 && model.Users.Count == 0)
-            return new JsonResult(new { alert = "error", msg = $"Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!" }); // Warning!
-        else if (stoppedToEdit?.Count > 0)
-            return new JsonResult(new { alert = "info", msg = $"Lösenordsåterställningen lyckades men inte till alla! Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!" });
-
-        return new JsonResult(new { success = true, alert = "success", msg = "Lösenordsåterställningen lyckades!" }); //Success! Password reset was successful!
+            _help.SaveFile(["SetPassword", $"Fel: {ex.Message}"], "errors", "error");
+            return new JsonResult(new { alert = "error", msg = $"Något har gått snett: Fel: {ex.Message}" });
+        }
     }
 
     [HttpPost("mail/{str}")] // Send email to current logged admin
@@ -156,6 +174,8 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
+
+            _help.SaveFile(["SendEmail", $"Fel: {ex.Message}"], "errors", "error");
             return Error(ex.Message);
         }
 
@@ -188,6 +208,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
+            _help.SaveFile(["SendEmailToSupport", $"Fel: {ex.Message}"], "errors", "error");
             Debug.WriteLine(ex.Message);
             return new JsonResult(new { errorMessage = MailService._message });
         }
@@ -233,9 +254,9 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 IpAddress = _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString()
             };
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Debug.WriteLine(e.Message);
+            Debug.WriteLine(ex.Message);
         }
 
         return new Data();
@@ -258,7 +279,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     // Save log file
-    public void SaveLogFile(Data model)
+    public void SaveHistoryLogFile(Data model)
     {
         var user = _provider.FindUserByExtensionProperty(GetClaim("Username"));
         string fileName = (model.Group?.ToLower() ?? "") + "_";
@@ -310,9 +331,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             fileName += model?.Office + "_" + model.Users[0];
         }
 
-        fileName += "_" + DateTime.Now.ToString("yyyyMMddHHmmss");
-
-        _help.SaveHistoryLogFile(contentList, fileName, ".txt");
+        _help.SaveFile(contentList, "history", fileName);
     }
 
     // Help method to structure a warning message

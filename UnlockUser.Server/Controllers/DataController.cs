@@ -7,21 +7,33 @@ namespace UnlockUser.Server.Controllers;
 [Route("[controller]")]
 [ApiController]
 [Authorize]
-public class DataController(IConfiguration config, IHttpContextAccessor contextAccessor) : ControllerBase
+public class DataController(IHelp help) : ControllerBase
 {
-    private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
-    private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
-    private readonly ISession _session = contextAccessor.HttpContext.Session;
+    private readonly IHelp _help = help;
 
     #region GET
-    // Get all files
-    [HttpGet("logFiles")]
-    public JsonResult GetLogFiles()
+    [HttpGet("json/{param}")]
+    public JsonResult GetLogFiles(string param)
     {
-        var path = @"wwwroot/logfiles/";
         try
         {
-            var logs = Directory.GetFiles(path, "*.txt", SearchOption.AllDirectories).ToList();
+            List<dynamic> logs = IHelpService.GetJsonList<dynamic>(param);
+            return new JsonResult(logs);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+            return new JsonResult(null);
+        }
+    }
+
+    // Get all txt files
+    [HttpGet("logifiles/{param}")]
+    public JsonResult GetTextFiles(string param)
+    {
+        try
+        {
+            var logs = Directory.GetFiles($@"wwwroot/logfiles/{param}", "*.txt", SearchOption.AllDirectories).ToList();
 
             // Remove old files
             if (logs != null && logs?.Count > 0)
@@ -48,9 +60,9 @@ public class DataController(IConfiguration config, IHttpContextAccessor contextA
 
             return new JsonResult(logs);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Debug.WriteLine(e.Message);
+            Debug.WriteLine(ex.Message);
             return new JsonResult(null);
         }
     }
@@ -61,7 +73,7 @@ public class DataController(IConfiguration config, IHttpContextAccessor contextA
     {
         try
         {
-            List<School> schools = IADService.GetJsonList<School>("schools");
+            List<School> schools = IHelpService.GetJsonList<School>("schools");
             return [.. schools?.OrderBy(x => x.Name)];
         }
         catch (Exception ex)

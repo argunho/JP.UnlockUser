@@ -1,20 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.DirectoryServices;
-using System.Security.Claims;
-using System.Xml.Linq;
 
 namespace UnlockUser.Server.Controllers;
 
 [Route("[controller]")]
 [ApiController]
 [Authorize]
-public class SearchController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IConfiguration config) : ControllerBase
+public class SearchController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IHelp help) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
     private readonly ISession _session = contextAccessor.HttpContext.Session;
-    private readonly IConfiguration _config = config;
+    private readonly IHelp _help = help;
 
     #region GET
     // Search one user
@@ -35,9 +33,10 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
 
             users = FilteredListOfUsers(_provider.GetUsers(result, group), groupName);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return Error(e.Message);
+            _help.SaveFile(["FindUser", $"Fel: {ex.Message}"], "errors", "error");
+            return Error(ex.Message);
         }
 
         // If the result got a successful result
@@ -76,6 +75,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
         }
         catch (Exception ex)
         {
+            _help.SaveFile(["FindClassMembers", $"Fel: {ex.Message}"], "errors", "error");
             return Error(ex.Message);
         }
 
@@ -101,33 +101,42 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
     // Filter
     public List<User> FilteredListOfUsers(List<User> users, string groupName, string? roles = null, string? username = null)
     {
-        roles ??= GetClaim("roles");
-        // If user is not a member from support group, filter users result
-        if (roles != null && !roles.Contains("Support", StringComparison.CurrentCulture))
+        try
         {
-            username ??= GetClaim("username");
-            List<User>? employees = (_provider.GetAuthorizedEmployees(groupName))?.FirstOrDefault()?.Employees;
-            User? currentUser = employees?.FirstOrDefault(x => x.Name == username);
-            List<User> usersToView = [];
-
-            if (currentUser?.Managers.Count > 0 && groupName != "Studenter" && groupName != "Students")
+            roles ??= GetClaim("roles");
+            // If user is not a member from support group, filter users result
+            if (roles != null && !roles.Contains("Support", StringComparison.CurrentCulture))
             {
-                foreach (var user in users)
-                {
-                    var managers = _provider.GetManagers(user);
+                username ??= GetClaim("username");
+                List<User>? employees = (_provider.GetAuthorizedEmployees(groupName))?.FirstOrDefault()?.Employees;
+                User? currentUser = employees?.FirstOrDefault(x => x.Name == username);
+                List<User> usersToView = [];
 
-                    if (managers.Count > 0)
+                if (currentUser?.Managers.Count > 0 && groupName != "Studenter" && groupName != "Students")
+                {
+                    foreach (var user in users)
                     {
-                        var matched = currentUser.Managers?.Intersect(managers);
-                        if (matched != null)
-                            usersToView.Add(user);
+                        var managers = _provider.GetManagers(user);
+
+                        if (managers.Count > 0)
+                        {
+                            var matched = currentUser.Managers?.Intersect(managers);
+                            if (matched != null)
+                                usersToView.Add(user);
+                        }
                     }
                 }
-            }
-            else
-                users = users.Where(x => currentUser.Offices.Contains(x.Office)).ToList();
+                else
+                    users = users.Where(x => currentUser.Offices.Contains(x.Office)).ToList();
 
-            users = usersToView;
+                users = usersToView;
+            }
+
+        }
+        catch (Exception ex)
+        {
+
+            _help.SaveFile(["FilteredListOfUsers", $"Fel: {ex.Message}"], "errors", "error");
         }
 
         return users;
