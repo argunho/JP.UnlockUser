@@ -892,9 +892,6 @@ button {
 /* #region Modal */
 .modal-wrapper {
   overflow: hidden;
-}
-
-.css-126xj0f {
   z-index: 3000 !important;
 }
 

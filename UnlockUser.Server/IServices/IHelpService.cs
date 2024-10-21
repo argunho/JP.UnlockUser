@@ -21,7 +21,8 @@ public class IHelpService(IHttpContextAccessor httpContext) : IHelp
                 contentList.Add("\n\n Datum: " + DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
 
                 // Write the string array to a new file named ".txt".
-                pathName = Path.Combine(path, $"{fileName.ToLower().Replace(" ", "_").Replace("__", "_")}_{ DateTime.Now:f}.txt");
+                fileName += DateTime.Now.ToString("yyyyMMddHHmmss");
+                pathName = Path.Combine(path, $"{fileName.ToLower().Replace(" ","_").Replace("__","_")}.txt");
 
                 using StreamWriter outputFile = new(pathName, true);
                 

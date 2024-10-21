@@ -18,7 +18,7 @@ import SessionTokenCheck from '../../functions/SessionTokenCheck';
 
 // Services
 import ApiRequest from '../../services/ApiRequest';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 
 function LogFiles() {
     LogFiles.displayName = "LogFiles";
@@ -27,13 +27,18 @@ function LogFiles() {
     const [initList, setInitList] = useState([])
     const [loading, setLoading] = useState(true);
     const [viewFile, setFileView] = useState(null);
+    const [label, setLabel] = useState("Logfiler");
 
     const { param } = useParams();
+    
+    const loc = useLocation();
 
     // Check current user authentication
     SessionTokenCheck("/");
 
     useEffect(() => {
+        const pageLabel = param === "history" ? "Historik" : "Felhistorik"
+        setLabel(pageLabel);
         if (list.length === 0) {
             async function getLogFiles() {
                 await ApiRequest(`data/logfiles/${param}`).then(res => {
@@ -46,8 +51,8 @@ function LogFiles() {
             getLogFiles();
         }
 
-        document.title = "UnlockUser | Loggfiler";
-    }, [])
+        document.title = `UnlockUser | ${pageLabel}`;
+    }, [loc])
 
     const valueChangeHandler = (value) => {
         let list = initList.filter(x => x?.toLowerCase().includes(value?.toLowerCase().replace(" ", "_").replace(/[:-]/g, "")));
@@ -78,7 +83,7 @@ function LogFiles() {
             <ListItem className='search-result'>
                 {/* Result info */}
                 <ListItemText
-                    primary="Logfiler"
+                    primary={label}
                     secondary={loading ? "Data hämtning pågå ..." : `Antal: ${list?.length}`} />
             </ListItem>
 
