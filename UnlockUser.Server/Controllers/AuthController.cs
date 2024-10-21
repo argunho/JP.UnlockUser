@@ -82,25 +82,32 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             var userGroups = _provider.GetUserGroups(user);
             permissionGroups.RemoveAll(x => !userGroups.Contains(x.PermissionGroup));
             permissionGroups ??= [];
-            var roles = new List<string>() { "Employee" };
+            List<string> roles = [];
 
             // Access if user are a manager
             bool manager = user.Title.ToLower().Contains("chef", StringComparison.CurrentCultureIgnoreCase)
                            || user.Title.ToLower().Contains("rektor", StringComparison.CurrentCultureIgnoreCase);
+
+            //if (_provider.MembershipCheck(user, "Azure-Utvecklare Test"))
+            //    roles.Add("Developer");
+
+            if (_provider.MembershipCheck(user, "TEIS IT avdelning") || roles.IndexOf("Developer") > -1)
+                roles.Add("Support");
+
             if (manager)
-            {
                 roles.Add("Manager");
-                if (permissionGroups.Count == 0)
-                {
-                    var groupsList = _config.GetSection("Groups").Get<List<GroupModel>>();
-                    permissionGroups.Add(groupsList.Find(x => x.Name == "Personal"));
-                }
-            }
 
             // Failed! Permission missed
-            if (permissionGroups.Count == 0)
+            if (permissionGroups.Count == 0 && roles.Count == 0)
                 return new JsonResult(new { alert = "warning", msg = "Åtkomst nekad! Behörighet saknas." });
 
+            if (roles.IndexOf("Support") > -1)
+                permissionGroups.Add(new GroupModel
+                {
+                    Name = "Support",
+                    Manage = "Students, Employee"
+                });
+          
             var groups = permissionGroups.OrderBy(x => x.Name).Select(s => new GroupModel
             {
                 Name = s.Name,
@@ -108,11 +115,6 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             }).ToList();
             var groupsNames = string.Join(",", groups.Select(s => s.Name));
 
-            if (_provider.MembershipCheck(user, "Azure-Utvecklare Test"))
-                roles.Add("Developer");
-
-            if (_provider.MembershipCheck(user, "TEIS IT avdelning") || roles.IndexOf("Developer") > -1)
-                roles.Add("Support");
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
             var token = CreateJwtToken(user, string.Join(",", roles), model?.Password ?? "", groupsNames);

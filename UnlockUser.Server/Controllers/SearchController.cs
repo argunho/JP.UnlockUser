@@ -23,15 +23,19 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
 
         try
         {
-            var groupName = group == "Studenter" ? "Students" : "Employees";
-            DirectorySearcher? result = _provider.GetMembers(groupName);
+            List<string> groupNames = group == "Support" ? ["Students", "Employees"] : [(group == "Studenter" ? "Students" : "Employees")];
 
-            if (match)
-                result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(|(displayName=*{name}*)(|(givenName=*{name}*))(|(upn=*{name.ToLower()}*))(sn=*{name}*))))";
-            else
-                result.Filter = $"(&(objectClass=User)(|(cn={name})(|(displayName={name})(|(givenName={name}))(sn={name}))))";
+            foreach (string groupName in groupNames)
+            {
+                DirectorySearcher? result = _provider.GetMembers(groupName);
 
-            users = FilteredListOfUsers(_provider.GetUsers(result, group), groupName);
+                if (match)
+                    result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(|(displayName=*{name}*)(|(givenName=*{name}*))(|(upn=*{name.ToLower()}*))(sn=*{name}*))))";
+                else
+                    result.Filter = $"(&(objectClass=User)(|(cn={name})(|(displayName={name})(|(givenName={name}))(sn={name}))))";
+
+                users.AddRange(FilteredListOfUsers(_provider.GetUsers(result, (groupName == "Students" ? "Studenter" : "Personal")), groupName));
+            }
         }
         catch (Exception ex)
         {
