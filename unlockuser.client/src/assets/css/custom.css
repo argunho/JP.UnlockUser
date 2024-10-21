@@ -894,6 +894,10 @@ button {
   overflow: hidden;
 }
 
+.css-126xj0f {
+  z-index: 3000 !important;
+}
+
 .modal-wrapper>.MuiDialog-container>div {
   width: 98% !important;
   max-width: 800px !important;
