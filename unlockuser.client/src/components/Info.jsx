@@ -4,7 +4,7 @@ import React, { useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Installed
-import { KeyboardReturnTwoTone } from '@mui/icons-material'
+import { EventNote, KeyboardReturnTwoTone, School } from '@mui/icons-material'
 import { Avatar, Button, List, ListItem, ListItemAvatar, ListItemText, Tooltip, Typography } from '@mui/material'
 
 // Functions
@@ -12,12 +12,6 @@ import SessionTokenCheck from '../functions/SessionTokenCheck';
 
 // Services
 import { AuthContext } from '../services/AuthContext';
-
-// Images
-/* eslint-disable no-unused-vars */
-import personal from "./../assets/images/personal.png";
-import politiker from "./../assets/images/politiker.png";
-import studenter from "./../assets/images/studenter.png";
 
 function Info({ user, name, displayName, subTitle, result, check, children, updateSession, handleOutsideClick }) {
     Info.displayName = "Info";
@@ -31,7 +25,7 @@ function Info({ user, name, displayName, subTitle, result, check, children, upda
 
     const isDisabled = (!user || group?.toLowerCase() !== "studenter" || (typeof children === 'object')
         || !(user.office?.length > 0 && user.department?.length > 0));
-// console.log(images[group])
+
     // Check current user authentication
     if(check)
         SessionTokenCheck();
@@ -53,8 +47,8 @@ function Info({ user, name, displayName, subTitle, result, check, children, upda
 
     const infoBlock = <ListItem className={(result ? "list-link" : "info-block")} onClick={(e) => clickHandle(e, user)}>
         <ListItemAvatar>
-            <Avatar className="user-avatar">
-                <img className={`${group}-avatar`} src={eval(group)} alt="unlock user" />
+            <Avatar>
+                {group === "studenter" ? <School/> : <EventNote />}
             </Avatar>
         </ListItemAvatar>
         

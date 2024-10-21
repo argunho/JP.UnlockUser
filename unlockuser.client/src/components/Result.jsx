@@ -146,7 +146,7 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, cancelReq
                     {/* Select or deselect all list */}
                     <ListItem className='search-result-select'>
                         <ListItemAvatar>
-                            <Avatar className="user-avatar">
+                            <Avatar>
                                 {!selected ? <SelectAll /> : <Deselect color="primary" />}
                             </Avatar>
                         </ListItemAvatar>

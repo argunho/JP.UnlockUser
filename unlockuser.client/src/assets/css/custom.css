@@ -508,26 +508,6 @@ header {
   position: unset;
 }
 
-.user-avatar {
-  width: 90%;
-  background-color: #f0f0f0 !important;
-}
-
-.user-avatar>img {
-  width: 90%;
-  object-fit: contain;
-  -o-object-fit: contain;
-}
-
-.politician-avatar {
-  width: 70% !important;
-  opacity: 0.5;
-}
-
-.students-avatar {
-  width: 90% !important;
-}
-
 .typography-email-span {
   display: block;
   width: max-content;
@@ -883,10 +863,6 @@ button {
 .list-link:hover {
   cursor: pointer !important;
   background: #f0f0f0 !important;
-}
-
-.list-link:hover .user-avatar {
-  background: transparent !important;
 }
 
 .collapse-wrapper {

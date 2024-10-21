@@ -92,7 +92,7 @@ function LogFiles() {
                             <div className='links-wrapper'>
                                 {/* Avatar */}
                                 <ListItemAvatar>
-                                    <Avatar className="user-avatar">
+                                    <Avatar>
                                         <FileOpen />
                                     </Avatar>
                                 </ListItemAvatar>
