@@ -144,6 +144,19 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             else if (stoppedToEdit?.Count > 0)
                 return new JsonResult(new { alert = "info", msg = $"Lösenordsåterställningen lyckades men inte till alla! Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!" });
 
+            // Save statistics
+            try
+            {
+                var statistics = IHelpService.GetJsonList<Statistics>("statistics.json");
+                var year = DateTime.Now.Year;
+                var month = DateTime.Now.Month;
+
+
+            }catch(Exception ex)
+            {
+                _help.SaveFile(["Save statistics", $"Fel: {ex.Message}"], "errors", "error");
+            }
+
             return new JsonResult(new { success = true, alert = "success", msg = "Lösenordsåterställningen lyckades!" }); //Success! Password reset was successful!
         }
         catch (Exception ex)
