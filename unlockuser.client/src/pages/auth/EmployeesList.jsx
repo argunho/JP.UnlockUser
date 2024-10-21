@@ -30,6 +30,7 @@ function EmployeesList() {
     const [page, setPage] = useState(1);
     const [userData, setUserData] = useState();
     const [confirm, setConfirm] = useState(false);
+    const [clean, setClean] = useState(true);
     const [office, setOffice] = useState("");
     const [updating, setUpdating] = useState(false);
     const [changed, setChanged] = useState(false);
@@ -52,6 +53,10 @@ function EmployeesList() {
             getListPerGroup();
         }, 100)
     }, [groups])
+
+    useEffect(() => {
+        setClean(false);
+    }, [])
 
     async function getData() {
         setLoading(true);
@@ -117,10 +122,12 @@ function EmployeesList() {
         setLoading(true);
         setList([]);
         await ApiRequest("app/renew/authorized/employees/list").then(res => {
-            if (res.status === 200)
+            if (res.status === 200) {
                 getData();
-            else
-                setLoading(false);
+                sessionStorage.setItem("updated", "true");
+            }
+
+            setLoading(false);
         }, error => {
             setResponse({ alert: "warning", msg: `Något har gått snett: Fel: ${error}` });
             setLoading(false);
@@ -156,6 +163,7 @@ function EmployeesList() {
         setList(initList?.find(x => x.group?.name === group)?.employees);
         setResponse();
         setLoading(false);
+        setClean(true);
     }
 
     async function onSubmit() {
@@ -181,7 +189,8 @@ function EmployeesList() {
             {/* List filter */}
             <div className="d-row view-list-container search-container">
                 {/* Search filter */}
-                <SearchFilter label="anställda" disabled={loading || response} clean={list?.length === 0 || loading} onChange={listFilterBySearchKeyword} onReset={resetActions} />
+                <SearchFilter label="anställda" disabled={loading || response} clean={clean || loading} 
+                    onChange={listFilterBySearchKeyword} onReset={resetActions} />
 
                 {/* Groups filter */}
                 <Box sx={{ minWidth: 160, marginBottom: "9px" }}>
@@ -203,7 +212,7 @@ function EmployeesList() {
             <List className="d-row list-container">
                 {/* Actions/Info */}
                 <ListItem className='view-list-result' secondaryAction={<Button size='large' variant='outlined'
-                    disabled={loading} endIcon={<Refresh />} onClick={renewList}>
+                    disabled={loading || !!sessionStorage.getItem("updated")} endIcon={<Refresh />} onClick={renewList}>
                     Uppdatera listan
                 </Button>}>
                     <ListItemText primary="Behöriga användare" secondary={loading ? "Data hämtning pågår ..." : `Antal: ${list?.length}`} />
@@ -220,6 +229,10 @@ function EmployeesList() {
                         <ListItemText primary={item?.displayName} secondary={item?.office} />
                     </ListItem>
                 })}
+
+                {/* If listan is empty */}
+                {list?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.length == 0 
+                        && <Response response={{alert: "info", msg: "Inga anställda hittades med matchande sökord."}} reset={resetActions} />}
             </List>
 
             {/* Loading symbol */}
@@ -251,9 +264,9 @@ function EmployeesList() {
                             return <ListItem key={ind} className='modal-list-item' secondaryAction={group === "Studenter" && <IconButton onClick={() => removeOffice(name)}>
                                 <Delete color="error" />
                             </IconButton>}>
-                            <ListItemAvatar>
-                                {ind+1}
-                            </ListItemAvatar>
+                                <ListItemAvatar>
+                                    {ind + 1}
+                                </ListItemAvatar>
                                 <ListItemText primary={name} />
                             </ListItem>
                         })}

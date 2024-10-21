@@ -36,7 +36,6 @@ export default function Response(props) {
             alert: "success",
             msg: "Tack för ditt meddelande!"
         })
-        sessionStorage.removeItem("occuredError");
         await ApiRequest("user/contact/error", "post", model)
             .then(res => {
                 if (res.data.errorMessage)
