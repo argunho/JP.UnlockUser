@@ -5,6 +5,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Net;
 using System.DirectoryServices;
+using System.Globalization;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -76,7 +77,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
     #region POST
     [HttpPost("reset/password")] // Reset class students passwords
-    public JsonResult SetPaswords(UsersListViewModel model)
+    public async Task<JsonResult> SetPaswords(UsersListViewModel model)
     {
         try
         {
@@ -137,6 +138,31 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 SaveHistoryLogFile(sessionUserData);
             }
 
+            // Save statistics
+            try
+            {
+                var statistics = IHelpService.GetJsonList<Statistics>("statistics");
+                statistics ??= [];
+                var year = DateTime.Now.Year;
+                var month = DateTime.Now.ToString("MMMM", CultureInfo.InvariantCulture);
+                var currentMonth = statistics.FirstOrDefault(x => x.Month == month && x.Year == year);
+                if (statistics.Count == 0 || !statistics.Exists(x => x.Year == year) || !statistics.Exists(x => x.Year == year || currentMonth == null)) {
+                    statistics.Add(new Statistics
+                    {
+                        Year = year,
+                        Month = month,
+                        Count = model.Users.Count
+                    });
+                } else if(currentMonth != null)
+                    currentMonth.Count += model.Users.Count;
+
+                await IHelpService.SaveUpdateJsonFile(statistics, "statistics");
+
+            }catch(Exception ex)
+            {
+                _help.SaveFile(["Save statistics", $"Fel: {ex.Message}"], "errors", "error");
+            }
+
             if (message?.Length > 0)
                 return new JsonResult(new { alert = "warning", msg = message });
             else if (stoppedToEdit?.Count > 0 && model.Users.Count == 0)
@@ -144,18 +170,6 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             else if (stoppedToEdit?.Count > 0)
                 return new JsonResult(new { alert = "info", msg = $"Lösenordsåterställningen lyckades men inte till alla! Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!" });
 
-            // Save statistics
-            try
-            {
-                var statistics = IHelpService.GetJsonList<Statistics>("statistics.json");
-                var year = DateTime.Now.Year;
-                var month = DateTime.Now.Month;
-
-
-            }catch(Exception ex)
-            {
-                _help.SaveFile(["Save statistics", $"Fel: {ex.Message}"], "errors", "error");
-            }
 
             return new JsonResult(new { success = true, alert = "success", msg = "Lösenordsåterställningen lyckades!" }); //Success! Password reset was successful!
         }

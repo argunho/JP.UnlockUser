@@ -15,8 +15,8 @@ import Loading from "../../components/Loading";
 // Functions
 import { ErrorHandle } from "../../functions/ErrorHandle";
 
-function Schools({ authContext, label, api, id, fields, labels, navigate }) {
-    Schools.displayName = "Schools";
+function ListView({ authContext, label, api, id, fields, labels, navigate }) {
+    ListView.displayName = "Schools";
 
     const [list, setList] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -41,7 +41,6 @@ function Schools({ authContext, label, api, id, fields, labels, navigate }) {
                     authContext.updateSchools(res.data);
             })
         }
-
         getList();
     }, [])
 
@@ -142,7 +141,7 @@ function Schools({ authContext, label, api, id, fields, labels, navigate }) {
                 {!!response && <Response response={response} reset={() => setResponse(null)} />}
 
                 {/* Confirm/Form block */}
-                <Collapse in={open} className='d-row' timeout="auto" unmountOnExit>
+                {!!fields && <Collapse in={open} className='d-row' timeout="auto" unmountOnExit>
                     {/* Confirm */}
                     {!!confirm && <FormButtons action={confirm} question="Radera" confirmAction={removeItem} reset={() => setConfirm(null)} />}
 
@@ -157,17 +156,17 @@ function Schools({ authContext, label, api, id, fields, labels, navigate }) {
                             {loading ? <CircularProgress size={20} /> : "Spara"}
                         </Button>
                     </form>}
-                </Collapse>
+                </Collapse>}
 
                 {/* Loop of result list */}
                 {(list?.length > 0 && !loading) && list?.map((item, index) => {
                     return <ListItem key={index} className={`list-item${((index + 1) === list?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}`}
-                        secondaryAction={<IconButton onClick={() => confirmHandle(item)} color="error" disabled={!!confirm || visibleForm}>
+                        secondaryAction={!!fields && <IconButton onClick={() => confirmHandle(item)} color="error" disabled={!!confirm || visibleForm}>
                             <Delete /></IconButton>}>
                         <ListItemIcon>
                             {index + 1}
                         </ListItemIcon>
-                        <ListItemText primary={item?.name} secondary={item?.place} />
+                        <ListItemText primary={item?.primary} secondary={item?.secondary} />
                     </ListItem>
                 })}
 
@@ -178,4 +177,4 @@ function Schools({ authContext, label, api, id, fields, labels, navigate }) {
     )
 }
 
-export default Schools
+export default ListView

@@ -1,5 +1,5 @@
 
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
 // Pages
 import EmployeesList from "../pages/auth/EmployeesList";
@@ -9,20 +9,27 @@ import LogFiles from "./../pages/auth/LogFiles";
 import UserManager from "../pages/auth/UserManager";
 import Members from "./../pages/auth/Members";
 import Search from "./../pages/auth/Search";
-import Schools from "./../pages/auth/Schools";
+import ListView from "../pages/auth/ListView";
 import Contacts from "./../pages/open/Contacts";
 import NotFound from "./../pages/open/NotFound";
 
 
 function AuthRoutes({authContext }) {
 
-  const navigate = useNavigate();
+  const navigate = useNavigate();  
+  const loc = useLocation();
+
+  const props = {
+    authContext,
+    navigate,
+    loc
+  };
 
   const routes = [
     {
       index: true,
       path: "/",
-      element: <Search authContext={authContext} navigate={navigate} />
+      element: <Search {...props} />
     },
     {
       path: "/employees",
@@ -30,11 +37,11 @@ function AuthRoutes({authContext }) {
     },
     {
       path: '/manage-user/:id',
-      element: <UserManager authContext={authContext} navigate={navigate} />
+      element: <UserManager {...props} />
     },
     {
       path: '/manage-users/:cls/:school',
-      element: <UsersManager authContext={authContext} navigate={navigate}/>
+      element: <UsersManager {...props} />
     },
     {
       path: '/history',
@@ -42,12 +49,15 @@ function AuthRoutes({authContext }) {
     },
     {
       path: '/logs/:param',
-      element: <LogFiles />
+      element: <LogFiles  {...props} />
+    },
+    {
+      path: '/statistics',
+      element: <ListView {...props} label="Statistik" api="data/statistics"/>
     },
     {
       path: '/schools',
-      element: <Schools authContext={authContext} label="Skolor" api="data/schools" id="name" 
-                        fields={{name: "", place: ""}} labels={["Namn", "Plats"]} navigate={navigate} />
+      element: <ListView {...props} label="Skolor" api="data/schools" id="name" fields={{name: "", place: ""}} labels={["Namn", "Plats"]}  />
     },
     {
       path: '/contact',
@@ -55,7 +65,7 @@ function AuthRoutes({authContext }) {
     },
     {
       path: '/members/:office/:department',
-      element: <Members navigate={navigate} />,
+      element: <Members {...props} />,
     //   routes: [
     //     {
     //       path: "",

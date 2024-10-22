@@ -18,9 +18,9 @@ import SessionTokenCheck from '../../functions/SessionTokenCheck';
 
 // Services
 import ApiRequest from '../../services/ApiRequest';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
-function LogFiles() {
+function LogFiles({loc}) {
     LogFiles.displayName = "LogFiles";
 
     const [list, setList] = useState([]);
@@ -30,8 +30,6 @@ function LogFiles() {
     const [label, setLabel] = useState("Logfiler");
 
     const { param } = useParams();
-    
-    const loc = useLocation();
 
     // Check current user authentication
     SessionTokenCheck("/");
