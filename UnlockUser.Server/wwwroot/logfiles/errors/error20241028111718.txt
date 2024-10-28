@@ -1,0 +1,5 @@
+Save statistics
+Fel: Object reference not set to an instance of an object.
+
+
+ Datum: 2024.10.28 11:17:18

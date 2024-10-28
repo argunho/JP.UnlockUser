@@ -35,18 +35,18 @@
     flex-wrap: wrap !important;
 }
 
-li.list-item {
+div.list-item {
     height: 70px !important;
     box-shadow: 0 0 1px 1px #7e7c7c !important;
     width: calc(50% - 12px);
     margin: 4px 3px !important;
 }
 
-li.last {
+div.last {
     margin: 4px 9px !important;
 }
 
-li.list-item:hover {
+div.list-item:hover {
     cursor: pointer !important;
     background-color: #6363632a !important;
 }
@@ -86,8 +86,8 @@ li.list-item:hover {
 li.modal-list-item {
     box-shadow: 0 0 1px 1px #7e7c7c91 !important;
     border-radius: 3px !important;
-    width: calc(50% - 12px);
-    margin: 4px 3px !important;
+    width: 49%;
+    margin: 4px auto !important;
 }
 
 .view-modal-form,

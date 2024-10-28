@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 using System.Diagnostics;
 
 namespace UnlockUser.Server.Controllers;
@@ -69,12 +70,15 @@ public class DataController(IHelp help) : ControllerBase
 
     // Get schools
     [HttpGet("schools")]
-    public List<School> GetSchools()
+    public List<ListViewModel> GetSchools()
     {
         try
         {
             List<School> schools = IHelpService.GetJsonList<School>("schools");
-            return [.. schools?.OrderBy(x => x.Name)];
+            return [.. schools?.OrderBy(x => x.Name).Select(s => new ListViewModel {
+                Primary = s.Name,
+                Secondary = s.Place
+            })];
         }
         catch (Exception ex)
         {
@@ -99,6 +103,29 @@ public class DataController(IHelp help) : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    // Get statistics
+    [HttpGet("statistics")]
+    public List<ListViewModel> GetStatistics()
+    {
+        try
+        {
+            List<Statistics> schools = IHelpService.GetJsonList<Statistics>("statistics");
+            return [.. schools?.OrderBy(x => x.Year).Select(s => new ListViewModel {
+                Primary = s.Year.ToString(),
+                Secondary = $"Byten lösenord: {s.Months.Sum(s => s.PasswordsChange)}, Upplåst konto: {s.Months.Sum(s => s.Unlocked)}",
+                IncludedList = [.. s.Months.OrderBy(o => o.Name).Select(s => new ListViewModel {
+                    Primary = s.Name,
+                    Secondary = $"Byten lösenord: {s.PasswordsChange}, Upplåst konto: {s.Unlocked}"
+                })]
+            })];
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+            return [];
+        }
+    }
     #endregion
 
     #region POST
@@ -107,7 +134,7 @@ public class DataController(IHelp help) : ControllerBase
     {
         try
         {
-            var schools = GetSchools();
+            var schools = IHelpService.GetJsonList<School>("schools");
             schools.Add(school);
             await UpdateSchoolsJson(schools);
         }
@@ -128,7 +155,7 @@ public class DataController(IHelp help) : ControllerBase
     {
         try
         {
-            var schools = GetSchools();
+            var schools = IHelpService.GetJsonList<School>("schools");
             schools.RemoveAll(x => x.Name == name);
             await UpdateSchoolsJson(schools);
         }

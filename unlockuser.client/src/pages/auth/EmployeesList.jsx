@@ -189,7 +189,7 @@ function EmployeesList() {
             {/* List filter */}
             <div className="d-row view-list-container search-container">
                 {/* Search filter */}
-                <SearchFilter label="anställda" disabled={loading || response} clean={clean || loading} 
+                <SearchFilter label="anställda" disabled={loading || response} clean={clean || loading}
                     onChange={listFilterBySearchKeyword} onReset={resetActions} />
 
                 {/* Groups filter */}
@@ -232,7 +232,7 @@ function EmployeesList() {
 
                 {/* If listan is empty */}
                 {(!loading && list?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.length == 0)
-                        && <Response response={{alert: "info", msg: "Inga anställda hittades med matchande sökord."}} reset={resetActions} />}
+                    && <Response response={{ alert: "info", msg: "Inga anställda hittades med matchande sökord." }} reset={resetActions} />}
             </List>
 
             {/* Loading symbol */}
@@ -255,15 +255,16 @@ function EmployeesList() {
                 </DialogTitle>
 
                 {/* View this block if datat is a text */}
-                <DialogContent className=''>
-                    <List className="d-row view-modal-list">
+                <DialogContent>
+                    <List className="d-row ai-center view-modal-list w-100">
                         <ListItem className='view-list-result'>
                             <ListItemText primary={group === "Studenter" ? "Avdelning/Skola" : "Chefer"} />
                         </ListItem>
                         {!!userData && userData[group === "Studenter" ? "offices" : "managers"]?.map((name, ind) => {
-                            return <ListItem key={ind} className='modal-list-item' secondaryAction={group === "Studenter" && <IconButton onClick={() => removeOffice(name)}>
-                                <Delete color="error" />
-                            </IconButton>}>
+                            return <ListItem key={ind} className='modal-list-item'
+                                            secondaryAction={group === "Studenter" && <IconButton onClick={() => removeOffice(name)}>
+                                                <Delete color="error" />
+                                            </IconButton>}>
                                 <ListItemAvatar>
                                     {ind + 1}
                                 </ListItemAvatar>

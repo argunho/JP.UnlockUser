@@ -1,0 +1,5 @@
+Save statistics
+Fel: Could not find file 'C:\Users\790822asla\Desktop\Jobb\WebApps\UnlockUser\UnlockUser.Server\wwwroot\json\statistics.json'.
+
+
+ Datum: 2024.10.28 08:23:17

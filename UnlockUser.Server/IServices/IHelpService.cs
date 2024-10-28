@@ -95,8 +95,14 @@ public class IHelpService(IHttpContextAccessor httpContext) : IHelp
     #region Help
     public static List<T> GetJsonList<T>(string fileName) where T : class
     {
-        using StreamReader reader = new($@"wwwroot/json/{fileName}.json");
-        return JsonConvert.DeserializeObject<List<T>>(reader.ReadToEnd()) ?? [];
+        try
+        {
+            using StreamReader reader = new($@"wwwroot/json/{fileName}.json");
+            return JsonConvert.DeserializeObject<List<T>>(reader.ReadToEnd()) ?? [];
+        }
+        catch (Exception) { }
+
+        return [];
     }
 
     public static async Task SaveUpdateJsonFile<T>(List<T> list, string name) where T : class

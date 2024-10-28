@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Net;
 using System.DirectoryServices;
 using System.Globalization;
+using System.Reflection;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -51,7 +52,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     [HttpGet("unlock/{name}")] // Unlock user
-    public JsonResult UnlockUser(string name)
+    public async Task<JsonResult> UnlockUser(string name)
     {
         try
         {
@@ -70,6 +71,9 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             return new JsonResult(new { alert = "error", msg = $"Något har gått snett. Fel: {ex.Message}" });
         }
 
+
+        // Save/Update statistics
+        await SaveUpdateStatitics("Unlocked", 1);
 
         return new JsonResult(new { success = true, unlocked = true, alert = "success", msg = "Användaren har låsts upp!" });
     }
@@ -95,7 +99,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
 
             var groupsList = _config.GetSection("Groups").Get<List<GroupModel>>();
-            if(groupsList?.Select(s => s.Name).Intersect(groups) == null)
+            if (groupsList?.Select(s => s.Name).Intersect(groups) == null)
                 return new JsonResult(new { alert = "error", msg = $"Behörigheter saknas!" }); // Warning!
 
 
@@ -138,30 +142,8 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 SaveHistoryLogFile(sessionUserData);
             }
 
-            // Save statistics
-            try
-            {
-                var statistics = IHelpService.GetJsonList<Statistics>("statistics");
-                statistics ??= [];
-                var year = DateTime.Now.Year;
-                var month = DateTime.Now.ToString("MMMM", CultureInfo.InvariantCulture);
-                var currentMonth = statistics.FirstOrDefault(x => x.Month == month && x.Year == year);
-                if (statistics.Count == 0 || !statistics.Exists(x => x.Year == year) || !statistics.Exists(x => x.Year == year || currentMonth == null)) {
-                    statistics.Add(new Statistics
-                    {
-                        Year = year,
-                        Month = month,
-                        Count = model.Users.Count
-                    });
-                } else if(currentMonth != null)
-                    currentMonth.Count += model.Users.Count;
-
-                await IHelpService.SaveUpdateJsonFile(statistics, "statistics");
-
-            }catch(Exception ex)
-            {
-                _help.SaveFile(["Save statistics", $"Fel: {ex.Message}"], "errors", "error");
-            }
+            // Save/Update statistics
+            await SaveUpdateStatitics("PasswordsChange", model.Users.Count);
 
             if (message?.Length > 0)
                 return new JsonResult(new { alert = "warning", msg = message });
@@ -304,6 +286,57 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         catch (Exception)
         {
             return null;
+        }
+    }
+
+    // Save update statistik
+    public async Task SaveUpdateStatitics(string param, int count)
+    {
+        try
+        {
+            var year = DateTime.Now.Year;
+            var month = DateTime.Now.ToString("MMMM", CultureInfo.InvariantCulture);
+
+            var passChange = param == "PasswordsChnage";
+
+            var statistics = IHelpService.GetJsonList<Statistics>("statistics");
+            var yearStatistics = statistics.FirstOrDefault(x => x.Year == year);
+
+            var newData = new Months
+            {
+                Name = month,
+                PasswordsChange = passChange ? count : 0,
+                Unlocked = passChange ? 0 : count
+            };
+
+            if (yearStatistics != null)
+            {
+                var monthStatistics = yearStatistics.Months.FirstOrDefault(x => x.Name == month);
+                if (monthStatistics != null)
+                {
+                    if (passChange)
+                        monthStatistics.PasswordsChange += count;
+                    else
+                        monthStatistics.Unlocked += count;
+                }
+                else
+                    yearStatistics.Months.Add(newData);
+            }
+            else
+            {
+                statistics.Add(new Statistics
+                {
+                    Year = year,
+                    Months = [newData]
+                });
+            }
+
+            await IHelpService.SaveUpdateJsonFile(statistics, "statistics");
+
+        }
+        catch (Exception ex)
+        {
+            _help.SaveFile(["Save statistics", $"Fel: {ex.Message}"], "errors", "error");
         }
     }
 

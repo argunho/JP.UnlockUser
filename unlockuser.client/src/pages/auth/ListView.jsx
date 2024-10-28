@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 // Installed
 import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText, TextField } from "@mui/material";
-import { Delete } from "@mui/icons-material";
+import { ArrowDropDown, ArrowDropUp, ArrowRight, CalendarMonth, Delete, SpaceBar, SpaceDashboard } from "@mui/icons-material";
 
 // Components
 import FormButtons from "../../components/FormButtons";
@@ -26,18 +26,20 @@ function ListView({ authContext, label, api, id, fields, labels, navigate }) {
     const [response, setResponse] = useState(null);
     const [item, setItem] = useState(fields);
     const [required, setRequired] = useState([]);
+    const [collapsedItemIndex, setCollapsedItemIndex] = useState(null);
 
     useEffect(() => {
         async function getList() {
             await ApiRequest(api).then(res => {
                 setList(res.data);
+                console.log(res.data)
                 setLoading(false);
                 if (res.data?.length == 0) {
                     setResponse({
                         alert: "info",
                         msg: "Ingen data att visa ..."
                     })
-                } else 
+                } else
                     authContext.updateSchools(res.data);
             })
         }
@@ -124,11 +126,16 @@ function ListView({ authContext, label, api, id, fields, labels, navigate }) {
         })
     }
 
+    function handleDropdown(index) {
+        setCollapsedItemIndex(index === collapsedItemIndex ? null : index);
+    }
+
     return (
         <div className='interior-div view-list'>
 
             {/* Result list */}
-            <List className="d-row list-container">
+            <List className="d-row list-container"
+                component="nav">
                 {/* Actions/Info */}
                 <ListItem className='view-list-result' secondaryAction={!!fields
                     && <Button size='large' style={{ minWidth: "120px" }} variant='outlined' color={visibleForm ? "error" : "primary"} disabled={loading} onClick={formHandle}>
@@ -160,14 +167,41 @@ function ListView({ authContext, label, api, id, fields, labels, navigate }) {
 
                 {/* Loop of result list */}
                 {(list?.length > 0 && !loading) && list?.map((item, index) => {
-                    return <ListItem key={index} className={`list-item${((index + 1) === list?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}`}
-                        secondaryAction={!!fields && <IconButton onClick={() => confirmHandle(item)} color="error" disabled={!!confirm || visibleForm}>
-                            <Delete /></IconButton>}>
-                        <ListItemIcon>
-                            {index + 1}
-                        </ListItemIcon>
-                        <ListItemText primary={item?.primary} secondary={item?.secondary} />
-                    </ListItem>
+
+                    return <div key={index} className={`list-item${((index + 1) === list?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}`}>
+
+                        {/* List item */}
+                        <ListItem className="w-100"
+                            secondaryAction={
+                                <div className="d-row">
+                                    {!!item?.includedList && <IconButton onClick={() => handleDropdown(index)}>
+                                        {collapsedItemIndex === index ? <ArrowDropUp /> : <ArrowDropDown />}
+                                    </IconButton>}
+                                    {!!fields && <IconButton onClick={() => confirmHandle(item)} color="error" disabled={!!confirm || visibleForm}>
+                                        <Delete />
+                                    </IconButton>}
+                                </div>
+                            } >
+                            <ListItemIcon>
+                                {index + 1}
+                            </ListItemIcon>
+                            <ListItemText primary={item?.primary} secondary={item?.secondary} />
+                        </ListItem>
+
+                        {/* If the item has an included list */}
+                        <Collapse in={collapsedItemIndex === index} className='d-row' timeout="auto" unmountOnExit>
+                            <List style={{width: "95%", margin: "5px auto"}}>
+                                {item?.includedList?.map((inc, ind) => {
+                                    return <ListItem className="w-100" key={ind}>
+                                        <ListItemIcon>
+                                            <CalendarMonth />
+                                        </ListItemIcon>
+                                        <ListItemText primary={inc?.primary} secondary={inc?.secondary} />
+                                    </ListItem>
+                                })}
+                            </List>
+                        </Collapse>
+                    </div>
                 })}
 
                 {/* Loading symbol */}
