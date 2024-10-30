@@ -1,5 +1,5 @@
 
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 /* eslint-disable no-unused-vars */
 export const AuthContext = createContext({
     isAuthorized: false,
@@ -15,7 +15,7 @@ export const AuthContext = createContext({
     updateServiceWorkStatus: (value, hide = false) => { },
     updateGroupName: (value) => { },
     updateSchools: (value) => { },
-    cleanSession: () => {}
+    cleanSession: () => { }
 })
 
 function AuthContextProvider({ children }) {
@@ -26,6 +26,12 @@ function AuthContextProvider({ children }) {
     const [serviceWorkInProgress, setServiceWorkInProgress] = useState(false);
     const [groupName, setGroupName] = useState(sessionStorage.getItem("group"));
     const [schoolsList, setSchoolsList] = useState([]);
+
+    useEffect(() => {
+        console.log(sessionStorage.getItem("schools"))
+        if (!!sessionStorage.getItem("schools"))
+            setSchoolsList(JSON.parse(sessionStorage.getItem("schools")))
+    }, [])
 
     function authorize(token) {
         sessionStorage.setItem("token", token);
@@ -42,7 +48,7 @@ function AuthContextProvider({ children }) {
         cleanSession();
     }
 
-    function cleanSession(){
+    function cleanSession() {
         sessionStorage.removeItem("users");
         sessionStorage.removeItem("sOption")
     }

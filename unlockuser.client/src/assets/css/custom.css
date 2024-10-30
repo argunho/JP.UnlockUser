@@ -72,7 +72,7 @@ div.container {
 header {
   position: sticky;
   top: 0;
-  z-index: 3000;
+  z-index: 1100;
   background-color: #FFFFFF;
 }
 
@@ -879,7 +879,7 @@ button {
 .curtain-block {
   position: absolute;
   display: block;
-  z-index: 5000;
+  z-index: 3000;
   left: 0;
   top: 0;
   background-color: transparent;
@@ -892,7 +892,6 @@ button {
 /* #region Modal */
 .modal-wrapper {
   overflow: hidden;
-  z-index: 3000 !important;
 }
 
 .modal-wrapper>.MuiDialog-container>div {

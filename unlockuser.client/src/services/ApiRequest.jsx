@@ -14,7 +14,6 @@ async function ApiRequest(api, req, data) {
     config.cancelToken = source.token;
     source.token.reason = null;
 
-
     if (!req && !data)
         return await axios.get(api, config);
     else if (!data)

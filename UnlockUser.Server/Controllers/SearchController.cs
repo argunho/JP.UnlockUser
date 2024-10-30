@@ -114,31 +114,31 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
             {
                 username ??= GetClaim("username") ?? "";
                 List<User>? employees = (_provider.GetAuthorizedEmployees(groupName))?.FirstOrDefault()?.Employees;
-                User? currentUser = employees?.FirstOrDefault(x => x.Name == username);
+                User? sessionUser = employees?.FirstOrDefault(x => x.Name == username);
                 List<User> usersToView = [];
 
-                if (currentUser?.Managers.Count > 0 && groupName != "Studenter" && groupName != "Students")
+                if (sessionUser?.Managers.Count > 0 && groupName != "Studenter" && groupName != "Students")
                 {
                     foreach (var user in users)
                     {
-                        var managers = _provider.GetManagers(user);
-
+                        var managers = _provider.GetUserManagers(user)?.Select(s => s.Username)?.ToList() ?? [];
+                        var sessionUserManagers = sessionUser.Managers.Select(s => s.Username).ToList() ?? [];
                         if (managers.Count > 0)
                         {
-                            var matched = currentUser.Managers?.Intersect(managers);
+                            var matched = sessionUserManagers.Intersect(managers);
                             if (matched != null)
                                 usersToView.Add(user);
                         }
                     }
                 }
                 else
-                    users = users.Where(x => currentUser.Offices.Contains(x.Office)).ToList();
+                    users = users.Where(x => sessionUser.Offices.Contains(x.Office)).ToList();
 
                 users = usersToView;
             } else if(groupName != "Students")
             {
                 foreach (var user in users)
-                    user.Managers = _provider.GetManagers(user);
+                    user.Managers = _provider.GetUserManagers(user);
             }
         }
         catch (Exception ex)

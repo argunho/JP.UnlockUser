@@ -12,6 +12,8 @@ public class User
     public string? Division { get; set; }
     public string? Title { get; set; }
     public List<string> Offices { get; set; } = [];
-    public List<string> Managers { get; set; } = [];
+    public List<Manager> Managers { get; set; } = [];
+    public List<string> Checklistan { get; set; } = [];
     public int PasswordLength { get; set; } = 8;
-    public bool IsLocked { get; set; }  }
+    public bool IsLocked { get; set; }  
+}

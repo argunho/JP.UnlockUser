@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Installed
-import { Alert, Button, Collapse } from '@mui/material';
+import { Alert, Button } from '@mui/material';
+
+// Functions
+import { ErrorHandle } from "../functions/ErrorHandle";
 
 // Services
 import ApiRequest from '../services/ApiRequest';
@@ -45,7 +48,7 @@ export default function Response(props) {
                 }, 1000)
             }, error => {
                 props.reset();
-                console.warn(error);
+                ErrorHandle(error, navigate);
             })
     }
 
@@ -88,9 +91,10 @@ export default function Response(props) {
             setTimeLeft(`00:${(min < 10) ? "0" + min : min}:${(sec < 10) ? "0" + sec : sec}`)
         }, 1000)
     }
+    const alertProps = (!props.noAccess && props.reset) ? { onClose: props.reset } : null;
 
-    return <Collapse in={true} className='d-row' timeout="auto" unmountOnExi>
-        <Alert className='alert' severity={response?.alert} onClose={() => ((!props.noAccess && props.reset) ? props.reset() : {})}>
+    return <div className='w-100'>
+        <Alert className='alert' severity={response?.alert} {...alertProps}>
             <span dangerouslySetInnerHTML={{ __html: (timeLeft ? response?.msg.replace(response?.timeLeft, timeLeft) : response?.msg) }}></span>
             {supportLink && <Button variant="contained"
                 color='error'
@@ -99,5 +103,5 @@ export default function Response(props) {
                 Meddela systemadministratör
             </Button>}
         </Alert>
-    </Collapse>;
+    </div>;
 }

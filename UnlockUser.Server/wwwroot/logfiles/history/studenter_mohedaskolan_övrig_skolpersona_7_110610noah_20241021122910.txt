@@ -1,20 +1,0 @@
- Anställd
- - Användarnamn: 640606lili
- - Namn: Lilian Graesén
- - E-postadress: lilian.graesen@alvesta.se
- - Arbetsplats: Mohedaskolan Övrig skolpersona
- - Tjänst: Skoladministratör
-
- Dator
- - Datornamn: ADPF3XG5AB
- - IpAddress: 172.19.25.102
-
- Hantering
- - Gruppnamn: Studenter
- - Skolan: Mohedaskolan
- - Klassnamn: 7
- - Lösenord till 1 student:
-	- Student: 110610noah
-
-
- Datum: 2024.10.21 12:29:10

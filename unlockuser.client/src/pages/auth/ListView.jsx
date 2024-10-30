@@ -36,7 +36,6 @@ function ListView({ authContext, includedList, label, api, id, fields, labels, n
         async function getList() {
             await ApiRequest(api).then(res => {
                 setList(res.data);
-                console.log(res.data)
                 setLoading(false);
                 if (res.data?.length == 0) {
                     setResponse(empty);
@@ -44,8 +43,6 @@ function ListView({ authContext, includedList, label, api, id, fields, labels, n
                     authContext.updateSchools(res.data);
             })
         }
-
-        console.log(includedList)
 
         if (!!api)
             getList();

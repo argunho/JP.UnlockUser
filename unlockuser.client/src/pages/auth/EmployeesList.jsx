@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 // Installed
 import {
     Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton,
-    InputLabel, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, MenuItem, Pagination, Select
+    InputLabel, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, ListSubheader, MenuItem, Pagination, Select
 } from '@mui/material';
 import { Close, Delete, OpenInFull, Refresh } from '@mui/icons-material';
 
@@ -11,6 +11,9 @@ import { Close, Delete, OpenInFull, Refresh } from '@mui/icons-material';
 import SearchFilter from '../../components/SearchFilter';
 import Response from '../../components/Response';
 import Loading from '../../components/Loading';
+
+// Functions
+import { ErrorHandle } from '../../functions/ErrorHandle';
 
 // Services
 import ApiRequest from '../../services/ApiRequest';
@@ -32,9 +35,9 @@ function EmployeesList() {
     const [confirm, setConfirm] = useState(false);
     const [clean, setClean] = useState(true);
     const [office, setOffice] = useState("");
+    const [items, setItems] = useState([]);
     const [updating, setUpdating] = useState(false);
     const [changed, setChanged] = useState(false);
-    const [schools, setSchools] = useState([]);
     const perPage = 20;
 
     const noResult = { alert: "info", msg: "Inga personal hittades." };
@@ -46,9 +49,6 @@ function EmployeesList() {
     useEffect(() => {
         setList([]);
 
-        if (schools?.length == 0)
-            getSchools();
-
         setTimeout(() => {
             getListPerGroup();
         }, 100)
@@ -57,6 +57,10 @@ function EmployeesList() {
     useEffect(() => {
         setClean(false);
     }, [])
+
+    useEffect(() => {
+        getItemsList(group == "Studenter" ? "schools" : "managers");
+    }, [group])
 
     async function getData() {
         setLoading(true);
@@ -82,12 +86,6 @@ function EmployeesList() {
         })
     }
 
-    async function getSchools() {
-        await ApiRequest("data/schools").then(res => {
-            setSchools(res.data);
-        }, error => console.warn(`Get schools error: ${error}`))
-    }
-
     function getListPerGroup(name = group) {
         setLoading(true);
         setGroup(name);
@@ -97,6 +95,13 @@ function EmployeesList() {
             setLoading(false);
         }, 500)
     }
+
+    async function getItemsList(param) {
+        await ApiRequest(`data/list/by/${param}`).then(res => {
+            setItems(res.data);
+        }, error => ErrorHandle(error))
+    }
+
 
     function listFilterBySearchKeyword(value) {
         if (page > 1)
@@ -121,7 +126,7 @@ function EmployeesList() {
     async function renewList() {
         setLoading(true);
         setList([]);
-        await ApiRequest("app/renew/authorized/employees/list").then(res => {
+        await ApiRequest("app/renew/jsons").then(res => {
             if (res.status === 200) {
                 getData();
                 sessionStorage.setItem("updated", "true");
@@ -170,7 +175,6 @@ function EmployeesList() {
         setConfirm(false);
         setUpdating(true);
         await ApiRequest(`app/update/employee/data/${userData?.name}`, "put", userData).then(res => {
-            console.log(res.data)
             if (res.data !== null)
                 setResponse(res.data);
 
@@ -182,6 +186,8 @@ function EmployeesList() {
             closeModal();
         })
     }
+
+    const label = group === "Studenter" ? "Avdelning/Skola" : "Chefer";
 
     return (
         <div className='interior-div view-list'>
@@ -212,7 +218,8 @@ function EmployeesList() {
             <List className="d-row list-container">
                 {/* Actions/Info */}
                 <ListItem className='view-list-result' secondaryAction={<Button size='large' variant='outlined'
-                    disabled={loading || !!sessionStorage.getItem("updated")} endIcon={<Refresh />} onClick={renewList}>
+                    // disabled={loading || !!sessionStorage.getItem("updated")} 
+                    endIcon={<Refresh />} onClick={renewList}>
                     Uppdatera listan
                 </Button>}>
                     <ListItemText primary="Behöriga användare" secondary={loading ? "Data hämtning pågår ..." : `Antal: ${list?.length}`} />
@@ -258,37 +265,43 @@ function EmployeesList() {
                 <DialogContent>
                     <List className="d-row ai-center view-modal-list w-100">
                         <ListItem className='view-list-result'>
-                            <ListItemText primary={group === "Studenter" ? "Avdelning/Skola" : "Chefer"} />
+                            <ListItemText primary={label} />
                         </ListItem>
-                        {!!userData && userData[group === "Studenter" ? "offices" : "managers"]?.map((name, ind) => {
-                            return <ListItem key={ind} className='modal-list-item'
-                                            secondaryAction={group === "Studenter" && <IconButton onClick={() => removeOffice(name)}>
-                                                <Delete color="error" />
-                                            </IconButton>}>
+                        {!!userData && userData[group === "Studenter" ? "offices" : "managers"]?.map((item, ind) => {
+                            console.log(item)
+                            return <ListItem key={ind} className='modal-list-item w-100'
+                                secondaryAction={group === "Studenter" && <IconButton onClick={() => removeOffice(name)}>
+                                    <Delete color="error" />
+                                </IconButton>}>
                                 <ListItemAvatar>
                                     {ind + 1}
                                 </ListItemAvatar>
-                                <ListItemText primary={name} />
+                                <ListItemText primary={item.primary} secondary={item.secondary} />
                             </ListItem>
                         })}
                     </List>
 
                     {/* Textfield */}
-                    {(schools?.length > 1 && group === "Studenter") && <div className='d-row view-modal-form w-100'>
+                    {items?.length > 1 && <div className='d-row view-modal-form w-100'>
                         <FormControl fullWidth>
-                            <InputLabel id="demo-simple-select-label">Skolor</InputLabel>
+                            <InputLabel id="demo-simple-select-label">{label}</InputLabel>
                             <Select
                                 value={office}
-                                label="Skolor"
+                                label={label}
                                 labelId="demo-simple-select-label"
                                 onChange={(e) => setOffice(e.target.value)}
                                 sx={{ height: 50, color: "#1976D2" }}
                             >
-                                {schools?.map((school, index) => (
-                                    <MenuItem value={school.name} key={index}>
-                                        <span style={{ marginLeft: "10px" }}>{` - ${school.name} (${school.place})`}</span>
-                                    </MenuItem>
-                                ))}
+                                <MenuItem defaultChecked={true} checked>Välj från listan</MenuItem>
+                                <MenuItem disabled></MenuItem>
+                                {items?.map((item, index) => {
+                                    return <>
+                                        {items[index - 1]?.secondary !== item?.secondary && <ListSubheader>{item?.secondary}</ListSubheader>}
+                                        <MenuItem key={index} value={item?.primary} disabled={userData?.offices?.indexOf(item?.primary) > -1}>
+                                            <span style={{ marginLeft: "10px" }}>{` - ${item?.primary}`}</span>
+                                        </MenuItem>
+                                    </>
+                                })}
                             </Select>
                         </FormControl>
 
@@ -320,7 +333,7 @@ function EmployeesList() {
                     </>}
                 </DialogActions>
             </Dialog>
-        </div>
+        </div >
     )
 }
 

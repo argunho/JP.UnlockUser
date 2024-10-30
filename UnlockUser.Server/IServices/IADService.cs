@@ -70,9 +70,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
     public List<string> GetSecurityGroupMembers(string? groupName)
     {
         using GroupPrincipal group = GroupPrincipal.FindByIdentity(GetContext(), IdentityType.SamAccountName, groupName);
-        //var members = group.GetMembers(true).ToList();
-        List<string> members = group.GetMembers(true).Select(s => s.SamAccountName).ToList();
-
+        var members = group.GetMembers(true).Select(s => s.SamAccountName).ToList();
         return members;
     }
 
@@ -98,14 +96,13 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
     }
 
     // Get all employee's managers
-    public List<string> GetManagers(User user)
+    public List<Manager> GetUserManagers(User user)
     {
-        string? userManager = user.Manager;
-        bool hasManager = !string.IsNullOrEmpty(userManager);
-        List<string> managers = [];
+        List<Manager> managers = [];
 
         DirectorySearcher? search = new(GetContext().Name);
-
+        string? userManager = user.Manager;
+        bool hasManager = !string.IsNullOrEmpty(userManager);
         while (hasManager && user.Title != "Kommunchef")
         {
             try
@@ -116,7 +113,12 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                 User? manager = GetUserParams(search?.FindOne().Properties);
                 if (hasManager = (manager != null) && manager.Manager != userManager)
                 {
-                    managers.Add(manager.Name);
+                    managers.Add(new Manager
+                    {
+                        Username = manager.Name,
+                        DisplayName = manager.DisplayName,
+                        Division = manager.Division
+                    });
 
                     if (hasManager = !string.IsNullOrEmpty(manager.Manager) && manager.Title != "Kommunchef")
                         userManager = manager.Manager;
@@ -161,14 +163,17 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
     // A function to API request Active Directory and refresh the json list of employees who have permission to change a user password.
     public async Task<string> RenewUsersJsonList(IConfiguration config)
     {
-        var groupEmployees = new List<GroupUsersViewModel>();
-        var groups = config.GetSection("Groups").Get<List<GroupModel>>();
-        var currentList = GetAuthorizedEmployees();
+
         try
         {
+            #region Get employees        
+            var groupEmployees = new List<GroupUsersViewModel>();
+            var groups = config.GetSection("Groups").Get<List<GroupModel>>();
+            var currentList = GetAuthorizedEmployees();
+
             foreach (var group in groups)
             {
-                List<string> members = GetSecurityGroupMembers(group.PermissionGroup);
+                List<string>? members = GetSecurityGroupMembers(group.PermissionGroup);
                 List<User> employees = [];
                 var cListByGroup = currentList.FirstOrDefault(x => x.Group?.Name == group.Name)?.Employees;
                 foreach (var member in members)
@@ -183,8 +188,6 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
 
                     if (group.Manage != "Students")
                     {
-                        //using StreamReader reader = new(@"wwwroot/json/schools.json");
-                        //List<School> schools = JsonConvert.DeserializeObject<List<School>>(reader.ReadToEnd()) ?? [];
                         var schools = IHelpService.GetJsonList<School>("schools");
                         foreach (var school in schools)
                         {
@@ -193,7 +196,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                         }
                     }
 
-                    employees.Add(new User
+                    var employee = new User
                     {
                         Name = user.SamAccountName,
                         DisplayName = user.DisplayName,
@@ -203,9 +206,12 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                         Department = user.Department,
                         Division = user.Division,
                         Manager = user.Manager,
-                        Managers = group.Manage != "Students" ? GetManagers(new User { Title = user.Title, Manager = user.Manager }) : [],
                         Offices = userOffices
-                    });
+                    };
+
+                    if (group.Manage != "Students")
+                        employee.Managers = GetUserManagers(new User { Title = user.Title, Manager = user.Manager });
+                    employees.Add(employee);
                 }
 
                 groupEmployees.Add(new GroupUsersViewModel
@@ -216,6 +222,32 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
             }
 
             await IHelpService.SaveUpdateJsonFile(groupEmployees, "employees");
+            #endregion
+
+            #region Get managers
+            List<User> managers = [];
+            DirectorySearcher? search = new(GetContext().Name);
+
+            search.Filter = "(title=*)";
+            search.PageSize = 15000;
+            search = UpdatedProparties(search);
+            List<SearchResult> list = search.FindAll()?.OfType<SearchResult>().ToList();
+
+            foreach (SearchResult res in list)
+            {
+                var user = GetUserParams(res.Properties);
+                if (user.Title != null && (user.Title.Contains("chef", StringComparison.CurrentCultureIgnoreCase)
+                                       || user.Title.ToLower().Contains("rektor", StringComparison.CurrentCultureIgnoreCase)))
+                    managers.Add(user);
+            }
+
+            await IHelpService.SaveUpdateJsonFile(managers.Select(s => new Manager
+            {
+                Username = s.Name,
+                DisplayName = s.DisplayName,
+                Division = s.Division
+            }).ToList(), "managers");
+            #endregion
         }
         catch (Exception ex)
         {

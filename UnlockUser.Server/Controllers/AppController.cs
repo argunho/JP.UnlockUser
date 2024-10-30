@@ -19,7 +19,7 @@ public class AppController(IHttpContextAccessor contextAccessor, IConfiguration 
     public List<GroupUsersViewModel>? GetAuthorizedEmployees()
         => _provider.GetAuthorizedEmployees();
 
-    [HttpGet("renew/authorized/employees/list")]
+    [HttpGet("renew/jsons")]
     public async Task<IActionResult> RenewEmployeesList()
     {
         string res = await _provider.RenewUsersJsonList(_config);

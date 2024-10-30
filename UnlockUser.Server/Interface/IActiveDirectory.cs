@@ -19,7 +19,7 @@ public interface IActiveDirectory
     DirectorySearcher GetMembers(string? groupName);
     List<string> GetSecurityGroupMembers(string? groupName);
     List<User> GetUsers(DirectorySearcher result, string groupName);
-    List<string> GetManagers(User user);
+    List<Manager> GetUserManagers(User user);
     List<GroupUsersViewModel>? GetAuthorizedEmployees(string? group = null);
 
     PrincipalContext GetContext();

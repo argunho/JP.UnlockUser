@@ -1,20 +1,0 @@
- Anställd
- - Användarnamn: 790106sha
- - Namn: Sharif Salangiri
- - E-postadress: Sharif.Salangiri@alvesta.se
- - Arbetsplats: Sfi gr gy vux
- - Tjänst: Lärare
-
- Dator
- - Datornamn: AEPF4785FZ
- - IpAddress: 172.16.124.20
-
- Hantering
- - Gruppnamn: Studenter
- - Skolan: Vuxenutbildning
- - Klassnamn: ALC2413GRNSVAB
- - Lösenord till 1 student:
-	- Student: 971231ali
-
-
- Datum: 2024.10.21 16:12:04

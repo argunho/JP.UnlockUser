@@ -80,7 +80,7 @@ public partial class IHelpService(IHttpContextAccessor httpContext) : IHelp
                 else
                     configJson[parameter] = value;
 
-                var configJsonToUpdate = Newtonsoft.Json.JsonConvert.SerializeObject(configJson);
+                var configJsonToUpdate = JsonConvert.SerializeObject(configJson);
                 File.WriteAllText($"{config}.json", configJsonToUpdate);
             }
         }
@@ -107,7 +107,10 @@ public partial class IHelpService(IHttpContextAccessor httpContext) : IHelp
     {
         try
         {
-            await using FileStream stream = File.Create($@"wwwroot/json/{name}.json");
+            var path = $@"wwwroot/json/{name}.json";
+            if(File.Exists(path))
+                File.Delete(path);
+            await using FileStream stream = File.Create(path);
             await System.Text.Json.JsonSerializer.SerializeAsync(stream, list);
         }catch(Exception ex)
         {

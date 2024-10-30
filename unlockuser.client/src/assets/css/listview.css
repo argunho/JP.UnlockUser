@@ -89,8 +89,8 @@ li.list-item:hover {
 li.modal-list-item {
     box-shadow: 0 0 1px 1px #7e7c7c91 !important;
     border-radius: 3px !important;
-    width: 49%;
-    margin: 4px auto !important;
+    max-width: calc(50% - 4px);
+    margin: 4px 2px !important;
 }
 
 .view-modal-form,

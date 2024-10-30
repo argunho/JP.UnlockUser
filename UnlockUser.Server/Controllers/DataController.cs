@@ -8,9 +8,10 @@ namespace UnlockUser.Server.Controllers;
 [Route("[controller]")]
 [ApiController]
 [Authorize]
-public class DataController(IHelp help) : ControllerBase
+public class DataController(IHelp help, IActiveDirectory provider) : ControllerBase
 {
     private readonly IHelp _help = help;
+    private readonly IActiveDirectory _provider = provider;
 
     #region GET
     [HttpGet("json/{param}")]
@@ -69,23 +70,40 @@ public class DataController(IHelp help) : ControllerBase
         }
     }
 
-    // Get schools
-    [HttpGet("schools")]
-    public List<ListViewModel> GetSchools()
+    // Get a list that can be used on the employees page to select an additional office/manager.
+    [HttpGet("list/by/{param}")]
+    public List<ListViewModel> GetSchools(string param)
     {
+        //string classToGet = $"UnlockUser.Server.Models.School";
+        //Type classType = Type.GetType(classToGet);
+        //Type listType = typeof(List<>).MakeGenericType(new[] {classType });
+        //object list = Activator.CreateInstance(listType);
         try
         {
-            List<School> schools = IHelpService.GetJsonList<School>("schools");
-            return [.. schools?.OrderBy(x => x.Name).Select(s => new ListViewModel {
-                Primary = s.Name,
-                Secondary = s.Place
-            })];
+            if (param == "schools")
+            {
+                var res = IHelpService.GetJsonList<School>(param);
+                return res.OrderBy(x => x.Place).ThenBy(x => x.Name).Select(s => new ListViewModel
+                {
+                    Primary = s.Name,
+                    Secondary = s.Place
+                }).ToList();
+            }
+            else if (param == "managers")
+            {
+                var res = IHelpService.GetJsonList<Manager>(param);
+                return res.OrderBy(x => x.Division).ThenBy(x => x.DisplayName).Select(s => new ListViewModel
+                {
+                    Primary = s.DisplayName,
+                    Secondary = s.Division
+                }).ToList();
+            }
         }
         catch (Exception ex)
         {
             Debug.WriteLine(ex.Message);
-            return [];
         }
+        return [];
     }
 
     // Get file to download
@@ -186,12 +204,14 @@ public class DataController(IHelp help) : ControllerBase
             return null;
         }
     }
-   
+
     // Update schools json
     public async Task UpdateSchoolsJson(List<School> schools)
     {
         await using FileStream stream = System.IO.File.Create(@"wwwroot/json/schools.json");
         await System.Text.Json.JsonSerializer.SerializeAsync(stream, schools);
     }
+
+
     #endregion
 }
