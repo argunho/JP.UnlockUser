@@ -25,7 +25,7 @@ function AuthContextProvider({ children }) {
     const [serviceWorkStatus, setServiceWorkStatus] = useState(false);
     const [serviceWorkInProgress, setServiceWorkInProgress] = useState(false);
     const [groupName, setGroupName] = useState(sessionStorage.getItem("group"));
-    const [schoolsList, setSchoolsList] = useState(JSON.parse(sessionStorage.getItem("schools") ?? "[]"));
+    const [schoolsList, setSchoolsList] = useState([]);
 
     function authorize(token) {
         sessionStorage.setItem("token", token);

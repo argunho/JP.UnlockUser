@@ -67,7 +67,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            _help.SaveFile(["UnlockUser", $"Fel: {ex.Message}"], "errors", "error");
+            _help.SaveFile(["UnlockUser", $"Fel: {ex.Message}"], @"logfiles\errors");
             return new JsonResult(new { alert = "error", msg = $"Något har gått snett. Fel: {ex.Message}" });
         }
 
@@ -140,6 +140,8 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 }
 
                 SaveHistoryLogFile(sessionUserData);
+                if(!string.IsNullOrEmpty(_help.Message))
+                    return new JsonResult(new { error = message });
             }
 
             // Save/Update statistics
@@ -158,7 +160,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         catch (Exception ex)
         {
 
-            _help.SaveFile(["SetPassword", $"Fel: {ex.Message}"], "errors", "error");
+            _help.SaveFile(["SetPassword", $"Fel: {ex.Message}"], @"logfiles\errors");
             return new JsonResult(new { alert = "error", msg = $"Något har gått snett: Fel: {ex.Message}" });
         }
     }
@@ -186,7 +188,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         catch (Exception ex)
         {
 
-            _help.SaveFile(["SendEmail", $"Fel: {ex.Message}"], "errors", "error");
+            _help.SaveFile(["SendEmail", $"Fel: {ex.Message}"], @"logfiles\errors");
             return Error(ex.Message);
         }
 
@@ -219,7 +221,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            _help.SaveFile(["SendEmailToSupport", $"Fel: {ex.Message}"], "errors", "error");
+            _help.SaveFile(["SendEmailToSupport", $"Fel: {ex.Message}"], @"logfiles\errors");
             Debug.WriteLine(ex.Message);
             return new JsonResult(new { errorMessage = MailService._message });
         }
@@ -297,7 +299,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             var year = DateTime.Now.Year;
             var month = DateTime.Now.ToString("MMMM", CultureInfo.InvariantCulture);
 
-            var passChange = param == "PasswordsChnage";
+            var passChange = (param == "PasswordsChange");
 
             var statistics = IHelpService.GetJsonList<Statistics>("statistics");
             var yearStatistics = statistics.FirstOrDefault(x => x.Year == year);
@@ -336,7 +338,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            _help.SaveFile(["Save statistics", $"Fel: {ex.Message}"], "errors", "error");
+            _help.SaveFile(["Save statistics", $"Fel: {ex.Message}"], @"logfiles\errors");
         }
     }
 
@@ -389,11 +391,9 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             contentList.Add(" - Arbetsplats: " + model?.Office);
             contentList.Add(" - Lösenord till:");
             contentList.Add($"\t-{model.Group}: {model.Users[0]}");
-
-            fileName += model?.Office + "_" + model.Users[0];
         }
 
-        _help.SaveFile(contentList, "history", fileName);
+        _help.SaveFile(contentList, @"logfiles\history");
     }
 
     // Help method to structure a warning message

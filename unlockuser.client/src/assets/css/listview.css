@@ -35,18 +35,21 @@
     flex-wrap: wrap !important;
 }
 
-div.list-item {
+div.list-item,
+li.list-item {
     height: 70px !important;
     box-shadow: 0 0 1px 1px #7e7c7c !important;
     width: calc(50% - 12px);
     margin: 4px 3px !important;
 }
 
-div.last {
+div.last,
+li.last {
     margin: 4px 9px !important;
 }
 
-div.list-item:hover {
+div.list-item:hover, 
+li.list-item:hover {
     cursor: pointer !important;
     background-color: #6363632a !important;
 }

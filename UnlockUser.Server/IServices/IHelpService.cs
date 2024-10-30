@@ -4,34 +4,32 @@ using System.Text.RegularExpressions;
 
 namespace UnlockUser.Server.IServices;
 
-public class IHelpService(IHttpContextAccessor httpContext) : IHelp
+public partial class IHelpService(IHttpContextAccessor httpContext) : IHelp
 {
 
     public string Message { get; set; } = "";
     private readonly IHttpContextAccessor _httpContext = httpContext;
 
     // Save history logfile
-    public void SaveFile(List<string> contentList, string pathName, string fileName)
+    public void SaveFile(List<string> contentList, string pathName)
     {
-        var path = $@"wwwroot\logfiles\{pathName}\";
-        if (CheckDirectory(path))
+        var directory = $@"wwwroot\{pathName}";
+        if (CheckDirectory(directory))
         {
             try
             {
                 contentList.Add("\n\n Datum: " + DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
 
                 // Write the string array to a new file named ".txt".
-                fileName += DateTime.Now.ToString("yyyyMMddHHmmss");
-                pathName = Path.Combine(path, $"{fileName.ToLower().Replace(" ","_").Replace("__","_")}.txt");
+                var fileName = string.Concat(Guid.NewGuid().ToString().AsSpan(10), "_", DateTime.Now.ToString("yyyyMMddHHmmss"));
+                var path = Path.Combine(directory, $"{fileName}.txt");
 
-                using StreamWriter outputFile = new(pathName, true);
-                
+                //using StreamWriter outputFile = new(pathName, true);
+                using StreamWriter stream = File.CreateText(path);
                 foreach (var contentLine in contentList)
-                {
-                    //outputFile.WriteLine(contentLine + Environment.NewLine);
-                    outputFile.WriteLine(contentLine);
-                }
-                outputFile.Close();
+                    stream.WriteLine(contentLine);
+
+                stream.Close();
             }
             catch (Exception ex)
             {
@@ -63,7 +61,7 @@ public class IHelpService(IHttpContextAccessor httpContext) : IHelp
     public bool CheckLocalHost()
     {
         string url = _httpContext.HttpContext.Request.Host.Value.ToString();
-        var regex = new Regex(@"\\/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/");
+        var regex = Regex();
         return url.IndexOf("localhost") > -1 || url.IndexOf("[::1]") > -1 || regex.IsMatch(url);
     }
 
@@ -107,8 +105,17 @@ public class IHelpService(IHttpContextAccessor httpContext) : IHelp
 
     public static async Task SaveUpdateJsonFile<T>(List<T> list, string name) where T : class
     {
-        await using FileStream stream = File.Create($@"wwwroot/json/{name}.json");
-        await System.Text.Json.JsonSerializer.SerializeAsync(stream, list);
+        try
+        {
+            await using FileStream stream = File.Create($@"wwwroot/json/{name}.json");
+            await System.Text.Json.JsonSerializer.SerializeAsync(stream, list);
+        }catch(Exception ex)
+        {
+            Debug.WriteLine($"{nameof(SaveUpdateJsonFile)} => Error: ${ex.Message}");
+        }
     }
+
+    [GeneratedRegex(@"\\/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/")]
+    private static partial Regex Regex();
     #endregion
 }

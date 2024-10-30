@@ -37,6 +37,7 @@ function LogFiles({loc}) {
     useEffect(() => {
         const pageLabel = param === "history" ? "Historik" : "Felhistorik"
         setLabel(pageLabel);
+        setList([]);
         if (list.length === 0) {
             async function getLogFiles() {
                 await ApiRequest(`data/logfiles/${param}`).then(res => {
@@ -59,7 +60,7 @@ function LogFiles({loc}) {
 
     const handleFile = async (file, download = false) => {
         // const fileDownload = require('js-file-download');
-        await ApiRequest("data/readTextFile/" + file).then(res => {
+        await ApiRequest("data/read/file/" + file).then(res => {
             if (res.status === 200) {
                 if (download)
                     fileDownload(res.data, file.slice(file.lastIndexOf("_") + 1) + ".txt");

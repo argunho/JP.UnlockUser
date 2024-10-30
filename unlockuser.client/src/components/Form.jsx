@@ -16,7 +16,7 @@ import PasswordGeneration from './PasswordGeneration';
 import ListCategories from './ListCategories';
 
 // Functions
-import SessionPasswordsList from '../functions/SessionPasswordsList';
+import SessionHistory from '../functions/SessionHistoryData';
 
 // Services
 import ApiRequest from '../services/ApiRequest';
@@ -279,10 +279,22 @@ function Form({ title, name, passwordLength, users, authContext }) {
 
     // Update session list of changed passwords
     const setSessionHistory = (data) => {
-        if (data.username === undefined)
-            data.username = location;
-        let sessionPasswordsList = SessionPasswordsList();
-        sessionPasswordsList.push(data);
+
+        let sessionData = {
+            primary: ((!data.username ? location : data.username)?.replace("%", " "))?.replace("\" ", ""),
+            secondary: data.users?.length === 0 ? ("Lösenord: " + data.password) : ("Elever: " + data.users?.length),
+            link: data.users?.length === 0 ? `/manage-user/${data?.username}` : null,
+            includedList: data.users?.map((user) => {
+                return {
+                    primary: (user.username?.replace("%", " "))?.replace("\" ", ""),
+                    secondary: "Lösenord: " + user.password,
+                    link: `/manage-user/${user.username}`
+                }
+            })
+        }
+        
+        let sessionPasswordsList = SessionHistory();
+        sessionPasswordsList.push(sessionData);
 
         sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
     }

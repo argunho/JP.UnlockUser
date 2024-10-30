@@ -1,0 +1,19 @@
+ Anställd
+ - Användarnamn: 850218lind
+ - Namn: Linda Andersson
+ - E-postadress: linda.andersson3@alvesta.se
+ - Arbetsplats: Torsgården Adm
+ - Tjänst: Administratör
+
+ Dator
+ - Datornamn: ADPF4BMMLX
+ - IpAddress: 172.19.29.113
+
+ Hantering
+ - Gruppnamn: Personal
+ - Arbetsplats: Torsgården Adm
+ - Lösenord till:
+	-Personal: 810818jann
+
+
+ Datum: 2024.10.21 12:05:00

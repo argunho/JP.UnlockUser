@@ -1,0 +1,19 @@
+ Anställd
+ - Användarnamn: 640816mari
+ - Namn: Marie Berntsson
+ - E-postadress: marie.berntsson@alvesta.se
+ - Arbetsplats: Ordbo Adm
+ - Tjänst: Verksamhetssamordnare
+
+ Dator
+ - Datornamn: ABPF20DE0K
+ - IpAddress: 172.17.72.128
+
+ Hantering
+ - Gruppnamn: Personal
+ - Arbetsplats: Ordbo Adm
+ - Lösenord till:
+	-Personal: 020108ibra
+
+
+ Datum: 2024.10.21 14:23:21

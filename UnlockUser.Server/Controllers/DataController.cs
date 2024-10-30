@@ -32,9 +32,10 @@ public class DataController(IHelp help) : ControllerBase
     [HttpGet("logfiles/{param}")]
     public JsonResult GetTextFiles(string param)
     {
+        var path = @"wwwroot/logfiles/" + param;
         try
         {
-            var logs = Directory.GetFiles($@"wwwroot/logfiles/{param}/", "*.txt", SearchOption.AllDirectories).ToList();
+            var logs = Directory.GetFiles(path, "*.txt", SearchOption.AllDirectories).ToList();
 
             // Remove old files
             if (logs != null && logs?.Count > 0)
@@ -88,7 +89,7 @@ public class DataController(IHelp help) : ControllerBase
     }
 
     // Get file to download
-    [HttpGet("readTextFile/{id}")]
+    [HttpGet("read/file/{id}")]
     public ActionResult ReadTextFile(string id)
     {
         var filePath = @"wwwroot/logfiles/" + id + ".txt";

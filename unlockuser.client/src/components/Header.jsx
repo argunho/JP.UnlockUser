@@ -23,7 +23,7 @@ function Header({ authContext }) {
     const navigate = useNavigate();
 
     let links = [
-        { label: "Session historik", url: "history", icon: <History />, access: false },
+        { label: "Session historik", url: "session/history", icon: <History />, access: false },
         { label: "Behöriga användare", url: "employees", icon: <SettingsApplications />, access: true },
         { label: "Skolor", url: "schools", icon: <School />, access: true },
         { label: "Historik", url: "logs/history", icon: <WorkHistory />, access: true },

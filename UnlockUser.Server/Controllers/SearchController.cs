@@ -40,7 +40,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
         }
         catch (Exception ex)
         {
-            _help.SaveFile(["FindUser", $"Fel: {ex.Message}"], "errors", "error");
+            _help.SaveFile(["FindUser", $"Fel: {ex.Message}"], @"logfiles\errors");
             return Error(ex.Message);
         }
 
@@ -80,7 +80,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
         }
         catch (Exception ex)
         {
-            _help.SaveFile(["FindClassMembers", $"Fel: {ex.Message}"], "errors", "error");
+            _help.SaveFile(["FindClassMembers", $"Fel: {ex.Message}"], @"logfiles\errors");
             return Error(ex.Message);
         }
 
@@ -143,8 +143,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
         }
         catch (Exception ex)
         {
-
-            _help.SaveFile(["FilteredListOfUsers", $"Fel: {ex.Message}"], "errors", "error");
+            _help.SaveFile(["FilteredListOfUsers", $"Fel: {ex.Message}"], @"logfiles\errors");
         }
 
         return users;

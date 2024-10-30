@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 // Installed
 import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText, TextField } from "@mui/material";
-import { ArrowDropDown, ArrowDropUp, ArrowRight, CalendarMonth, Delete, SpaceBar, SpaceDashboard } from "@mui/icons-material";
+import { ArrowDropDown, ArrowDropUp, CalendarMonth, Delete } from "@mui/icons-material";
 
 // Components
 import FormButtons from "../../components/FormButtons";
@@ -15,10 +15,10 @@ import Loading from "../../components/Loading";
 // Functions
 import { ErrorHandle } from "../../functions/ErrorHandle";
 
-function ListView({ authContext, label, api, id, fields, labels, navigate }) {
+function ListView({ authContext, includedList, label, api, id, fields, labels, navigate }) {
     ListView.displayName = "Schools";
 
-    const [list, setList] = useState([]);
+    const [list, setList] = useState(includedList ?? []);
     const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
     const [confirm, setConfirm] = useState(null);
@@ -29,21 +29,32 @@ function ListView({ authContext, label, api, id, fields, labels, navigate }) {
     const [collapsedItemIndex, setCollapsedItemIndex] = useState(null);
 
     useEffect(() => {
+        const empty = {
+            alert: "info",
+            msg: "Ingen data att visa ..."
+        };
         async function getList() {
             await ApiRequest(api).then(res => {
                 setList(res.data);
                 console.log(res.data)
                 setLoading(false);
                 if (res.data?.length == 0) {
-                    setResponse({
-                        alert: "info",
-                        msg: "Ingen data att visa ..."
-                    })
+                    setResponse(empty);
                 } else
                     authContext.updateSchools(res.data);
             })
         }
-        getList();
+
+        console.log(includedList)
+
+        if (!!api)
+            getList();
+        else {
+            if (list.length === 0)
+                setResponse(empty);
+            setLoading(false);
+            setList(includedList);
+        }
     }, [])
 
     useEffect(() => {
@@ -167,9 +178,8 @@ function ListView({ authContext, label, api, id, fields, labels, navigate }) {
 
                 {/* Loop of result list */}
                 {(list?.length > 0 && !loading) && list?.map((item, index) => {
-
+                    const props = !!item?.link ? { onClick: () => navigate(item?.link)} : null;
                     return <div key={index} className={`list-item${((index + 1) === list?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}`}>
-
                         {/* List item */}
                         <ListItem className="w-100"
                             secondaryAction={
@@ -185,14 +195,15 @@ function ListView({ authContext, label, api, id, fields, labels, navigate }) {
                             <ListItemIcon>
                                 {index + 1}
                             </ListItemIcon>
-                            <ListItemText primary={item?.primary} secondary={item?.secondary} />
+                            <ListItemText primary={item?.primary} secondary={item?.secondary} {...props} />
                         </ListItem>
 
                         {/* If the item has an included list */}
                         <Collapse in={collapsedItemIndex === index} className='d-row' timeout="auto" unmountOnExit>
-                            <List style={{width: "95%", margin: "5px auto"}}>
+                            <List style={{ width: "95%", margin: "5px auto" }}>
                                 {item?.includedList?.map((inc, ind) => {
-                                    return <ListItem className="w-100" key={ind}>
+                                    const collapseProps = !!inc?.link ? { onClick: () => navigate(inc.link)} : null;
+                                    return <ListItem className="w-100" key={ind} {...collapseProps}>
                                         <ListItemIcon>
                                             <CalendarMonth />
                                         </ListItemIcon>

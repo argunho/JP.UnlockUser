@@ -3,7 +3,6 @@ import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
 // Pages
 import EmployeesList from "../pages/auth/EmployeesList";
-import SessionHistory from "./../pages/auth/SessionHistory";
 import UsersManager from "./../pages/auth/UsersManager";
 import LogFiles from "./../pages/auth/LogFiles";
 import UserManager from "../pages/auth/UserManager";
@@ -12,6 +11,9 @@ import Search from "./../pages/auth/Search";
 import ListView from "../pages/auth/ListView";
 import Contacts from "./../pages/open/Contacts";
 import NotFound from "./../pages/open/NotFound";
+
+// Functions
+import SessionHistoryData from "../functions/SessionHistoryData";
 
 
 function AuthRoutes({authContext }) {
@@ -44,8 +46,8 @@ function AuthRoutes({authContext }) {
       element: <UsersManager {...props} />
     },
     {
-      path: '/history',
-      element: <SessionHistory />
+      path: '/session/history',
+      element: <ListView {...props} includedList={SessionHistoryData()} label="Session historik" />
     },
     {
       path: '/logs/:param',
@@ -66,22 +68,8 @@ function AuthRoutes({authContext }) {
     {
       path: '/members/:office/:department',
       element: <Members {...props} />,
-    //   routes: [
-    //     {
-    //       path: "",
-    //       element: <ListView api="form" />
-    //     },
-    //   ]
-    },
-    // {
-    //       path: "/service/in/progress",
-    //       element: <WorkInProgress authContext={authContext} navigate={navigate} />
-    //     },
-    // {
-    //   path: "logout",
-    //   element: <Logout />
-    // }
-
+    //   routes: [ ]
+    }
   ];
 
   return <Routes>
