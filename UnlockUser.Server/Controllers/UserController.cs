@@ -71,7 +71,6 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             return new JsonResult(new { alert = "error", msg = $"Något har gått snett. Fel: {ex.Message}" });
         }
 
-
         // Save/Update statistics
         await SaveUpdateStatitics("Unlocked", 1);
 

@@ -135,6 +135,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                         Username = manager.Name,
                         DisplayName = manager.DisplayName,
                         Division = manager.Division,
+                        Existing = true,
                         Disabled = index != 0 && (existing == null || existing.Disabled)
                     });
 
@@ -149,6 +150,12 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                 hasManager = false;
                 Debug.WriteLine(ex.Message);
             }
+        }
+
+        if(user.Managers?.Count > 0)
+        {
+            user.Managers.RemoveAll(x => managers.Contains(x));
+            managers.AddRange(user.Managers);
         }
 
         return managers.Distinct().ToList() ?? [];

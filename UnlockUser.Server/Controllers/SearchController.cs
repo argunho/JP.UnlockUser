@@ -123,7 +123,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
                     foreach (var user in users)
                     {
                         var managers = _provider.GetUserManagers(user)?.Select(s => s.Username)?.ToList() ?? [];
-                        var sessionUserManagers = sessionUser.Managers.Select(s => s.Username).ToList() ?? [];
+                        var sessionUserManagers = sessionUser.Managers.Where(x => !x.Disabled).Select(s => s.Username).ToList() ?? [];
                         if (managers.Count > 0)
                         {
                             var matched = sessionUserManagers.Intersect(managers);

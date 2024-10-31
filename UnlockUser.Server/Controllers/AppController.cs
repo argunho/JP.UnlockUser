@@ -66,8 +66,8 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
             Primary = s.DisplayName,
             Secondary = s.Office,
             s.Title,
-            IncludedList = (param == "Studenter") ? s.Offices.Select(x => new ListViewModel {  Primary = x }).ToList()
-                           : s.Managers.Select(x => new ListViewModel { Primary = x.DisplayName, Secondary = x.Division, BoolValue = x.Disabled }).ToList()
+            IncludedList =  (param == "Studenter") ? (dynamic)s.Offices.Select(x => new { Primary = x }).ToList()
+                           : (dynamic)s.Managers.Select(x => new { Primary = x.DisplayName, Secondary = x.Division, BoolValue = x.Disabled, Removable = !x.Existing }).ToList()
         });
 
         return new JsonResult(new { employees = viewList, selections });

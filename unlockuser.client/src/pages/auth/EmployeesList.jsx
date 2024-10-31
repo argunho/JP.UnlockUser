@@ -35,7 +35,7 @@ function EmployeesList() {
     const [userData, setUserData] = useState();
     const [confirm, setConfirm] = useState(false);
     const [clean, setClean] = useState(true);
-    const [selected, setSelected] = useState();
+    const [selected, setSelected] = useState("");
     const [items, setItems] = useState([]);
     const [updating, setUpdating] = useState(false);
     const [changed, setChanged] = useState(false);
@@ -89,7 +89,7 @@ function EmployeesList() {
         if (page > 1)
             setPage(1);
         if (value?.length >= 3)
-            setList(list.filter(x => JSON.stringify(x).toLowerCase().includes(value.toLowerCase())));
+            setList(list.filter(x => JSON.stringify(x).toLowerCase().includes(value?.toLowerCase())));
         else if (value === "")
             resetActions();
     }
@@ -115,12 +115,15 @@ function EmployeesList() {
     }
 
     function clickHandle(item, index) {
-        const array = userData.includedList;
-        if (item?.boolValue !== undefined)
-            array[index].boolValue = !item.boolValue;
-        else
-            array.splice(index, 1);
-
+        let array = userData.includedList;
+        if (item?.boolValue !== undefined) {
+            if (item?.removable)
+                array = array.filter((x, ind) => index != ind);
+            else
+                array[index].boolValue = !item.boolValue;
+        } else
+            array = array.filter((x, ind) => index != ind);
+        console.log(item?.boolValue, index, array)
         setUserData({ ...userData, includedList: array });
         setChanged(true);
     }
@@ -187,7 +190,7 @@ function EmployeesList() {
                 <Box sx={{ minWidth: 160, marginBottom: "9px" }}>
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Grupper</InputLabel>
-                        <Select value={group} label="Grupper" labelId="demo-simple-select-label"
+                        <Select value={group ?? ""} label="Grupper" labelId="demo-simple-select-label"
                             onChange={(e) => setGroup(e.target.value)} sx={{ height: 50, color: "#1976D2" }} disabled={loading}>
                             {groups?.map((name, index) => (
                                 <MenuItem value={name} key={index}>
@@ -203,7 +206,7 @@ function EmployeesList() {
             <List className="d-row list-container">
                 {/* Actions/Info */}
                 <ListItem className='view-list-result' secondaryAction={<Button size='large' variant='outlined'
-                    disabled={loading || !!sessionStorage.getItem("updated")}
+                    // disabled={loading || !!sessionStorage.getItem("updated")}
                     endIcon={<Refresh />} onClick={renewList}>
                     Uppdatera listan
                 </Button>}>
