@@ -3,6 +3,8 @@ using System.DirectoryServices;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.IO;
+using UnlockUser.Server.Models;
+using System.ComponentModel.Design;
 
 namespace UnlockUser.Server.IServices;
 
@@ -103,6 +105,19 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
         DirectorySearcher? search = new(GetContext().Name);
         string? userManager = user.Manager;
         bool hasManager = !string.IsNullOrEmpty(userManager);
+
+        //  Check all user bosses if they exist
+        if (user.Managers.Count > 0)
+        {
+            foreach (var manager in user.Managers)
+            {
+                var checkedManager = FindUserByExtensionProperty(manager.Username);
+                if (checkedManager == null || !CheckManager(user.Title))
+                    user.Managers.Remove(manager);
+            }
+        }
+
+        int index = 0;
         while (hasManager && user.Title != "Kommunchef")
         {
             try
@@ -113,12 +128,17 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                 User? manager = GetUserParams(search?.FindOne().Properties);
                 if (hasManager = (manager != null) && manager.Manager != userManager)
                 {
+                    var existing = user.Managers?.Count > 0 ? user.Managers?.First(x => x.Username == manager?.Name) : null;
+
                     managers.Add(new Manager
                     {
                         Username = manager.Name,
                         DisplayName = manager.DisplayName,
-                        Division = manager.Division
+                        Division = manager.Division,
+                        Disabled = index != 0 && (existing == null || existing.Disabled)
                     });
+
+                    index++;
 
                     if (hasManager = !string.IsNullOrEmpty(manager.Manager) && manager.Title != "Kommunchef")
                         userManager = manager.Manager;
@@ -133,27 +153,6 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
 
         return managers.Distinct().ToList() ?? [];
     }
-
-    // Get all employyes from json file
-    public List<GroupUsersViewModel>? GetAuthorizedEmployees(string? group = null)
-    {
-        List<GroupUsersViewModel>? groupEmployees = [];
-        try
-        {
-            //using StreamReader reader = new(@"wwwroot/json/employees.json");
-            //groupEmployees = JsonConvert.DeserializeObject<List<GroupUsersViewModel>>(reader.ReadToEnd());
-            groupEmployees = IHelpService.GetJsonList<GroupUsersViewModel>("employees");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error UnlockUser: GetEmployees: {ex.Message}");
-        }
-
-        if (string.IsNullOrEmpty(group))
-            return groupEmployees;
-
-        return groupEmployees?.Where(x => x.Group?.Name == group).ToList();
-    }
     #endregion
 
     #region Actions
@@ -163,13 +162,12 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
     // A function to API request Active Directory and refresh the json list of employees who have permission to change a user password.
     public async Task<string> RenewUsersJsonList(IConfiguration config)
     {
-
         try
         {
             #region Get employees        
             var groupEmployees = new List<GroupUsersViewModel>();
             var groups = config.GetSection("Groups").Get<List<GroupModel>>();
-            var currentList = GetAuthorizedEmployees();
+            var currentList = IHelpService.GetJsonList<GroupUsersViewModel>("employees") ?? [];
 
             foreach (var group in groups)
             {
@@ -182,10 +180,13 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                     if (user != null && (user.Equals(default(UserPrincipalExtension)) || user?.SamAccountName.Length < 6))
                         continue;
 
-                    var userOffices = cListByGroup?.FirstOrDefault(x => x.Name == user.SamAccountName)?.Offices ?? [];
+                    // Get member office name
+                    var existingUser = cListByGroup?.FirstOrDefault(x => x.Name == user?.SamAccountName);
+                    var userOffices = existingUser?.Offices ?? [];
                     if (userOffices.IndexOf(user.Office) == -1)
                         userOffices = [user.Office];
 
+                    // Check all school staff
                     if (group.Manage != "Students")
                     {
                         var schools = IHelpService.GetJsonList<School>("schools");
@@ -209,8 +210,11 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                         Offices = userOffices
                     };
 
+                    // If the existing user is null, convert it to the new user
+                    existingUser ??= new User { Title = user.Title, Manager = user.Manager };
+
                     if (group.Manage != "Students")
-                        employee.Managers = GetUserManagers(new User { Title = user.Title, Manager = user.Manager });
+                        employee.Managers = GetUserManagers(existingUser);
                     employees.Add(employee);
                 }
 
@@ -236,8 +240,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
             foreach (SearchResult res in list)
             {
                 var user = GetUserParams(res.Properties);
-                if (user.Title != null && (user.Title.Contains("chef", StringComparison.CurrentCultureIgnoreCase)
-                                       || user.Title.ToLower().Contains("rektor", StringComparison.CurrentCultureIgnoreCase)))
+                if (user.Title != null && CheckManager(user.Title))
                     managers.Add(user);
             }
 
@@ -347,5 +350,8 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
             IsLocked = isLocked
         };
     }
+
+    public bool CheckManager(string jobTitle) =>
+        jobTitle.Contains("chef", StringComparison.CurrentCultureIgnoreCase) || jobTitle.ToLower().Contains("rektor", StringComparison.CurrentCultureIgnoreCase);
     #endregion
 }

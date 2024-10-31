@@ -13,7 +13,6 @@ public class User
     public string? Title { get; set; }
     public List<string> Offices { get; set; } = [];
     public List<Manager> Managers { get; set; } = [];
-    public List<string> Checklistan { get; set; } = [];
     public int PasswordLength { get; set; } = 8;
     public bool IsLocked { get; set; }  
 }

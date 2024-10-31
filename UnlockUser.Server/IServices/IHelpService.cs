@@ -71,7 +71,7 @@ public partial class IHelpService(IHttpContextAccessor httpContext) : IHelp
         try
         {
             var configJsonFile = File.ReadAllText($"{config}.json");
-            dynamic? configJson = Newtonsoft.Json.JsonConvert.DeserializeObject(configJsonFile);
+            dynamic? configJson = JsonConvert.DeserializeObject(configJsonFile);
 
             if (configJson != null)
             {
@@ -112,6 +112,7 @@ public partial class IHelpService(IHttpContextAccessor httpContext) : IHelp
                 File.Delete(path);
             await using FileStream stream = File.Create(path);
             await System.Text.Json.JsonSerializer.SerializeAsync(stream, list);
+            stream.Close();
         }catch(Exception ex)
         {
             Debug.WriteLine($"{nameof(SaveUpdateJsonFile)} => Error: ${ex.Message}");

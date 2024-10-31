@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using System.Xml.Linq;
 
 namespace UnlockUser.Server.Models;
 
@@ -7,9 +8,5 @@ public class Manager
     public string? Username { get; set; }
     public string? DisplayName { get; set; }
     public string? Division { get; set; }
-
-    [IgnoreDataMember]
-    public string? Primary => DisplayName;
-    [IgnoreDataMember]
-    public string? Secondary => Division;
+    public bool Disabled { get; set; }
 }

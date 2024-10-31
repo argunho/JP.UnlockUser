@@ -27,7 +27,7 @@ function EmployeesList() {
     const [initList, setInit] = useState([]);
     const [list, setList] = useState([]);
     const [response, setResponse] = useState();
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [groups, setGroups] = useState([]);
     const [group, setGroup] = useState("");
     const [page, setPage] = useState(1);
@@ -43,65 +43,45 @@ function EmployeesList() {
     const noResult = { alert: "info", msg: "Inga personal hittades." };
 
     useEffect(() => {
-        getData();
-    }, [])
-
-    useEffect(() => {
-        setList([]);
-
-        setTimeout(() => {
-            getListPerGroup();
-        }, 100)
-    }, [groups])
-
-    useEffect(() => {
+        getGroups();
         setClean(false);
     }, [])
 
     useEffect(() => {
-        getItemsList(group == "Studenter" ? "schools" : "managers");
+        getEmployees();
     }, [group])
 
-    async function getData() {
-        setLoading(true);
-        setResponse();
-        setList([]);
-        await ApiRequest("app/authorized/employees").then(response => {
-            const res = response.data;
-            setInit(res)
-            setLoading(false);
-            if (res === null || res?.length === 0)
-                setResponse(noResult);
-            else {
-                const groupNames = res.map(item => {
-                    return item?.group?.name;
-                });
-                setGroups(groupNames)
-                if (group === "")
-                    setGroup(groupNames[0]);
-            }
+    async function getGroups() {
+        await ApiRequest(`app/groups`).then(res => {
+            if (res.data != null) {
+                setGroups(res.data);
+                setGroup(res.data[0]);
+            } else
+                setLoading(false);
         }, error => {
-            setResponse({ alert: "warning", msg: `Något har gått snett: Fel: ${error}` });
+            ErrorHandle(error);
             setLoading(false);
         })
     }
 
-    function getListPerGroup(name = group) {
+    async function getEmployees() {
         setLoading(true);
-        setGroup(name);
-        const groupList = initList?.find(x => x.group?.name === name)?.employees;
-        setTimeout(() => {
-            setList(groupList);
+        setResponse();
+        setList([]);
+        await ApiRequest(`app/authorized/${group}`).then(res => {
+            const { employees, selections} = res.data;
+            setInit(employees);
+            setList(employees);
+            setItems(selections);
             setLoading(false);
-        }, 500)
+            console.log(employees)
+            if (res === null || res?.length === 0)
+                setResponse(noResult);
+        }, error => {
+            ErrorHandle(error);
+            setLoading(false);
+        })
     }
-
-    async function getItemsList(param) {
-        await ApiRequest(`data/list/by/${param}`).then(res => {
-            setItems(res.data);
-        }, error => ErrorHandle(error))
-    }
-
 
     function listFilterBySearchKeyword(value) {
         if (page > 1)
@@ -128,7 +108,7 @@ function EmployeesList() {
         setList([]);
         await ApiRequest("app/renew/jsons").then(res => {
             if (res.status === 200) {
-                getData();
+                getEmployees();
                 sessionStorage.setItem("updated", "true");
             }
 
@@ -161,11 +141,11 @@ function EmployeesList() {
         setUserData(null);
         setOffice(null);
         if (update)
-            getData();
+            getEmployees();
     }
 
     function resetActions() {
-        setList(initList?.find(x => x.group?.name === group)?.employees);
+        setList(initList);
         setResponse();
         setLoading(false);
         setClean(true);
@@ -203,7 +183,7 @@ function EmployeesList() {
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Grupper</InputLabel>
                         <Select value={group} label="Grupper" labelId="demo-simple-select-label"
-                            onChange={(e) => getListPerGroup(e.target.value)} sx={{ height: 50, color: "#1976D2" }} disabled={loading}>
+                            onChange={(e) => setGroup(e.target.value)} sx={{ height: 50, color: "#1976D2" }} disabled={loading}>
                             {groups?.map((name, index) => (
                                 <MenuItem value={name} key={index}>
                                     <span style={{ marginLeft: "10px" }}> - {name}</span>
@@ -233,7 +213,7 @@ function EmployeesList() {
                         <ListItemIcon>
                             {page > 1 ? calculatedIndex : index + 1}
                         </ListItemIcon>
-                        <ListItemText primary={item?.displayName} secondary={item?.office} />
+                        <ListItemText primary={item?.primary} secondary={item?.secondary} />
                     </ListItem>
                 })}
 
@@ -258,25 +238,26 @@ function EmployeesList() {
             <Dialog open={!!userData} onClose={() => closeModal()} aria-labelledby="draggable-dialog-title" className='modal-wrapper print-page' id="content" >
 
                 <DialogTitle className='view-modal-label'
-                    id="draggable-dialog-title" dangerouslySetInnerHTML={{ __html: userData?.displayName + "<span>" + userData?.title + "</span>" }}>
+                    id="draggable-dialog-title" dangerouslySetInnerHTML={{ __html: userData?.primary + "<span>" + userData?.title + "</span>" }}>
                 </DialogTitle>
 
-                {/* View this block if datat is a text */}
+                {/* View this block if data is a text */}
                 <DialogContent>
                     <List className="d-row ai-center view-modal-list w-100">
                         <ListItem className='view-list-result'>
                             <ListItemText primary={label} />
                         </ListItem>
-                        {!!userData && userData[group === "Studenter" ? "offices" : "managers"]?.map((item, ind) => {
+
+                        {!!userData && userData.includedList?.map((item, ind) => {
                             console.log(item)
-                            return <ListItem key={ind} className='modal-list-item w-100'
-                                secondaryAction={group === "Studenter" && <IconButton onClick={() => removeOffice(name)}>
+                            return <ListItem key={ind} className='modal-list-item w-100' disa
+                                secondaryAction={group === "Studenter" && <IconButton onClick={() => removeOffice(item)}>
                                     <Delete color="error" />
                                 </IconButton>}>
                                 <ListItemAvatar>
                                     {ind + 1}
                                 </ListItemAvatar>
-                                <ListItemText primary={item.primary} secondary={item.secondary} />
+                                <ListItemText primary={item.primary} secondary={item?.secondary} />
                             </ListItem>
                         })}
                     </List>

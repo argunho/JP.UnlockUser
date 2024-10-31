@@ -20,7 +20,6 @@ public interface IActiveDirectory
     List<string> GetSecurityGroupMembers(string? groupName);
     List<User> GetUsers(DirectorySearcher result, string groupName);
     List<Manager> GetUserManagers(User user);
-    List<GroupUsersViewModel>? GetAuthorizedEmployees(string? group = null);
 
     PrincipalContext GetContext();
     string ResetPassword(UserViewModel model);
