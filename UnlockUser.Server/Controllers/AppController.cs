@@ -94,10 +94,10 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
             var exists = false;
             foreach (var group in groupEmployees)
             {
-                var employee = group.Employees.FirstOrDefault(x => x.Name == username);
+                var employee = group.Employees?.FirstOrDefault(x => x.Name == username);
                 if (employee != null)
                 {
-                    employee.Offices = model.Offices.Count > 0 ? model.Offices : new List<string> { model.Office };
+                    employee.Offices = model?.Offices.Count > 0 ? model.Offices : [model?.Office];
                     exists = true;
                 }
             }

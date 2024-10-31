@@ -48,7 +48,7 @@ li.last {
     margin: 4px 9px !important;
 }
 
-div.list-item:hover, 
+div.list-item:hover,
 li.list-item:hover {
     cursor: pointer !important;
     background-color: #6363632a !important;
@@ -105,8 +105,35 @@ li.modal-list-item {
     padding-top: 30px;
 }
 
-.view-list-form >*{
+.view-list-form>* {
     margin-right: 10px !important;
+}
+
+.choices-list {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    background-color: #FFFFFF !important;
+    z-index: 3000;
+    padding: 20px !important
+}
+
+.choices-subheader {
+    font-size: 16px !important;
+}
+
+.choices-item {
+    padding: 7px 5px !important;
+    cursor: pointer;
+}
+
+.choices-item:hover {
+    background-color: #bbbbbb6e;
+}
+
+.choices-item>span {
+    font-size: 14px !important;
+    text-indent: 30px !important;
 }
 
 .form-button {

@@ -28,7 +28,6 @@ function AuthContextProvider({ children }) {
     const [schoolsList, setSchoolsList] = useState([]);
 
     useEffect(() => {
-        console.log(sessionStorage.getItem("schools"))
         if (!!sessionStorage.getItem("schools"))
             setSchoolsList(JSON.parse(sessionStorage.getItem("schools")))
     }, [])

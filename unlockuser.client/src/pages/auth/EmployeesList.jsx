@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 // Installed
 import {
     Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton,
-    InputLabel, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, ListSubheader, MenuItem, Pagination, Select
+    InputLabel, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, ListSubheader, MenuItem, Pagination, Select,
+    TextField
 } from '@mui/material';
-import { Close, Delete, OpenInFull, Refresh } from '@mui/icons-material';
+import { ArrowDropDown, CheckBox, CheckBoxOutlineBlank, Close, Delete, OpenInFull, Refresh } from '@mui/icons-material';
 
 // Components
 import SearchFilter from '../../components/SearchFilter';
@@ -29,15 +30,16 @@ function EmployeesList() {
     const [response, setResponse] = useState();
     const [loading, setLoading] = useState(true);
     const [groups, setGroups] = useState([]);
-    const [group, setGroup] = useState("");
+    const [group, setGroup] = useState();
     const [page, setPage] = useState(1);
     const [userData, setUserData] = useState();
     const [confirm, setConfirm] = useState(false);
     const [clean, setClean] = useState(true);
-    const [office, setOffice] = useState("");
+    const [selected, setSelected] = useState();
     const [items, setItems] = useState([]);
     const [updating, setUpdating] = useState(false);
     const [changed, setChanged] = useState(false);
+    const [open, setOpen] = useState(false);
     const perPage = 20;
 
     const noResult = { alert: "info", msg: "Inga personal hittades." };
@@ -48,7 +50,8 @@ function EmployeesList() {
     }, [])
 
     useEffect(() => {
-        getEmployees();
+        if (group?.length > 0)
+            getEmployees();
     }, [group])
 
     async function getGroups() {
@@ -69,13 +72,12 @@ function EmployeesList() {
         setResponse();
         setList([]);
         await ApiRequest(`app/authorized/${group}`).then(res => {
-            const { employees, selections} = res.data;
+            const { employees, selections } = res.data;
             setInit(employees);
             setList(employees);
             setItems(selections);
             setLoading(false);
-            console.log(employees)
-            if (res === null || res?.length === 0)
+            if (res.data === null || res.data?.length === 0)
                 setResponse(noResult);
         }, error => {
             ErrorHandle(error);
@@ -86,16 +88,9 @@ function EmployeesList() {
     function listFilterBySearchKeyword(value) {
         if (page > 1)
             setPage(1);
-        if (value?.length >= 3) {
-            value = value.toLowerCase();
-            const employees = initList.find(x => x.group?.name === group)?.employees;
-            let filteredList = employees?.filter(x => x?.name?.toLowerCase().includes(value) || x?.division?.toLowerCase().includes(value)
-                || x?.office?.toLowerCase().includes(value) || x?.email?.toLowerCase().includes(value)
-                || x?.displayName?.toLowerCase().includes(value));
-            setTimeout(() => {
-                setList(filteredList);
-            }, 100)
-        } else if (value === "")
+        if (value?.length >= 3)
+            setList(list.filter(x => JSON.stringify(x).toLowerCase().includes(value.toLowerCase())));
+        else if (value === "")
             resetActions();
     }
 
@@ -119,19 +114,29 @@ function EmployeesList() {
         })
     }
 
-    function updateOffices() {
-        let offices = [...userData?.offices];
-        if (offices.indexOf(office) > -1)
-            return;
-        offices.push(office);
-        setOffice("");
+    function clickHandle(item, index) {
+        const array = userData.includedList;
+        if (item?.boolValue !== undefined)
+            array[index].boolValue = !item.boolValue;
+        else
+            array.splice(index, 1);
+
+        setUserData({ ...userData, includedList: array });
         setChanged(true);
-        setUserData({ ...userData, offices: offices });
     }
 
-    function removeOffice(name) {
-        setUserData({ ...userData, offices: userData.offices.filter(x => x !== name) });
+    function handleSelected(item) {
+        setSelected(item);
+        setOpen(false);
+    }
+
+    function updateAccessList() {
+        setSelected(null);
+        let array = [...userData?.includedList];
+        array.push(selected);
+        setSelected("");
         setChanged(true);
+        setUserData({ ...userData, includedList: array });
     }
 
     function closeModal(update = false) {
@@ -139,7 +144,7 @@ function EmployeesList() {
         setChanged(false);
         setUpdating(false);
         setUserData(null);
-        setOffice(null);
+        setSelected(null);
         if (update)
             getEmployees();
     }
@@ -198,7 +203,7 @@ function EmployeesList() {
             <List className="d-row list-container">
                 {/* Actions/Info */}
                 <ListItem className='view-list-result' secondaryAction={<Button size='large' variant='outlined'
-                    // disabled={loading || !!sessionStorage.getItem("updated")} 
+                    disabled={loading || !!sessionStorage.getItem("updated")}
                     endIcon={<Refresh />} onClick={renewList}>
                     Uppdatera listan
                 </Button>}>
@@ -230,7 +235,7 @@ function EmployeesList() {
 
             {/* Pagination */}
             {(list?.length > 0 && !loading) && <div className="pagination w-100">
-                <Pagination count={Math.ceil(initList.find(x => x.group?.name === group)?.employees?.length / perPage)}
+                <Pagination count={Math.ceil(list?.length / perPage)}
                     page={page} onChange={handlePageChange} variant="outlined" shape="rounded" />
             </div>}
 
@@ -242,17 +247,18 @@ function EmployeesList() {
                 </DialogTitle>
 
                 {/* View this block if data is a text */}
-                <DialogContent>
+                <DialogContent style={{ position: "relative" }}>
+
                     <List className="d-row ai-center view-modal-list w-100">
                         <ListItem className='view-list-result'>
                             <ListItemText primary={label} />
                         </ListItem>
 
                         {!!userData && userData.includedList?.map((item, ind) => {
-                            console.log(item)
-                            return <ListItem key={ind} className='modal-list-item w-100' disa
-                                secondaryAction={group === "Studenter" && <IconButton onClick={() => removeOffice(item)}>
-                                    <Delete color="error" />
+                            const schools = group === "Studenter";
+                            return <ListItem key={ind} className='modal-list-item w-100'
+                                secondaryAction={<IconButton onClick={() => clickHandle(item, ind)}>
+                                    {schools ? <Delete color="error" /> : (item?.boolValue ? <CheckBoxOutlineBlank /> : <CheckBox color="primary" />)}
                                 </IconButton>}>
                                 <ListItemAvatar>
                                     {ind + 1}
@@ -265,31 +271,33 @@ function EmployeesList() {
                     {/* Textfield */}
                     {items?.length > 1 && <div className='d-row view-modal-form w-100'>
                         <FormControl fullWidth>
-                            <InputLabel id="demo-simple-select-label">{label}</InputLabel>
-                            <Select
-                                value={office}
-                                label={label}
-                                labelId="demo-simple-select-label"
-                                onChange={(e) => setOffice(e.target.value)}
-                                sx={{ height: 50, color: "#1976D2" }}
-                            >
-                                <MenuItem defaultChecked={true} checked>Välj från listan</MenuItem>
-                                <MenuItem disabled></MenuItem>
-                                {items?.map((item, index) => {
-                                    return <>
-                                        {items[index - 1]?.secondary !== item?.secondary && <ListSubheader>{item?.secondary}</ListSubheader>}
-                                        <MenuItem key={index} value={item?.primary} disabled={userData?.offices?.indexOf(item?.primary) > -1}>
-                                            <span style={{ marginLeft: "10px" }}>{` - ${item?.primary}`}</span>
-                                        </MenuItem>
-                                    </>
-                                })}
-                            </Select>
+                            <TextField label={label} value={selected?.primary ?? ""} InputProps={{
+                                endAdornment: <IconButton onClick={() => setOpen(true)}>
+                                    <ArrowDropDown />
+                                </IconButton>
+                            }} />
                         </FormControl>
 
-                        <Button variant="outlined" className="form-button" onClick={updateOffices} disabled={!office}>
+                        <Button variant="outlined" className="form-button" onClick={updateAccessList} disabled={!selected}>
                             Lägg till
                         </Button>
                     </div>}
+
+                    {/* List with choices */}
+                    {open && <List className='choices-list w-100 h-100'>
+                        <ListItem secondaryAction={<IconButton onClick={() => setOpen(false)}><Close /></IconButton>}>
+                            <ListItemText primary="Välj från listan" />
+                        </ListItem>
+
+                        {items?.map((item, index) => {
+                            return <div key={index}>
+                                {items[index - 1]?.secondary !== item?.secondary && <ListSubheader className='choices-subheader' color='primary'>{item?.secondary}</ListSubheader>}
+                                <ListItemText primary={`- ${item?.primary}`} className='choices-item'
+                                    onClick={() => handleSelected(item)} disabled={!!userData?.includedList.find(x => x.primary == item.primary && x.secondary == item.secondary)} />
+                            </div>
+                        })}
+                    </List>}
+
                 </DialogContent>
 
                 <DialogActions className="no-print modal-buttons-wrapper">
