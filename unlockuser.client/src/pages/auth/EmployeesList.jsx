@@ -137,7 +137,8 @@ function EmployeesList() {
     function updateAccessList() {
         setSelected(null);
         let array = [...userData?.includedList];
-        selected.removable = true;
+        if(selected?.removable !== undefined)
+            selected.removable = true;
         array.push(selected);
         setSelected("");
         setChanged(true);
@@ -164,7 +165,15 @@ function EmployeesList() {
     async function onSubmit() {
         setConfirm(false);
         setUpdating(true);
-        await ApiRequest(`app/update/employee/data/${userData?.name}`, "put", userData).then(res => {
+
+        const obj = userData;
+        delete obj.primary,
+        delete obj.secondary,
+        obj.offices = obj.includedList.map((i) => {
+            return i.primary
+        })
+
+        await ApiRequest(`app/employee/${group}/${userData?.name}`, "put", userData).then(res => {
             if (res.data !== null)
                 setResponse(res.data);
 
@@ -309,8 +318,7 @@ function EmployeesList() {
                 </DialogContent>
 
                 <DialogActions className="no-print modal-buttons-wrapper">
-                    {(!confirm && group === "Studenter") &&
-                        <Button variant="text"
+                    {!confirm && <Button variant="text"
                             className='button-btn'
                             color="primary"
                             disabled={!changed}
