@@ -82,8 +82,15 @@ li.list-item:hover {
     display: block;
 }
 
+.view-modal-list-wrapper {   
+    margin: 30px 0 !important;
+    height: 400px;
+    overflow: auto;
+}
+
 .view-modal-list {
     justify-content: flex-start !important;
+    margin: 0 !important;
 }
 
 li.modal-list-item {
@@ -101,7 +108,7 @@ li.modal-list-item {
 
 .view-modal-form {
     border-top: 2px solid #b3b3b3;
-    margin: 100px 0 30px 0 !important;
+    margin: 30px 0 10px 0 !important;
     padding-top: 30px;
 }
 

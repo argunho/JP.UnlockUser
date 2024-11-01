@@ -112,7 +112,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
             foreach (var manager in user.Managers)
             {
                 var checkedManager = FindUserByExtensionProperty(manager.Username);
-                if (checkedManager == null || !CheckManager(user.Title))
+                if (checkedManager == null || !CheckManager(checkedManager.Title))
                     user.Managers.Remove(manager);
             }
         }
@@ -154,7 +154,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
 
         if(user.Managers?.Count > 0)
         {
-            user.Managers.RemoveAll(x => managers.Contains(x));
+            user.Managers.RemoveAll(x => managers.Select(s => x.Username).ToList().Contains(x.Username));
             managers.AddRange(user.Managers);
         }
 

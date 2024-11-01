@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import {
     Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton,
     InputLabel, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, ListSubheader, MenuItem, Pagination, Select,
-    TextField
+    TextField,
+    Typography
 } from '@mui/material';
 import { ArrowDropDown, CheckBox, CheckBoxOutlineBlank, Close, Delete, OpenInFull, Refresh } from '@mui/icons-material';
 
@@ -136,6 +137,7 @@ function EmployeesList() {
     function updateAccessList() {
         setSelected(null);
         let array = [...userData?.includedList];
+        selected.removable = true;
         array.push(selected);
         setSelected("");
         setChanged(true);
@@ -252,24 +254,27 @@ function EmployeesList() {
                 {/* View this block if data is a text */}
                 <DialogContent style={{ position: "relative" }}>
 
-                    <List className="d-row ai-center view-modal-list w-100">
-                        <ListItem className='view-list-result'>
-                            <ListItemText primary={label} />
-                        </ListItem>
+                    <Box className='view-list-result'>
+                        <Typography>{label}</Typography>
+                    </Box>
 
-                        {!!userData && userData.includedList?.map((item, ind) => {
-                            const schools = group === "Studenter";
-                            return <ListItem key={ind} className='modal-list-item w-100'
-                                secondaryAction={<IconButton onClick={() => clickHandle(item, ind)}>
-                                    {schools ? <Delete color="error" /> : (item?.boolValue ? <CheckBoxOutlineBlank /> : <CheckBox color="primary" />)}
-                                </IconButton>}>
-                                <ListItemAvatar>
-                                    {ind + 1}
-                                </ListItemAvatar>
-                                <ListItemText primary={item.primary} secondary={item?.secondary} />
-                            </ListItem>
-                        })}
-                    </List>
+                    {/* List of included list */}
+                    <div className='w-100 view-modal-list-wrapper' style={{height: "400px"}}>
+                        <List className="d-row view-modal-list w-100">
+                            {!!userData && userData.includedList?.map((item, ind) => {
+                                const schools = group === "Studenter";
+                                return <ListItem key={ind} className='modal-list-item w-100'
+                                    secondaryAction={<IconButton onClick={() => clickHandle(item, ind)}>
+                                        {schools ? <Delete color="error" /> : (item?.boolValue ? <CheckBoxOutlineBlank /> : <CheckBox color="primary" />)}
+                                    </IconButton>}>
+                                    <ListItemAvatar>
+                                        {ind + 1}
+                                    </ListItemAvatar>
+                                    <ListItemText primary={item.primary} secondary={item?.secondary} />
+                                </ListItem>
+                            })}
+                        </List>
+                    </div>
 
                     {/* Textfield */}
                     {items?.length > 1 && <div className='d-row view-modal-form w-100'>

@@ -110,6 +110,7 @@ public partial class IHelpService(IHttpContextAccessor httpContext) : IHelp
             var path = $@"wwwroot/json/{name}.json";
             if(File.Exists(path))
                 File.Delete(path);
+            await Task.Delay(1000);
             await using FileStream stream = File.Create(path);
             await System.Text.Json.JsonSerializer.SerializeAsync(stream, list);
             stream.Close();
