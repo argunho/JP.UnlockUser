@@ -255,7 +255,9 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
             {
                 Username = s.Name,
                 DisplayName = s.DisplayName,
-                Division = s.Division
+                Division = s.Division,
+                Disabled = false,
+                Default = false
             }).ToList(), "managers");
             #endregion
         }
