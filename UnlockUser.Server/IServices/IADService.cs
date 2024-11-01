@@ -135,7 +135,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                         Username = manager.Name,
                         DisplayName = manager.DisplayName,
                         Division = manager.Division,
-                        Existing = true,
+                        Default = true,
                         Disabled = index != 0 && (existing == null || existing.Disabled)
                     });
 

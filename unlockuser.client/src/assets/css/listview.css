@@ -100,16 +100,19 @@ li.modal-list-item {
     margin: 4px 2px !important;
 }
 
-.view-modal-form,
 .view-list-form {
     margin: 30px 0;
     justify-content: space-between;
 }
 
-.view-modal-form {
+.list-view-modal-buttons {
     border-top: 2px solid #b3b3b3;
     margin: 30px 0 10px 0 !important;
-    padding-top: 30px;
+    padding-top: 30px !important;
+}
+
+.list-view-modal-buttons>button {
+    height: 40px !important;
 }
 
 .view-list-form>* {

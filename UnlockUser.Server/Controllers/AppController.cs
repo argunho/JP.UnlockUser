@@ -54,20 +54,29 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
         else
         {
             var res = IHelpService.GetJsonList<Manager>("managers");
-            selections = res.OrderBy(x => x.Division).ThenBy(x => x.DisplayName).Select(s => new ListViewModel
+            selections = (dynamic)res.OrderBy(x => x.Division).ThenBy(x => x.DisplayName).Select(s => new 
             {
                 Primary = s.DisplayName,
-                Secondary = s.Division
+                Secondary = s.Division,
+                s.Username
             }).ToList();
         }
 
         var viewList = employees.Select(s => new
         {
+            s.Name,
             Primary = s.DisplayName,
             Secondary = s.Office,
             s.Title,
-            IncludedList =  (param == "Studenter") ? s.Offices.Select(x => new ListViewModel{ Primary = x }).ToList()
-                           : s.Managers.Select(x => new ListViewModel{ Primary = x.DisplayName, Secondary = x.Division, BoolValue = x.Disabled, Removable = !x.Existing }).ToList()
+            IncludedList = (param == "Studenter") ? (dynamic)s.Offices.Select(x => new { Primary = x }).ToList()
+                           : (dynamic)s.Managers.Select(x => new
+                           {
+                               x.Username,
+                               Primary = x.DisplayName,
+                               Secondary = x.Division,
+                               BoolValue = x.Disabled,
+                               x.Default
+                           }).ToList()
         });
 
         return new JsonResult(new { employees = viewList, selections });
@@ -86,28 +95,23 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
     #endregion
 
     #region PUT
-    [HttpPut("update/employee/data/{username}")]
-    public async Task<JsonResult> PutUpdateEmployeeData(string username, User model)
+    [HttpPut("employee/{group}")]
+    public async Task<JsonResult> PutUpdateEmployeeSchool(string group, User model)
     {
         try
         {
             var groupEmployees = IHelpService.GetJsonList<GroupUsersViewModel>("employees") ?? [];
-            var exists = false;
-            foreach (var group in groupEmployees)
-            {
-                var employee = group.Employees?.FirstOrDefault(x => x.Name == username);
-                if (employee != null)
-                {
-                    employee.Offices = model?.Offices.Count > 0 ? model.Offices : [model?.Office];
-                    exists = true;
-                }
-            }
-
-            if (!exists)
+            var employees = groupEmployees.FirstOrDefault(x => x.Group?.Name == group)?.Employees ?? [];
+            var employee = employees.FirstOrDefault(x => x.Name == model.Name);
+            if (employee == null)
                 return new JsonResult(new { alert = "warning", msg = "Ingen anställd hittade med matchande användarnamn" });
 
-            await using FileStream stream = System.IO.File.Create(@"wwwroot/json/employees.json");
-            await System.Text.Json.JsonSerializer.SerializeAsync(stream, groupEmployees);
+            if (group == "Studenter")
+                employee.Offices = model.Offices;
+            else
+                employee.Managers = model.Managers;
+
+            await IHelpService.SaveUpdateJsonFile(groupEmployees, "employees");
         }
         catch (Exception ex)
         {
