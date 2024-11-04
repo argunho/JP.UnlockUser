@@ -12,7 +12,7 @@ import { ErrorHandle } from '../../functions/ErrorHandle';
 // Services
 import ApiRequest, { CancelRequest } from '../../services/ApiRequest';
 
-function Members() {
+function Members({navigate}) {
     Members.displayName = "Members";
 
     const [list, setList] = useState(null);
@@ -44,9 +44,9 @@ function Members() {
                 setLoading(false);
                 if (error.code === "ERR_CANCELED") {
                     CancelRequest()
-                    setResponse(ErrorHandle(error));
+                    setResponse(ErrorHandle(error, navigate));
                 } else
-                    ErrorHandle(error);
+                    ErrorHandle(error, navigate);
             });
     }
 

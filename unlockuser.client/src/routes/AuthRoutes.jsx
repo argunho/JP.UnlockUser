@@ -36,7 +36,7 @@ function AuthRoutes({authContext }) {
     },
     {
       path: "/employees",
-      element: <EmployeesList />
+      element: <EmployeesList {...props} />
     },
     {
       path: '/manage-user/:id',

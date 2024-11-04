@@ -21,6 +21,7 @@ import { ErrorHandle } from '../functions/ErrorHandle';
 
 // Services
 import ApiRequest from '../services/ApiRequest';
+import { useNavigate } from 'react-router-dom';
 
 
 // Form inputs
@@ -76,6 +77,8 @@ function Form({ title, name, passwordLength, users, authContext }) {
     const refSubmit = useRef(null);
     const refModal = useRef(null);
     const refGenerate = useRef(null);
+
+    const navigate = useNavigate();
 
     // Help texts (password)
     const helpTexts = [
@@ -271,7 +274,7 @@ function Form({ title, name, passwordLength, users, authContext }) {
         }, error => { // Handle of error
             resetForm();
             setLoad(false);
-            ErrorHandle(error)
+            ErrorHandle(error, navigate)
         })
     }
 
@@ -306,7 +309,7 @@ function Form({ title, name, passwordLength, users, authContext }) {
         await ApiRequest(`user/mail/${inf[1]} ${inf[0]}`, "post", data).then(res => {
             if (res.data?.errorMessage)
                 console.error("Error response => " + res.data.errorMessage);
-        }, error => ErrorHandle(error));
+        }, error => ErrorHandle(error, navigate));
     }
 
     return (

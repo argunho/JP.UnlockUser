@@ -22,7 +22,7 @@ import '../../assets/css/userview.css';
 import loadingImg from "../../assets/images/loading.gif";
 import { ErrorHandle } from '../../functions/ErrorHandle';
 
-function UserManager({ authContext }) {
+function UserManager({ authContext, navigate }) {
     UserManager.displayName = "UserManager";
 
     const { id } = useParams();
@@ -48,8 +48,8 @@ function UserManager({ authContext }) {
                 setResponse(res?.data);
             setLoading(false);
         }, error => {
+            ErrorHandle(error, navigate);
             setLoading(false);
-            ErrorHandle(error);
         })
     }
 
@@ -64,8 +64,8 @@ function UserManager({ authContext }) {
             setResponse(res?.data);
             getUserData();
         }, error => { // Error handle
+            ErrorHandle(error, navigate);
             setLoading(false);
-            ErrorHandle(error);
         })
     }
 

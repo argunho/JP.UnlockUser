@@ -22,7 +22,7 @@ const choices = [
     { label: "Exakt", match: false }
 ]
 
-function Home({ authContext }) {
+function Home({ authContext, navigate }) {
     Home.displayName = "Home";
 
     const sOption = sessionStorage.getItem("sOption");
@@ -141,13 +141,13 @@ function Home({ authContext }) {
         }, error => { // Error handle 
             setLoading(false);
             if(error.code === "ERR_CANCELED"){
-                setResponse(ErrorHandle(error));
+                setResponse(ErrorHandle(error, navigate));
                 setTimeout(() => {
                     reset();
                     resetData();
                 }, 3000)
             } else
-                ErrorHandle(error);
+                ErrorHandle(error, navigate);
         });
     }
 
@@ -249,7 +249,6 @@ function Home({ authContext }) {
                     </FormControl>
                 </Box>}
             </div>
-
 
             {/* The search parameters to choice */}
             <div className="checkbox-radio-wrapper d-row" >

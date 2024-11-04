@@ -22,7 +22,7 @@ import ApiRequest from '../../services/ApiRequest';
 // Css
 import '../../assets/css/listview.css';
 
-function EmployeesList() {
+function EmployeesList({navigate}) {
     EmployeesList.displayName = "EmployeesList";
 
     const [initList, setInit] = useState([]);
@@ -61,7 +61,7 @@ function EmployeesList() {
             } else
                 setLoading(false);
         }, error => {
-            ErrorHandle(error);
+            ErrorHandle(error, navigate);
             setLoading(false);
         })
     }
@@ -79,7 +79,7 @@ function EmployeesList() {
             if (res.data === null || res.data?.length === 0)
                 setResponse(noResult);
         }, error => {
-            ErrorHandle(error);
+            ErrorHandle(error, navigate);
             setLoading(false);
         })
     }
