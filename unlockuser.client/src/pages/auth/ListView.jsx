@@ -37,6 +37,7 @@ function ListView({ authContext, includedList, label, api, id, fields, labels, n
             await ApiRequest(api).then(res => {
                 setList(res.data);
                 setLoading(false);
+                console.log(res.data)
                 if (res.data?.length == 0) {
                     setResponse(empty);
                 } else
@@ -53,10 +54,6 @@ function ListView({ authContext, includedList, label, api, id, fields, labels, n
             setList(includedList);
         }
     }, [])
-
-    useEffect(() => {
-        authContext.updateSchools(list);
-    }, [list])
 
     function onChange(e) {
         setRequired([]);

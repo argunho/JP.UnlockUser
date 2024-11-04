@@ -10,25 +10,24 @@ namespace UnlockUser.Server.Controllers;
 public class SearchController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IHelp help) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
-    private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
-    private readonly ISession _session = contextAccessor.HttpContext.Session;
+    private readonly ISession? _session = contextAccessor?.HttpContext?.Session;
     private readonly IHelp _help = help;
 
     #region GET
     // Search one user
     [HttpGet("user/{name}/{group}/{match:bool}")]
-    public JsonResult FindUser(string name, string group, bool match = false)
+    public async Task<JsonResult> FindUser(string name, string group, bool match = false)
     {
         var users = new List<User>();
         var support = group == "Support";
-
+        await Task.Delay(60000);
         try
         {
             List<string> groupNames = support ? ["Students", "Employees"] : [(group == "Studenter" ? "Students" : "Employees")];
 
             foreach (string groupName in groupNames)
             {
-                DirectorySearcher? result = _provider.GetMembers(groupName);
+                DirectorySearcher result = _provider.GetMembers(groupName);
 
                 if (match)
                     result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(|(displayName=*{name}*)(|(givenName=*{name}*))(|(upn=*{name.ToLower()}*))(sn=*{name}*))))";

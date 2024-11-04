@@ -1,5 +1,6 @@
 
 import { createContext, useEffect, useState } from "react";
+
 /* eslint-disable no-unused-vars */
 export const AuthContext = createContext({
     isAuthorized: false,
@@ -14,7 +15,6 @@ export const AuthContext = createContext({
     handleMenu: () => { },
     updateServiceWorkStatus: (value, hide = false) => { },
     updateGroupName: (value) => { },
-    updateSchools: (value) => { },
     cleanSession: () => { }
 })
 
@@ -25,7 +25,7 @@ function AuthContextProvider({ children }) {
     const [serviceWorkStatus, setServiceWorkStatus] = useState(false);
     const [serviceWorkInProgress, setServiceWorkInProgress] = useState(false);
     const [groupName, setGroupName] = useState(sessionStorage.getItem("group"));
-    const [schoolsList, setSchoolsList] = useState([]);
+    const [schoolsList, setSchoolsList] = useState(!!sessionStorage.getItem("schools") ? JSON.parse(sessionStorage.getItem("schools")) : []);
 
     useEffect(() => {
         if (!!sessionStorage.getItem("schools"))
@@ -65,11 +65,6 @@ function AuthContextProvider({ children }) {
         setGroupName(value);
     }
 
-    function updateSchools(value) {
-        setSchoolsList(value);
-        sessionStorage.setItem("schools", JSON.stringify(value));
-    }
-
     const value = {
         isAuthorized: !!authToken,
         isOpenMenu: openMenu,
@@ -83,7 +78,6 @@ function AuthContextProvider({ children }) {
         handleMenu: handleMenu,
         updateServiceWorkStatus: updateServiceWorkStatus,
         updateGroupName: updateGroupName,
-        updateSchools: updateSchools,
         cleanSession: cleanSession
     }
 

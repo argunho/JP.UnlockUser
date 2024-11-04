@@ -17,11 +17,11 @@ import ListCategories from './ListCategories';
 
 // Functions
 import SessionHistory from '../functions/SessionHistoryData';
+import { ErrorHandle } from '../functions/ErrorHandle';
 
 // Services
 import ApiRequest from '../services/ApiRequest';
-import { ErrorHandle } from '../functions/ErrorHandle';
-import { useNavigate } from 'react-router-dom';
+
 
 // Form inputs
 const formList = [
@@ -76,8 +76,6 @@ function Form({ title, name, passwordLength, users, authContext }) {
     const refSubmit = useRef(null);
     const refModal = useRef(null);
     const refGenerate = useRef(null);
-
-    const navigate = useNavigate();
 
     // Help texts (password)
     const helpTexts = [

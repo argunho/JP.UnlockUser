@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Installed
-import { Button, CircularProgress, FormControl, TextField } from '@mui/material';
+import { Alert, AlertTitle, Button, CircularProgress, FormControl, TextField } from '@mui/material';
 
 // Components
 import Response from '../../components/Response';
+
+// Functions
+import { ErrorHandle } from '../../functions/ErrorHandle';
 
 // Services
 import ApiRequest from '../../services/ApiRequest';
@@ -15,7 +18,6 @@ import keys from '../../assets/images/keys.png';
 
 // Css
 import '../../assets/css/login.css';
-import { ErrorHandle } from '../../functions/ErrorHandle';
 
 const formFields = [
     { label: "Användarnamn", name: "username", type: "text" },
@@ -31,6 +33,7 @@ function Login({ authContext }) {
     });
     const [response, setResponse] = useState();
     const [loading, setLoading] = useState(false);
+    const [wait, setWait] = useState();
 
     const navigate = useNavigate();
 
@@ -48,10 +51,9 @@ function Login({ authContext }) {
     }
 
     const getTimeLeftToUnblock = (res) => {
-        const num = res?.timeLeft?.split(":");
+        const num = (wait ?? res?.timeLeft)?.split(":");
         let sec = parseInt(num[2]);
         let min = parseInt(num[1]);
-        let obj = res;
 
         setInterval(() => {
             if (sec + min === 0 || res === null) {
@@ -66,8 +68,7 @@ function Login({ authContext }) {
                     sec -= 1;
             }
 
-            obj.msg = `00:${(min < 10) ? "0" + min : min}:${(sec < 10) ? "0" + sec : sec}`;
-            setResponse(obj);
+            setWait(`00:${(min < 10) ? "0" + min : min}:${(sec < 10) ? "0" + sec : sec}`);
         }, 1000)
     }
 
@@ -79,24 +80,26 @@ function Login({ authContext }) {
         await ApiRequest("auth", "post", formData).then(res => {
             const { token, groups, schools, timeLeft, errorMessage } = res.data;
 
-            setResponse(res.data);
-            setLoading(false);
-            if (errorMessage)
-                ErrorHandle("Error response => " + errorMessage);
-            else if (timeLeft)
+            if (timeLeft)
                 getTimeLeftToUnblock(res.data);
-            else if (!!token) {
-                sessionStorage.setItem("token", token);
-                sessionStorage.setItem("groups", JSON.stringify(groups));
-                sessionStorage.setItem("group", groups[0]?.name);
+            else {
+                setResponse(res.data);
+                if (errorMessage)
+                    ErrorHandle("Error response => " + errorMessage);
+                else if (!!token) {
+                    sessionStorage.setItem("token", token);
+                    sessionStorage.setItem("groups", JSON.stringify(groups));
+                    sessionStorage.setItem("group", groups[0]?.name);
+                    sessionStorage.setItem("schools", JSON.stringify(schools));
 
-                authContext.authorize(token);
-                authContext.updateGroupName(groups[0]?.name);
-                authContext.updateSchools(schools);
-                setTimeout(() => {
-                    navigate("/");
-                }, 1500)
+                    authContext.authorize(token);
+                    authContext.updateGroupName(groups[0]?.name);
+                    setTimeout(() => {
+                        navigate("/");
+                    }, 1500)
+                }
             }
+            setLoading(false);
         }, error => {
             setLoading(false);
             ErrorHandle(error)
@@ -118,34 +121,42 @@ function Login({ authContext }) {
             {/* Response */}
             {!!response && <Response res={response} reset={resetResponse} />}
 
-            {/* Form content */}
-            {!response && formFields?.map((x, i) => (
-                <FormControl key={i}>
-                    <TextField
-                        label={x.label}
-                        name={x.name}
-                        type={x.type}
-                        value={formData[x.name]}
-                        variant="outlined"
-                        required
-                        autoComplete='off'
-                        autoSave='off'
-                        inputProps={{
-                            maxLength: 20,
-                            minLength: 5
-                        }}
-                        disabled={loading}
-                        onChange={changeHandler} />
-                </FormControl>
-            ))}
+            {/* Wait */}
+            {(!!wait && !loading) && <Alert variant='filled' color="warning" className='w-100'>
+                <AlertTitle>{`Vänta ${wait} minuter innan du försöker igen.`}</AlertTitle>
+            </Alert>}
 
-            {!response && <Button variant="outlined"
-                className='button-btn'
-                color="inherit"
-                type="submit"
-                title="Logga in"
-                disabled={loading || formData?.username.length < 5 || formData?.password.length < 5} >
-                {loading ? <CircularProgress style={{ width: "12px", height: "12px", marginTop: "3px" }} /> : "Skicka"}</Button>}
+            {/* Form content */}
+            {(!response && !wait) && <>
+                {formFields?.map((x, i) => (
+                    <FormControl key={i}>
+                        <TextField
+                            label={x.label}
+                            name={x.name}
+                            type={x.type}
+                            value={formData[x.name]}
+                            variant="outlined"
+                            required
+                            autoComplete='off'
+                            autoSave='off'
+                            inputProps={{
+                                maxLength: 20,
+                                minLength: 5
+                            }}
+                            disabled={loading}
+                            onChange={changeHandler} />
+                    </FormControl>
+                ))}
+
+                <Button variant="outlined"
+                    className='button-btn'
+                    color="inherit"
+                    type="submit"
+                    title="Logga in"
+                    disabled={loading || formData?.username.length < 5 || formData?.password.length < 5} >
+                    {loading ? <CircularProgress style={{ width: "12px", height: "12px", marginTop: "3px" }} /> : "Skicka"}</Button>
+            </>}
+
 
             {/* Login logo */}
             <img src={keys} alt="UnlockUser" className='login-form-img' />

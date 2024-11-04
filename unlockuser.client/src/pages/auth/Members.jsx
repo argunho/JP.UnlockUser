@@ -1,8 +1,5 @@
 
 import { useEffect, useState } from 'react';
-
-// Installed
-import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
 // Components
@@ -13,8 +10,7 @@ import Result from '../../components/Result';
 import { ErrorHandle } from '../../functions/ErrorHandle';
 
 // Services
-import { TokenConfig } from '../../services/TokenConfig';
-import ApiRequest from '../../services/ApiRequest';
+import ApiRequest, { CancelRequest } from '../../services/ApiRequest';
 
 function Members() {
     Members.displayName = "Members";
@@ -23,8 +19,6 @@ function Members() {
     const [loading, setLoading] = useState(true);
     const [response, setResponse] = useState(null);
 
-    const source = axios.CancelToken.source();
-
     const { department, office } = useParams();
 
     useEffect(() => {
@@ -32,11 +26,6 @@ function Members() {
     }, [list])
 
     const getMembers = async () => {
-
-        // To authorize
-        let _config = TokenConfig();
-        _config.cancelToken = source.token;
-
         // API request
         await ApiRequest(`search/members/${department}/${office}`)
             .then(res => {
@@ -54,7 +43,7 @@ function Members() {
             }, error => {  // Error handle 
                 setLoading(false);
                 if (error.code === "ERR_CANCELED") {
-                    this.source = axios.CancelToken.source().cancel();
+                    CancelRequest()
                     setResponse(ErrorHandle(error));
                 } else
                     ErrorHandle(error);

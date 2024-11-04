@@ -44,7 +44,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
     #region POST
     // Log in with another account if authentication with windows username is failed or to authorize another user
     [HttpPost]
-    public JsonResult Post(LoginViewModel model)
+    public JsonResult PostLogin(LoginViewModel model)
     {
         if (!ModelState.IsValid)// Forms filled out incorrectly
             return new JsonResult(new { alert = "warning", msg = "Felaktigt eller ofullständigt ifyllda formulär" });
@@ -113,7 +113,6 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             }).ToList();
             var groupsNames = string.Join(",", groups.Select(s => s.Name));
 
-
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
             var token = CreateJwtToken(user, string.Join(",", roles), model?.Password ?? "", groupsNames);
 
@@ -141,7 +140,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             _session?.SetInt32("RepeatedError", repeated += 1);
             return new JsonResult(new
             {
-                alert = "warning",
+                alert = "error",
                 msg = "Något har gått snett. Var vänlig försök igen.",
                 repeatedError = repeated,
                 errorMessage = ex.Message
@@ -219,10 +218,8 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
 
         return new JsonResult(new
         {
-            alert = "warning",
-            msg = $"Vänta {timeLeft:HH:mm:ss} minuter innan du försöker igen.",
-            timeLeft = timeLeft.ToString("HH:mm:ss"),
-            blockTime = blockTimeStamp
+            timeLeft = timeLeft.ToString("T")
+            //blockTime = blockTimeStamp.ToString("G")
         });
     }
     #endregion

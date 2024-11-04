@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 // Installed
-import axios from 'axios';
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
 import {
     Button, FormControl, FormControlLabel, Tooltip,
@@ -12,22 +11,18 @@ import {
 import Result from '../../components/Result';
 import ModalHelpTexts from '../../components/ModalHelpTexts';
 
-// Services
-import { TokenConfig } from '../../services/TokenConfig';
-
 // Json
 import params from '../../assets/json/helpTexts.json';
 import forms from '../../assets/json/forms.json';
 import { ErrorHandle } from '../../functions/ErrorHandle';
+import ApiRequest, { CancelRequest } from '../../services/ApiRequest';
 
 const choices = [
     { label: "Match", match: true },
     { label: "Exakt", match: false }
 ]
 
-const source = axios.CancelToken.source();
-
-function Home({ authContext, navigate }) {
+function Home({ authContext }) {
     Home.displayName = "Home";
 
     const sOption = sessionStorage.getItem("sOption");
@@ -123,18 +118,13 @@ function Home({ authContext, navigate }) {
             return;
 
         setLoading(true);
-
-        // To authorize
-        let _config = TokenConfig();
-        _config.cancelToken = source.token;
-        source.token.reason = null;
         reset();
 
         // API parameters by chosen searching alternative
         const params = (!clsStudents) ? group + "/" + match : additionInput;
 
         // API request
-        await axios.get("search/" + option + "/" + input + "/" + params, _config).then(res => {
+        await ApiRequest("search/" + option + "/" + input + "/" + params).then(res => {
             // Response
             const { users, errorMessage } = res.data;
             setUsers(users || []);
@@ -328,7 +318,8 @@ function Home({ authContext, navigate }) {
                 response={response}
                 disabled={group == "Support"}
                 resultBlock={true}
-                cancelRequest={() => source.cancel("Pågående sökning har avbrutits ...")}
+                // cancelRequest={() => source.cancel("Pågående sökning har avbrutits ...")}
+                cancelRequest={CancelRequest}
                 resetResult={reset}
             />
         </div >
