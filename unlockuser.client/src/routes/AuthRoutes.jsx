@@ -7,9 +7,10 @@ import UsersManager from "./../pages/auth/UsersManager";
 import LogFiles from "./../pages/auth/LogFiles";
 import UserManager from "../pages/auth/UserManager";
 import Members from "./../pages/auth/Members";
-import Search from "./../pages/auth/Search";
+import Home from "./../pages/auth/Home";
 import ListView from "../pages/auth/ListView";
 import Contacts from "./../pages/open/Contacts";
+import Logout from "../pages/auth/Logout";
 import NotFound from "./../pages/open/NotFound";
 
 // Functions
@@ -31,7 +32,7 @@ function AuthRoutes({authContext }) {
     {
       index: true,
       path: "/",
-      element: <Search {...props} />
+      element: <Home {...props} />
     },
     {
       path: "/employees",
@@ -69,6 +70,14 @@ function AuthRoutes({authContext }) {
       path: '/members/:office/:department',
       element: <Members {...props} />,
     //   routes: [ ]
+    },
+    {
+      path: "/session/expired",
+      element: <Logout expired={true} />
+    },
+    {
+      path: "/*",
+      element: <NotFound />
     }
   ];
 
@@ -86,9 +95,6 @@ function AuthRoutes({authContext }) {
       } else
         return <Route key={index} {...rest} element={element} />;
     })}
-
-    {/* If route is no exists */}
-    <Route path="/*" element={<NotFound />} />
   </Routes>
 }
 

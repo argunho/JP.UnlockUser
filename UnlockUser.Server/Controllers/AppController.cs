@@ -54,11 +54,11 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
         else
         {
             var res = IHelpService.GetJsonList<Manager>("managers");
-            selections = (dynamic)res.OrderBy(x => x.Division).ThenBy(x => x.DisplayName).Select(s => new 
+            selections = res.OrderBy(x => x.Division).ThenBy(x => x.DisplayName).Select(s => new ListViewModel
             {
+                Id = s.Username,
                 Primary = s.DisplayName,
-                Secondary = s.Division,
-                s.Username
+                Secondary = s.Division
             }).ToList();
         }
 

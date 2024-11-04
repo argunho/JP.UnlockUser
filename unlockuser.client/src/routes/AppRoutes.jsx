@@ -17,6 +17,10 @@ function AppRoutes({authContext}) {
           path: '/contact',
           element: <Contacts />
       },
+      {
+        path: "/*",
+        element: <NotFound />
+      }
   ];
 
   return <Routes>
@@ -24,9 +28,6 @@ function AppRoutes({authContext}) {
       const { element, ...rest } = route;
       return <Route key={index} {...rest} element={element} />;
     })}
-
-    {/* If route is no exists */}
-    <Route path="/*" element={<NotFound />} />
   </Routes>
 }
 

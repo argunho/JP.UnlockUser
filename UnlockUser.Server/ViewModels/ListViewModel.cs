@@ -2,6 +2,7 @@
 
 public class ListViewModel
 {
+    public string? Id { get; set; }
     public string? Primary { get; set; }
     public string? Secondary { get; set; }
     public bool? BoolValue { get; set; }

@@ -1,0 +1,64 @@
+/* #region Response */
+.response-box {
+    color: #000000 !important;
+    height: max-content;
+    margin: 10px auto;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+  }
+  
+  .response-box>div {
+    justify-content: flex-start;
+    padding: 15px 0;
+  }
+  
+  .response-box>div>* {
+    margin: 0;
+    font-weight: 600;
+  }
+  
+  .response-box .MuiAlert-message {
+    width: -webkit-fill-available !important;
+    width: -moz-available !important;
+  }
+  
+  .response-message {
+    width: auto;
+    margin: auto 10px;
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+  
+  .response-box .error-message {
+    margin: 0 auto;
+    font-size: 16px;
+    font-style: italic;
+    color: #FFFFFF;
+    width: auto !important;
+    display: block;
+    padding: 12px;
+    max-width: 100%;
+    margin-top: 15px;
+    border-radius: 3px;
+    background: rgba(204, 0, 00, 0.2);
+  }
+  
+  .login-container .response-box,
+  .form-modal div[role="dialog"] .response-box {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin-bottom: 0 !important;
+    z-index: 5000;
+  }
+  
+  .login-container .response-box>*,
+  .form-modal div[role="dialog"] .response-box>* {
+    border-radius: 0 !important;
+  }
+  
+  .login-container .response-box>div,
+  .form-modal div[role="dialog"] .response-box>* {
+    margin-bottom: 0 !important;
+  }
+  
+  /* #endregion */

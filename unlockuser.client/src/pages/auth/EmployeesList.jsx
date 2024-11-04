@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 // Installed
 import {
-    Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton,
+    Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton,
     InputLabel, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, ListSubheader, MenuItem, Pagination, Select, Typography
 } from '@mui/material';
 import { CheckBox, CheckBoxOutlineBlank, Close, Delete, OpenInFull, Refresh } from '@mui/icons-material';
@@ -11,6 +11,7 @@ import { CheckBox, CheckBoxOutlineBlank, Close, Delete, OpenInFull, Refresh } fr
 import SearchFilter from '../../components/SearchFilter';
 import Response from '../../components/Response';
 import Loading from '../../components/Loading';
+import FormButtons from '../../components/FormButtons';
 
 // Functions
 import { ErrorHandle } from '../../functions/ErrorHandle';
@@ -32,7 +33,6 @@ function EmployeesList() {
     const [group, setGroup] = useState();
     const [page, setPage] = useState(1);
     const [userData, setUserData] = useState();
-    const [confirm, setConfirm] = useState(false);
     const [clean, setClean] = useState(true);
     const [items, setItems] = useState([]);
     const [updating, setUpdating] = useState(false);
@@ -48,6 +48,7 @@ function EmployeesList() {
     }, [])
 
     useEffect(() => {
+        setOpen(false);
         if (group?.length > 0)
             getEmployees();
     }, [group])
@@ -129,15 +130,17 @@ function EmployeesList() {
     function updateAccessList(item) {
         setOpen(false)
         let array = [...userData?.includedList];
-        if (item?.removable !== undefined)
+        if (item?.removable !== undefined) 
             item.removable = true;
+        else
+            delete item.secondary;
+
         array.push(item);
         setChanged(true);
         setUserData({ ...userData, includedList: array });
     }
 
     function closeModal(update = false) {
-        setConfirm(false);
         setChanged(false);
         setUpdating(false);
         setUserData(null);
@@ -150,14 +153,15 @@ function EmployeesList() {
         setResponse();
         setLoading(false);
         setClean(true);
+        setUpdating(false);
+        setChanged(false);
     }
 
     async function onSubmit() {
-        setConfirm(false);
         setUpdating(true);
 
-        const obj = userData;
-            delete obj.primary,
+        const obj = JSON.parse(JSON.stringify(userData));
+        delete obj.primary,
             delete obj.secondary,
             delete obj.boolValue,
             obj.offices = obj.includedList.map((o) => {
@@ -165,7 +169,7 @@ function EmployeesList() {
             })
         obj.managers = obj.includedList.map((m) => {
             return {
-                username: m?.username,
+                username: m?.id ?? m?.username,
                 displayName: m?.primary,
                 division: m?.secondary,
                 disabled: m?.boolValue ?? false,
@@ -174,14 +178,8 @@ function EmployeesList() {
         })
         delete obj.includedList;
 
-        console.log(obj)
         await ApiRequest(`app/employee/${group}`, "put", obj).then(res => {
-            if (res.data !== null)
-                setResponse(res.data);
-
-            setTimeout(() => {
-                closeModal(true);
-            }, 1000)
+            setResponse(res.data ?? {});
         }, error => {
             setResponse({ alert: "warning", msg: `Något har gått snett: Fel: ${error}` });
             closeModal();
@@ -219,7 +217,7 @@ function EmployeesList() {
             <List className="d-row list-container">
                 {/* Actions/Info */}
                 <ListItem className='view-list-result' secondaryAction={<Button size='large' variant='outlined'
-                    // disabled={loading || !!sessionStorage.getItem("updated")}
+                    disabled={loading || !!sessionStorage.getItem("updated")}
                     endIcon={<Refresh />} onClick={renewList}>
                     Uppdatera listan
                 </Button>}>
@@ -247,7 +245,7 @@ function EmployeesList() {
             {loading && <Loading msg="data hämtas ..." />}
 
             {/* Message if result is null */}
-            {(response && !loading) && <Response response={response} reset={resetActions} />}
+            {(response && !loading && !open) && <Response response={response} reset={resetActions} />}
 
             {/* Pagination */}
             {(list?.length > 0 && !loading) && <div className="pagination w-100">
@@ -275,7 +273,7 @@ function EmployeesList() {
                             {!!userData && userData.includedList?.map((item, ind) => {
                                 const schools = group === "Studenter";
                                 return <ListItem key={ind} className='modal-list-item w-100'
-                                    secondaryAction={<IconButton onClick={() => clickHandle(item, ind)}>
+                                    secondaryAction={<IconButton onClick={() => clickHandle(item, ind)} disabled={updating}>
                                         {schools ? <Delete color="error" /> : (item?.boolValue ? <CheckBoxOutlineBlank /> : <CheckBox color="primary" />)}
                                     </IconButton>}>
                                     <ListItemAvatar>
@@ -294,7 +292,7 @@ function EmployeesList() {
                         </ListItem>
 
                         {items?.map((item, index) => {
-                            return<div key={index}>
+                            return <div key={index}>
                                 {items[index - 1]?.secondary !== item?.secondary && <ListSubheader className='choices-subheader' color='primary'>{item?.secondary}</ListSubheader>}
                                 <ListItemText primary={`- ${item?.primary}`} className='choices-item'
                                     onClick={() => updateAccessList(item)} disabled={!!userData?.includedList.find(x => x.primary == item.primary && x.secondary == item.secondary)} />
@@ -304,32 +302,18 @@ function EmployeesList() {
 
                 </DialogContent>
 
-                <DialogActions className="list-view-modal-buttons">
-                    {!confirm && <>
-                        <Button variant="text"
-                            className='button-btn'
-                            color="primary"
-                            disabled={!changed}
-                            onClick={() => setConfirm(true)}>
-                            {updating ? <CircularProgress size={20} /> : "Spara"}
+                <DialogActions className="list-view-modal-buttons d-column">
+                    {/* Actions buttons */}
+                    {!response && <FormButtons label="Spara" disabled={!changed} loading={updating} swap={true} c
+                        confirmable={true} submit={onSubmit} cancel={closeModal} >
+                        <Button variant={open ? "outlined" : "contained"} color={!open ? "primary" : "error"}
+                            onClick={() => setOpen(!open)} style={{ width: "140px" }} disabled={updating}>
+                            {open ? <Close /> : `Lägg till ${label}`}
                         </Button>
+                    </FormButtons>}
 
-                        <Button variant={open ? "outlined" : "contained"} color={!open ? "primary" : "error"} 
-                            onClick={() => setOpen(!open)} style={{width: "140px"}}>
-                            {open ? "Avbryta" : `Lägg till ${label}`}
-                        </Button>
-
-                        {!updating && <Button variant='contained' color="error" autoFocus onClick={() => closeModal()}>
-                            <Close />
-                        </Button>}
-                    </>}
-
-                    {/* Confirm actions block */}
-                    {confirm && <>
-                        <p className='confirm-title'>Skicka?</p>
-                        <Button className='button-btn button-action' onClick={onSubmit} variant='contained' color="error">Ja</Button>
-                        <Button className='button-btn button-action' variant='contained' color="primary" autoFocus onClick={() => closeModal()}>Nej</Button>
-                    </>}
+                    {/* Response */}
+                    {!!response && <Response response={response} reset={resetActions}/>}
                 </DialogActions>
             </Dialog>
         </div >

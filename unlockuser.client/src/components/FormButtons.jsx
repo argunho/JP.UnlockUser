@@ -6,83 +6,91 @@ import { Button, CircularProgress } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
 
-function FormButtons({ children, run, disabled, position, label, question, action, loading, confirmAction, reset }) {
+function FormButtons({ children, label, question, disabled, position, swap, confirmable, loading, submit, cancel, required, data }) {
     FormButtons.displayName = "FormButtons";
 
-    const [confirm, setConfirm] = useState(!!action);
-    const [delay, setDelay] = useState(!action);
+    const [confirm, setConfirm] = useState(false);
+    const [delay, setDelay] = useState(!confirmable);
 
     useEffect(() => {
         if (loading) setConfirm(false);
     }, [loading])
 
+    let buttons = [
+        {
+            label: question ?? "Skicka?", visible: confirm, props: { className: "confirm-question" }
+        },
+        {
+            label: "Nej", visible: confirm,
+            props: { variant: "outlined", className: "bg-white", onClick: () => confirmHandle(true), color: "inherit" }
+        },
+        {
+            label: "Ja", visible: confirm,
+            props: {
+                ...{
+                    variant: "contained", color: "error", disabled: delay,
+                    type: !!submit ? "button" : "submit"
+                }, ...(!!submit ? { onClick: onSubmit } : null)
+            }
+        },
+        {
+            label: <Close color="inherit" fontSize="medium" />, visible: (!confirm && !!cancel),
+            props: { variant: "contained", color: "error", disabled: loading, onClick: cancel }
+        },
+        {
+            label: (loading ? <CircularProgress size={18} color="inherit" /> : (label ?? "Skicka")), visible: !confirm,
+            props: {
+                ... {
+                    variant: "outlined", className: "submit-btn", color: (loading ? "primary" : "inherit"),
+                    disabled: (disabled || loading), type: !confirmable ? "button" : "submit"
+                }, ...(!!confirmable ? { onClick:() => confirmHandle (false)} : null)
+            }
+        },
+    ];
 
-    function confirmHandle() {
-        // The control over all fields to find any missed required field
-        if (!!action && !!reset)
-            reset();
-        else {
-            setConfirm(!confirm);
-            setTimeout(() => {
-                setDelay(confirm);
-            }, 100)
+    if (swap)
+        [buttons[3], buttons[4]] = [buttons[4], buttons[3]];
+
+    function confirmHandle(cancelAction = false) {
+        if (cancelAction) {
+            console.log(confirm, cancelAction)
+            cancel();
+            return;
         }
+
+        // The control over all fields to find any missed required field
+        if (!!required && !!data) {
+            let missedFields = [];
+            required?.forEach(name => {
+                if (data[name] === undefined || data[name] === null)
+                    missedFields.push(name);
+            })
+
+            if (missedFields.length > 0 && !!cancel) {
+                cancel(missedFields);
+                return;
+            }
+        }
+
+        setConfirm(!confirm);
+        setTimeout(() => {
+            setDelay(confirm);
+        }, 100)
     }
 
     function onSubmit() {
         setConfirm(false);
-        confirmAction();
+        submit();
     }
-
-    const divClass = `form-buttons d-row jc-end ${!!position ? `position-${position}` : ""}`;
-
-    /* If confirmation is not required or action already confirmed */
-    let props = {
-        variant: "outlined",
-        className: "submit-btn",
-        color: loading ? "primary" : "inherit",
-        disabled: disabled || loading,
-        type: !run ? "button" : "submit"
-    }
-
-    if (!run)
-        props = { ...props, ... { onClick: confirmHandle } }
-
-    const confirmProps = !!confirmAction ? { onClick: onSubmit, type: "button" } : { type: "submit" };
-
-    // Confirm block
-    if (confirm) {
-        return (
-            <div className={divClass}>
-                <p className="confirm-question">{`${question ?? "Skicka"}?`}</p>
-                <Button variant="outlined"
-                    className="bg-white"
-                    onClick={confirmHandle}
-                    color="inherit">Nej</Button>
-
-                <Button variant="contained"
-                    className="bg-unset" 
-                    {...confirmProps}
-                    disabled={delay}
-                    color="error">Ja</Button>
-            </div>
-        );
-    }
-
 
     return (
-        <div className={divClass}>
-
-            {!!reset && <Button variant="contained" color="error" disabled={loading} onClick={reset} >
-                <Close color="inherit" fontSize="medium" />
-            </Button>}
-
-            {/* Children block */}
-            {children && children}
-
-            <Button {...props}>
-                {loading ? <CircularProgress size={18} color="inherit" /> : label ?? "Skicka"}
-            </Button>
+        <div className={`form-buttons d-row jc-end ${!!position ? `position-${position}` : ""}`}>
+            {children}
+            <div className="d-row jc-end w-100">
+                {buttons.filter(x => x.visible).map((b, ind) => {
+                    return <Button key={ind} {...b.props}>{b.label}</Button>
+                })}
+            </div>
         </div>
     )
 }

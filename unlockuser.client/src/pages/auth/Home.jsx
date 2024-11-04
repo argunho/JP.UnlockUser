@@ -26,8 +26,8 @@ const choices = [
 
 const source = axios.CancelToken.source();
 
-function Search({ authContext, navigate }) {
-    Search.displayName = "Search";
+function Home({ authContext, navigate }) {
+    Home.displayName = "Home";
 
     const sOption = sessionStorage.getItem("sOption");
     const groups = authContext.groups;
@@ -349,4 +349,4 @@ function Search({ authContext, navigate }) {
     )
 }
 
-export default Search;
+export default Home;
