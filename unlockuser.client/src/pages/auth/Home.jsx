@@ -122,7 +122,7 @@ function Home({ authContext, navigate }) {
 
         // API parameters by chosen searching alternative
         const params = (!clsStudents) ? group + "/" + match : additionInput;
-
+console.log("search/" + option + "/" + input + "/" + params)
         // API request
         await ApiRequest("search/" + option + "/" + input + "/" + params).then(res => {
             // Response

@@ -79,7 +79,7 @@ function Login({ authContext }) {
 
         await ApiRequest("auth", "post", formData).then(res => {
             const { token, groups, schools, timeLeft, errorMessage } = res.data;
-
+console.log(schools)
             if (timeLeft)
                 getTimeLeftToUnblock(res.data);
             else {

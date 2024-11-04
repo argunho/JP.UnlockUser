@@ -76,11 +76,12 @@ function Info({ children, user, name, displayName, subTitle, result, check, disa
                     {/* If a user has a managers list */}
                     {user?.managers?.length > 0 && <div className='d-row'>
                         <Typography sx={{ marginRight: "15px" }} variant="caption" color="-moz-initial">Chef: </Typography>
-                        {user.managers?.map((name, ind) => {
+                        {user.managers?.map((x, ind) => {
+                            console.log()
                             return <Typography
                                 sx={{ margin: "3px" }}
                                 variant="caption" key={ind} disabled>
-                                {name} {((ind + 1) != user.managers?.length) && <ArrowRight />}
+                                <span title={x.username}>{x.displayName} {((ind + 1) < user.managers?.length) && <ArrowRight />}</span>
                             </Typography>
                         })}
                     </div>}

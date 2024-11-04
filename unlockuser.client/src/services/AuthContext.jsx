@@ -25,12 +25,6 @@ function AuthContextProvider({ children }) {
     const [serviceWorkStatus, setServiceWorkStatus] = useState(false);
     const [serviceWorkInProgress, setServiceWorkInProgress] = useState(false);
     const [groupName, setGroupName] = useState(sessionStorage.getItem("group"));
-    const [schoolsList, setSchoolsList] = useState(!!sessionStorage.getItem("schools") ? JSON.parse(sessionStorage.getItem("schools")) : []);
-
-    useEffect(() => {
-        if (!!sessionStorage.getItem("schools"))
-            setSchoolsList(JSON.parse(sessionStorage.getItem("schools")))
-    }, [])
 
     function authorize(token) {
         sessionStorage.setItem("token", token);
@@ -72,7 +66,7 @@ function AuthContextProvider({ children }) {
         workStatus: serviceWorkStatus,
         group: groupName,
         groups: JSON.parse(sessionStorage.getItem("groups")),
-        schools: schoolsList,
+        schools: !!sessionStorage.getItem("schools") ? JSON.parse(sessionStorage.getItem("schools")) : [],
         authorize: authorize,
         logout: logout,
         handleMenu: handleMenu,

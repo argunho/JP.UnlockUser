@@ -16,11 +16,11 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
     #region GET
     // Search one user
     [HttpGet("user/{name}/{group}/{match:bool}")]
-    public async Task<JsonResult> FindUser(string name, string group, bool match = false)
+    public JsonResult FindUser(string name, string group, bool match = false)
     {
         var users = new List<User>();
         var support = group == "Support";
-        await Task.Delay(60000);
+
         try
         {
             List<string> groupNames = support ? ["Students", "Employees"] : [(group == "Studenter" ? "Students" : "Employees")];
@@ -34,7 +34,9 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
                 else
                     result.Filter = $"(&(objectClass=User)(|(cn={name})(|(displayName={name})(|(givenName={name}))(sn={name}))))";
 
-                users.AddRange(FilteredListOfUsers(_provider.GetUsers(result, (groupName == "Students" ? "Studenter" : "Personal")), support, groupName));
+                var user = _provider.GetUsers(result, group);
+
+                users.AddRange(FilteredListOfUsers(user, support, group));
             }
         }
         catch (Exception ex)
@@ -126,12 +128,12 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
                         if (managers.Count > 0)
                         {
                             var matched = sessionUserManagers.Intersect(managers);
-                            if (matched != null)
+                            if (matched.Count() > 0)
                                 usersToView.Add(user);
                         }
                     }
                 }
-                else
+                else if(groupName == "Studenter" || groupName == "Students")
                     users = users.Where(x => sessionUser.Offices.Contains(x.Office)).ToList();
 
                 users = usersToView;
