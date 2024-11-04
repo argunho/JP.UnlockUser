@@ -153,7 +153,7 @@ function ListView({ authContext, includedList, label, api, id, fields, labels, n
                 </ListItem>
 
                 {/* Response */}
-                {!!response && <Response response={response} reset={() => setResponse(null)} />}
+                {!!response && <Response res={response} reset={() => setResponse(null)} />}
 
                 {/* Confirm/Form block */}
                 {!!fields && <Collapse in={open} className='d-row' timeout="auto" unmountOnExit>

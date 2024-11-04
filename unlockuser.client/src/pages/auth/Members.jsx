@@ -9,10 +9,14 @@ import { useParams } from 'react-router-dom';
 import Info from '../../components/Info';
 import Result from '../../components/Result';
 
+// Functions
+import { ErrorHandle } from '../../functions/ErrorHandle';
+
 // Services
 import { TokenConfig } from '../../services/TokenConfig';
+import ApiRequest from '../../services/ApiRequest';
 
-function Members({navigate}) {
+function Members() {
     Members.displayName = "Members";
 
     const [list, setList] = useState(null);
@@ -21,7 +25,7 @@ function Members({navigate}) {
 
     const source = axios.CancelToken.source();
 
-    const {department, office} = useParams();
+    const { department, office } = useParams();
 
     useEffect(() => {
         if (!list) getMembers();
@@ -34,7 +38,7 @@ function Members({navigate}) {
         _config.cancelToken = source.token;
 
         // API request
-        await axios.get(`search/members/${department}/${office}`, _config)
+        await ApiRequest(`search/members/${department}/${office}`)
             .then(res => {
                 // Response
                 const { users, errorMessage } = res.data;
@@ -47,26 +51,13 @@ function Members({navigate}) {
 
                 // If something is wrong, view error message in browser console
                 if (errorMessage) console.error("Error => " + errorMessage)
-            }, error => {
-                // Error handle 
+            }, error => {  // Error handle 
                 setLoading(false);
-
-                if (error?.response?.status === 401) {
-                    setResponse({
-                        msg: "Åtkomst nekad! Dina atkomstbehörigheter ska kontrolleras på nytt.",
-                        alert: "error"
-                    });
-                    setTimeout(() => {
-                        navigate("/");
-                    }, 3000)
-                } else if (error.code === "ERR_CANCELED") {
+                if (error.code === "ERR_CANCELED") {
                     this.source = axios.CancelToken.source().cancel();
-                    setResponse({
-                        msg: error.message,
-                        alert: "warning"
-                    });
+                    setResponse(ErrorHandle(error));
                 } else
-                    console.error("Error => " + error.response)
+                    ErrorHandle(error);
             });
     }
 

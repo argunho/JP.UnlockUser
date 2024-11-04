@@ -270,11 +270,10 @@ function Form({ title, name, passwordLength, users, authContext }) {
                 }, 5000)
             } else
                 setLoad(false);
-        }, error => {
-            // Handle of error
+        }, error => { // Handle of error
             resetForm();
             setLoad(false);
-            ErrorHandle(error, navigate)
+            ErrorHandle(error)
         })
     }
 
@@ -309,7 +308,7 @@ function Form({ title, name, passwordLength, users, authContext }) {
         await ApiRequest(`user/mail/${inf[1]} ${inf[0]}`, "post", data).then(res => {
             if (res.data?.errorMessage)
                 console.error("Error response => " + res.data.errorMessage);
-        }, error => ErrorHandle(error, navigate));
+        }, error => ErrorHandle(error));
     }
 
     return (
@@ -325,7 +324,7 @@ function Form({ title, name, passwordLength, users, authContext }) {
             <p className='form-title'>{title}</p>
 
             {/* Response message */}
-            {response && <Response response={response} reset={() => setResponse(null)} />}
+            {response && <Response res={response} reset={() => setResponse(null)} />}
 
             {/* Form actions */}
             <div className='form-actions'>

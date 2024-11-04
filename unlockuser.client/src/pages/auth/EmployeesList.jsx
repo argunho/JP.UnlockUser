@@ -245,7 +245,7 @@ function EmployeesList() {
             {loading && <Loading msg="data hämtas ..." />}
 
             {/* Message if result is null */}
-            {(response && !loading && !open) && <Response response={response} reset={resetActions} />}
+            {(response && !loading && !open) && <Response res={response} reset={resetActions} />}
 
             {/* Pagination */}
             {(list?.length > 0 && !loading) && <div className="pagination w-100">
@@ -313,7 +313,7 @@ function EmployeesList() {
                     </FormButtons>}
 
                     {/* Response */}
-                    {!!response && <Response response={response} reset={resetActions}/>}
+                    {!!response && <Response res={response} reset={resetActions}/>}
                 </DialogActions>
             </Dialog>
         </div >

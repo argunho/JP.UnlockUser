@@ -18,6 +18,7 @@ import { TokenConfig } from '../../services/TokenConfig';
 // Json
 import params from '../../assets/json/helpTexts.json';
 import forms from '../../assets/json/forms.json';
+import { ErrorHandle } from '../../functions/ErrorHandle';
 
 const choices = [
     { label: "Match", match: true },
@@ -146,32 +147,17 @@ function Home({ authContext, navigate }) {
             setResponse(users ? null : res.data);
 
             // If something is wrong, view error message in browser console
-            if (errorMessage) console.error("Error => " + errorMessage)
-        }, error => {
-            // Error handle 
+            if (errorMessage) ErrorHandle("Error => " + errorMessage);
+        }, error => { // Error handle 
             setLoading(false);
-
-            if (error?.response?.status === 401) {
-                setResponse({
-                    response: {
-                        msg: "Åtkomst nekad! Dina atkomstbehörigheter ska kontrolleras på nytt.",
-                        alert: "error"
-                    }
-                })
-                setTimeout(() => {
-                    navigate("/");
-                }, 3000)
-            } else if (error.code === "ERR_CANCELED") {
-                setResponse({
-                    msg: error.message,
-                    alert: "warning"
-                })
+            if(error.code === "ERR_CANCELED"){
+                setResponse(ErrorHandle(error));
                 setTimeout(() => {
                     reset();
                     resetData();
                 }, 3000)
             } else
-                console.error("Error => " + error.response)
+                ErrorHandle(error);
         });
     }
 

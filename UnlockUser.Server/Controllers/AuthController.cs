@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -14,7 +13,6 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
-    private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
     private readonly ISession _session = contextAccessor.HttpContext.Session;
 
     #region GET

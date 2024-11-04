@@ -2,14 +2,14 @@
 import { Alert } from '@mui/material';
 
 // Css
-import './../assets/css/response.css'
+import './../assets/css/response.css';
 
 function Response({ children, res, reset }) {
     
     const str = typeof res === "string";
     const error = str || res?.error;
     const msg = str ? str : res?.msg;
-    const color = error ? "error" : (res?.color ?? "success");
+    const color = error ? "error" : (res?.alert ?? "success");
 
     return <div className="response-box d-column w-100">
             
@@ -22,16 +22,11 @@ function Response({ children, res, reset }) {
         </div>
 }
 
-export default Response;
 
-// export default function Response(props) {
+//  function Response(props) {
 
 //     const [supportLink, setSupportLink] = useState(false);
 //     const [timeLeft, setTimeLeft] = useState(null);
-//     const [response, setResponse] = useState(props?.noAccess ? {
-//         msg: "Åtkomst nekad! Dina atkomstbehörigheter måste kontrolleras på nytt.",
-//         alert: "error"
-//     } : props.response)
 //     const occurredError = sessionStorage.getItem("occurredError") || null;
 //     const error = response?.errorMessage ?? null;
 
@@ -41,30 +36,6 @@ export default Response;
 //         if (props?.noAccess && !props?.response)
 //             setTimeout(() => { navigate("/"); }, 5000);
 //     }, [])
-
-//     // Send a message to the system developer about the occurred error
-//     const sendMsgToSupport = async () => {
-//         setSupportLink(false);
-//         var model = {
-//             link: window.location.href,
-//             error: error
-//         }
-//         setResponse({
-//             alert: "success",
-//             msg: "Tack för ditt meddelande!"
-//         })
-//         await ApiRequest("user/contact/error", "post", model)
-//             .then(res => {
-//                 if (res.data.errorMessage)
-//                     console.warn(res.data.errorMessage)
-//                 setTimeout(() => {
-//                     props.reset();
-//                 }, 1000)
-//             }, error => {
-//                 props.reset();
-//                 ErrorHandle(error, navigate);
-//             })
-//     }
 
 //     // Activate a button in the user interface for sending an error message to the system developer if the same error is repeated more than two times during the same session    
 //     useEffect(() => {
@@ -119,3 +90,5 @@ export default Response;
 //         </Alert>
 //     </div>;
 // }
+
+export default Response;

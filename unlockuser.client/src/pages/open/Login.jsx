@@ -15,6 +15,7 @@ import keys from '../../assets/images/keys.png';
 
 // Css
 import '../../assets/css/login.css';
+import { ErrorHandle } from '../../functions/ErrorHandle';
 
 const formFields = [
     { label: "Användarnamn", name: "username", type: "text" },
@@ -40,11 +41,34 @@ function Login({ authContext }) {
         document.title = "UnlockUser | Logga in";
     }, [])
 
-
     const changeHandler = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
         if (!!response)
             setResponse();
+    }
+
+    const getTimeLeftToUnblock = (res) => {
+        const num = res?.timeLeft?.split(":");
+        let sec = parseInt(num[2]);
+        let min = parseInt(num[1]);
+        let obj = res;
+
+        setInterval(() => {
+            if (sec + min === 0 || res === null) {
+                clearInterval();
+                resetResponse();
+            } else {
+                if (sec === 0) {
+                    if (min > 0) min -= 1;
+                    else min = 59;
+                    sec = 59;
+                } else
+                    sec -= 1;
+            }
+
+            obj.msg = `00:${(min < 10) ? "0" + min : min}:${(sec < 10) ? "0" + sec : sec}`;
+            setResponse(obj);
+        }, 1000)
     }
 
     const submitForm = async (e) => {
@@ -53,28 +77,29 @@ function Login({ authContext }) {
         setLoading(true);
 
         await ApiRequest("auth", "post", formData).then(res => {
-            const { alert, token, groups, schools, errorMessage } = res.data;
+            const { token, groups, schools, timeLeft, errorMessage } = res.data;
 
-            let success = alert === "success";
             setResponse(res.data);
             setLoading(false);
-
-            if (success) {
+            if (errorMessage)
+                ErrorHandle("Error response => " + errorMessage);
+            else if (timeLeft)
+                getTimeLeftToUnblock(res.data);
+            else if (!!token) {
                 sessionStorage.setItem("token", token);
                 sessionStorage.setItem("groups", JSON.stringify(groups));
                 sessionStorage.setItem("group", groups[0]?.name);
-                if (token)
-                    authContext.authorize(token);
+
+                authContext.authorize(token);
                 authContext.updateGroupName(groups[0]?.name);
                 authContext.updateSchools(schools);
                 setTimeout(() => {
                     navigate("/");
                 }, 1500)
-            } else if (errorMessage)
-                console.error("Error response => " + errorMessage);
+            }
         }, error => {
             setLoading(false);
-            console.error("Error => " + error);
+            ErrorHandle(error)
         })
     }
 
@@ -89,7 +114,11 @@ function Login({ authContext }) {
     return (
         <form className='login-form' onSubmit={submitForm}>
             <p className='form-title'>Logga in</p>
-            {!!response && <Response response={response} reset={resetResponse} />}
+
+            {/* Response */}
+            {!!response && <Response res={response} reset={resetResponse} />}
+
+            {/* Form content */}
             {!response && formFields?.map((x, i) => (
                 <FormControl key={i}>
                     <TextField
@@ -117,6 +146,8 @@ function Login({ authContext }) {
                 title="Logga in"
                 disabled={loading || formData?.username.length < 5 || formData?.password.length < 5} >
                 {loading ? <CircularProgress style={{ width: "12px", height: "12px", marginTop: "3px" }} /> : "Skicka"}</Button>}
+
+            {/* Login logo */}
             <img src={keys} alt="UnlockUser" className='login-form-img' />
         </form>
     )

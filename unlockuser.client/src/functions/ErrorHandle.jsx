@@ -1,4 +1,8 @@
-export function ErrorHandle(error, navigate) {
+import { useNavigate } from "react-router-dom";
+
+export function ErrorHandle(error) {
+    
+    const navigate = useNavigate();
     
     if (error?.response?.status === 401)
         navigate("/session/expired");

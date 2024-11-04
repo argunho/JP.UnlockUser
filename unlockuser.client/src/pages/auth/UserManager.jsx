@@ -20,8 +20,9 @@ import '../../assets/css/userview.css';
 
 // Images
 import loadingImg from "../../assets/images/loading.gif";
+import { ErrorHandle } from '../../functions/ErrorHandle';
 
-function UserManager({ authContext, navigate }) {
+function UserManager({ authContext }) {
     UserManager.displayName = "UserManager";
 
     const { id } = useParams();
@@ -29,7 +30,6 @@ function UserManager({ authContext, navigate }) {
     const [user, setUser] = useState(null);
     const [response, setResponse] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [noAccess, setNoAccess] = useState(false);
 
     useEffect(() => {
         if (!!id)
@@ -48,16 +48,8 @@ function UserManager({ authContext, navigate }) {
                 setResponse(res?.data);
             setLoading(false);
         }, error => {
-            if (error?.response?.status === 401) {
-                setNoAccess(true);
-
-                setTimeout(() => {
-                    navigate("/");
-                }, 3000)
-            } else
-                console.error("Error => " + error.response)
-
             setLoading(false);
+            ErrorHandle(error);
         })
     }
 
@@ -71,13 +63,9 @@ function UserManager({ authContext, navigate }) {
             setLoading(false);
             setResponse(res?.data);
             getUserData();
-        }, error => {
-            // Error handle
+        }, error => { // Error handle
             setLoading(false);
-            if (error?.response.status === 401)
-                setNoAccess(true);
-            else
-                console.error("Error => " + error.response);
+            ErrorHandle(error);
         })
     }
 
@@ -91,7 +79,7 @@ function UserManager({ authContext, navigate }) {
         />
 
         {/* Response */}
-        {response && <Response response={response} noAccess={noAccess} reset={() => setResponse(null)} />}
+        {response && <Response res={response} reset={() => setResponse(null)} />}
 
         {/* Unlock user */}
         {!!user && <>
