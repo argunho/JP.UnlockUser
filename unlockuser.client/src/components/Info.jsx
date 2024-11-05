@@ -76,7 +76,6 @@ function Info({ children, user, name, displayName, subTitle, result, check, disa
                     {user?.managers?.length > 0 && <span className='d-row'>
                         <Typography sx={{ marginRight: "15px" }} variant="caption" color="-moz-initial">Chef: </Typography>
                         {user.managers?.map((x, ind) => {
-                            console.log()
                             return <Typography
                                 sx={{ margin: "3px" }}
                                 variant="caption" key={ind} disabled>
@@ -91,8 +90,6 @@ function Info({ children, user, name, displayName, subTitle, result, check, disa
         {/* Props children */}
         {(result && children) && children}
     </ListItem>;
-
-    console.log(children)
 
     // Print out user's info
     return (

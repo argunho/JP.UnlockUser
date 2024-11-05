@@ -34,9 +34,13 @@
     flex-wrap: wrap !important;
 }
 
+.list-container {
+    margin-top: 20px !important;
+}
+
 div.list-item,
 li.list-item {
-    height: 70px !important;
+    min-height: 70px !important;
     box-shadow: 0 0 1px 1px #7e7c7c !important;
     width: calc(50% - 12px);
     margin: 4px 3px !important;
@@ -50,7 +54,36 @@ li.last {
 div.list-item:hover,
 li.list-item:hover {
     cursor: pointer !important;
+}
+
+div.list-item:not(.dropdown):hover,
+li.list-item:hover  {
+    cursor: pointer !important;
     background-color: #6363632a !important;
+}
+
+div.dropdown li,
+div.dropdown li div,
+div.dropdown li p,
+div.dropdown li span,
+div.dropdown li button {
+    color: #2e2e2ee8 !important;
+}
+
+div.dropdown>li {
+    border-top: 3px solid #4d4c4c;
+}
+
+.dropdown-block,
+.dropdown-block div,
+.dropdown-block p,
+.dropdown-block span {
+    font-size: 12px !important
+}
+
+.dropdown-block ul>li {
+    background-color: #c7d1cf38 !important;
+    margin-bottom: 3px !important;
 }
 
 .pagination {

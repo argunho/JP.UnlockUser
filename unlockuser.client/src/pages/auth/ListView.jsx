@@ -15,7 +15,7 @@ import Loading from "../../components/Loading";
 // Functions
 import { ErrorHandle } from "../../functions/ErrorHandle";
 
-function ListView({ authContext, includedList, label, api, id, fields, labels, navigate }) {
+function ListView({ authContext, loc, includedList, label, fullWidth, api, id, fields, labels, navigate }) {
     ListView.displayName = "Schools";
 
     const [list, setList] = useState(includedList ?? []);
@@ -37,7 +37,7 @@ function ListView({ authContext, includedList, label, api, id, fields, labels, n
             await ApiRequest(api).then(res => {
                 setList(res.data);
                 setLoading(false);
-                console.log(res.data)
+
                 if (res.data?.length == 0) {
                     setResponse(empty);
                 } else
@@ -53,7 +53,7 @@ function ListView({ authContext, includedList, label, api, id, fields, labels, n
             setLoading(false);
             setList(includedList);
         }
-    }, [])
+    }, [loc])
 
     function onChange(e) {
         setRequired([]);
@@ -136,83 +136,78 @@ function ListView({ authContext, includedList, label, api, id, fields, labels, n
     }
 
     return (
-        <div className='interior-div view-list'>
+        <List className="d-row list-container" component="div">
+            {/* Actions/Info */}
+            <ListItem className='view-list-result' secondaryAction={!!fields
+                && <Button size='large' style={{ minWidth: "120px" }} variant='outlined' color={visibleForm ? "error" : "primary"} disabled={loading} onClick={formHandle}>
+                    {visibleForm ? "Avryt" : "Lägg till ny"}
+                </Button>}>
+                <ListItemText primary={label} secondary={loading ? "Data hämtning pågå ..." : `Antal: ${list?.length}`} />
+            </ListItem>
 
-            {/* Result list */}
-            <List className="d-row list-container"
-                component="nav">
-                {/* Actions/Info */}
-                <ListItem className='view-list-result' secondaryAction={!!fields
-                    && <Button size='large' style={{ minWidth: "120px" }} variant='outlined' color={visibleForm ? "error" : "primary"} disabled={loading} onClick={formHandle}>
-                        {visibleForm ? "Avryt" : "Lägg till ny"}
-                    </Button>}>
-                    <ListItemText primary={label} secondary={loading ? "Data hämtning pågå ..." : `Antal: ${list?.length}`} />
-                </ListItem>
+            {/* Response */}
+            {!!response && <Response res={response} reset={() => setResponse(null)} />}
 
-                {/* Response */}
-                {!!response && <Response res={response} reset={() => setResponse(null)} />}
+            {/* Confirm/Form block */}
+            {!!fields && <Collapse in={open} className='d-row' timeout="auto" unmountOnExit>
+                {/* Confirm */}
+                {!!confirm && <FormButtons confirmable={true} question="Radera" submit={removeItem} cancel={() => setConfirm(null)} />}
 
-                {/* Confirm/Form block */}
-                {!!fields && <Collapse in={open} className='d-row' timeout="auto" unmountOnExit>
-                    {/* Confirm */}
-                    {!!confirm && <FormButtons confirmable={true} question="Radera" submit={removeItem} cancel={() => setConfirm(null)} />}
+                {/* Form */}
+                {!!visibleForm && <form className='d-row view-list-form w-100' onSubmit={onSubmit}>
+                    {Object.keys(fields)?.map((name, i) => {
+                        return <TextField key={i} fullWidth name={name} label={labels[i]} value={item[name]}
+                            onChange={onChange} disabled={loading} error={required.indexOf(name) > -1} />
+                    })}
 
-                    {/* Form */}
-                    {!!visibleForm && <form className='d-row view-list-form w-100' onSubmit={onSubmit}>
-                        {Object.keys(fields)?.map((name, i) => {
-                            return <TextField key={i} fullWidth name={name} label={labels[i]} value={item[name]}
-                                onChange={onChange} disabled={loading} error={required.indexOf(name) > -1} />
-                        })}
+                    <Button variant="outlined" type="submit" className="form-button" disabled={loading}>
+                        {loading ? <CircularProgress size={20} /> : "Spara"}
+                    </Button>
+                </form>}
+            </Collapse>}
 
-                        <Button variant="outlined" type="submit" className="form-button" disabled={loading}>
-                            {loading ? <CircularProgress size={20} /> : "Spara"}
-                        </Button>
-                    </form>}
-                </Collapse>}
+            {/* Loop of result list */}
+            {(list?.length > 0 && !loading) && list?.map((item, index) => {
+                const props = !!item?.link ? { onClick: () => navigate(item?.link) } : null;
+                return <div key={index} className={`list-item${fullWidth || ((index + 1) === list?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}${collapsedItemIndex === index ? " dropdown" : ""}`}>
+                    {/* List item */}
+                    <ListItem className="w-100"
+                        secondaryAction={
+                            <div className="d-row">
+                                {!!item?.includedList && <IconButton onClick={() => handleDropdown(index)}>
+                                    {collapsedItemIndex === index ? <ArrowDropUp /> : <ArrowDropDown />}
+                                </IconButton>}
+                                {!!fields && <IconButton onClick={() => confirmHandle(item)} color="error" disabled={!!confirm || visibleForm}>
+                                    <Delete />
+                                </IconButton>}
+                            </div>
+                        } >
+                        <ListItemIcon>
+                            {index + 1}
+                        </ListItemIcon>
+                        <ListItemText primary={item?.primary} secondary={item?.secondary} {...props} />
+                    </ListItem>
 
-                {/* Loop of result list */}
-                {(list?.length > 0 && !loading) && list?.map((item, index) => {
-                    const props = !!item?.link ? { onClick: () => navigate(item?.link)} : null;
-                    return <div key={index} className={`list-item${((index + 1) === list?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}`}>
-                        {/* List item */}
-                        <ListItem className="w-100"
-                            secondaryAction={
-                                <div className="d-row">
-                                    {!!item?.includedList && <IconButton onClick={() => handleDropdown(index)}>
-                                        {collapsedItemIndex === index ? <ArrowDropUp /> : <ArrowDropDown />}
-                                    </IconButton>}
-                                    {!!fields && <IconButton onClick={() => confirmHandle(item)} color="error" disabled={!!confirm || visibleForm}>
-                                        <Delete />
-                                    </IconButton>}
-                                </div>
-                            } >
-                            <ListItemIcon>
-                                {index + 1}
-                            </ListItemIcon>
-                            <ListItemText primary={item?.primary} secondary={item?.secondary} {...props} />
-                        </ListItem>
+                    {/* If the item has an included list */}
+                    <Collapse in={collapsedItemIndex === index} className='d-row dropdown-block' timeout="auto" unmountOnExit>
+                        <List style={{ width: "95%", margin: "5px auto" }}>
+                            {item?.includedList?.map((inc, ind) => {
+                                const collapseProps = !!inc?.link ? { onClick: () => navigate(inc.link) } : null;
+                                return <ListItem className="w-100" key={ind} {...collapseProps}>
+                                    <ListItemIcon>
+                                        <CalendarMonth />
+                                    </ListItemIcon>
+                                    <ListItemText primary={inc?.primary} secondary={inc?.secondary} />
+                                </ListItem>
+                            })}
+                        </List>
+                    </Collapse>
+                </div>
+            })}
 
-                        {/* If the item has an included list */}
-                        <Collapse in={collapsedItemIndex === index} className='d-row' timeout="auto" unmountOnExit>
-                            <List style={{ width: "95%", margin: "5px auto" }}>
-                                {item?.includedList?.map((inc, ind) => {
-                                    const collapseProps = !!inc?.link ? { onClick: () => navigate(inc.link)} : null;
-                                    return <ListItem className="w-100" key={ind} {...collapseProps}>
-                                        <ListItemIcon>
-                                            <CalendarMonth />
-                                        </ListItemIcon>
-                                        <ListItemText primary={inc?.primary} secondary={inc?.secondary} />
-                                    </ListItem>
-                                })}
-                            </List>
-                        </Collapse>
-                    </div>
-                })}
-
-                {/* Loading symbol */}
-                {(loading && !open) && <Loading msg="data hämtas ..." />}
-            </List>
-        </div>
+            {/* Loading symbol */}
+            {(loading && !open) && <Loading msg="data hämtas ..." />}
+        </List>
     )
 }
 

@@ -48,7 +48,7 @@ function AuthRoutes({authContext }) {
     },
     {
       path: '/session/history',
-      element: <ListView {...props} includedList={SessionHistoryData()} label="Session historik" />
+      element: <ListView {...props} includedList={SessionHistoryData()} label="Session historik" fullWidth={true} />
     },
     {
       path: '/logs/:param',
@@ -56,7 +56,7 @@ function AuthRoutes({authContext }) {
     },
     {
       path: '/statistics',
-      element: <ListView {...props} label="Statistik" api="data/statistics"/>
+      element: <ListView {...props} label="Statistik" api="data/statistics" fullWidth={true}/>
     },
     {
       path: '/schools',

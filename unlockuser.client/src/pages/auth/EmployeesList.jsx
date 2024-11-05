@@ -122,7 +122,7 @@ function EmployeesList({navigate}) {
                 array[index].boolValue = !item.boolValue;
         } else
             array = array.filter((x, ind) => index != ind);
-        console.log(item?.boolValue, index, array)
+
         setUserData({ ...userData, includedList: array });
         setChanged(true);
     }
@@ -132,7 +132,7 @@ function EmployeesList({navigate}) {
         let array = [...userData?.includedList];
         if (item?.removable !== undefined) 
             item.removable = true;
-        else
+        else if(group === "Studenter")
             delete item.secondary;
 
         array.push(item);

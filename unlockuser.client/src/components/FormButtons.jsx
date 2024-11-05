@@ -53,7 +53,6 @@ function FormButtons({ children, label, question, disabled, position, swap, conf
 
     function confirmHandle(cancelAction = false) {
         if (cancelAction) {
-            console.log(confirm, cancelAction)
             cancel();
             return;
         }

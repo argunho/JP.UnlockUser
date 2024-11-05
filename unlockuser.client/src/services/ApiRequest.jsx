@@ -12,7 +12,6 @@ async function ApiRequest(api, req, data) {
 
     const config = TokenConfig();
     config.cancelToken = source.token;
-    console.log(source.token.reason)
     source.token.reason = null;
 
     if (!req && !data)
