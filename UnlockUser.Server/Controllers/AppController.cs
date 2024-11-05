@@ -25,13 +25,16 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
     }
 
     [HttpGet("authorized/{param}")]
-    public JsonResult? GetAuthorizedEmployees(string param)
+    public async Task<JsonResult?> GetAuthorizedEmployees(string param)
     {
         var groupEmployees = IHelpService.GetJsonList<GroupUsersViewModel>("employees") ?? [];
         if (groupEmployees.Count == 0)
         {
-            _provider.RenewUsersJsonList(_config);
-            Task.Delay(5000);
+            var res = await _provider.RenewUsersJsonList(_config);
+            if (res == null)
+                await Task.Delay(5000);
+            else
+                return new JsonResult(new { alert = "error", msg = $"Något har gått snett. Fel: {res}" });
         }
 
         groupEmployees = IHelpService.GetJsonList<GroupUsersViewModel>("employees") ?? [];

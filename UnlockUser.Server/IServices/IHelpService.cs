@@ -106,21 +106,23 @@ public partial class IHelpService(IHttpContextAccessor httpContext) : IHelp
         return [];
     }
 
-    public static async Task SaveUpdateJsonFile<T>(List<T> list, string fileName) where T : class
+    public static async Task<string?> SaveUpdateJsonFile<T>(List<T> list, string fileName) where T : class
     {
         try
         {
             var path = Path.Combine(@"wwwroot/json", $"{fileName}.json");
             if(File.Exists(path))
                 File.Delete(path);
-            await Task.Delay(1000);
+            //await Task.Delay(1000);
             await using FileStream stream = File.Create(path);
             await System.Text.Json.JsonSerializer.SerializeAsync(stream, list);
             stream.Close();
             await using FileStream lockStream = new(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+            return null;
         }catch(Exception ex)
         {
-            Debug.WriteLine($"{nameof(SaveUpdateJsonFile)} => Error: ${ex.Message}");
+           Debug.WriteLine($"{nameof(SaveUpdateJsonFile)} => Error: ${ex.Message}");
+            return ex.Message;
         }
     }
 

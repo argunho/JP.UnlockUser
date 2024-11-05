@@ -76,7 +76,9 @@ function EmployeesList({navigate}) {
             setList(employees);
             setItems(selections);
             setLoading(false);
-            if (res.data === null || res.data?.length === 0)
+            if(res.data?.msg !== null)
+                setResponse(res.data);
+            else if (res.data === null || res.data?.length === 0)
                 setResponse(noResult);
         }, error => {
             ErrorHandle(error, navigate);
@@ -316,7 +318,7 @@ function EmployeesList({navigate}) {
                     {!!response && <Response res={response} reset={resetActions}/>}
                 </DialogActions>
             </Dialog>
-        </div >
+        </div>
     )
 }
 
