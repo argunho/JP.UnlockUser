@@ -15,12 +15,13 @@ import SearchFilter from '../../components/SearchFilter';
 
 // Functions
 import SessionTokenCheck from '../../functions/SessionTokenCheck';
+import { ErrorHandle } from '../../functions/ErrorHandle';
 
 // Services
 import ApiRequest from '../../services/ApiRequest';
 import { useParams } from 'react-router-dom';
 
-function LogFiles({loc}) {
+function LogFiles({loc, navigate}) {
     LogFiles.displayName = "LogFiles";
 
     const [list, setList] = useState([]);
@@ -69,7 +70,7 @@ function LogFiles({loc}) {
             }
             else
                 console.error(res.data);
-        }, error => console.error(error))
+        }, error => ErrorHandle(error, navigate));
     }
 
     return (

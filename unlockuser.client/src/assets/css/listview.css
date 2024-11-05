@@ -88,7 +88,7 @@ div.dropdown>li {
 
 .pagination {
     margin: 50px auto 0 auto;
-    position: absolute;
+    position: sticky;
     bottom: 5px;
     right: 0;
     padding: 20px;

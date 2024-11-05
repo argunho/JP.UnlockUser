@@ -186,7 +186,7 @@ function EmployeesList({navigate}) {
         })
     }
 
-    const label = group === "Studenter" ? "Avdelning/Skola" : "Chef";
+    const label = group === "Studenter" ? "Skola" : "Chef";
 
     return (
         <div className='interior-div view-list'>

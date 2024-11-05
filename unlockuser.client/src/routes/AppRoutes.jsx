@@ -7,6 +7,7 @@ import Contacts from "./../pages/open/Contacts";
 import NotFound from "./../pages/open/NotFound";
 
 function AppRoutes({authContext}) {
+  
   const routes = [
     {
       index: true,

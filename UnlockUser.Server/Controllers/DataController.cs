@@ -85,10 +85,10 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
     }
 
     // Get file to download
-    [HttpGet("read/file/{id}")]
-    public ActionResult ReadTextFile(string id)
+    [HttpGet("read/file/{directory}/{id}")]
+    public ActionResult ReadTextFile(string directory, string id)
     {
-        var path = Path.Combine(@"wwwroot/logfiles", $"{id}.txt");
+        var path = Path.Combine($@"wwwroot/logfiles/{directory}", $"{id}.txt");
         try
         {
             var content = System.IO.File.ReadAllText(path);

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace UnlockUser.Server.IServices;
@@ -9,6 +10,7 @@ public partial class IHelpService(IHttpContextAccessor httpContext) : IHelp
 
     public string Message { get; set; } = "";
     private readonly IHttpContextAccessor _httpContext = httpContext;
+    private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA512;
 
     // Save history logfile
     public void SaveFile(List<string> contentList, string pathName)
@@ -115,6 +117,7 @@ public partial class IHelpService(IHttpContextAccessor httpContext) : IHelp
             await using FileStream stream = File.Create(path);
             await System.Text.Json.JsonSerializer.SerializeAsync(stream, list);
             stream.Close();
+            await using FileStream lockStream = new(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
         }catch(Exception ex)
         {
             Debug.WriteLine($"{nameof(SaveUpdateJsonFile)} => Error: ${ex.Message}");
