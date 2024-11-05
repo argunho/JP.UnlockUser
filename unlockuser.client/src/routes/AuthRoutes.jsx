@@ -60,7 +60,7 @@ function AuthRoutes({authContext }) {
     },
     {
       path: '/schools',
-      element: <ListView {...props} label="Skolor" api="data/schools" id="name" fields={{name: "", place: ""}} labels={["Namn", "Plats"]}  />
+      element: <ListView {...props} label="Skolor" api="data/schools" id="id" fields={{name: "", place: ""}} labels={["Namn", "Plats"]}  />
     },
     {
       path: '/contact',
