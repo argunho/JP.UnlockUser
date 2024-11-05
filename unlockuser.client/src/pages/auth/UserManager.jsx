@@ -69,7 +69,7 @@ function UserManager({ authContext, navigate }) {
         })
     }
 
-    return <div className='interior-div'>
+    return <div className='interior-div w-100'>
         {/* Info about user */}
         <Info
             check={true}

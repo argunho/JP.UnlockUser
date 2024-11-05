@@ -89,6 +89,8 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
         </Button>
     </Tooltip>;
 
+
+
     return (
         /* Box to view the result of search */
         <div className='interior-div result-div' ref={refResult}>
@@ -137,7 +139,7 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
             {/* Select or deselect all users in class members list */}
             {clsStudents && list?.length > 0 &&
                 /* Hidden form to reset selected users password */
-                <List sx={{ width: '100%' }} component="nav">
+                <List className='w-100'>
                     {/* Select or deselect all list */}
                     <ListItem className='search-result-select'>
                         <ListItemAvatar>
@@ -167,38 +169,36 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
                 </List>}
 
             {/* Loop of search result list if result is not null */}
-            {list?.length > 0 &&
-                <List sx={{ width: '100%' }}>
-                    {list?.map((s, index) => (
-                        <div key={index}>
-                            {/* Name of department and office */}
-                            {(index === 0 || (index > 0 && list[index - 1].department !== list[index].department)) &&
-                                <Typography mt={2} mb={1} variant="body2">
-                                    {s.office + ((s.office !== s.department) ? " " + s.department : "")} {clsStudents && <span className='typography-span'>{list.filter(x => x.department === s.department)?.length} elever</span>}
-                                </Typography>}
+            {list?.length > 0 && list?.map((s, index) => (
+                <div className='w-100' key={index}>
+                    
+                    {/* Name of department and office */}
+                    {(index === 0 || (index > 0 && list[index - 1].department !== list[index].department)) &&
+                        <Typography mt={2} mb={1} variant="body2">
+                            {s.office + ((s.office !== s.department) ? " " + s.department : "")} {clsStudents && <span className='typography-span'>{list.filter(x => x.department === s.department)?.length} elever</span>}
+                        </Typography>}
 
-                            {/* List object */}
-                            <Info
-                                user={s}
-                                displayName={s.displayName}
-                                subTitle={s.office + " " + (s.office !== s.department ? (" " + s?.department) : "")}
-                                result={true}
-                                check={index === 0}
-                                disabled={disabled}
-                                updateSession={updateSession}
-                                handleOutsideClick={(e) => clickHandle(e, index, s)}>
+                    {/* List object */}
+                    <Info
+                        user={s}
+                        displayName={s.displayName}
+                        subTitle={s.office + " " + (s.office !== s.department ? (" " + s?.department) : "")}
+                        result={true}
+                        check={index === 0}
+                        disabled={disabled}
+                        updateSession={updateSession}
+                        handleOutsideClick={(e) => clickHandle(e, index, s)}>
 
-                                {/* Checkbox visible only if is success result after users search by class name */}
-                                {clsStudents && <Checkbox
-                                    size='small'
-                                    color="default"
-                                    ref={checkbox => refCheckbox.current[index] = checkbox}
-                                    checked={selectedList.indexOf(s.name) > -1}
-                                />}
-                            </Info>
-                        </div>
-                    ))}
-                </List>}
+                        {/* Checkbox visible only if is success result after users search by class name */}
+                        {clsStudents && <Checkbox
+                            size='small'
+                            color="default"
+                            ref={checkbox => refCheckbox.current[index] = checkbox}
+                            checked={selectedList.indexOf(s.name) > -1}
+                        />}
+                    </Info>
+                </div>
+            ))}
 
             {/* Message if result is null */}
             {(!loading && response) && <Response res={response} reset={() => resetResult()} />}

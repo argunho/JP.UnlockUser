@@ -97,6 +97,7 @@ function Home({ authContext, navigate }) {
         sessionStorage.setItem("group", value);
         authContext.updateGroupName(value);
         setGroup(value);
+        reset();
     }
 
     // Recognize Enter press to submit search form
@@ -122,7 +123,7 @@ function Home({ authContext, navigate }) {
 
         // API parameters by chosen searching alternative
         const params = (!clsStudents) ? group + "/" + match : additionInput;
-console.log("search/" + option + "/" + input + "/" + params)
+
         // API request
         await ApiRequest("search/" + option + "/" + input + "/" + params).then(res => {
             // Response
@@ -317,7 +318,6 @@ console.log("search/" + option + "/" + input + "/" + params)
                 response={response}
                 disabled={group == "Support"}
                 resultBlock={true}
-                // cancelRequest={() => source.cancel("Pågående sökning har avbrutits ...")}
                 cancelRequest={CancelRequest}
                 resetResult={reset}
             />

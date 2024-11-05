@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 // Installed
 import { jwtDecode } from "jwt-decode";
-import { HomeSharp, LiveHelp, Logout, Menu, Close, History, SettingsApplications, School, WorkHistory, ErrorOutline, BarChart } from '@mui/icons-material';
+import { HomeSharp, LiveHelp, Logout, Menu, Close, History, SettingsApplications, School, WorkHistory, ErrorOutline, BarChart, Home } from '@mui/icons-material';
 import { Button, Tooltip } from '@mui/material';
 
 // Services
@@ -23,6 +23,7 @@ function Header({ authContext }) {
     const navigate = useNavigate();
 
     let links = [
+        { label: "Hem", url: "/", icon: <Home />, access: false },
         { label: "Session historik", url: "session/history", icon: <History />, access: false },
         { label: "Behöriga användare", url: "employees", icon: <SettingsApplications />, access: true },
         { label: "Skolor", url: "schools", icon: <School />, access: true },

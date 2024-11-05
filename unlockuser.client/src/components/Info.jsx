@@ -1,6 +1,6 @@
 
 
-import React, { useContext, useRef } from 'react';
+import { Fragment, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Installed
@@ -20,7 +20,6 @@ function Info({ children, user, name, displayName, subTitle, result, check, disa
     const authContext = useContext(AuthContext);
 
     const refGetMembers = useRef(null);
-    const refButton = useRef(null);
     const group = authContext.group?.toLowerCase();
 
     const isDisabled = (!user || group?.toLowerCase() !== "studenter" || (typeof children === 'object')
@@ -33,10 +32,7 @@ function Info({ children, user, name, displayName, subTitle, result, check, disa
     const clickHandle = (e) => {
         if (disabled) return;
 
-        if (!result && refButton?.current && refButton?.current.contains(e?.target)) {
-            navigate(-1);
-            return;
-        } else if (!isDisabled && refGetMembers?.current && refGetMembers?.current.contains(e?.target)) {
+       if (!isDisabled && refGetMembers?.current && refGetMembers?.current.contains(e?.target)) {
             if (result)
                 updateSession();
             navigate(`/members/${user.office}/${user.department}`);
@@ -47,7 +43,10 @@ function Info({ children, user, name, displayName, subTitle, result, check, disa
             handleOutsideClick(e);
     }
 
-    const infoBlock = <ListItem className={(result ? "list-link" : "info-block")} onClick={(e) => clickHandle(e, user)}>
+    const infoBlock = <ListItem className={(result ? "list-link" : "info-block")} onClick={(e) => clickHandle(e, user)}
+        secondaryAction={!result && <Button className='back-button' onClick={() => navigate(-1)} title="Go back">
+            <KeyboardReturnTwoTone />
+        </Button>}>
         <ListItemAvatar>
             <Avatar>
                 {group === "studenter" ? <School /> : <EventNote />}
@@ -58,7 +57,7 @@ function Info({ children, user, name, displayName, subTitle, result, check, disa
         <ListItemText
             primary={user?.name || name}
             secondary={
-                <React.Fragment>
+                <Fragment>
                     {user && user?.email && <span className='typography-email-span'>{user.email}</span>}
                     {displayName && <Typography
                         sx={{ display: 'inline' }}
@@ -74,7 +73,7 @@ function Info({ children, user, name, displayName, subTitle, result, check, disa
                     </Tooltip>}
 
                     {/* If a user has a managers list */}
-                    {user?.managers?.length > 0 && <div className='d-row'>
+                    {user?.managers?.length > 0 && <span className='d-row'>
                         <Typography sx={{ marginRight: "15px" }} variant="caption" color="-moz-initial">Chef: </Typography>
                         {user.managers?.map((x, ind) => {
                             console.log()
@@ -84,25 +83,20 @@ function Info({ children, user, name, displayName, subTitle, result, check, disa
                                 <span title={x.username}>{x.displayName} {((ind + 1) < user.managers?.length) && <ArrowRight />}</span>
                             </Typography>
                         })}
-                    </div>}
+                    </span>}
 
-                </React.Fragment>} />
+                </Fragment>} />
 
-        {/* Go back */}
-        {!result && <Button
-            variant="text"
-            ref={refButton}
-            title="Go back">
-            <KeyboardReturnTwoTone />
-        </Button>}
 
         {/* Props children */}
         {(result && children) && children}
     </ListItem>;
 
+    console.log(children)
+
     // Print out user's info
-    return (children ? infoBlock :
-        <List className='info-wrapper'> {infoBlock} </List>
+    return (
+        children ? infoBlock : <List className='info-wrapper'> {infoBlock} </List>
     )
 }
 

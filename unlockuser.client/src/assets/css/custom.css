@@ -197,6 +197,13 @@ header {
   letter-spacing: 1;
 }
 
+.link-logo svg {
+  font-size: 45px !important;
+  box-shadow: 0 0 1px 1px #f0eeee;
+  padding: 8px !important;
+  border-radius: 5px;
+}
+
 .link,
 .link:active {
   border: none !important;
@@ -355,6 +362,7 @@ header {
 
 .interior-div>ul {
   padding-bottom: 0 !important;
+  min-height: 150px !important;
 }
 
 .search-reset {
@@ -445,9 +453,9 @@ header {
   cursor: pointer;
 }
 
-.info-block>button {
-  float: right !important;
-  border: 1px solid aliceblue;
+.info-block .back-button {
+  margin-right: -14px !important;
+  border: 1px solid rgb(118, 131, 143);
 }
 
 .reset-button {

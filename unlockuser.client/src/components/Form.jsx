@@ -324,11 +324,11 @@ function Form({ title, name, passwordLength, users, authContext }) {
             {/* Title */}
             <p className='form-title'>{title}</p>
 
-            {/* Response message */}
-            {response && <Response res={response} reset={() => setResponse(null)} />}
-
             {/* Form actions */}
             <div className='form-actions'>
+
+                {/* Response message */}
+                {response && <Response res={response} reset={() => setResponse(null)} />}
 
                 {multiple && <>
                     {/* Loop of radio input choices to choose is password same or not for all students */}
