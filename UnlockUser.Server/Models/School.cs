@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace UnlockUser.Server.Models;
+﻿namespace UnlockUser.Server.Models;
 
 public class School
 {

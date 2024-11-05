@@ -129,7 +129,7 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
 
     #region Help
     // Get claim
-    public string? GetClaim(string? name)
+    public string? GetClaim([FromBody] string? name)
     {
         try
         {

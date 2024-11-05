@@ -13,7 +13,7 @@ public partial class IHelpService(IHttpContextAccessor httpContext) : IHelp
     // Save history logfile
     public void SaveFile(List<string> contentList, string pathName)
     {
-        var directory = $@"wwwroot\{pathName}";
+        var directory = $@"Files\{pathName}";
         if (CheckDirectory(directory))
         {
             try
@@ -95,7 +95,8 @@ public partial class IHelpService(IHttpContextAccessor httpContext) : IHelp
     {
         try
         {
-            using StreamReader reader = new($@"wwwroot/json/{fileName}.json");
+            var path = Path.Combine(@"wwwroot/json", $"{fileName}.json");
+            using StreamReader reader = new(path);
             return JsonConvert.DeserializeObject<List<T>>(reader.ReadToEnd()) ?? [];
         }
         catch (Exception) { }
@@ -103,11 +104,11 @@ public partial class IHelpService(IHttpContextAccessor httpContext) : IHelp
         return [];
     }
 
-    public static async Task SaveUpdateJsonFile<T>(List<T> list, string name) where T : class
+    public static async Task SaveUpdateJsonFile<T>(List<T> list, string fileName) where T : class
     {
         try
         {
-            var path = $@"wwwroot/json/{name}.json";
+            var path = Path.Combine(@"wwwroot/json", $"{fileName}.json");
             if(File.Exists(path))
                 File.Delete(path);
             await Task.Delay(1000);

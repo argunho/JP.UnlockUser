@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import _ from "lodash";
 
 // Installed
 import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText, TextField } from "@mui/material";
@@ -15,7 +16,7 @@ import Loading from "../../components/Loading";
 // Functions
 import { ErrorHandle } from "../../functions/ErrorHandle";
 
-function ListView({ authContext, loc, includedList, label, fullWidth, api, id, fields, labels, navigate }) {
+function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels, navigate }) {
     ListView.displayName = "Schools";
 
     const [list, setList] = useState(includedList ?? []);
@@ -28,23 +29,13 @@ function ListView({ authContext, loc, includedList, label, fullWidth, api, id, f
     const [required, setRequired] = useState([]);
     const [collapsedItemIndex, setCollapsedItemIndex] = useState(null);
 
+    const empty = {
+        alert: "info",
+        msg: "Ingen data att visa ..."
+    };
+
     useEffect(() => {
-        const empty = {
-            alert: "info",
-            msg: "Ingen data att visa ..."
-        };
-        async function getList() {
-            await ApiRequest(api).then(res => {
-                setList(res.data);
-                setLoading(false);
-
-                if (res.data?.length == 0) {
-                    setResponse(empty);
-                } else
-                    authContext.updateSchools(res.data);
-            })
-        }
-
+        setResponse();
         if (!!api)
             getList();
         else {
@@ -54,6 +45,18 @@ function ListView({ authContext, loc, includedList, label, fullWidth, api, id, f
             setList(includedList);
         }
     }, [loc])
+
+    async function getList() {
+        await ApiRequest(api).then(res => {
+            setList(res.data);
+            setLoading(false);
+
+            if (res.data?.length == 0)
+                setResponse(empty);
+            else
+                sessionStorage.setItem("schools", JSON.stringify(res.data));
+        })
+    }
 
     function onChange(e) {
         setRequired([]);
@@ -84,21 +87,8 @@ function ListView({ authContext, loc, includedList, label, fullWidth, api, id, f
         }
     }
 
-    async function removeItem() {
-        setOpen(false);
-
-        await ApiRequest(`${api}/${item[id]}`, "delete").then(res => {
-            if (res.status == 200 && !res.data) {
-                const index = list.findIndex(x => x === item);
-                setTimeout(() => {
-                    setList(list.filter((x, ind) => ind !== index));
-                }, 100)
-            } else
-                setResponse({ alert: "error", msg: res.data })
-
-            setConfirm(null);
-            setItem(fields);
-        }, error => setResponse(ErrorHandle(error, navigate)))
+    function handleDropdown(index) {
+        setCollapsedItemIndex(index === collapsedItemIndex ? null : index);
     }
 
     async function onSubmit(e) {
@@ -119,7 +109,8 @@ function ListView({ authContext, loc, includedList, label, fullWidth, api, id, f
         setLoading(true);
         await ApiRequest(`${api}`, "post", item).then(res => {
             if (res.status == 200 && !res.data)
-                setList(list => [...list, item]);
+                getList();
+                // setList(list => [...list, item]);
             else
                 setResponse({ alert: "error", msg: res.data })
 
@@ -131,8 +122,21 @@ function ListView({ authContext, loc, includedList, label, fullWidth, api, id, f
         })
     }
 
-    function handleDropdown(index) {
-        setCollapsedItemIndex(index === collapsedItemIndex ? null : index);
+    async function removeItem() {
+        setOpen(false);
+console.log(item?.id)
+        await ApiRequest(`${api}/${item[id]}`, "delete").then(res => {
+            if (res.status == 200 && !res.data) {
+                const index = list.findIndex(x => x === item);
+                setTimeout(() => {
+                    setList(list.filter((x, ind) => ind !== index));
+                }, 100)
+            } else
+                setResponse({ alert: "error", msg: res.data })
+
+            setConfirm(null);
+            setItem(fields);
+        }, error => setResponse(ErrorHandle(error, navigate)))
     }
 
     return (
@@ -151,7 +155,7 @@ function ListView({ authContext, loc, includedList, label, fullWidth, api, id, f
             {/* Confirm/Form block */}
             {!!fields && <Collapse in={open} className='d-row' timeout="auto" unmountOnExit>
                 {/* Confirm */}
-                {!!confirm && <FormButtons confirmable={true} question="Radera" submit={removeItem} cancel={() => setConfirm(null)} />}
+                {!!confirm && <FormButtons confirmable={true} confirmOnly={true} question="Radera" submit={removeItem} cancel={() => setConfirm(null)} />}
 
                 {/* Form */}
                 {!!visibleForm && <form className='d-row view-list-form w-100' onSubmit={onSubmit}>
@@ -161,7 +165,7 @@ function ListView({ authContext, loc, includedList, label, fullWidth, api, id, f
                     })}
 
                     <Button variant="outlined" type="submit" className="form-button" disabled={loading}>
-                        {loading ? <CircularProgress size={20} /> : "Spara"}
+                        {loading ? <CircularProgress size={20} color="error" /> : "Spara"}
                     </Button>
                 </form>}
             </Collapse>}
@@ -174,11 +178,11 @@ function ListView({ authContext, loc, includedList, label, fullWidth, api, id, f
                     <ListItem className="w-100"
                         secondaryAction={
                             <div className="d-row">
-                                {!!item?.includedList && <IconButton onClick={() => handleDropdown(index)}>
+                                {item?.includedList?.length > 0 && <IconButton onClick={() => handleDropdown(index)}>
                                     {collapsedItemIndex === index ? <ArrowDropUp /> : <ArrowDropDown />}
                                 </IconButton>}
                                 {!!fields && <IconButton onClick={() => confirmHandle(item)} color="error" disabled={!!confirm || visibleForm}>
-                                    <Delete />
+                                   {_.isEqual(confirm, item) ? <CircularProgress size={20} /> : <Delete />} 
                                 </IconButton>}
                             </div>
                         } >

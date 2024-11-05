@@ -6,10 +6,10 @@ import { Button, CircularProgress } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
 
-function FormButtons({ children, label, question, disabled, position, swap, confirmable, loading, submit, cancel, required, data }) {
+function FormButtons({ children, label, question, disabled, position, swap, confirmable, confirmOnly, loading, submit, cancel, required, data }) {
     FormButtons.displayName = "FormButtons";
 
-    const [confirm, setConfirm] = useState(false);
+    const [confirm, setConfirm] = useState(!!confirmOnly);
     const [delay, setDelay] = useState(!confirmable);
 
     useEffect(() => {

@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Net;
 using System.DirectoryServices;
 using System.Globalization;
-using System.Reflection;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -231,7 +230,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
     #region Helpers
     // Return extension of User
-    public UserViewModel UpdatedUser(UserViewModel user)
+    public UserViewModel UpdatedUser([FromBody] UserViewModel user)
     {
         user.Credentials = new UserCredentials
         {
@@ -275,7 +274,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     // Get claim
-    public string? GetClaim(string? name)
+    public string? GetClaim([FromBody] string? name)
     {
         try
         {
@@ -291,7 +290,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     // Save update statistik
-    public async Task SaveUpdateStatitics(string param, int count)
+    public async Task SaveUpdateStatitics([FromBody] string param, int count)
     {
         try
         {
@@ -342,7 +341,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     // Save log file
-    public void SaveHistoryLogFile(Data model)
+    public void SaveHistoryLogFile([FromBody] Data model)
     {
         var user = _provider.FindUserByExtensionProperty(GetClaim("Username"));
         string fileName = (model.Group?.ToLower() ?? "") + "_";
@@ -396,7 +395,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     // Help method to structure a warning message
-    public JsonResult? ReturnWarningsMessage(UserViewModel model)
+    public JsonResult? ReturnWarningsMessage([FromBody] UserViewModel model)
     {
         if (!ModelState.IsValid)
             return new JsonResult(new { alert = "warning", msg = "Felaktigt eller ofullständigt ifyllda formulär" }); // Forms filled out incorrectly
@@ -407,7 +406,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     // Return Error response
-    public JsonResult Error(string msg)
+    public JsonResult Error([FromBody] string msg)
     {
         // Activate a button in the user interface for sending an error message to the system developer if the same error is repeated more than two times during the same session
         var repeated = _session?.GetInt32("RepeatedError") ?? 0;

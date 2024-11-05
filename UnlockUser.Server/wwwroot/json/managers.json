@@ -1,1 +1,807 @@
-[{"Username":"730308fred","DisplayName":"Fredrik W\u00E4rn","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"670227magn","DisplayName":"Magnus Wigren","Division":"Samh\u00E4llsbyggnadsf\u00F6rvaltning","Disabled":false,"Default":false},{"Username":"550825roge","DisplayName":"Roger Wilsborn","Division":"Samh\u00E4llsbyggnadsf\u00F6rvaltning","Disabled":false,"Default":false},{"Username":"550409anit","DisplayName":"Anita Skarp","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"660604chri","DisplayName":"Christina Andersson","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"661218elis","DisplayName":"Elisabeth Svanbring","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"610711ulf","DisplayName":"Ulf Carlsson","Division":"Samh\u00E4llsbyggnadsf\u00F6rvaltning","Disabled":false,"Default":false},{"Username":"550513birg","DisplayName":"Birgitta Andersson","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"790220mich","DisplayName":"Mikaela M\u00E5nlycke","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"770918pern","DisplayName":"Pernilla Lugnberg","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"750611lind","DisplayName":"Linda Holmer","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"630723moni","DisplayName":"Monica Appeltoft","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"710329hele","DisplayName":"Helena Odelg\u00E5rd","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"700430elis","DisplayName":"Elisabeth Dawson","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"620323mari","DisplayName":"Maria Gabrielsson","Division":"Arbete och L\u00E4rande","Disabled":false,"Default":false},{"Username":"631031caro","DisplayName":"Carola Gunnarsson","Division":"Samh\u00E4llsbyggnadsf\u00F6rvaltning","Disabled":false,"Default":false},{"Username":"820221lind","DisplayName":"Linda Gustavsson","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"760417joha","DisplayName":"Johanna Lindqvist","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"631007kris","DisplayName":"Kristin Ljungqvist","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"721208kari","DisplayName":"Karin Sahlstr\u00F6m","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"660414ann","DisplayName":"Ann-Louise Kjellberg","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"610928ingr","DisplayName":"Ingrid Kallstr\u00F6m Bengtsson","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"730702kris","DisplayName":"Kristina Folkesson","Division":"Kultur och Fritidsf\u00F6rvaltning","Disabled":false,"Default":false},{"Username":"590828yvon","DisplayName":"Yvonne Fjeldheim","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"730407pern","DisplayName":"Pernilla Nordin","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"810212agne","DisplayName":"Agnetha Eliasson","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"520803eva","DisplayName":"Eva Hoff","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"691015guni","DisplayName":"Gunilla Ryd\u00E9n Carlsson","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"810901sara","DisplayName":"Sara Jonasson","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"781020cari","DisplayName":"Carina Jakobsson","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"810416mart","DisplayName":"Martin Sallerg\u00E5rd","Division":"Kultur och Fritidsf\u00F6rvaltning","Disabled":false,"Default":false},{"Username":"760112robi","DisplayName":"Robin Carlsson","Division":"Alvesta Eln\u00E4t AB","Disabled":false,"Default":false},{"Username":"760527joha","DisplayName":"Johan Johansson","Division":"Kommunledningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"851106gust","DisplayName":"Gustaf Haglund","Division":"Arbete och L\u00E4rande","Disabled":false,"Default":false},{"Username":"780206emma","DisplayName":"Emma K\u00E4nno","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"700317caro","DisplayName":"Carola Johansson","Division":"Arbete och L\u00E4rande","Disabled":false,"Default":false},{"Username":"890609ana","DisplayName":"Ana Jukic","Division":"Arbete och L\u00E4rande","Disabled":false,"Default":false},{"Username":"880213joak","DisplayName":"Joakim Aleborn","Division":"Arbete och L\u00E4rande","Disabled":false,"Default":false},{"Username":"751018mari","DisplayName":"Maria Petersson","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"821013joha","DisplayName":"Johanna Yngvesson","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"810505lovi","DisplayName":"Lovisa Annell","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"700218malg","DisplayName":"Malgorzata \u00D6stlund","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"820530nina","DisplayName":"Nina Brundin","Division":"Kommunledningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"780301mart","DisplayName":"Martin Lindberg","Division":"ARAB","Disabled":false,"Default":false},{"Username":"740731lind","DisplayName":"Linda Bj\u00E4lkenborn","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"650523eva","DisplayName":"Eva-Lotta Sandell","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"900221luca","DisplayName":"Lucas Herngren","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"741108rebe","DisplayName":"Rebecca Borg S\u00F6derkvist","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"580723suza","DisplayName":"Suzanne Hammargren","Division":"Kultur och Fritidsf\u00F6rvaltning","Disabled":false,"Default":false},{"Username":"710324pia","DisplayName":"Pia Persson","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"741126par","DisplayName":"P\u00E4r Svensson","Division":"Kommunledningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"740112lars","DisplayName":"Lars Engborg","Division":"AllboHus Fastighets AB","Disabled":false,"Default":false},{"Username":"700407mari","DisplayName":"Maria Kanstedt Rylander","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"721126andr","DisplayName":"Andreas Jonsson \u00C5kerlund","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"880129pern","DisplayName":"Pernilla Andersson","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"621101kris","DisplayName":"Kristina Hjertberg","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"860605per","DisplayName":"Per Holmquist","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"670706cami","DisplayName":"Camilla Holmqvist","Division":"Kommunledningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"710527kris","DisplayName":"Kristina Eriksson","Division":"Kultur och Fritidsf\u00F6rvaltning","Disabled":false,"Default":false},{"Username":"810118sand","DisplayName":"Sandra R\u00F6nn","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"630116haka","DisplayName":"H\u00E5kan Nilsson","Division":"Alvesta Eln\u00E4t AB","Disabled":false,"Default":false},{"Username":"760103jon","DisplayName":"Jon Lundborg","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"680331loui","DisplayName":"Louise Nygren","Division":"Kultur och Fritidsf\u00F6rvaltning","Disabled":false,"Default":false},{"Username":"556787elis","DisplayName":"Elisabeth Str\u00F6mberg","Division":"Alvesta Eln\u00E4t AB","Disabled":false,"Default":false},{"Username":"790617joha","DisplayName":"Johan Gunnarsson","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"630617anne","DisplayName":"Anneli Loberg","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"720204anna","DisplayName":"Anna Braun","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"680408anna","DisplayName":"Anna Sopelsa","Division":"Arbete och L\u00E4rande","Disabled":false,"Default":false},{"Username":"710320pete","DisplayName":"Peter Johansson","Division":"Kultur och Fritidsf\u00F6rvaltning","Disabled":false,"Default":false},{"Username":"620906mari","DisplayName":"Marit Persson","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"691023jess","DisplayName":"Jessica Karlsson","Division":"Kommunledningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"760326fred","DisplayName":"Fredrik Rosendahl","Division":"AllboHus Fastighets AB","Disabled":false,"Default":false},{"Username":"650404dahn","DisplayName":"Dahn Delsmo","Division":"Samh\u00E4llsbyggnadsf\u00F6rvaltning","Disabled":false,"Default":false},{"Username":"850525robi","DisplayName":"Robin Brevestedt","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"650405stef","DisplayName":"Stefan Fransson","Division":"AllboHus Fastighets AB","Disabled":false,"Default":false},{"Username":"790219mart","DisplayName":"Martin Scharin","Division":"Kultur och Fritidsf\u00F6rvaltning","Disabled":false,"Default":false},{"Username":"751214sofi","DisplayName":"Sofie Thor","Division":"Kommunledningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"760317stef","DisplayName":"Stefan Brod\u00E9n","Division":"Samh\u00E4llsbyggnadsf\u00F6rvaltning","Disabled":false,"Default":false},{"Username":"840808eric","DisplayName":"Erica Carlsson","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"960318frid","DisplayName":"Frida Emanuelsson","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"730630ceci","DisplayName":"Cecilia Wenner Hollstr\u00F6m","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"720329gabr","DisplayName":"Gabriella Baricevic Ljungqvist","Division":"Arbete och L\u00E4rande","Disabled":false,"Default":false},{"Username":"810410anna","DisplayName":"Anna Brinkestam","Division":"Kommunledningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"730119henr","DisplayName":"Henrik Elfving","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"800322eva","DisplayName":"Eva Yngvesson","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"560620ande","DisplayName":"Anders Olsson","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"730621kris","DisplayName":"Kristina Davidsson","Division":"Arbete och L\u00E4rande","Disabled":false,"Default":false},{"Username":"820620mari","DisplayName":"Maria Ring","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"660413anna","DisplayName":"Anna Falkenstam","Division":"Kommunledningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"761102dani","DisplayName":"Daniel \u00C5hlenius","Division":"Arbete och L\u00E4rande","Disabled":false,"Default":false},{"Username":"920218seil","DisplayName":"Seila Mujic","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"900506ajdi","DisplayName":"Ajdin Hadzic","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"670628kari","DisplayName":"Karin K\u00E4llstr\u00F6m","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"700131lars","DisplayName":"Lars-G\u00F6ran Hedstig","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"660604ulri","DisplayName":"Ulrika Bostr\u00F6m","Division":"Arbete och L\u00E4rande","Disabled":false,"Default":false},{"Username":"890501math","DisplayName":"Mathilda Ericsson St\u00E5hl","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"890724ther","DisplayName":"Therese Lindstr\u00F6m","Division":"Samh\u00E4llsbyggnadsf\u00F6rvaltning","Disabled":false,"Default":false},{"Username":"650922nina","DisplayName":"Nina Laine","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"760410kari","DisplayName":"Karin Sahlberg Weidmert","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"910411emma","DisplayName":"Emma Berggren","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"621203silj","DisplayName":"Silja Savela","Division":"Kommunledningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"760310vero","DisplayName":"Veronica Backman","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"620507lars","DisplayName":"Lars-\u00C5ke Linder","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"810922dian","DisplayName":"Diana Hodic","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"640422jaan","DisplayName":"Jaana Vainio","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"870910andr","DisplayName":"Andr\u00E9 Viebke","Division":"Kommunledningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"950815mali","DisplayName":"Malin Franz\u00E9n","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"710130tomm","DisplayName":"Tommy Graveus","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"020927auro","DisplayName":"Aurora Aliu","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"760220pier","DisplayName":"Pierre Thorell","Division":"Kommunledningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"770921kris","DisplayName":"Kristina Bergstr\u00F6m","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"741217mari","DisplayName":"Maria Karlsson","Division":"Arbete och L\u00E4rande","Disabled":false,"Default":false},{"Username":"631226mari","DisplayName":"Marie-Louise Roos","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"680126ulri","DisplayName":"Ulrika Chronvall","Division":"Utbildningsf\u00F6rvaltningen","Disabled":false,"Default":false},{"Username":"991230alex","DisplayName":"Alexandra Airosto","Division":"Omsorgsf\u00F6rvaltningen","Disabled":false,"Default":false}]
+[
+  {
+    "Username": "730308fred",
+    "DisplayName": "Fredrik W\u00E4rn",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "670227magn",
+    "DisplayName": "Magnus Wigren",
+    "Division": "Samh\u00E4llsbyggnadsf\u00F6rvaltning",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "550825roge",
+    "DisplayName": "Roger Wilsborn",
+    "Division": "Samh\u00E4llsbyggnadsf\u00F6rvaltning",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "550409anit",
+    "DisplayName": "Anita Skarp",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "660604chri",
+    "DisplayName": "Christina Andersson",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "661218elis",
+    "DisplayName": "Elisabeth Svanbring",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "610711ulf",
+    "DisplayName": "Ulf Carlsson",
+    "Division": "Samh\u00E4llsbyggnadsf\u00F6rvaltning",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "550513birg",
+    "DisplayName": "Birgitta Andersson",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "790220mich",
+    "DisplayName": "Mikaela M\u00E5nlycke",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "770918pern",
+    "DisplayName": "Pernilla Lugnberg",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "750611lind",
+    "DisplayName": "Linda Holmer",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "630723moni",
+    "DisplayName": "Monica Appeltoft",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "710329hele",
+    "DisplayName": "Helena Odelg\u00E5rd",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "700430elis",
+    "DisplayName": "Elisabeth Dawson",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "620323mari",
+    "DisplayName": "Maria Gabrielsson",
+    "Division": "Arbete och L\u00E4rande",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "631031caro",
+    "DisplayName": "Carola Gunnarsson",
+    "Division": "Samh\u00E4llsbyggnadsf\u00F6rvaltning",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "820221lind",
+    "DisplayName": "Linda Gustavsson",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "760417joha",
+    "DisplayName": "Johanna Lindqvist",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "631007kris",
+    "DisplayName": "Kristin Ljungqvist",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "721208kari",
+    "DisplayName": "Karin Sahlstr\u00F6m",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "660414ann",
+    "DisplayName": "Ann-Louise Kjellberg",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "610928ingr",
+    "DisplayName": "Ingrid Kallstr\u00F6m Bengtsson",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "730702kris",
+    "DisplayName": "Kristina Folkesson",
+    "Division": "Kultur och Fritidsf\u00F6rvaltning",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "590828yvon",
+    "DisplayName": "Yvonne Fjeldheim",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "730407pern",
+    "DisplayName": "Pernilla Nordin",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "810212agne",
+    "DisplayName": "Agnetha Eliasson",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "520803eva",
+    "DisplayName": "Eva Hoff",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "691015guni",
+    "DisplayName": "Gunilla Ryd\u00E9n Carlsson",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "810901sara",
+    "DisplayName": "Sara Jonasson",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "781020cari",
+    "DisplayName": "Carina Jakobsson",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "810416mart",
+    "DisplayName": "Martin Sallerg\u00E5rd",
+    "Division": "Kultur och Fritidsf\u00F6rvaltning",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "760112robi",
+    "DisplayName": "Robin Carlsson",
+    "Division": "Alvesta Eln\u00E4t AB",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "760527joha",
+    "DisplayName": "Johan Johansson",
+    "Division": "Kommunledningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "851106gust",
+    "DisplayName": "Gustaf Haglund",
+    "Division": "Arbete och L\u00E4rande",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "780206emma",
+    "DisplayName": "Emma K\u00E4nno",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "700317caro",
+    "DisplayName": "Carola Johansson",
+    "Division": "Arbete och L\u00E4rande",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "890609ana",
+    "DisplayName": "Ana Jukic",
+    "Division": "Arbete och L\u00E4rande",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "880213joak",
+    "DisplayName": "Joakim Aleborn",
+    "Division": "Arbete och L\u00E4rande",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "751018mari",
+    "DisplayName": "Maria Petersson",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "821013joha",
+    "DisplayName": "Johanna Yngvesson",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "810505lovi",
+    "DisplayName": "Lovisa Annell",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "700218malg",
+    "DisplayName": "Malgorzata \u00D6stlund",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "820530nina",
+    "DisplayName": "Nina Brundin",
+    "Division": "Kommunledningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "780301mart",
+    "DisplayName": "Martin Lindberg",
+    "Division": "ARAB",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "740731lind",
+    "DisplayName": "Linda Bj\u00E4lkenborn",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "650523eva",
+    "DisplayName": "Eva-Lotta Sandell",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "900221luca",
+    "DisplayName": "Lucas Herngren",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "741108rebe",
+    "DisplayName": "Rebecca Borg S\u00F6derkvist",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "580723suza",
+    "DisplayName": "Suzanne Hammargren",
+    "Division": "Kultur och Fritidsf\u00F6rvaltning",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "710324pia",
+    "DisplayName": "Pia Persson",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "741126par",
+    "DisplayName": "P\u00E4r Svensson",
+    "Division": "Kommunledningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "740112lars",
+    "DisplayName": "Lars Engborg",
+    "Division": "AllboHus Fastighets AB",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "700407mari",
+    "DisplayName": "Maria Kanstedt Rylander",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "721126andr",
+    "DisplayName": "Andreas Jonsson \u00C5kerlund",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "880129pern",
+    "DisplayName": "Pernilla Andersson",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "621101kris",
+    "DisplayName": "Kristina Hjertberg",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "860605per",
+    "DisplayName": "Per Holmquist",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "670706cami",
+    "DisplayName": "Camilla Holmqvist",
+    "Division": "Kommunledningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "710527kris",
+    "DisplayName": "Kristina Eriksson",
+    "Division": "Kultur och Fritidsf\u00F6rvaltning",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "810118sand",
+    "DisplayName": "Sandra R\u00F6nn",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "630116haka",
+    "DisplayName": "H\u00E5kan Nilsson",
+    "Division": "Alvesta Eln\u00E4t AB",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "760103jon",
+    "DisplayName": "Jon Lundborg",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "680331loui",
+    "DisplayName": "Louise Nygren",
+    "Division": "Kultur och Fritidsf\u00F6rvaltning",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "556787elis",
+    "DisplayName": "Elisabeth Str\u00F6mberg",
+    "Division": "Alvesta Eln\u00E4t AB",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "790617joha",
+    "DisplayName": "Johan Gunnarsson",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "630617anne",
+    "DisplayName": "Anneli Loberg",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "720204anna",
+    "DisplayName": "Anna Braun",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "680408anna",
+    "DisplayName": "Anna Sopelsa",
+    "Division": "Arbete och L\u00E4rande",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "710320pete",
+    "DisplayName": "Peter Johansson",
+    "Division": "Kultur och Fritidsf\u00F6rvaltning",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "620906mari",
+    "DisplayName": "Marit Persson",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "691023jess",
+    "DisplayName": "Jessica Karlsson",
+    "Division": "Kommunledningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "760326fred",
+    "DisplayName": "Fredrik Rosendahl",
+    "Division": "AllboHus Fastighets AB",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "650404dahn",
+    "DisplayName": "Dahn Delsmo",
+    "Division": "Samh\u00E4llsbyggnadsf\u00F6rvaltning",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "850525robi",
+    "DisplayName": "Robin Brevestedt",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "650405stef",
+    "DisplayName": "Stefan Fransson",
+    "Division": "AllboHus Fastighets AB",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "790219mart",
+    "DisplayName": "Martin Scharin",
+    "Division": "Kultur och Fritidsf\u00F6rvaltning",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "751214sofi",
+    "DisplayName": "Sofie Thor",
+    "Division": "Kommunledningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "760317stef",
+    "DisplayName": "Stefan Brod\u00E9n",
+    "Division": "Samh\u00E4llsbyggnadsf\u00F6rvaltning",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "840808eric",
+    "DisplayName": "Erica Carlsson",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "960318frid",
+    "DisplayName": "Frida Emanuelsson",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "730630ceci",
+    "DisplayName": "Cecilia Wenner Hollstr\u00F6m",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "720329gabr",
+    "DisplayName": "Gabriella Baricevic Ljungqvist",
+    "Division": "Arbete och L\u00E4rande",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "810410anna",
+    "DisplayName": "Anna Brinkestam",
+    "Division": "Kommunledningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "730119henr",
+    "DisplayName": "Henrik Elfving",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "800322eva",
+    "DisplayName": "Eva Yngvesson",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "560620ande",
+    "DisplayName": "Anders Olsson",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "730621kris",
+    "DisplayName": "Kristina Davidsson",
+    "Division": "Arbete och L\u00E4rande",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "820620mari",
+    "DisplayName": "Maria Ring",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "660413anna",
+    "DisplayName": "Anna Falkenstam",
+    "Division": "Kommunledningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "761102dani",
+    "DisplayName": "Daniel \u00C5hlenius",
+    "Division": "Arbete och L\u00E4rande",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "920218seil",
+    "DisplayName": "Seila Mujic",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "900506ajdi",
+    "DisplayName": "Ajdin Hadzic",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "670628kari",
+    "DisplayName": "Karin K\u00E4llstr\u00F6m",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "700131lars",
+    "DisplayName": "Lars-G\u00F6ran Hedstig",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "660604ulri",
+    "DisplayName": "Ulrika Bostr\u00F6m",
+    "Division": "Arbete och L\u00E4rande",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "890501math",
+    "DisplayName": "Mathilda Ericsson St\u00E5hl",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "890724ther",
+    "DisplayName": "Therese Lindstr\u00F6m",
+    "Division": "Samh\u00E4llsbyggnadsf\u00F6rvaltning",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "650922nina",
+    "DisplayName": "Nina Laine",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "760410kari",
+    "DisplayName": "Karin Sahlberg Weidmert",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "910411emma",
+    "DisplayName": "Emma Berggren",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "621203silj",
+    "DisplayName": "Silja Savela",
+    "Division": "Kommunledningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "760310vero",
+    "DisplayName": "Veronica Backman",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "620507lars",
+    "DisplayName": "Lars-\u00C5ke Linder",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "810922dian",
+    "DisplayName": "Diana Hodic",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "640422jaan",
+    "DisplayName": "Jaana Vainio",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "870910andr",
+    "DisplayName": "Andr\u00E9 Viebke",
+    "Division": "Kommunledningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "950815mali",
+    "DisplayName": "Malin Franz\u00E9n",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "710130tomm",
+    "DisplayName": "Tommy Graveus",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "020927auro",
+    "DisplayName": "Aurora Aliu",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "760220pier",
+    "DisplayName": "Pierre Thorell",
+    "Division": "Kommunledningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "770921kris",
+    "DisplayName": "Kristina Bergstr\u00F6m",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "741217mari",
+    "DisplayName": "Maria Karlsson",
+    "Division": "Arbete och L\u00E4rande",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "631226mari",
+    "DisplayName": "Marie-Louise Roos",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "680126ulri",
+    "DisplayName": "Ulrika Chronvall",
+    "Division": "Utbildningsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  },
+  {
+    "Username": "991230alex",
+    "DisplayName": "Alexandra Airosto",
+    "Division": "Omsorgsf\u00F6rvaltningen",
+    "Disabled": false,
+    "Default": false
+  }
+]

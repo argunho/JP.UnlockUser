@@ -5,7 +5,7 @@ import { Alert } from '@mui/material';
 import './../assets/css/response.css';
 
 function Response({ children, res, reset }) {
-    
+
     const str = typeof res === "string";
     const error = str || res?.error;
     const msg = str ? str : res?.msg;

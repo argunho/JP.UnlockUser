@@ -44,7 +44,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
     #region POST
     // Log in with another account if authentication with windows username is failed or to authorize another user
     [HttpPost]
-    public JsonResult PostLogin(LoginViewModel model)
+    public JsonResult PostLogin([FromBody] LoginViewModel model)
     {
         if (!ModelState.IsValid)// Forms filled out incorrectly
             return new JsonResult(new { alert = "warning", msg = "Felaktigt eller ofullständigt ifyllda formulär" });
@@ -78,7 +78,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
             var user = _provider.FindUserByExtensionProperty(model.Username);
             var userGroups = _provider.GetUserGroups(user);
-            permissionGroups.RemoveAll(x => !userGroups.Contains(x.PermissionGroup));
+            permissionGroups?.RemoveAll(x => !userGroups.Contains(x.PermissionGroup));
             permissionGroups ??= [];
             List<string> roles = [];
 
@@ -151,7 +151,7 @@ public class AuthController(IActiveDirectory provider, IConfiguration config, IH
 
     #region Helpers
     // Create Jwt Token for authenticating
-    private string? CreateJwtToken(UserPrincipalExtension user, params string[] str)
+    private string? CreateJwtToken(UserPrincipalExtension user, [FromBody] params string[] str)
     {
         if (user == null)
             return null;

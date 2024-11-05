@@ -122,7 +122,7 @@ function LogFiles({loc}) {
 
             {/* Message if result is null */}
             {(list.length === 0 && !loading) &&
-                <Response response={{ alert: "info", msg: "Här finns inga loggfiler" }} reset={() => setList(initList)} />}
+                <Response res={{ alert: "info", msg: "Här finns inga loggfiler" }} reset={() => setList(initList)} />}
         </div>
     )
 }

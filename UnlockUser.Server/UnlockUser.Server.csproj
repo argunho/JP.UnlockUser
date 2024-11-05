@@ -28,9 +28,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\json\" />
     <Folder Include="wwwroot\logfiles\errors\" />
-    <Folder Include="wwwroot\logfiles\history\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\alvestakommun.png" />
+    <None Include="wwwroot\logfiles\history\e38-4929-bf0f-4a9e874d45bd_20241105114444.txt" />
   </ItemGroup>
 
 </Project>

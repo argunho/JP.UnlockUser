@@ -298,6 +298,7 @@ function Form({ title, name, passwordLength, users, authContext }) {
         sessionPasswordsList.push(sessionData);
 
         sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
+        console.log(JSON.stringify(sessionPasswordsList))
     }
 
     // Send email to current user with saved pdf document

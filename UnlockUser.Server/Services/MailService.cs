@@ -24,11 +24,15 @@ public class MailService
 
         try
         {
-            var logo = ImageToBase64(@"wwwroot/alvestakommun.png");
-            MailMessage _mail = new MailMessage(new MailAddress("no-reply@alvesta.se", "Unlock User"), new MailAddress(toEmail));
-            _mail.Subject = mailSubject;
-            _mail.Body = mailHtml.Replace("{content}", mailContent).Replace("{logo}", logo);
-            _mail.IsBodyHtml = true;
+            var path = Path.Combine(@"wwwroot/", "alvestakommun.png");
+            var logo = ImageToBase64(path);
+            MailMessage _mail = new(new MailAddress("no-reply@alvesta.se", "Unlock User"), new MailAddress(toEmail))
+            {
+                Subject = mailSubject,
+                Body = mailHtml.Replace("{content}", mailContent).Replace("{logo}", logo),
+                IsBodyHtml = true
+            };
+
             if (attachedFile != null)
             {
                 _mail.Attachments.Add(new Attachment(attachedFile.OpenReadStream(), mailSubject + "."
@@ -62,7 +66,8 @@ public class MailService
     {
         try
         {
-            var logo = ImageToBase64(@"wwwroot/alvestakommun.png");
+            var path = Path.Combine(@"wwwroot", "alvestakommun.png");
+            var logo = ImageToBase64(path);
             MailMessage _mail = new(new MailAddress("unlock.contact@alvesta.se", "Unlock User"), new MailAddress("aslan.khadizov@alvesta.se"));
             SmtpClient _smtp = new("smtp.alvesta.local");
             _mail.Subject = model.Title;

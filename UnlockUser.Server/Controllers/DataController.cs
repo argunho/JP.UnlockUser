@@ -8,6 +8,7 @@ namespace UnlockUser.Server.Controllers;
 [Route("[controller]")]
 [ApiController]
 [Authorize]
+
 public class DataController(IHelp help, IActiveDirectory provider) : ControllerBase
 {
     private readonly IHelp _help = help;
@@ -33,10 +34,9 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
     [HttpGet("logfiles/{param}")]
     public JsonResult GetTextFiles(string param)
     {
-        var path = @"wwwroot/logfiles/" + param;
         try
         {
-            var logs = Directory.GetFiles(path, "*.txt", SearchOption.AllDirectories).ToList();
+            var logs = Directory.GetFiles(@"wwwroot/logfiles/" + param, "*.txt", SearchOption.AllDirectories).ToList();
 
             // Remove old files
             if (logs != null && logs?.Count > 0)
@@ -70,14 +70,28 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
         }
     }
 
+    // Get schools list
+    [HttpGet("schools")]
+    public List<ListViewModel>? GetListByName()
+    {
+        var list = IHelpService.GetJsonList<School>("schools").Select(s => new ListViewModel
+        {
+            Id = s.Name,
+            Primary = s.Name,
+            Secondary = s.Place
+        }).ToList();
+
+        return list;
+    }
+
     // Get file to download
     [HttpGet("read/file/{id}")]
     public ActionResult ReadTextFile(string id)
     {
-        var filePath = @"wwwroot/logfiles/" + id + ".txt";
+        var path = Path.Combine(@"wwwroot/logfiles", $"{id}.txt");
         try
         {
-            var content = System.IO.File.ReadAllText(filePath);
+            var content = System.IO.File.ReadAllText(path);
             return Ok(content);
         }
         catch (Exception ex)
@@ -113,13 +127,13 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
 
     #region POST
     [HttpPost("schools")]
-    public async Task<IActionResult> PostSchool(School school)
+    public async Task<IActionResult> PostSchool([FromBody] School school)
     {
         try
         {
             var schools = IHelpService.GetJsonList<School>("schools");
             schools.Add(school);
-            await UpdateSchoolsJson(schools);
+            await IHelpService.SaveUpdateJsonFile<School>(schools, "schools");
         }
         catch (Exception ex)
         {
@@ -140,7 +154,7 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
         {
             var schools = IHelpService.GetJsonList<School>("schools");
             schools.RemoveAll(x => x.Name == name);
-            await UpdateSchoolsJson(schools);
+            await IHelpService.SaveUpdateJsonFile<School>(schools, "schools");
         }
         catch (Exception ex)
         {
@@ -154,7 +168,7 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
 
     #region Help
     // Get claim
-    public string? GetClaim(string? name)
+    public string? GetClaim([FromBody] string? name)
     {
         try
         {
@@ -167,13 +181,6 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
         {
             return null;
         }
-    }
-
-    // Update schools json
-    public async Task UpdateSchoolsJson(List<School> schools)
-    {
-        await using FileStream stream = System.IO.File.Create(@"wwwroot/json/schools.json");
-        await System.Text.Json.JsonSerializer.SerializeAsync(stream, schools);
     }
     #endregion
 }
