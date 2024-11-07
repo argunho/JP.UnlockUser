@@ -23,7 +23,7 @@ function Header({ authContext }) {
     const navigate = useNavigate();
 
     let links = [
-        { label: "Hem", url: "/", icon: <Home />, access: false },
+        { label: "Hem", url: null, icon: <Home />, access: false },
         { label: "Skolor", url: "schools", icon: <School />, access: true },
         { label: "Behöriga användare", url: "employees", icon: <SettingsApplications />, access: true },
         { label: "Session historia", url: "session/history", icon: <History />, access: false },
@@ -71,7 +71,10 @@ function Header({ authContext }) {
         if (visibleMenu)
             setVisibleMenu(false);
         authContext.cleanSession();
-        navigate("/" + page);
+        if (!!page)
+            navigate(`/${page}`);
+        else
+            navigate("/");
     }
 
     const logout = async () => {

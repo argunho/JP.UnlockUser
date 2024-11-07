@@ -37,6 +37,9 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
 
     useEffect(() => {
         setResponse();
+        setOpen(false);
+        setCollapsedItemIndex(null);
+        setList(includedList ?? []);
         if (!!api)
             getList();
         else {
@@ -58,7 +61,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
             if (res.data?.length == 0)
                 setResponse(empty);
             else
-                sessionStorage.setItem("schools", JSON.stringify(res.data));
+                sessionStorage.setItem("schools", JSON.stringify(res?.data));
         })
     }
 
@@ -113,9 +116,9 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
         setLoading(true);
         console.log(api, item)
         await ApiRequest(`${api}`, "post", item).then(res => {
-            console.log(res.status)
-            if (res.status == 200 && !res.data)
-                setList(list => [...list, { primary: item?.name, secondary: item?.place}]);
+            console.log(res.status, res.data)
+            if (res.status == 200)
+                setList(res.data);
             else
                 setResponse({ alert: "error", msg: res.data })
 

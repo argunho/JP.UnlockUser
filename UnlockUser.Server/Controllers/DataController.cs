@@ -56,7 +56,7 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
 
     // Get schools list
     [HttpGet("schools")]
-    public List<ListViewModel>? GetListByName()
+    public List<ListViewModel>? GetSchools()
     {
         var list = IHelpService.GetListFromFile<School>("schools").Select(s => new ListViewModel
         {
@@ -131,14 +131,13 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
             var schools = IHelpService.GetListFromFile<School>("schools");
             schools.Add(school);
             await IHelpService.SaveUpdateFile<School>(schools, "schools");
+            return Ok(GetSchools());
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Post school error: {ex.Message}");
-            return Ok($"Något har gått snett: Fel: {ex.Message}");
+            return BadRequest();
         }
-
-        return Ok();
     }
 
     #endregion
