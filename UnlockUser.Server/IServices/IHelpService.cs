@@ -26,7 +26,7 @@ public partial class IHelpService : IHelp
     // Save history logfile
     public void SaveFile(List<string> contentList, string pathName)
     {
-        var directory = $@"Files\{pathName}";
+        var directory = $@"wwwroot\{pathName}";
         if (CheckDirectory(directory))
         {
             try

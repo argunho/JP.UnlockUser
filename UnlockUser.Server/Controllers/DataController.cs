@@ -103,12 +103,12 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
 
     // Get statistics
     [HttpGet("statistics")]
-    public List<ListViewModel> GetStatistics()
+    public JsonResult GetStatistics()
     {
         try
         {
-            List<Statistics> schools = IHelpService.GetListFromFile<Statistics>("statistics");
-            return [.. schools?.OrderBy(x => x.Year).Select(s => new ListViewModel {
+            List<Statistics> data = IHelpService.GetListFromFile<Statistics>("statistics");
+           List<ListViewModel> list = [.. data?.OrderBy(x => x.Year).Select(s => new ListViewModel {
                 Primary = s.Year.ToString(),
                 Secondary = $"Byten lösenord: {s.Months.Sum(s => s.PasswordsChange)}, Upplåst konto: {s.Months.Sum(s => s.Unlocked)}",
                 IncludedList = [.. s.Months.OrderBy(o => o.Name).Select(s => new ListViewModel {
@@ -116,11 +116,24 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
                     Secondary = $"Byten lösenord: {s.PasswordsChange}, Upplåst konto: {s.Unlocked}"
                 })]
             })];
+
+            int passwordChange = 0;
+            int unlockedAccount = 0;
+            foreach (var year in data)
+            {
+                foreach (var month in year.Months)
+                {
+                    passwordChange += month.PasswordsChange;
+                    unlockedAccount += month.Unlocked;
+                }
+            }
+
+            return new JsonResult(new { list, count = $"Byten lösenord: {passwordChange}, Upplåst konto: {unlockedAccount}" });
         }
         catch (Exception ex)
         {
             Debug.WriteLine(ex.Message);
-            return [];
+            return new JsonResult(null);
         }
     }
     #endregion

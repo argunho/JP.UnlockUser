@@ -36,7 +36,7 @@ function LogFiles({loc, navigate}) {
     SessionTokenCheck("/");
 
     useEffect(() => {
-        const pageLabel = param === "history" ? "Historik" : "Felhistorik"
+        const pageLabel = param === "history" ? "Detaljerad historia" : "Loggfiler"
         setLabel(pageLabel);
         setList([]);
         if (list.length === 0) {

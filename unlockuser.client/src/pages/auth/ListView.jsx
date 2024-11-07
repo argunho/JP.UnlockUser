@@ -25,6 +25,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
     const [confirm, setConfirm] = useState(null);
     const [visibleForm, setVisibleForm] = useState(false);
     const [response, setResponse] = useState(null);
+    const [viewCount, setViewCount] = useState();
     const [item, setItem] = useState(fields);
     const [required, setRequired] = useState([]);
     const [collapsedItemIndex, setCollapsedItemIndex] = useState(null);
@@ -48,8 +49,11 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
 
     async function getList() {
         await ApiRequest(api).then(res => {
-            setList(res.data);
+            const { list, count } = res.data;
+            setList(!!list ? list : res.data);
             setLoading(false);
+            if(!!count)
+                setViewCount(count);
 
             if (res.data?.length == 0)
                 setResponse(empty);
@@ -146,7 +150,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
                 && <Button size='large' style={{ minWidth: "120px" }} variant='outlined' color={visibleForm ? "error" : "primary"} disabled={loading} onClick={formHandle}>
                     {visibleForm ? "Avryt" : "Lägg till ny"}
                 </Button>}>
-                <ListItemText primary={label} secondary={loading ? "Data hämtning pågå ..." : `Antal: ${list?.length}`} />
+                <ListItemText primary={label} secondary={loading ? "Data hämtning pågå ..." : (!!viewCount ? viewCount : `Antal: ${list?.length}`)} />
             </ListItem>
 
             {/* Response */}

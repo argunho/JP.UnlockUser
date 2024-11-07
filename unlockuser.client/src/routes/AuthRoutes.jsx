@@ -52,7 +52,7 @@ function AuthRoutes({authContext }) {
     },
     {
       path: '/logs/:param',
-      element: <LogFiles  {...props} />
+      element: <LogFiles {...props} />
     },
     {
       path: '/statistics',

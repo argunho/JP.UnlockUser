@@ -26,10 +26,10 @@ function Header({ authContext }) {
         { label: "Hem", url: "/", icon: <Home />, access: false },
         { label: "Skolor", url: "schools", icon: <School />, access: true },
         { label: "Behöriga användare", url: "employees", icon: <SettingsApplications />, access: true },
-        { label: "Session historik", url: "session/history", icon: <History />, access: false },
-        { label: "Historik", url: "logs/history", icon: <WorkHistory />, access: true },
-        { label: "Felhistorik", url: "logs/errors", icon: <ErrorOutline />, access: true },
+        { label: "Session historia", url: "session/history", icon: <History />, access: false },
+        { label: "Detaljerad historia", url: "logs/history", icon: <WorkHistory />, access: true },
         { label: "Statistik", url: "statistics", icon: <BarChart />, access: true },
+        { label: "Loggfiler", url: "logs/errors", icon: <ErrorOutline />, access: true },
         { label: "Kontakta support", url: "contact", icon: <LiveHelp />, access: false }
     ];
 
