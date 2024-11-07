@@ -7,11 +7,10 @@ namespace UnlockUser.Server.Controllers;
 [Route("[controller]")]
 [ApiController]
 [Authorize(Roles = "Developer,Manager,Support")]
-public class AppController(IConfiguration config, IActiveDirectory provider, IHelp help) : ControllerBase
+public class AppController(IConfiguration config, IActiveDirectory provider) : ControllerBase
 {
     private readonly IConfiguration _config = config;
     private readonly IActiveDirectory _provider = provider;
-    private readonly IHelp _help = help;
 
     #region GET
     [HttpGet("groups")]
@@ -72,7 +71,9 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
                            }).ToList()
         });
 
-        return new JsonResult(new { employees = viewList, selections });
+        var config = AppConfiguration.Load();
+
+        return new JsonResult(new { employees = viewList, selections, updated = config.LastUpdatedDate });
     }
 
     [HttpGet("renew/jsons")]

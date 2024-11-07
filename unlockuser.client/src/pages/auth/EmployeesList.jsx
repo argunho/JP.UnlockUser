@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 // Installed
 import {
     Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton,
-    InputLabel, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, ListSubheader, MenuItem, Pagination, Select, Typography
+    InputLabel, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, ListSubheader, MenuItem, Pagination, Select, Tooltip, Typography
 } from '@mui/material';
 import { CheckBox, CheckBoxOutlineBlank, Close, Delete, OpenInFull, Refresh } from '@mui/icons-material';
 
@@ -22,7 +22,7 @@ import ApiRequest from '../../services/ApiRequest';
 // Css
 import '../../assets/css/listview.css';
 
-function EmployeesList({navigate}) {
+function EmployeesList({ navigate }) {
     EmployeesList.displayName = "EmployeesList";
 
     const [initList, setInit] = useState([]);
@@ -33,6 +33,7 @@ function EmployeesList({navigate}) {
     const [group, setGroup] = useState();
     const [page, setPage] = useState(1);
     const [userData, setUserData] = useState();
+    const [lastUpdated, setLastUpdated] = useState("");
     const [clean, setClean] = useState(true);
     const [items, setItems] = useState([]);
     const [updating, setUpdating] = useState(false);
@@ -71,12 +72,13 @@ function EmployeesList({navigate}) {
         setResponse();
         setList([]);
         await ApiRequest(`app/authorized/${group}`).then(res => {
-            const { employees, selections } = res.data;
+            const { employees, selections, updated } = res.data;
             setInit(employees);
             setList(employees);
             setItems(selections);
             setLoading(false);
-            if(res.data?.msg !== null)
+            setLastUpdated(updated);
+            if (!!res.data?.msg)
                 setResponse(res.data);
             else if (res.data === null || res.data?.length === 0)
                 setResponse(noResult);
@@ -132,9 +134,9 @@ function EmployeesList({navigate}) {
     function updateAccessList(item) {
         setOpen(false)
         let array = [...userData?.includedList];
-        if (item?.removable !== undefined) 
+        if (item?.removable !== undefined)
             item.removable = true;
-        else if(group === "Studenter")
+        else if (group === "Studenter")
             delete item.secondary;
 
         array.push(item);
@@ -218,11 +220,18 @@ function EmployeesList({navigate}) {
             {/* Result list */}
             <List className="d-row list-container">
                 {/* Actions/Info */}
-                <ListItem className='view-list-result' secondaryAction={<Button size='large' variant='outlined'
-                    disabled={loading || !!sessionStorage.getItem("updated")}
-                    endIcon={<Refresh />} onClick={renewList}>
-                    Uppdatera listan
-                </Button>}>
+                <ListItem className='view-list-result' secondaryAction={<Tooltip title={`Senast uppdaterade datum: ${lastUpdated}`} classes={{
+                                        tooltip: `tooltip tooltip-margin tooltip-blue`,
+                                        arrow: `arrow-blue`
+                                    }} arrow>
+                    <span>
+                        <Button size='large' variant='outlined'
+                            disabled={loading || !!sessionStorage.getItem("updated")}
+                            endIcon={<Refresh />} onClick={renewList}>
+                            Uppdatera listan
+                        </Button>
+                    </span>
+                </Tooltip>}>
                     <ListItemText primary="Behöriga användare" secondary={loading ? "Data hämtning pågår ..." : `Antal: ${list?.length}`} />
                 </ListItem>
 
@@ -315,7 +324,7 @@ function EmployeesList({navigate}) {
                     </FormButtons>}
 
                     {/* Response */}
-                    {!!response && <Response res={response} reset={resetActions}/>}
+                    {!!response && <Response res={response} reset={resetActions} />}
                 </DialogActions>
             </Dialog>
         </div>

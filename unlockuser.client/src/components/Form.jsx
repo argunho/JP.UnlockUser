@@ -352,13 +352,13 @@ function Form({ title, name, passwordLength, users, authContext }) {
                                 { label: "Lagom", tips: "Olika ord & siffror", color: "blue", value: "medium" },
                                 { label: "Enkelt", tips: "Ett liknande ord för alla lösenord med olika siffror.", color: "green", value: "easy" }
                             ].map((p, index) => (
-                                <Tooltip arrow
+                                <Tooltip
                                     key={index}
                                     title={p.tips}
                                     classes={{
                                         tooltip: `tooltip tooltip-margin tooltip-${p.color}`,
                                         arrow: `arrow-${p.color}`
-                                    }}>
+                                    }} arrow>
                                     <FormControlLabel
                                         control={<Radio
                                             size='small'
