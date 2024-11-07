@@ -16,7 +16,7 @@ import PasswordGeneration from './PasswordGeneration';
 import ListCategories from './ListCategories';
 
 // Functions
-import SessionHistory from '../functions/SessionHistoryData';
+import SessionData from '../functions/SessionData';
 import { ErrorHandle } from '../functions/ErrorHandle';
 
 // Services
@@ -294,11 +294,10 @@ function Form({ title, name, passwordLength, users, authContext }) {
             })
         }
 
-        let sessionPasswordsList = SessionHistory();
+        let sessionPasswordsList = SessionData("sessionWork");
         sessionPasswordsList.push(sessionData);
 
         sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
-        console.log(JSON.stringify(sessionPasswordsList))
     }
 
     // Send email to current user with saved pdf document

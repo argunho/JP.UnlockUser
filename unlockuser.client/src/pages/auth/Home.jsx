@@ -11,11 +11,16 @@ import {
 import Result from '../../components/Result';
 import ModalHelpTexts from '../../components/ModalHelpTexts';
 
+// Functions
+import { ErrorHandle } from '../../functions/ErrorHandle';
+import SessionData from '../../functions/SessionData';
+
+// Services
+import ApiRequest, { CancelRequest } from '../../services/ApiRequest';
+
 // Json
 import params from '../../assets/json/helpTexts.json';
 import forms from '../../assets/json/forms.json';
-import { ErrorHandle } from '../../functions/ErrorHandle';
-import ApiRequest, { CancelRequest } from '../../services/ApiRequest';
 
 const choices = [
     { label: "Match", match: true },
@@ -37,7 +42,7 @@ function Home({ authContext, navigate }) {
     const [option, setOption] = useState(sOption || "user");
     const [isOpen, setOpen] = useState(false);
     const [clsStudents, setClsStudents] = useState(option === "students");
-    const [schools, setSchools] = useState(!!sessionStorage.getItem("schools") ? JSON.parse(sessionStorage.getItem("schools")) : [])
+    const [schools, setSchools] = useState(SessionData("schools"))
     const [match, setMatch] = useState(true);
     const [hasNoOptions, setNoOptions] = useState(false);
     const [response, setResponse] = useState(null);
@@ -64,7 +69,7 @@ function Home({ authContext, navigate }) {
         const inp = e.target;
         if (!inp) return;
         setFormData({ ...formData, [inp.name]: inp.value })
-        setNoOptions((open) ? schools.filter(x => x?.name.includes(inp.value)).length === 0 : false);
+        setNoOptions((open) ? schools?.filter(x => x?.name.includes(inp.value)).length === 0 : false);
         reset();
     }
 
@@ -92,7 +97,7 @@ function Home({ authContext, navigate }) {
         if (schools?.length > 0)
             return;
         await ApiRequest("data/schools").then(res => {
-            console.log(res.data)
+
             if (res.data?.length > 0){
                 sessionStorage.setItem("schools", JSON.stringify(res.data));
                 setSchools(res.data);
@@ -194,12 +199,12 @@ function Home({ authContext, navigate }) {
                             freeSolo
                             disableClearable
                             className={s.clsName || 'search-full-width'}
-                            options={authContext?.schools}
-                            getOptionLabel={(option) => "- " + option?.name + " (" + option?.place + ")"}
+                            options={schools}
+                            getOptionLabel={(option) => "- " + option?.primary + " (" + option?.secondary + ")"}
                             autoHighlight
                             open={s.autoOpen && isOpen && !hasNoOptions}
                             inputValue={formData[s.name]}
-                            onChange={(e, option) => (e.key === "Enter") ? handleKeyDown : setFormData({ ...formData, [s.name]: option.name })}
+                            onChange={(e, option) => (e.key === "Enter") ? handleKeyDown : setFormData({ ...formData, [s.name]: option.primary })}
                             onBlur={() => setOpen(false)}
                             onClose={() => setOpen(false)}
                             onFocus={() => setOpen(s.autoOpen && !hasNoOptions)}

@@ -124,7 +124,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
 
     async function removeItem() {
         setOpen(false);
-console.log(item?.id)
+
         await ApiRequest(`${api}/${item[id]}`, "delete").then(res => {
             if (res.status == 200 && !res.data) {
                 const index = list.findIndex(x => x === item);

@@ -14,7 +14,7 @@ import Logout from "../pages/auth/Logout";
 import NotFound from "./../pages/open/NotFound";
 
 // Functions
-import SessionHistoryData from "../functions/SessionHistoryData";
+import SessionData from "../functions/SessionData";
 
 
 function AuthRoutes({authContext }) {
@@ -48,7 +48,7 @@ function AuthRoutes({authContext }) {
     },
     {
       path: '/session/history',
-      element: <ListView {...props} includedList={SessionHistoryData()} label="Session historik" fullWidth={true} />
+      element: <ListView {...props} includedList={SessionData("sessionWork")} label="Session historik" fullWidth={true} />
     },
     {
       path: '/logs/:param',
