@@ -20,7 +20,7 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
     {
         try
         {
-            List<dynamic> logs = IHelpService.GetJsonList<dynamic>(param);
+            List<dynamic> logs = IHelpService.GetListFromFile<dynamic>(param);
             return new JsonResult(logs);
         }
         catch (Exception ex)
@@ -74,7 +74,7 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
     [HttpGet("schools")]
     public List<ListViewModel>? GetListByName()
     {
-        var list = IHelpService.GetJsonList<School>("schools").Select(s => new ListViewModel
+        var list = IHelpService.GetListFromFile<School>("schools").Select(s => new ListViewModel
         {
             Id = s.Name,
             Primary = s.Name,
@@ -107,7 +107,7 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
     {
         try
         {
-            List<Statistics> schools = IHelpService.GetJsonList<Statistics>("statistics");
+            List<Statistics> schools = IHelpService.GetListFromFile<Statistics>("statistics");
             return [.. schools?.OrderBy(x => x.Year).Select(s => new ListViewModel {
                 Primary = s.Year.ToString(),
                 Secondary = $"Byten lösenord: {s.Months.Sum(s => s.PasswordsChange)}, Upplåst konto: {s.Months.Sum(s => s.Unlocked)}",
@@ -131,9 +131,9 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
     {
         try
         {
-            var schools = IHelpService.GetJsonList<School>("schools");
+            var schools = IHelpService.GetListFromFile<School>("schools");
             schools.Add(school);
-            await IHelpService.SaveUpdateJsonFile<School>(schools, "schools");
+            await IHelpService.SaveUpdateFile<School>(schools, "schools");
         }
         catch (Exception ex)
         {
@@ -152,9 +152,9 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
     {
         try
         {
-            var schools = IHelpService.GetJsonList<School>("schools");
+            var schools = IHelpService.GetListFromFile<School>("schools");
             schools.RemoveAll(x => x.Name == name);
-            await IHelpService.SaveUpdateJsonFile<School>(schools, "schools");
+            await IHelpService.SaveUpdateFile<School>(schools, "schools");
         }
         catch (Exception ex)
         {

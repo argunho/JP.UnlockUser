@@ -27,19 +27,9 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
     [HttpGet("authorized/{param}")]
     public async Task<JsonResult?> GetAuthorizedEmployees(string param)
     {
-        var groupEmployees = IHelpService.GetJsonList<GroupUsersViewModel>("employees") ?? [];
+        var groupEmployees = IHelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
         if (groupEmployees.Count == 0)
-        {
-            var res = await _provider.RenewUsersJsonList(_config);
-            if (res == null)
-                await Task.Delay(5000);
-            else
-                return new JsonResult(new { alert = "error", msg = $"Något har gått snett. Fel: {res}" });
-        }
-
-        groupEmployees = IHelpService.GetJsonList<GroupUsersViewModel>("employees") ?? [];
-        if (groupEmployees.Count == 0)
-            return null;
+            return new JsonResult(new { alert = "info", msg = $"Filen {param} hittades inte. Klicka på Uppdatera listan knappen" });
 
         var employees = groupEmployees.First(x => x.Group?.Name == param)?.Employees ?? [];
 
@@ -47,7 +37,7 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
         List<ListViewModel> selections;
         if (param == "Studenter")
         {
-            var res = IHelpService.GetJsonList<School>("schools");
+            var res = IHelpService.GetListFromFile<School>("schools");
             selections = res.OrderBy(x => x.Place).ThenBy(x => x.Name).Select(s => new ListViewModel
             {
                 Primary = s.Name,
@@ -56,7 +46,7 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
         }
         else
         {
-            var res = IHelpService.GetJsonList<Manager>("managers");
+            var res = IHelpService.GetListFromFile<Manager>("managers");
             selections = res.OrderBy(x => x.Division).ThenBy(x => x.DisplayName).Select(s => new ListViewModel
             {
                 Id = s.Username,
@@ -91,7 +81,6 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
         string res = await _provider.RenewUsersJsonList(_config);
         return new JsonResult(string.IsNullOrEmpty(res) ? null : res);
     }
-
     #endregion
 
     #region POST
@@ -103,7 +92,7 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
     {
         try
         {
-            var groupEmployees = IHelpService.GetJsonList<GroupUsersViewModel>("employees") ?? [];
+            var groupEmployees = IHelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
             var employees = groupEmployees.FirstOrDefault(x => x.Group?.Name == group)?.Employees ?? [];
             var employee = employees.FirstOrDefault(x => x.Name == model.Name);
             if (employee == null)
@@ -114,7 +103,7 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
             else
                 employee.Managers = model.Managers;
 
-            await IHelpService.SaveUpdateJsonFile(groupEmployees, "employees");
+            await IHelpService.SaveUpdateFile(groupEmployees, "employees");
         }
         catch (Exception ex)
         {

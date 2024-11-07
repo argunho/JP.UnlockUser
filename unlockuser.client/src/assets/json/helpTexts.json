@@ -1,7 +1,7 @@
 {
   "optionsList": [
     { "label": "Användare", "value": "user" },
-    { "label": "Klass elever", "value": "members" }
+    { "label": "Klass elever", "value": "students" }
   ],
   "studentsList": [
     {
@@ -12,7 +12,7 @@
     {
       "label": "Klass elever",
       "tip": "Det här alternativet är till för att söka efter alla elever i en specifik klass med klass- och skolnamn.",
-      "value": "members"
+      "value": "students"
     }
   ],
   "defaultList": [

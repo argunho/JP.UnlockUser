@@ -115,7 +115,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
             if (!roles.Contains("Support", StringComparison.CurrentCulture))
             {
                 username ??= GetClaim("username") ?? "";
-                List<GroupUsersViewModel> groups = IHelpService.GetJsonList<GroupUsersViewModel>("employees") ?? [];
+                List<GroupUsersViewModel> groups = IHelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
                 List<User>? employees = groups.FirstOrDefault(x => x.Group.Name == groupName)?.Employees;
                 User? sessionUser = employees?.FirstOrDefault(x => x.Name == username);
                 List<User> usersToView = [];

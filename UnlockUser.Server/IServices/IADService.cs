@@ -174,7 +174,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
             #region Get employees        
             var groupEmployees = new List<GroupUsersViewModel>();
             var groups = config.GetSection("Groups").Get<List<GroupModel>>();
-            var currentList = IHelpService.GetJsonList<GroupUsersViewModel>("employees") ?? [];
+            var currentList = IHelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
 
             foreach (var group in groups)
             {
@@ -196,7 +196,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                     // Check all school staff
                     if (group.Manage != "Students")
                     {
-                        var schools = IHelpService.GetJsonList<School>("schools");
+                        var schools = IHelpService.GetListFromFile<School>("schools");
                         foreach (var school in schools)
                         {
                             if (user.Office.Contains(school.Name) && userOffices.IndexOf(school.Name) == -1)
@@ -232,7 +232,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                 });
             }
 
-            await IHelpService.SaveUpdateJsonFile(groupEmployees, "employees");
+            await IHelpService.SaveUpdateFile(groupEmployees, "employees");
             #endregion
 
             #region Get managers
@@ -251,7 +251,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                     managers.Add(user);
             }
 
-            await IHelpService.SaveUpdateJsonFile(managers.Select(s => new Manager
+            await IHelpService.SaveUpdateFile(managers.Select(s => new Manager
             {
                 Username = s.Name,
                 DisplayName = s.DisplayName,

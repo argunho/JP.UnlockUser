@@ -77,8 +77,8 @@ function Login({ authContext }) {
 
         setLoading(true);
 
-        await ApiRequest("auth", "post", formData).then(res => {
-            const { token, groups, schools, timeLeft, errorMessage } = res.data;
+        await ApiRequest("authentication", "post", formData).then(res => {
+            const { token, groups, timeLeft, errorMessage } = res.data;
 
             if (timeLeft)
                 getTimeLeftToUnblock(res.data);
@@ -90,7 +90,6 @@ function Login({ authContext }) {
                     sessionStorage.setItem("token", token);
                     sessionStorage.setItem("groups", JSON.stringify(groups));
                     sessionStorage.setItem("group", groups[0]?.name);
-                    sessionStorage.setItem("schools", JSON.stringify(schools));
 
                     authContext.authorize(token);
                     authContext.updateGroupName(groups[0]?.name);

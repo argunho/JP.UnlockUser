@@ -36,7 +36,8 @@ function Home({ authContext, navigate }) {
     const [loading, setLoading] = useState(false);
     const [option, setOption] = useState(sOption || "user");
     const [isOpen, setOpen] = useState(false);
-    const [clsStudents, setClsStudents] = useState(option === "members");
+    const [clsStudents, setClsStudents] = useState(option === "students");
+    const [schools, setSchools] = useState(!!sessionStorage.getItem("schools") ? JSON.parse(sessionStorage.getItem("schools")) : [])
     const [match, setMatch] = useState(true);
     const [hasNoOptions, setNoOptions] = useState(false);
     const [response, setResponse] = useState(null);
@@ -63,7 +64,7 @@ function Home({ authContext, navigate }) {
         const inp = e.target;
         if (!inp) return;
         setFormData({ ...formData, [inp.name]: inp.value })
-        setNoOptions((open) ? authContext.schools.filter(x => x?.name.includes(inp.value)).length === 0 : false);
+        setNoOptions((open) ? schools.filter(x => x?.name.includes(inp.value)).length === 0 : false);
         reset();
     }
 
@@ -78,12 +79,26 @@ function Home({ authContext, navigate }) {
         setOption(value);
         setMatch(clsStudents);
         setClsStudents(!clsStudents);
-
+        if (!clsStudents)
+            getSchools();
         reset();
         resetData();
 
         //  Save choice of search parameters in sessionStorage to mind the user choice and use it with page refresh
         sessionStorage.setItem("sOption", value)
+    }
+
+    async function getSchools() {
+        if (schools?.length > 0)
+            return;
+        await ApiRequest("data/schools").then(res => {
+            console.log(res.data)
+            if (res.data?.length > 0){
+                sessionStorage.setItem("schools", JSON.stringify(res.data));
+                setSchools(res.data);
+            }
+                
+        }, error => ErrorHandle(error, navigate))
     }
 
     // Switch show of tips
@@ -141,7 +156,7 @@ function Home({ authContext, navigate }) {
             if (errorMessage) ErrorHandle("Error => " + errorMessage);
         }, error => { // Error handle 
             setLoading(false);
-            if(error.code === "ERR_CANCELED"){
+            if (error.code === "ERR_CANCELED") {
                 setResponse(ErrorHandle(error, navigate));
                 setTimeout(() => {
                     reset();

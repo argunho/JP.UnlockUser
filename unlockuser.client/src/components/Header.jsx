@@ -77,7 +77,7 @@ function Header({ authContext }) {
     const logout = async () => {
         // If the user is logged out, clear and remove all credential which was saved for the current session
         setVisibleMenu(false);
-        await ApiRequest("auth/logout").then(res => {
+        await ApiRequest("authentication/logout").then(res => {
             if (res.data?.errorMessage)
                 console.error("Error response => " + res.data.errorMessage);
         }, error => {

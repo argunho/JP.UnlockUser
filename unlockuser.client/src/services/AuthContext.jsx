@@ -1,5 +1,5 @@
 
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 
 /* eslint-disable no-unused-vars */
 export const AuthContext = createContext({
@@ -8,10 +8,6 @@ export const AuthContext = createContext({
     workInProgress: false,
     workStatus: false,
     group: "",
-    groups: [],
-    schools: [],
-    authorize: (token) => { },
-    logout: () => { },
     handleMenu: () => { },
     updateServiceWorkStatus: (value, hide = false) => { },
     updateGroupName: (value) => { },
@@ -66,7 +62,6 @@ function AuthContextProvider({ children }) {
         workStatus: serviceWorkStatus,
         group: groupName,
         groups: JSON.parse(sessionStorage.getItem("groups")),
-        schools: !!sessionStorage.getItem("schools") ? JSON.parse(sessionStorage.getItem("schools")) : [],
         authorize: authorize,
         logout: logout,
         handleMenu: handleMenu,

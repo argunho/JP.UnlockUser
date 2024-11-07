@@ -299,7 +299,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
             var passChange = (param == "PasswordsChange");
 
-            var statistics = IHelpService.GetJsonList<Statistics>("statistics");
+            var statistics = IHelpService.GetListFromFile<Statistics>("statistics");
             var yearStatistics = statistics.FirstOrDefault(x => x.Year == year);
 
             var newData = new Months
@@ -331,7 +331,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 });
             }
 
-            await IHelpService.SaveUpdateJsonFile(statistics, "statistics");
+            await IHelpService.SaveUpdateFile(statistics, "statistics");
 
         }
         catch (Exception ex)
