@@ -80,6 +80,7 @@ public class AppController(IConfiguration config, IActiveDirectory provider) : C
     public async Task<JsonResult> RenewEmployeesList()
     {
         string res = await _provider.RenewUsersJsonList(_config);
+        IHelpService.UpdateConfigFile("appconfig", "LastUpdatedDate", DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
         return new JsonResult(string.IsNullOrEmpty(res) ? null : res);
     }
     #endregion

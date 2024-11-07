@@ -6,5 +6,4 @@ public interface IHelp
     void SaveFile(List<string> contentList, string pathName);
     bool CheckDirectory(string path);
     bool CheckLocalHost();
-    void UpdateConfigFile(string config, string? parameter, string? value, string? obj = null);
 }

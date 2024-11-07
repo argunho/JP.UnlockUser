@@ -48,7 +48,7 @@ function AuthRoutes({authContext }) {
     },
     {
       path: '/session/history',
-      element: <ListView {...props} includedList={SessionData("sessionWork")} label="Session historik" fullWidth={true} />
+      element: <ListView {...props} includedList={SessionData("sessionWork")} label="Session historia" fullWidth={true} />
     },
     {
       path: '/logs/:param',

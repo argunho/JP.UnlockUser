@@ -37,7 +37,7 @@ function Home({ authContext, navigate }) {
         additionInput: ""
     }
     const [formData, setFormData] = useState(defaultData);
-    const [users, setUsers] = useState(JSON.parse(sessionStorage.getItem("users")) || null);
+    const [users, setUsers] = useState(!!sessionStorage.getItem("users") ? JSON.parse(sessionStorage.getItem("users")) : null);
     const [loading, setLoading] = useState(false);
     const [option, setOption] = useState(sOption || "user");
     const [isOpen, setOpen] = useState(false);

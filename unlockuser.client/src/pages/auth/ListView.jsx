@@ -111,10 +111,11 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
         }
 
         setLoading(true);
+        console.log(api, item)
         await ApiRequest(`${api}`, "post", item).then(res => {
+            console.log(res.status)
             if (res.status == 200 && !res.data)
-                getList();
-                // setList(list => [...list, item]);
+                setList(list => [...list, { primary: item?.name, secondary: item?.place}]);
             else
                 setResponse({ alert: "error", msg: res.data })
 
@@ -167,7 +168,6 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
                         return <TextField key={i} fullWidth name={name} label={labels[i]} value={item[name]}
                             onChange={onChange} disabled={loading} error={required.indexOf(name) > -1} />
                     })}
-
                     <Button variant="outlined" type="submit" className="form-button" disabled={loading}>
                         {loading ? <CircularProgress size={20} color="error" /> : "Spara"}
                     </Button>

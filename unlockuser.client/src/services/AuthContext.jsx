@@ -61,7 +61,7 @@ function AuthContextProvider({ children }) {
         workInProgress: serviceWorkInProgress,
         workStatus: serviceWorkStatus,
         group: groupName,
-        groups: JSON.parse(sessionStorage.getItem("groups")),
+        groups: !!sessionStorage.getItem("groups") ? JSON.parse(sessionStorage.getItem("groups")) : [],
         authorize: authorize,
         logout: logout,
         handleMenu: handleMenu,

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic;
 using System.Diagnostics;
 
 namespace UnlockUser.Server.Controllers;
@@ -15,21 +14,6 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
     private readonly IActiveDirectory _provider = provider;
 
     #region GET
-    [HttpGet("json/{param}")]
-    public JsonResult GetLogFiles(string param)
-    {
-        try
-        {
-            List<dynamic> logs = IHelpService.GetListFromFile<dynamic>(param);
-            return new JsonResult(logs);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine(ex.Message);
-            return new JsonResult(null);
-        }
-    }
-
     // Get all txt files
     [HttpGet("logfiles/{param}")]
     public JsonResult GetTextFiles(string param)

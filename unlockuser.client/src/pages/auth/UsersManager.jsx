@@ -23,7 +23,8 @@ function UsersManager({ authContext, navigate }) {
     useEffect(() => {
         setName("Klass " + cls);
         setSchoolName(school);
-        setUsers(JSON.parse(sessionStorage.getItem("selectedUsers")) ?? []);
+        if (!!sessionStorage.getItem("selectedUsers"))
+            setUsers(JSON.parse(sessionStorage.getItem("selectedUsers")));
 
         document.title = "UnlockUser | Användare";
     }, [])

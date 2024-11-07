@@ -79,7 +79,7 @@ public partial class IHelpService : IHelp
     }
 
     // Update configuration json
-    public void UpdateConfigFile(string config, string? parameter, string? value, string? obj = null)
+    public static void UpdateConfigFile(string config, string? parameter, string? value, string? obj = null)
     {
         try
         {
