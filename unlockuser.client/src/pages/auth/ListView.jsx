@@ -35,7 +35,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
         msg: "Ingen data att visa ..."
     };
 
-    useEffect(() => {      
+    useEffect(() => {
         setOpen(false);
         setCollapsedItemIndex(null);
         setList(includedList ?? []);
@@ -55,7 +55,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
             const { list, count } = res.data;
             setList(!!list ? list : res.data);
             setLoading(false);
-            if(!!count)
+            if (!!count)
                 setViewCount(count);
 
             if (res.data?.length == 0)
@@ -114,14 +114,12 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
         }
 
         setLoading(true);
-        console.log(api, item)
         await ApiRequest(`${api}`, "post", item).then(res => {
-            console.log(res.status, res.data)
             if (res.status == 200)
                 setList(res.data);
             else
                 setResponse({ alert: "error", msg: res.data })
-
+            setItem();
             setLoading(false);
             formHandle();
         }, error => {
@@ -189,7 +187,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
                                     {collapsedItemIndex === index ? <ArrowDropUp /> : <ArrowDropDown />}
                                 </IconButton>}
                                 {!!fields && <IconButton onClick={() => confirmHandle(item)} color="error" disabled={!!confirm || visibleForm}>
-                                   {_.isEqual(confirm, item) ? <CircularProgress size={20} /> : <Delete />} 
+                                    {_.isEqual(confirm, item) ? <CircularProgress size={20} /> : <Delete />}
                                 </IconButton>}
                             </div>
                         } >

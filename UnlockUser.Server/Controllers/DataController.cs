@@ -149,7 +149,7 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
 
     #region DELETE
     [HttpDelete("schools/{name}")]
-    public async Task<IActionResult> DeleteSchool([FromBody] string name)
+    public async Task<IActionResult> DeleteSchool(string name)
     {
         try
         {
