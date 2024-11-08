@@ -34,7 +34,7 @@ function EmployeesList({ navigate }) {
     const [page, setPage] = useState(1);
     const [userData, setUserData] = useState();
     const [lastUpdated, setLastUpdated] = useState("");
-    const [clean, setClean] = useState(true);
+    const [clean, setClean] = useState(false);
     const [items, setItems] = useState([]);
     const [updating, setUpdating] = useState(false);
     const [changed, setChanged] = useState(false);
@@ -45,10 +45,10 @@ function EmployeesList({ navigate }) {
 
     useEffect(() => {
         getGroups();
-        setClean(false);
     }, [])
 
     useEffect(() => {
+        setClean(true);
         setOpen(false);
         if (group?.length > 0)
             getEmployees();
@@ -91,9 +91,11 @@ function EmployeesList({ navigate }) {
     function listFilterBySearchKeyword(value) {
         if (page > 1)
             setPage(1);
-        if (value?.length >= 3)
+        if (value?.length >= 3) {
             setList(list.filter(x => JSON.stringify(x).toLowerCase().includes(value?.toLowerCase())));
-        else
+            if (clean)
+                setClean(false);
+        } else
             resetActions();
     }
 
@@ -117,9 +119,9 @@ function EmployeesList({ navigate }) {
         })
     }
 
-    function openModal(item){
+    function openModal(item) {
         setUserData(item);
-        setClean(true);
+        resetActions();
     }
 
     function clickHandle(item, index) {
@@ -226,9 +228,9 @@ function EmployeesList({ navigate }) {
             <List className="d-row list-container">
                 {/* Actions/Info */}
                 <ListItem className='view-list-result' secondaryAction={<Tooltip title={`Senast uppdaterade datum: ${lastUpdated}`} classes={{
-                                        tooltip: `tooltip tooltip-margin tooltip-blue`,
-                                        arrow: `arrow-blue`
-                                    }} arrow>
+                    tooltip: `tooltip tooltip-margin tooltip-blue`,
+                    arrow: `arrow-blue`
+                }} arrow>
                     <span>
                         <Button size='large' variant='outlined'
                             disabled={loading || !!sessionStorage.getItem("updated")}
