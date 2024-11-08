@@ -82,29 +82,23 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             permissionGroups ??= [];
             List<string> roles = [];
 
-            // Access if user are a manager
-            bool manager = user.Title.ToLower().Contains("chef", StringComparison.CurrentCultureIgnoreCase)
-                           || user.Title.ToLower().Contains("rektor", StringComparison.CurrentCultureIgnoreCase);
-
             if (_provider.MembershipCheck(user, "Azure-Utvecklare Test"))
                 roles.Add("Developer");
 
             if (_provider.MembershipCheck(user, "TEIS IT avdelning") || roles.IndexOf("Developer") > -1)
+            {
                 roles.Add("Support");
-
-            if (manager)
-                roles.Add("Manager");
-
-            // Failed! Permission missed
-            if (permissionGroups.Count == 0 && roles.Count == 0)
-                return new JsonResult(new { alert = "warning", msg = "Åtkomst nekad! Behörighet saknas." });
-
-            if (roles.IndexOf("Support") > -1)
                 permissionGroups.Add(new GroupModel
                 {
                     Name = "Support",
                     Manage = "Students, Employee"
                 });
+            }
+
+            // Failed! Permission missed
+            if (permissionGroups.Count == 0 && roles.Count == 0)
+                return new JsonResult(new { alert = "warning", msg = "Åtkomst nekad! Behörighet saknas." });
+
           
             var groups = permissionGroups.OrderBy(x => x.Name).Select(s => new GroupModel
             {
@@ -118,8 +112,6 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
             // Response message
             var responseMessage = $"Tillåtna behöregiheter för grupp(er):<br/> <b>&nbsp;&nbsp;&nbsp;- {groupsNames.Replace(",", "<br/>&nbsp;&nbsp;&nbsp; -")}</b>.";
-            if (manager && groups.Count == 0)
-                responseMessage = $"Du som {user.Title} har för närvarande inte behörighet att ändra lösenord.";
 
             // Your access has been confirmed.
             return new JsonResult(new
