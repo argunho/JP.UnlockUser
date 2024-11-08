@@ -175,6 +175,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
             var groupEmployees = new List<GroupUsersViewModel>();
             var groups = config.GetSection("Groups").Get<List<GroupModel>>();
             var currentList = IHelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
+            var schools = IHelpService.GetListFromFile<School>("schools");
 
             foreach (var group in groups)
             {
@@ -196,7 +197,6 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                     // Check all school staff
                     if (group.Manage != "Students")
                     {
-                        var schools = IHelpService.GetListFromFile<School>("schools");
                         foreach (var school in schools)
                         {
                             if (user.Office.Contains(school.Name) && userOffices.IndexOf(school.Name) == -1)

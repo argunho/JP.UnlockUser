@@ -56,8 +56,6 @@ function Home({ authContext, navigate }) {
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
-        // if (history.action === "POP") // Clean the old result if the page is refreshed
-        //     sessionStorage.removeItem("users");
     }, []);
 
     useEffect(() => {

@@ -124,13 +124,18 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
 
     #region POST
     [HttpPost("schools")]
-    public async Task<IActionResult> PostSchool([FromBody] School school)
+    public async Task<IActionResult> PostSchool(School school)
     {
         try
         {
             var schools = IHelpService.GetListFromFile<School>("schools");
+            if(schools.Count == 0)
+                schools = IHelpService.GetJsonFile<School>("schools");
             schools.Add(school);
-            await IHelpService.SaveUpdateFile<School>(schools, "schools");
+            await Task.Delay(1000);
+
+            await IHelpService.SaveUpdateFile(schools, "schools");
+
             return Ok(GetSchools());
         }
         catch (Exception ex)
@@ -144,13 +149,14 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
 
     #region DELETE
     [HttpDelete("schools/{name}")]
-    public async Task<IActionResult> DeleteSchool(string name)
+    public async Task<IActionResult> DeleteSchool([FromBody] string name)
     {
         try
         {
             var schools = IHelpService.GetListFromFile<School>("schools");
             schools.RemoveAll(x => x.Name == name);
-            await IHelpService.SaveUpdateFile<School>(schools, "schools");
+            await Task.Delay(1000);
+            await IHelpService.SaveUpdateFile(schools, "schools");
         }
         catch (Exception ex)
         {

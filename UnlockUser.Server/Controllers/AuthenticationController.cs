@@ -133,13 +133,10 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
         catch (Exception ex)
         {
             // Activate a button in the user interface for sending an error message to the system developer if the same error is repeated more than two times during the same session
-            var repeated = _session?.GetInt32("RepeatedError") ?? 0;
-            _session?.SetInt32("RepeatedError", repeated += 1);
             return new JsonResult(new
             {
                 alert = "error",
                 msg = "Något har gått snett. Var vänlig försök igen.",
-                repeatedError = repeated,
                 errorMessage = ex.Message
             });
         }

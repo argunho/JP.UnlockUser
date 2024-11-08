@@ -35,11 +35,11 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
         msg: "Ingen data att visa ..."
     };
 
-    useEffect(() => {
-        setResponse();
+    useEffect(() => {      
         setOpen(false);
         setCollapsedItemIndex(null);
         setList(includedList ?? []);
+        setResponse();
         if (!!api)
             getList();
         else {
@@ -85,6 +85,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
     function formHandle() {
         setOpen(!open);
         setItem(fields);
+        setResponse();
         if (!visibleForm)
             setVisibleForm(true);
         else {
@@ -100,7 +101,6 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
 
     async function onSubmit(e) {
         e.preventDefault();
-
         let emptyFields = [];
 
         Object.keys(item).map(name => {

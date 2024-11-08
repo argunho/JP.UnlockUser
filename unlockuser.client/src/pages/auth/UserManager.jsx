@@ -40,7 +40,7 @@ function UserManager({ authContext, navigate }) {
 
     async function getUserData() {
         await ApiRequest(`user/${authContext.group}/${id}`).then(res => {
-            const { user, msg } = res.data;
+            const { user, msg } = res?.data;
             if (user !== undefined && user !== null) {
                 user.subTitle = user?.office + (user?.office !== user?.department ? (" " + user?.department) : "")
                 setUser(user);

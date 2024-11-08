@@ -42,7 +42,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
         catch (Exception ex)
         {
             _help.SaveFile(["FindUser", $"Fel: {ex.Message}"], @"logfiles\errors");
-            return Error(ex.Message);
+            return _help.Response(ex.Message, "error");
         }
 
         // If the result got a successful result
@@ -53,7 +53,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
         }
 
         // If result got no results
-        return new JsonResult(new { alert = "warning", msg = "Inga användarkonto hittades." });
+        return _help.Response("Inga användarkonto hittades.");
     }
 
     // Search class students by class and school name
@@ -82,28 +82,13 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
         catch (Exception ex)
         {
             _help.SaveFile(["FindClassMembers", $"Fel: {ex.Message}"], @"logfiles\errors");
-            return Error(ex.Message);
+            return _help.Response(ex.Message, "error");
         }
 
     }
     #endregion
 
     #region Helpers
-    // Return message if sommething went wrong.
-    public JsonResult Error([FromBody] string msg)
-    {
-        // Activate a button in the user interface for sending an error message to the system developer if the same error is repeated more than two times during the same session
-        var repeated = _session.GetInt32("RepeatedError") ?? 0;
-        _session.SetInt32("RepeatedError", repeated += 1);
-        return new JsonResult(new
-        {
-            alert = "warning",
-            msg = "Något har gått snett. Var vänlig försök igen.",
-            repeatedError = repeated,
-            errorMessage = msg
-        });
-    }
-
     // Filter
     public List<User> FilteredListOfUsers(List<User> users, bool support,
             string? groupName = null, string? roles = null, string? username = null)

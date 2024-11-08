@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
@@ -78,29 +79,16 @@ public partial class IHelpService : IHelp
         return url.IndexOf("localhost") > -1 || url.IndexOf("[::1]") > -1 || regex.IsMatch(url);
     }
 
-    // Update configuration json
-    public static void UpdateConfigFile(string config, string? parameter, string? value, string? obj = null)
+    // Return message if sommething went wrong.
+    public JsonResult Response([FromBody] string msg, string alert = "warning")
     {
-        try
+        // Activate a button in the user interface for sending an error message to the system developer if the same error is repeated more than two times during the same session
+        return new JsonResult(new
         {
-            var configJsonFile = File.ReadAllText($"{config}.json");
-            dynamic? configJson = JsonConvert.DeserializeObject(configJsonFile);
-
-            if (configJson != null)
-            {
-                if (obj != null)
-                    configJson[obj][parameter] = value;
-                else
-                    configJson[parameter] = value;
-
-                var configJsonToUpdate = JsonConvert.SerializeObject(configJson);
-                File.WriteAllText($"{config}.json", configJsonToUpdate);
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine(ex.Message);
-        }
+            alert,
+            msg = alert == "warninig" ? msg : "Något har gått snett. Var vänlig försök igen.",
+            errorMessage = alert == "error" ? msg : null
+        });
     }
 
     #region Help
@@ -108,13 +96,9 @@ public partial class IHelpService : IHelp
     {
         try
         {
-            //byte[] secureKeyInBytes = Encoding.UTF8.GetBytes("unlockuser_2024key_alvestakommun");
             var path = Path.Combine(@"wwwroot/files/", $"{fileName}.txt");
-
-            // Get json file            
-            //using StreamReader reader = new(path);
-            //var list = JsonConvert.DeserializeObject<List<T>>(reader.ReadToEnd());
-
+            if(!File.Exists(path))
+                return [];
             var res = File.ReadAllText(path);
             byte[] resInBytes = Convert.FromBase64String(res);
 
@@ -124,17 +108,12 @@ public partial class IHelpService : IHelp
         }
         catch (Exception ex)
         {
-            Task.Run(() =>
-            {
-                SaveUpdateFile<T>([], fileName);
-            });
-
             Debug.WriteLine(ex.Message);
             return [];
         }
     }
 
-    public static async Task<string> SaveUpdateFile<T>(List<T> list, string fileName) where T : class
+    public static async Task<string?> SaveUpdateFile<T>(List<T> list, string fileName) where T : class
     {
         string? error = String.Empty;
         try
@@ -146,12 +125,11 @@ public partial class IHelpService : IHelp
             var path = Path.Combine(directory, $"{fileName}.txt");
             if (File.Exists(path))
                 File.Delete(path);
-            await Task.Delay(1000);
 
-            // Save json file
-            //await using FileStream stream = File.Create(path);
-            //await System.Text.Json.JsonSerializer.SerializeAsync(stream, list);
-            //stream.Close();
+            if(list.Count == 0)
+                return null;
+
+            await Task.Delay(1000);
 
             // Encrypt file
             var encryptedValue = JsonConvert.SerializeObject(list, Formatting.None);
@@ -170,6 +148,19 @@ public partial class IHelpService : IHelp
         }
 
         return error;
+    }
+
+    public static List<T> GetJsonFile<T>(string fileName)
+    {
+        var path = Path.Combine(@"wwwroot/json/", $"{fileName}.json");
+        using StreamReader reader = new(path);
+        return JsonConvert.DeserializeObject<List<T>>(reader.ReadToEnd()) ?? [];
+
+
+        // Save json file
+        //await using FileStream stream = File.Create(path);
+        //await System.Text.Json.JsonSerializer.SerializeAsync(stream, list);
+        //stream.Close();
     }
 
     [GeneratedRegex(@"\\/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/")]
@@ -244,6 +235,31 @@ public partial class IHelpService : IHelp
         }
 
         return plaintext;
+    }
+
+    // Update configuration json
+    public static void UpdateConfigFile(string config, string? parameter, string? value, string? obj = null)
+    {
+        try
+        {
+            var configJsonFile = File.ReadAllText($"{config}.json");
+            dynamic? configJson = JsonConvert.DeserializeObject(configJsonFile);
+
+            if (configJson != null)
+            {
+                if (obj != null)
+                    configJson[obj][parameter] = value;
+                else
+                    configJson[parameter] = value;
+
+                var configJsonToUpdate = JsonConvert.SerializeObject(configJson);
+                File.WriteAllText($"{config}.json", configJsonToUpdate);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+        }
     }
     #endregion
 }

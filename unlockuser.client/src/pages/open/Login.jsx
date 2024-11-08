@@ -85,7 +85,7 @@ function Login({ authContext }) {
             else {
                 setResponse(res.data);
                 if (errorMessage)
-                    ErrorHandle("Error response => " + errorMessage);
+                    ErrorHandle("Error => " + errorMessage);
                 else if (!!token) {
                     sessionStorage.setItem("token", token);
                     sessionStorage.setItem("groups", JSON.stringify(groups));

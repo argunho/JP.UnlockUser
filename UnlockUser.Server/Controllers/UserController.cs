@@ -28,26 +28,34 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     [HttpGet("{group}/{name}")]
     public JsonResult GetUser(string group, string name)
     {
-        var groupName = group == "Studenter" ? "Students" : "Employees";
-        DirectorySearcher members = _provider.GetMembers(groupName);
-        members.Filter = $"(&(objectClass=User)(|(cn={name})(sAMAccountname={name})))";
+        try
+        {
+            var groupName = group == "Studenter" ? "Students" : "Employees";
+            DirectorySearcher members = _provider.GetMembers(groupName);
+            members.Filter = $"(&(objectClass=User)(|(cn={name})(sAMAccountname={name})))";
 
-        if (members.FindOne() == null)
-            return new JsonResult(new { warning = true, msg = $"Användaren med anvädarnamn {name} har inte hittats." });
+            if (members.FindOne() != null)
+            {
+                var user = (_provider.GetUsers(members, group)).FirstOrDefault();
 
-        var user = (_provider.GetUsers(members, group)).FirstOrDefault();
+                if (_provider.MembershipCheck(_provider.FindUserByExtensionProperty(name), "Password Twelve Characters"))
+                    user.PasswordLength = 12;
 
-        if (_provider.MembershipCheck(_provider.FindUserByExtensionProperty(name), "Password Twelve Characters"))
-            user.PasswordLength = 12;
+                _session.SetString("ManagedOffice", user.Office);
+                _session.SetString("ManagedDepartment", user.Department);
 
-        _session.SetString("ManagedOffice", user.Office);
-        _session.SetString("ManagedDepartment", user.Department);
+                user = (_search.FilteredListOfUsers([user], false, group, GetClaim("roles"), GetClaim("username")))?.FirstOrDefault();
+                if (user != null)
+                    return new JsonResult(new { user });
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+            return _help.Response(ex.Message, "error");
+        }
 
-        user = (_search.FilteredListOfUsers([user], false, group, GetClaim("roles"), GetClaim("username")))?.FirstOrDefault();
-        if (user != null)
-            return new JsonResult(new { user });
-
-        return new JsonResult(null);
+        return _help.Response($"Användaren med anvädarnamn {name} hittades inte");
     }
 
     [HttpGet("unlock/{name}")] // Unlock user
@@ -67,7 +75,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         catch (Exception ex)
         {
             _help.SaveFile(["UnlockUser", $"Fel: {ex.Message}"], @"logfiles\errors");
-            return new JsonResult(new { alert = "error", msg = $"Något har gått snett. Fel: {ex.Message}" });
+            return _help.Response(ex.Message, "error");
         }
 
         // Save/Update statistics
@@ -138,7 +146,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 }
 
                 SaveHistoryLogFile(sessionUserData);
-                if(!string.IsNullOrEmpty(_help.Message))
+                if (!string.IsNullOrEmpty(_help.Message))
                     return new JsonResult(new { error = message });
             }
 
@@ -163,7 +171,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
     }
 
-    [HttpPost("mail/{str}")] // Send email to current logged admin
+    [HttpPost("mail/{str}")] // Send email to current logged admin width pdf file
     public JsonResult SendEmail(string str, IFormFile attachedFile)
     {
         try
@@ -187,44 +195,10 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         {
 
             _help.SaveFile(["SendEmail", $"Fel: {ex.Message}"], @"logfiles\errors");
-            return Error(ex.Message);
+            return _help.Response(ex.Message);
         }
 
         return new JsonResult(new { result = true });
-    }
-
-    [HttpPost("contact/error")] // Send email to support
-    [AllowAnonymous]
-    public JsonResult SendEmailToSupport(ContactViewModel model)
-    {
-        try
-        {
-            var group = _provider.FindGroupName("Topdesk-Operator IT");
-            var members = group.GetMembers(true)?.ToList();
-            var username = GetClaim("Username");
-
-            MailService ms = new();
-            foreach (var u in members)
-            {
-                var user = _provider.FindUserByExtensionProperty(u.Name);
-                if (user != null && user.Title == "Systemutvecklare" && user.Department == "IT Serviceavdelning")
-                {
-                    model.Title = "Felmeddelande";
-                    model.Text = "Något har gott snett på " + model.Link + "<br/><br/><b>Fel: </b>" + model.Error +
-                        "<br/><br/>Avsändare: " + (username?.Length > 0 ? username : "Ej definerad");
-                    model.Email = user.EmailAddress;
-                    ms.SendContactEmail(model);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            _help.SaveFile(["SendEmailToSupport", $"Fel: {ex.Message}"], @"logfiles\errors");
-            Debug.WriteLine(ex.Message);
-            return new JsonResult(new { errorMessage = MailService._message });
-        }
-
-        return new JsonResult(true);
     }
     #endregion
 
@@ -392,32 +366,6 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
 
         _help.SaveFile(contentList, @"logfiles\history");
-    }
-
-    // Help method to structure a warning message
-    public JsonResult? ReturnWarningsMessage([FromBody] UserViewModel model)
-    {
-        if (!ModelState.IsValid)
-            return new JsonResult(new { alert = "warning", msg = "Felaktigt eller ofullständigt ifyllda formulär" }); // Forms filled out incorrectly
-        else if (model.Username == null)
-            return new JsonResult(new { alert = "warning", msg = "Användare för lösenordsåterställning har inte specificerats." }); // Password reset user not specified
-
-        return null;
-    }
-
-    // Return Error response
-    public JsonResult Error([FromBody] string msg)
-    {
-        // Activate a button in the user interface for sending an error message to the system developer if the same error is repeated more than two times during the same session
-        var repeated = _session?.GetInt32("RepeatedError") ?? 0;
-        _session?.SetInt32("RepeatedError", repeated += 1);
-        return new JsonResult(new
-        {
-            alert = "warning",
-            msg = "Något har gått snett. Var vänlig försök igen.",
-            repeatedError = repeated,
-            errorMessage = msg
-        }); // Something went wrong, please try again later
     }
     #endregion
 }
