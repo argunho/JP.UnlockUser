@@ -93,7 +93,7 @@ function EmployeesList({ navigate }) {
             setPage(1);
         if (value?.length >= 3)
             setList(list.filter(x => JSON.stringify(x).toLowerCase().includes(value?.toLowerCase())));
-        else if (value === "")
+        else
             resetActions();
     }
 
@@ -115,6 +115,11 @@ function EmployeesList({ navigate }) {
             setResponse({ alert: "warning", msg: `Något har gått snett: Fel: ${error}` });
             setLoading(false);
         })
+    }
+
+    function openModal(item){
+        setUserData(item);
+        setClean(true);
     }
 
     function clickHandle(item, index) {
@@ -239,7 +244,7 @@ function EmployeesList({ navigate }) {
                 {(list?.length > 0 && !loading) && list?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, index) => {
                     const calculatedIndex = (perPage * (page - 1)) + (index + 1);
                     return <ListItem key={index} className={`list-item${(calculatedIndex === list?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}`}
-                        secondaryAction={<IconButton onClick={() => setUserData(item)}><OpenInFull /></IconButton>}>
+                        secondaryAction={<IconButton onClick={() => openModal(item)}><OpenInFull /></IconButton>}>
                         <ListItemIcon>
                             {page > 1 ? calculatedIndex : index + 1}
                         </ListItemIcon>
