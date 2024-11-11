@@ -57,7 +57,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
     }
 
     // Search class students by class and school name
-    [HttpGet("members/{department}/{office}")]
+    [HttpGet("students/{department}/{office}")]
     public JsonResult FindClassMembers(string department, string office)
     {
         try

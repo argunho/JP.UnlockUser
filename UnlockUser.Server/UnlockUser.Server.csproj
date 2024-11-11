@@ -28,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\files\" />
     <Folder Include="wwwroot\logfiles\errors\" />
     <Folder Include="wwwroot\logfiles\history\" />
   </ItemGroup>

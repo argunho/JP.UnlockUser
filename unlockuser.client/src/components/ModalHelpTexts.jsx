@@ -12,6 +12,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 
 // Components
 import Table from './Table';
+import FormButtons from './FormButtons';
 
 // eslint-disable-next-line react-refresh/only-export-components
 function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false, isSubmit = false,
@@ -60,7 +61,7 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
                 onClose={() => setOpen(false)}
                 aria-labelledby="dialog-title"
                 draggable={false}
-                className='modal-wrapper print-page' 
+                className='modal-wrapper print-page'
                 id="content"
                 ref={refPrint}>
 
@@ -69,7 +70,7 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
                     id="dialog-title"
                     dangerouslySetInnerHTML={{ __html: isTitle }}>
                 </DialogTitle>
-                
+
                 {/* View this block if data is an array */}
                 {Array.isArray(data) && <DialogContent style={{ marginBottom: "25px" }}>
                     {isTable ? <Table
@@ -91,30 +92,36 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
 
                 {/* View this block if datat is a text */}
                 {!Array.isArray(data) && <DialogContent style={{ marginBottom: "25px" }}>
-                    <div dangerouslySetInnerHTML={{__html: data}}></div>
+                    <div dangerouslySetInnerHTML={{ __html: data }}></div>
                 </DialogContent>}
 
                 {!children && <DialogActions className="no-print modal-buttons-wrapper">
-                    {(isSubmit && !confirm) &&
-                        <>
+
+                    <FormButtons
+                        label="Verkställ"
+                        reset={() => setOpen(false)}
+                    >
+                        {(isSubmit && !confirm) && <div className='d-row jc-between w-100'>
+
+                            <Button variant="contained" className="mobile-hidden"
+                                color="info" onClick={() => regeneratePassword(true)}>
+                                <Refresh />
+                            </Button>
+
                             <Button variant="text"
                                 className='button-btn'
                                 color="primary"
                                 onClick={() => confirmHandle(true)}>
                                 Spara & Verkställ</Button>
 
-                            <Button variant="outlined"
+                        </div>}
+                    </FormButtons>
+
+                    {/* <Button variant="outlined"
                                 className='button-btn'
                                 color="primary"
                                 onClick={() => confirmHandle(false)}>
-                                Verkställ</Button>
-
-                            <Button variant="contained" className="mobile-hidden"
-                                color="info" onClick={() => regeneratePassword(true)}>
-                                <Refresh />
-                            </Button>
-                        </>}
-
+                                Verkställ</Button> */}
                     {!confirm && <Button variant='contained' color="error" autoFocus onClick={() => setOpen(false)}>
                         <Close />
                     </Button>}

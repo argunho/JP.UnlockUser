@@ -3,8 +3,7 @@ import _ from 'lodash'; // To compare two objects for identity
 
 // Installed
 import {
-    Button, Checkbox, CircularProgress,
-    FormControl, FormControlLabel, FormLabel, Radio, TextField, Tooltip
+    Checkbox, FormControl, FormControlLabel, FormLabel, Radio, TextField, Tooltip
 } from '@mui/material';
 import { ClearOutlined, ManageSearch, Save } from '@mui/icons-material';
 
@@ -22,6 +21,8 @@ import { ErrorHandle } from '../functions/ErrorHandle';
 // Services
 import ApiRequest from '../services/ApiRequest';
 import { useNavigate } from 'react-router-dom';
+import { DecodedToken } from '../functions/DecodedToken';
+import FormButtons from './FormButtons';
 
 
 // Form inputs
@@ -38,7 +39,8 @@ function Form({ title, name, passwordLength, users, authContext }) {
     const defaultForm = {
         password: "",
         confirmPassword: "",
-        users: []
+        users: [],
+        check: false
     };
 
     const [response, setResponse] = useState(null);
@@ -48,7 +50,6 @@ function Form({ title, name, passwordLength, users, authContext }) {
     const [noConfirm, setNoConfirm] = useState(false);
     const [requirementError, setRequirementError] = useState(false);
     const [regexError, setRegexError] = useState(false);
-    const [confirm, setConfirm] = useState(false);
     const [inputName, setInputName] = useState('');
     const [variousPassword, setVariousPassword] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState("");
@@ -79,6 +80,9 @@ function Form({ title, name, passwordLength, users, authContext }) {
     const refGenerate = useRef(null);
 
     const navigate = useNavigate();
+
+    const decodedToken = DecodedToken();
+    const developer = decodedToken?.Roles?.indexOf("Developer") > -1;
 
     // Help texts (password)
     const helpTexts = [
@@ -114,7 +118,6 @@ function Form({ title, name, passwordLength, users, authContext }) {
             resetForm();
             setShowPassword(true);
         }
-
         resetError();
     }, [isGenerated])
 
@@ -140,7 +143,6 @@ function Form({ title, name, passwordLength, users, authContext }) {
     // Switch password numbers count
     const switchNumbersCount = (value) => {
         setNumbersCount(value);
-        // setFormData(defaultForm);
         setPreviewList([]);
     }
 
@@ -213,7 +215,6 @@ function Form({ title, name, passwordLength, users, authContext }) {
         setRequirementError(false);
         setPassType("");
         setLimitedChars(multiple);
-        setConfirm(false);
         setSelectedCategory("");
         setWordsList([]);
         setIsGenerated(false);
@@ -237,14 +238,11 @@ function Form({ title, name, passwordLength, users, authContext }) {
     const submitClickHandle = () => {
         if (variousPassword)
             refModal?.current.click();
-        else
-            setConfirm(true);
     }
 
     // Submit form
     const submitForm = async (e) => {
         e.preventDefault();
-        setConfirm(false);
         setLoad(true);
         const data = formData;
 
@@ -312,6 +310,8 @@ function Form({ title, name, passwordLength, users, authContext }) {
         }, error => ErrorHandle(error, navigate));
     }
 
+    const disabled = load || _.isEqual(formData, defaultForm) || !!response;
+    console.log(response)
     return (
         <div className='collapse-wrapper'>
 
@@ -328,7 +328,7 @@ function Form({ title, name, passwordLength, users, authContext }) {
             <div className='form-actions'>
 
                 {/* Response message */}
-                {response && <Response res={response} reset={() => setResponse(null)} />}
+                {!!response && <Response res={response} reset={() => setResponse()} />}
 
                 {multiple && <>
                     {/* Loop of radio input choices to choose is password same or not for all students */}
@@ -454,7 +454,7 @@ function Form({ title, name, passwordLength, users, authContext }) {
                                     className={(inputName === n.name && (requirementError || regexError)) ? "error" : ''}
                                     error={(n.name === "confirmPassword" && noConfirm) || (inputName === n.name && (requirementError || regexError))}
                                     placeholder={n.placeholder}
-                                    disabled={variousPassword || (n.name === "confirmPassword" && formData.password?.length < passwordLength) || confirm}
+                                    disabled={variousPassword || (n.name === "confirmPassword" && formData.password?.length < passwordLength)}
                                     onChange={valueChangeHandler}
                                     onBlur={validateField}
                                     helperText={(inputName === n.name) &&
@@ -466,73 +466,62 @@ function Form({ title, name, passwordLength, users, authContext }) {
                     </div>
 
                     {/* Buttons */}
-                    {!confirm && <div className='buttons-wrapper' style={variousPassword ? { justifyContent: 'flex-end' } : {}}>
-                        {/* Change the password input type */}
-                        {!variousPassword && <FormControlLabel className='checkbox'
-                            control={<Checkbox
-                                size='small'
-                                disabled={load}
-                                checked={showPassword}
-                                onClick={() => setShowPassword(!showPassword)} />}
-                            label="Visa lösenord" />}
+                    <FormButtons
+                        label={variousPassword ? "Granska" : "Verkställ"}
+                        disabled={disabled || (!variousPassword && (noConfirm || requirementError || regexError))
+                            || (variousPassword && previewList.length === 0)}
+                        confirmable={!variousPassword}
+                        loading={load && !response}
+                        variant="contained"
+                        cancelDisabled={disabled}
+                        submit={variousPassword ? () => refModal?.current.click() : null}
+                        cancel={() => resetForm(true)}
+                    >
 
-                        <div className='buttons-interior-wrapper'>
+                        <div className='d-row jc-between w-100'>
+                            {/* Change the password input type */}
+                            {!variousPassword && <FormControlLabel className='checkbox'
+                                control={<Checkbox
+                                    size='small'
+                                    disabled={disabled}
+                                    checked={showPassword}
+                                    onClick={() => setShowPassword(!showPassword)} />}
+                                label="Visa lösenord" />}
 
-                            {/* Generate password */}
-                            <PasswordGeneration
-                                disabledTooltip={passType === "medium" && wordsList.length === 0}
-                                disabledClick={(variousPassword && !passType)
-                                    || (passType === "easy" && (wordsList.length === 0 || wordsList[0]?.length < 5))}
-                                regex={regex}
-                                users={users}
-                                wordsList={wordsList}
-                                numbersCount={numbersCount}
-                                strongPassword={passType === "strong"}
-                                variousPasswords={variousPassword}
-                                passwordLength={passwordLength}
-                                disabled={load}
-                                regenerate={(previewList.length > 0 || !_.isEqual(formData, defaultForm))}
-                                setGenerated={val => setIsGenerated(val)}
-                                updatePasswordForm={(formData) => setFormData(formData)}
-                                updatePreviewList={(list) => setPreviewList(list)}
-                                ref={refGenerate} />
+                            <div className='d-row jc-end w-100'>
+                                {/* Change the password input type */}
+                                {developer && <FormControlLabel className='checkbox'
+                                    control={<Checkbox
+                                        size='small'
+                                        disabled={disabled}
+                                        checked={formData?.check ?? false}
+                                        onClick={() => setFormData({ ...formData, check: !formData?.check })} />}
+                                    label="Testing" />}
 
-                            {/* Reset form - button */}
-                            <Button variant="contained"
-                                color="error"
-                                type="button"
-                                disabled={load || _.isEqual(formData, defaultForm)}
-                                onClick={() => resetForm(true)}>
-                                <ClearOutlined />
-                            </Button>
-
-                            {/* Set confirm question & Preview modal button */}
-                            <Button variant="contained"
-                                className="button-btn button-action"
-                                color="primary"
-                                type='button'
-                                onClick={submitClickHandle}
-                                disabled={load || _.isEqual(formData, defaultForm)
-                                    || (!variousPassword && (noConfirm || requirementError || regexError))
-                                    || (variousPassword && previewList.length === 0)}>
-                                {(load && !response) && <CircularProgress style={{ width: "15px", height: "15px", marginTop: "3px" }} />}
-                                {(!load || response) && <>
-                                    {!variousPassword ? <Save /> : <ManageSearch />}
-                                    <span>{variousPassword ? "Granska" : "Verkställ"}</span>
-                                </>}
-                            </Button>
+                                {/* Generate password */}
+                                <PasswordGeneration
+                                    disabledTooltip={passType === "medium" && wordsList.length === 0}
+                                    disabledClick={(variousPassword && !passType)
+                                        || (passType === "easy" && (wordsList.length === 0 || wordsList[0]?.length < 5))}
+                                    regex={regex}
+                                    users={users}
+                                    wordsList={wordsList}
+                                    numbersCount={numbersCount}
+                                    strongPassword={passType === "strong"}
+                                    variousPasswords={variousPassword}
+                                    passwordLength={passwordLength}
+                                    disabled={load || !!response}
+                                    regenerate={(previewList.length > 0 || !_.isEqual(formData, defaultForm))}
+                                    setGenerated={val => setIsGenerated(val)}
+                                    updatePasswordForm={(formData) => setFormData(formData)}
+                                    updatePreviewList={(list) => setPreviewList(list)}
+                                    ref={refGenerate} />
+                            </div>
 
                             {/* Hidden submit input, used for class members password change */}
                             {previewList?.length > 0 && <input type="submit" className='none' value="" ref={refSubmit} />}
                         </div>
-                    </div>}
-
-                    {/* Confirm actions block */}
-                    {confirm && <div className='buttons-wrapper confirm-wrapper'>
-                        <p className='confirm-title'>Skicka?</p>
-                        <Button className='button-btn button-action' type="submit" variant='contained' color="error">Ja</Button>
-                        <Button className='button-btn button-action' variant='contained' color="primary" onClick={() => resetForm(true)}>Nej</Button>
-                    </div>}
+                    </FormButtons>
                 </form>
             </div>
 
@@ -560,3 +549,39 @@ function Form({ title, name, passwordLength, users, authContext }) {
 }
 
 export default Form;
+
+
+{/* 
+<Button variant="contained"
+    color="error"
+    type="button"
+    disabled={load || _.isEqual(formData, defaultForm)}
+    onClick={() => resetForm(true)}>
+    <ClearOutlined />
+</Button> */}
+
+{/* Set confirm question & Preview modal button */ }
+{/* <Button variant="contained"
+    className="button-btn button-action"
+    color="primary"
+    type='button'
+    onClick={submitClickHandle}
+    disabled={load || _.isEqual(formData, defaultForm)
+        || (!variousPassword && (noConfirm || requirementError || regexError))
+        || (variousPassword && previewList.length === 0)}>
+    {(load && !response) && <CircularProgress style={{ width: "15px", height: "15px", marginTop: "3px" }} />}
+    {(!load || response) && <>
+        {!variousPassword ? <Save /> : <ManageSearch />}
+        <span>{variousPassword ? "Granska" : "Verkställ"}</span>
+    </>}
+</Button>
+
+</div> */}
+
+
+{/* Confirm actions block */ }
+{/* {confirm && <div className='buttons-wrapper confirm-wrapper'>
+                        <p className='confirm-title'>Skicka?</p>
+                        <Button className='button-btn button-action' type="submit" variant='contained' color="error">Ja</Button>
+                        <Button className='button-btn button-action' variant='contained' color="primary" onClick={() => resetForm(true)}>Nej</Button>
+                    </div>} */}

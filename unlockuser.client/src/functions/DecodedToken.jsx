@@ -1,6 +1,6 @@
 import { jwtDecode } from "jwt-decode";
 
-export function DecodedToken(token) {
+export function DecodedToken(token = null) {
 
     if(!token) 
         token = localStorage.getItem("token") ?? sessionStorage.getItem("token");

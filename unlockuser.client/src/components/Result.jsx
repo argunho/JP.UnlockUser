@@ -201,7 +201,7 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
             ))}
 
             {/* Message if result is null */}
-            {(!loading && response) && <Response res={response} reset={() => resetResult()} />}
+            {(!loading && response) && <Response res={response} reset={resetResult} />}
         </div>
     )
 }

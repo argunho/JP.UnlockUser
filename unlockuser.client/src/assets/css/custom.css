@@ -783,22 +783,20 @@ form .buttons-wrapper {
   margin-left: 10px;
 }
 
-.buttons-interior-wrapper {
-  width: max-content;
-  display: inline-flex;
-}
-
 .buttons-interior-wrapper>span {
   margin: auto;
 }
 
-.buttons-wrapper .checkbox {
-  float: left;
+.form-buttons label.checkbox {
   height: max-content;
 }
 
 .checkbox span {
   font-size: 12px !important;
+  width: max-content !important;
+}
+.checkbox span:first-child {
+  margin-right: 5px !important;
 }
 
 button {
@@ -826,12 +824,10 @@ div[role="dialog"] {
 
 /* #region Buttons */
 .form-buttons {
-  width: 100%;
   margin: 10px 0;
   padding: 10px 0;
   text-align: right;
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  justify-content: flex-end;
 }
 
 .form-buttons.position-sticky {

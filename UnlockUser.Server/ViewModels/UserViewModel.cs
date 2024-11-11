@@ -12,6 +12,7 @@ public class UserViewModel
     public  string? GroupName { get; set; }
 
     public UserCredentials? Credentials { get; set; }
+
 }
 
 public class UserCredentials {
@@ -22,4 +23,5 @@ public class UserCredentials {
 public class UsersListViewModel
 {
     public List<UserViewModel> Users { get; set; } = [];
+    public bool Check { get; set; }
 }

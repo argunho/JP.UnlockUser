@@ -103,11 +103,9 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             var roles = GetClaim("roles");
             var groups = (GetClaim("groups"))?.Split(",").ToList() ?? [];
 
-
             var groupsList = _config.GetSection("Groups").Get<List<GroupModel>>();
             if (groupsList?.Select(s => s.Name).Intersect(groups) == null)
                 return new JsonResult(new { alert = "error", msg = $"Behörigheter saknas!" }); // Warning!
-
 
             var stoppedToEdit = new List<string>();
             var permissionGroups = groupsList.Select(s => s.PermissionGroup).ToList();
@@ -145,13 +143,15 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                     sessionUserData.Users.Add(user?.Username ?? "");
                 }
 
-                SaveHistoryLogFile(sessionUserData);
+                if (!model.Check)
+                    SaveHistoryLogFile(sessionUserData);
                 if (!string.IsNullOrEmpty(_help.Message))
                     return new JsonResult(new { error = message });
             }
 
             // Save/Update statistics
-            await SaveUpdateStatitics("PasswordsChange", model.Users.Count);
+            if (!model.Check)
+                await SaveUpdateStatitics("PasswordsChange", model.Users.Count);
 
             if (message?.Length > 0)
                 return new JsonResult(new { alert = "warning", msg = message });
@@ -161,7 +161,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 return new JsonResult(new { alert = "info", msg = $"Lösenordsåterställningen lyckades men inte till alla! Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!" });
 
 
-            return new JsonResult(new { success = true, alert = "success", msg = "Lösenordsåterställningen lyckades!" }); //Success! Password reset was successful!
+            return new JsonResult(new { alert = "success", msg = "Lösenordsåterställningen lyckades!" }); //Success! Password reset was successful!
         }
         catch (Exception ex)
         {
@@ -317,55 +317,61 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     // Save log file
     public void SaveHistoryLogFile([FromBody] Data model)
     {
-        var user = _provider.FindUserByExtensionProperty(GetClaim("Username"));
-        string fileName = (model.Group?.ToLower() ?? "") + "_";
-
-        var groupName = model.Group.ToLower();
-        if (groupName != "studenter")
+        try
         {
-            var managedUser = _provider.FindUserByExtensionProperty(model.Users[0]);
-            if (managedUser != null)
+            var user = _provider.FindUserByExtensionProperty(GetClaim("Username"));
+            var groupName = model?.Group.ToLower();
+            string fileName = (groupName ?? "") + "_";
+
+            if (groupName != "studenter")
             {
-                model.Office = user.Office;
-                model.Department = user.Department;
+                var managedUser = _provider.FindUserByExtensionProperty(model.Users[0]);
+                if (managedUser != null)
+                {
+                    model.Office = user.Office;
+                    model.Department = user.Department;
+                }
             }
-        }
 
-        var contentList = new List<string>
-        {
-            "\r Anställd",
-            " - Användarnamn: " + (user?.Name ?? ""),
-            " - Namn: " + (user?.DisplayName ?? ""),
-            " - E-postadress: " + (user?.EmailAddress ?? ""),
-            " - Arbetsplats: " + (user.Department ?? ""),
-            " - Tjänst: " + (user.Title ?? ""),
-            "\n\r Dator",
-            " - Datornamn: " + model?.ComputerName,
-            " - IpAddress: " + model?.IpAddress,
-            "\n\r Hantering",
-            " - Gruppnamn: " + model?.Group
-        };
+            var contentList = new List<string>
+                {
+                    "\r Anställd",
+                    " - Användarnamn: " + (user?.Name ?? ""),
+                    " - Namn: " + (user?.DisplayName ?? ""),
+                    " - E-postadress: " + (user?.EmailAddress ?? ""),
+                    " - Arbetsplats: " + (user.Department ?? ""),
+                    " - Tjänst: " + (user.Title ?? ""),
+                    "\n\r Dator",
+                    " - Datornamn: " + model?.ComputerName,
+                    " - IpAddress: " + model?.IpAddress,
+                    "\n\r Hantering",
+                    " - Gruppnamn: " + model?.Group
+                };
 
 
-        if (groupName == "studenter")
-        {
-            contentList.Add(" - Skolan: " + model?.ManagedUserOffice);
-            contentList.Add(" - Klassnamn: " + model?.ManagedUserDepartment);
-            contentList.Add($" - Lösenord till {model?.Users.Count} student{(model?.Users.Count > 1 ? "er" : "")}:");
-            fileName += model?.Office + "_" + model?.ManagedUserDepartment + (model.Users.Count == 1 ? "_" + model.Users[0] : "");
-            foreach (var student in model?.Users)
+            if (groupName == "studenter")
             {
-                contentList.Add("\t- Student: " + student);
+                contentList.Add(" - Skolan: " + model?.ManagedUserOffice);
+                contentList.Add(" - Klassnamn: " + model?.ManagedUserDepartment);
+                contentList.Add($" - Lösenord till {model?.Users.Count} student{(model?.Users.Count > 1 ? "er" : "")}:");
+                fileName += model?.Office + "_" + model?.ManagedUserDepartment + (model?.Users.Count == 1 ? "_" + model.Users[0] : "");
+                foreach (var student in model?.Users)
+                    contentList.Add("\t- Student: " + student);
             }
-        }
-        else
-        {
-            contentList.Add(" - Arbetsplats: " + model?.Office);
-            contentList.Add(" - Lösenord till:");
-            contentList.Add($"\t-{model.Group}: {model.Users[0]}");
-        }
+            else
+            {
+                contentList.Add(" - Arbetsplats: " + model?.Office);
+                contentList.Add(" - Lösenord till:");
+                contentList.Add($"\t-{model?.Group}: {model?.Users[0]}");
+            }
 
-        _help.SaveFile(contentList, @"logfiles\history");
+            _help.SaveFile(contentList, @"logfiles\history");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+            _help.SaveFile(["SaveLogFile", $"Fel: {ex.Message}"], @"logfiles\errors");
+        }
     }
     #endregion
 }

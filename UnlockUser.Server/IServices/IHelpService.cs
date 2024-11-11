@@ -22,8 +22,6 @@ public partial class IHelpService : IHelp
         _httpContext = httpContext;
     }
 
-    //private byte[] secureKeyInBytes = Encoding.UTF8.GetBytes("unlock.user.2024key.alvestakommun");
-
     // Save history logfile
     public void SaveFile(List<string> contentList, string pathName)
     {

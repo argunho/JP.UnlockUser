@@ -14,7 +14,7 @@ function Response({ children, res, reset }) {
     return <div className="response-box d-column w-100">
             
             {/* Message */}
-            <Alert color={color} variant="standard" severity={color} className="d-row w-100" onClose={() => reset(!!msg || error)}>
+            <Alert color={color} variant="standard" severity={color} className="d-row w-100" onClose={reset}>
                 <p className="response-message w-100" dangerouslySetInnerHTML={{ __html: msg ?? "Skickad!"}}></p>
             </Alert>
 

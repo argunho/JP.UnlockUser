@@ -6,7 +6,8 @@ import { Button, CircularProgress } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
 
-function FormButtons({ children, label, question, disabled, position, swap, confirmable, confirmOnly, loading, submit, cancel, required, data }) {
+function FormButtons({ children, label, question, disabled, position, swap, confirmable, 
+                            confirmOnly, variant, loading, submit, cancel, cancelDisabled, required, data }) {
     FormButtons.displayName = "FormButtons";
 
     const [confirm, setConfirm] = useState(!!confirmOnly);
@@ -21,11 +22,13 @@ function FormButtons({ children, label, question, disabled, position, swap, conf
             label: question ?? "Skicka?", visible: confirm, props: { className: "confirm-question" }
         },
         {
-            label: "Nej", visible: confirm,
+            label: "Nej", 
+            visible: confirm,
             props: { variant: "outlined", className: "bg-white", onClick: () => confirmHandle(true), color: "inherit" }
         },
         {
-            label: "Ja", visible: confirm,
+            label: "Ja", 
+            visible: confirm,
             props: {
                 ...{
                     variant: "contained", color: "error", disabled: delay,
@@ -34,16 +37,15 @@ function FormButtons({ children, label, question, disabled, position, swap, conf
             }
         },
         {
-            label: <Close color="inherit" fontSize="medium" />, visible: (!confirm && !!cancel),
-            props: { variant: "contained", color: "error", disabled: loading, onClick: cancel }
+            label: <Close color="inherit" fontSize="medium" />, 
+            visible: (!confirm && !!cancel),
+            props: { variant: loading || cancelDisabled ? "outlined": "contained", color: "error", disabled: loading || cancelDisabled, onClick: cancel }
         },
         {
-            label: (loading ? <CircularProgress size={18} color="inherit" /> : (label ?? "Skicka")), visible: !confirm,
-            props: {
-                ... {
-                    variant: "outlined", className: "submit-btn", color: (loading ? "primary" : "inherit"),
-                    disabled: (disabled || loading), type: !confirmable ? "button" : "submit"
-                }, ...(!!confirmable ? { onClick:() => confirmHandle (false)} : null)
+            label: (loading ? <CircularProgress size={18} color="inherit" /> : (label ?? "Skicka")), 
+            visible: !confirm,
+            props: {variant: (loading || disabled) ? "outlined" : (variant ?? "outlined"), className: "submit-btn", color: ((loading || !!variant) ? "primary" : "inherit"),
+                    disabled: (disabled || loading), type: !confirmable ? "button" : "submit", onClick: !!confirmable ? () => confirmHandle(false) : submit
             }
         },
     ];
@@ -54,6 +56,7 @@ function FormButtons({ children, label, question, disabled, position, swap, conf
     function confirmHandle(cancelAction = false) {
         if (cancelAction) {
             cancel();
+            setConfirm(false);
             return;
         }
 
@@ -83,9 +86,12 @@ function FormButtons({ children, label, question, disabled, position, swap, conf
     }
 
     return (
-        <div className={`form-buttons d-row jc-end ${!!position ? `position-${position}` : ""}`}>
-            {children}
-            <div className="d-row jc-end w-100">
+        <div className={`form-buttons d-row w-100 jc-end ${!!position ? `position-${position}` : ""}`}>
+            {/* Children buttons */}
+            {(!confirm && !!children) && children}
+
+            {/* Default buttons */}
+            <div className={`d-row jc-end ${children ? "w-mc" : "w-100"}`}>
                 {buttons.filter(x => x.visible).map((b, ind) => {
                     return <Button key={ind} {...b.props}>{b.label}</Button>
                 })}
