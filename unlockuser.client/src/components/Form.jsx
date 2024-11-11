@@ -5,7 +5,6 @@ import _ from 'lodash'; // To compare two objects for identity
 import {
     Checkbox, FormControl, FormControlLabel, FormLabel, Radio, TextField, Tooltip
 } from '@mui/material';
-import { ClearOutlined, ManageSearch, Save } from '@mui/icons-material';
 
 // Components
 import ModalHelpTexts from './ModalHelpTexts';
@@ -228,16 +227,8 @@ function Form({ title, name, passwordLength, users, authContext }) {
             setShowPassword(false);
             setNumbersCount(0);
             setVariousPassword(false);
-            setConfirmSavePdf(false);
-            setSavePdf(false);
             setResponse(null);
         }
-    }
-
-    // Submit click handle
-    const submitClickHandle = () => {
-        if (variousPassword)
-            refModal?.current.click();
     }
 
     // Submit form
@@ -261,12 +252,12 @@ function Form({ title, name, passwordLength, users, authContext }) {
         // Request
         await ApiRequest("user/reset/password/", "post", data).then(res => {
             setResponse(res.data);
-            if (res.data?.success) {
-                setSavePdf(true);
+            if (res.data?.alert == "success") {
                 setSessionHistory(formData);
                 setTimeout(() => {
                     resetForm(true);
-                }, 5000)
+                    setSavePdf(true);
+                }, 3000)
             } else
                 setLoad(false);
         }, error => { // Handle of error
@@ -306,12 +297,18 @@ function Form({ title, name, passwordLength, users, authContext }) {
 
         await ApiRequest(`user/mail/${inf[1]} ${inf[0]}`, "post", data).then(res => {
             if (res.data?.errorMessage)
-                console.error("Error response => " + res.data.errorMessage);
-        }, error => ErrorHandle(error, navigate));
+                ErrorHandle(res.data.errorMessage, navigate);
+            setConfirmSavePdf(false);
+            setSavePdf(false);
+        }, error => {
+            setConfirmSavePdf(false);
+            setSavePdf(false);
+            ErrorHandle(error, navigate);
+        });
     }
 
     const disabled = load || _.isEqual(formData, defaultForm) || !!response;
-    console.log(response)
+
     return (
         <div className='collapse-wrapper'>
 
@@ -473,8 +470,9 @@ function Form({ title, name, passwordLength, users, authContext }) {
                         confirmable={!variousPassword}
                         loading={load && !response}
                         variant="contained"
-                        cancelDisabled={disabled}
+                        run={variousPassword}
                         submit={variousPassword ? () => refModal?.current.click() : null}
+                        cancelDisabled={disabled}
                         cancel={() => resetForm(true)}
                     >
 
@@ -549,39 +547,3 @@ function Form({ title, name, passwordLength, users, authContext }) {
 }
 
 export default Form;
-
-
-{/* 
-<Button variant="contained"
-    color="error"
-    type="button"
-    disabled={load || _.isEqual(formData, defaultForm)}
-    onClick={() => resetForm(true)}>
-    <ClearOutlined />
-</Button> */}
-
-{/* Set confirm question & Preview modal button */ }
-{/* <Button variant="contained"
-    className="button-btn button-action"
-    color="primary"
-    type='button'
-    onClick={submitClickHandle}
-    disabled={load || _.isEqual(formData, defaultForm)
-        || (!variousPassword && (noConfirm || requirementError || regexError))
-        || (variousPassword && previewList.length === 0)}>
-    {(load && !response) && <CircularProgress style={{ width: "15px", height: "15px", marginTop: "3px" }} />}
-    {(!load || response) && <>
-        {!variousPassword ? <Save /> : <ManageSearch />}
-        <span>{variousPassword ? "Granska" : "Verkställ"}</span>
-    </>}
-</Button>
-
-</div> */}
-
-
-{/* Confirm actions block */ }
-{/* {confirm && <div className='buttons-wrapper confirm-wrapper'>
-                        <p className='confirm-title'>Skicka?</p>
-                        <Button className='button-btn button-action' type="submit" variant='contained' color="error">Ja</Button>
-                        <Button className='button-btn button-action' variant='contained' color="primary" onClick={() => resetForm(true)}>Nej</Button>
-                    </div>} */}

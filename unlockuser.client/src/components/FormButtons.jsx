@@ -6,28 +6,32 @@ import { Button, CircularProgress } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
 
-function FormButtons({ children, label, question, disabled, position, swap, confirmable, 
-                            confirmOnly, variant, loading, submit, cancel, cancelDisabled, required, data }) {
+function FormButtons({ children, label, question, disabled, position, swap, confirmable,
+    confirmOnly, variant, loading, submit, cancel, cancelDisabled, required, data }) {
     FormButtons.displayName = "FormButtons";
 
-    const [confirm, setConfirm] = useState(!!confirmOnly);
+    const [confirm, setConfirm] = useState(false);
     const [delay, setDelay] = useState(!confirmable);
 
     useEffect(() => {
         if (loading) setConfirm(false);
     }, [loading])
 
+    useEffect(() => {
+        setConfirm(!!confirmOnly);
+    }, [confirmOnly])
+
     let buttons = [
         {
             label: question ?? "Skicka?", visible: confirm, props: { className: "confirm-question" }
         },
         {
-            label: "Nej", 
+            label: "Nej",
             visible: confirm,
             props: { variant: "outlined", className: "bg-white", onClick: () => confirmHandle(true), color: "inherit" }
         },
         {
-            label: "Ja", 
+            label: "Ja",
             visible: confirm,
             props: {
                 ...{
@@ -37,15 +41,19 @@ function FormButtons({ children, label, question, disabled, position, swap, conf
             }
         },
         {
-            label: <Close color="inherit" fontSize="medium" />, 
+            label: <Close color="inherit" fontSize="medium" />,
             visible: (!confirm && !!cancel),
-            props: { variant: loading || cancelDisabled ? "outlined": "contained", color: "error", disabled: loading || cancelDisabled, onClick: cancel }
+            props: { variant: loading || cancelDisabled ? "outlined" : "contained", color: "error", disabled: loading || cancelDisabled, onClick: cancel }
         },
         {
-            label: (loading ? <CircularProgress size={18} color="inherit" /> : (label ?? "Skicka")), 
+            label: (loading ? <CircularProgress size={18} color="inherit" /> : (label ?? "Skicka")),
             visible: !confirm,
-            props: {variant: (loading || disabled) ? "outlined" : (variant ?? "outlined"), className: "submit-btn", color: ((loading || !!variant) ? "primary" : "inherit"),
-                    disabled: (disabled || loading), type: !confirmable ? "button" : "submit", onClick: !!confirmable ? () => confirmHandle(false) : submit
+            props: {
+                ... {
+                    variant: (loading || disabled) ? "outlined" : (variant ?? "outlined"), className: "submit-btn", color: ((loading || !!variant) ? "primary" : "inherit"),
+                    disabled: (disabled || loading), type: (!!confirmable || (!confirmable && !!submit)) ? "button" : "submit"
+                },
+                ...(!!confirmable ? { onClick: () => confirmHandle(false) } : ((!confirmable && !!submit) ? { onClick: onSubmit }  : null))
             }
         },
     ];

@@ -982,9 +982,7 @@ button.confirm-question {
 }
 
 .modal-buttons-wrapper {
-  position: "relative" !important;
-  overflow: "hidden" !important;
-  padding: 0 24px 15px 24px !important;
+  padding: 0 24px 15px 14px !important;
 }
 
 pre {

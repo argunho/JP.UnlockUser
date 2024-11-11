@@ -135,19 +135,19 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             }
 
             // Set password to class students
-            if (model.Users.Count > 0)
-            {
-                foreach (var user in model.Users)
-                {
-                    message += _provider.ResetPassword(UpdatedUser(user));
-                    sessionUserData.Users.Add(user?.Username ?? "");
-                }
+            //if (model.Users.Count > 0)
+            //{
+            //    foreach (var user in model.Users)
+            //    {
+            //        message += _provider.ResetPassword(UpdatedUser(user));
+            //        sessionUserData.Users.Add(user?.Username ?? "");
+            //    }
 
-                if (!model.Check)
-                    SaveHistoryLogFile(sessionUserData);
-                if (!string.IsNullOrEmpty(_help.Message))
-                    return new JsonResult(new { error = message });
-            }
+            //    if (!model.Check)
+            //        SaveHistoryLogFile(sessionUserData);
+            //    if (!string.IsNullOrEmpty(_help.Message))
+            //        return new JsonResult(new { error = message });
+            //}
 
             // Save/Update statistics
             if (!model.Check)

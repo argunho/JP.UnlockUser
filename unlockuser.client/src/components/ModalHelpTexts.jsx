@@ -2,13 +2,8 @@
 import React, { useRef, useState } from 'react';
 
 // Installed
-import { AlertTitle, Checkbox, FormControlLabel } from '@mui/material';
-import { Close, HelpOutline, LiveHelpOutlined, Refresh } from '@mui/icons-material';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
+import { AlertTitle, Checkbox, FormControlLabel, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
+import { HelpOutline, LiveHelpOutlined, Refresh } from '@mui/icons-material';
 
 // Components
 import Table from './Table';
@@ -27,9 +22,9 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
     const refPrint = useRef(null);
 
     // Confirm handle
-    const confirmHandle = (save) => {
+    const confirmHandle = () => {
         setConfirm(true);
-        setSavePdf(save);
+        setSavePdf(true);
     }
 
     // Close modal window
@@ -37,9 +32,18 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
         if (submit)
             inverseFunction(savePdf);
 
+        close();
+    }
+
+    const handleMenuOpen = () => {
+        setOpen(!open);
+        setConfirm(false)
+    }
+
+    const close = () => {
+        setOpen(false);
         setConfirm(false);
         setSavePdf(false);
-        setOpen(false);
     }
 
     return (
@@ -52,7 +56,7 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
                     ref={ref}
                     icon={<HelpOutline />}
                     checkedIcon={<LiveHelpOutlined />}
-                    onClick={() => setOpen(true)}
+                    onClick={handleMenuOpen}
                     inputProps={{ 'aria-label': 'controlled', color: "primary" }} />}
                 label="Hjälp" />}
 
@@ -99,7 +103,11 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
 
                     <FormButtons
                         label="Verkställ"
-                        reset={() => setOpen(false)}
+                        confirmable={true}
+                        confirmOnly={confirm}
+                        swap={true}
+                        submit={() => clickHandle(confirm)}
+                        cancel={close}
                     >
                         {(isSubmit && !confirm) && <div className='d-row jc-between w-100'>
 
@@ -111,27 +119,12 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
                             <Button variant="text"
                                 className='button-btn'
                                 color="primary"
-                                onClick={() => confirmHandle(true)}>
+                                onClick={confirmHandle}>
                                 Spara & Verkställ</Button>
 
                         </div>}
                     </FormButtons>
 
-                    {/* <Button variant="outlined"
-                                className='button-btn'
-                                color="primary"
-                                onClick={() => confirmHandle(false)}>
-                                Verkställ</Button> */}
-                    {!confirm && <Button variant='contained' color="error" autoFocus onClick={() => setOpen(false)}>
-                        <Close />
-                    </Button>}
-
-                    {/* Confirm actions block */}
-                    {confirm && <>
-                        <p className='confirm-title'>Skicka?</p>
-                        <Button className='button-btn button-action' onClick={() => clickHandle(true)} variant='contained' color="error">Ja</Button>
-                        <Button className='button-btn button-action' variant='contained' color="primary" autoFocus onClick={() => clickHandle(false)}>Nej</Button>
-                    </>}
                 </DialogActions>}
 
                 {children && <DialogActions className="no-print modal-buttons-wrapper">{children}</DialogActions>}
