@@ -99,7 +99,7 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
                     <div dangerouslySetInnerHTML={{ __html: data }}></div>
                 </DialogContent>}
 
-                {!children && <DialogActions className="no-print modal-buttons-wrapper">
+                {!children && <DialogActions className="no-print buttons-wrapper">
 
                     <FormButtons
                         label="Verkställ"
@@ -127,7 +127,7 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
 
                 </DialogActions>}
 
-                {children && <DialogActions className="no-print modal-buttons-wrapper">{children}</DialogActions>}
+                {children && <DialogActions className="no-print buttons-wrapper">{children}</DialogActions>}
             </Dialog>
 
         </React.Fragment>

@@ -760,33 +760,6 @@ input[type="password"]:disabled {
   max-width: 300px;
 }
 
-.buttons-wrapper {
-  display: block;
-  line-height: 60px;
-  min-height: 60px;
-  margin: 30px auto 0 auto;
-  width: max-content;
-}
-
-form .buttons-wrapper {
-  margin-top: 5px !important;
-  width: 100% !important;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  line-height: 0 !important;
-}
-
-.buttons-wrapper>button,
-.buttons-interior-wrapper>button {
-  display: inline;
-  margin-left: 10px;
-}
-
-.buttons-interior-wrapper>span {
-  margin: auto;
-}
-
 .form-buttons label.checkbox {
   height: max-content;
 }
@@ -981,7 +954,7 @@ button.confirm-question {
   color: rgba(0, 0, 0, 0.9) !important;
 }
 
-.modal-buttons-wrapper {
+.buttons-wrapper {
   padding: 0 24px 15px 14px !important;
 }
 
@@ -1085,13 +1058,6 @@ pre {
 }
 
 @media (max-width: 600px) {
-  .buttons-interior-wrapper {
-    width: 100%;
-    display: inherit !important;
-    margin: 10px 0;
-    line-height: 0;
-  }
-
   .nav-wrapper {
     padding-right: 4px !important;
     padding-left: 4px !important;
@@ -1101,25 +1067,6 @@ pre {
     width: 100%;
     min-width: unset;
     max-width: 385px;
-  }
-
-  form .buttons-wrapper {
-    display: block !important;
-    position: relative;
-  }
-
-  .buttons-wrapper .checkbox {
-    float: unset !important;
-  }
-
-  .buttons-interior-wrapper {
-    display: flex !important;
-    justify-content: flex-start;
-    width: 100%;
-    text-align: right;
-    margin-top: 20px;
-    clear: both;
-    align-items: stretch;
   }
 
   .btn-select-list {
@@ -1159,12 +1106,6 @@ pre {
     visibility: visible !important;
     padding-bottom: 10px;
     border-bottom: 1px solid #fff;
-  }
-
-  .buttons-interior-wrapper>span:not(.generate-button-wrapper) {
-    position: absolute;
-    right: 0;
-    top: 5px;
   }
 
   .button-action {
@@ -1306,7 +1247,7 @@ pre {
     padding: 15px 8px !important;
   }
 
-  .modal-buttons-wrapper>button {
+  .buttons-wrapper>button {
     font-size: 3vw !important;
   }
 }
