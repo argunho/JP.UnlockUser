@@ -7,6 +7,9 @@ import { jwtDecode } from "jwt-decode";
 import { HomeSharp, LiveHelp, Logout, Menu, Close, History, SettingsApplications, School, WorkHistory, ErrorOutline, BarChart, Home } from '@mui/icons-material';
 import { Button, Tooltip } from '@mui/material';
 
+// Functions
+import SessionData from '../functions/SessionData';
+
 // Services
 import ApiRequest from '../services/ApiRequest';
 
@@ -26,7 +29,7 @@ function Header({ authContext }) {
         { label: "Hem", url: null, icon: <Home />, access: false },
         { label: "Skolor", url: "schools", icon: <School />, access: true },
         { label: "Behöriga användare", url: "employees", icon: <SettingsApplications />, access: true },
-        { label: "Session historia", url: "session/history", icon: <History />, access: false },
+        { label: "Session historia", url: "session/history", icon: <History />, access: false, hidden: !SessionData()?.length === 0 },
         { label: "Detaljerad historia", url: "logs/history", icon: <WorkHistory />, access: true },
         { label: "Statistik", url: "statistics", icon: <BarChart />, access: true },
         { label: "Loggfiler", url: "logs/errors", icon: <ErrorOutline />, access: true },
@@ -116,7 +119,7 @@ function Header({ authContext }) {
                             <ul className={`menu-wrapper ${visibleMenu && 'visible-menu-wrapper'}`} ref={refMenu}>
                                 <li className='display-name'>{displayName}</li>
                                 {/* Loop links */}
-                                {links.map((link, ind) => {
+                                {links.filter(x => !x?.hidden).map((link, ind) => {
                                     return <li className='d-row' key={ind} onClick={() => goToPage(link.url)}>
                                         {link.icon} {link.label}
                                     </li>
