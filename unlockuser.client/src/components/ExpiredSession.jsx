@@ -11,6 +11,7 @@ function ExpiredSession({ navigate }) {
     return (
         <ModalView
             error={true}
+            open={true}
             msg="Sessionen har löpt ut"
             content="Var vänlig och logga in igen."
             close={closeModal} />

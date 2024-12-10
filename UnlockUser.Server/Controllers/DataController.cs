@@ -144,7 +144,6 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
             return BadRequest();
         }
     }
-
     #endregion
 
     #region DELETE
