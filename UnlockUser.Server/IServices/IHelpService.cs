@@ -1,31 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using UnlockUser.Server.Interface;
 
 namespace UnlockUser.Server.IServices;
 
 public partial class IHelpService : IHelp
 {
-
     public string Message { get; set; } = "";
-    private readonly IHttpContextAccessor _httpContext;
     private static byte[] secureKeyInBytes = Encoding.UTF8.GetBytes("unlockuser_2024key_alvestakommun");
     private static byte[] secureKeyIV = Encoding.UTF8.GetBytes("unlock_user_2024");
+    private readonly IHttpContextAccessor _httpContext;
 
-    public IHelpService() { }
-
-    public IHelpService(IHttpContextAccessor httpContext)
+    public IHelpService()
     {
-        _httpContext = httpContext;
+        _httpContext = new HttpContextAccessor();
     }
 
     // Save history logfile
-    public void SaveFile(List<string> contentList, string pathName)
+    public void SaveLogFile(List<string> contentList, string pathName)
     {
-        var directory = $@"wwwroot\{pathName}";
+        var directory = $@"wwwroot\logfiles\{pathName}";
         if (CheckDirectory(directory))
         {
             try
@@ -45,7 +44,6 @@ public partial class IHelpService : IHelp
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
                 Message += "\r" + ex.Message;
             }
         }
@@ -72,21 +70,71 @@ public partial class IHelpService : IHelp
     // Check local host
     public bool CheckLocalHost()
     {
+        IHttpContextAccessor _httpContext = new HttpContextAccessor();
         string url = _httpContext.HttpContext.Request.Host.Value.ToString();
         var regex = Regex();
         return url.IndexOf("localhost") > -1 || url.IndexOf("[::1]") > -1 || regex.IsMatch(url);
     }
 
     // Return message if sommething went wrong.
-    public JsonResult Response([FromBody] string msg, string alert = "warning")
+    public JsonResult Response(string alert, [FromBody] string msg)
+                => new(new { alert, msg});
+
+    public JsonResult NotFound(string name)
+    => new(new { alert = "warning", msg = $"{name} med matchande Id eller Namn hittades inte." });
+
+    public JsonResult Warning(string? message = null)
+        => new(new { alert = "warning", msg = message ?? "Felaktiga formulärdata. Kontrollera de ifyllda formuläruppgifterna." });
+
+    public JsonResult Error(string position, string message, string pathname = "errors")
     {
-        // Activate a button in the user interface for sending an error message to the system developer if the same error is repeated more than two times during the same session
-        return new JsonResult(new
+        SaveLogFile([position, message], pathname);
+        return new (new { alert = "error", msg = $"Något har gått snett. Fel: {message}" });
+    }
+
+    public string? GetClaim(string name)
+    {
+        try
+        {      
+            ClaimsPrincipal user = _httpContext.HttpContext?.User ?? new();
+
+            if (name == "roles")
+                return string.Join(",", user.FindAll(ClaimTypes.Role).Select(s => s.Value));
+
+            return user.Claims?.FirstOrDefault(x => x?.Type.ToLower() == name?.ToLower())?.Value;
+        }
+        catch (Exception)
         {
-            alert,
-            msg = alert == "warninig" ? msg : "Något har gått snett. Var vänlig försök igen.",
-            errorMessage = alert == "error" ? msg : null
-        });
+            return null;
+        }
+    }
+
+    public Dictionary<string, string>? GetClaims(params string[] str)
+    {
+        try
+        {
+            var keysValues = new Dictionary<string, string>();
+            ClaimsPrincipal user = _httpContext.HttpContext?.User ?? new();
+
+            foreach (var claim in user.Claims.Where(x => str.Contains(x.Type.ToLower())))
+            {
+                keysValues.Add(claim.Type.ToString().ToLower(), claim.Value);
+            }
+
+            if (str.Contains("roles"))
+            {
+                keysValues["roles"] = string.Join(",", user.FindAll(ClaimTypes.Role).Select(s => s.Value));
+                //keysValues.Add("roles",
+                //    string.Join(",", _httpContext.HttpContext.User.FindAll(ClaimTypes.Role).Select(s => s.Value))
+                //);
+            }
+
+            return keysValues;
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 
     #region Help
@@ -95,7 +143,7 @@ public partial class IHelpService : IHelp
         try
         {
             var path = Path.Combine(@"wwwroot/files/", $"{fileName}.txt");
-            if(!File.Exists(path))
+            if (!File.Exists(path))
                 return [];
             var res = File.ReadAllText(path);
             byte[] resInBytes = Convert.FromBase64String(res);
@@ -124,7 +172,7 @@ public partial class IHelpService : IHelp
             if (File.Exists(path))
                 File.Delete(path);
 
-            if(list.Count == 0)
+            if (list.Count == 0)
                 return null;
 
             await Task.Delay(1000);

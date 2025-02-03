@@ -9,11 +9,12 @@ namespace UnlockUser.Server.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class AuthenticationController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor) : ControllerBase
+public class AuthenticationController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor, IHelp help) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
-    private readonly ISession _session = contextAccessor.HttpContext.Session;
+    private readonly ISession? _session = contextAccessor?.HttpContext?.Session;
+    private readonly IHelp _help = help;
 
     #region GET
     // Logout
@@ -34,10 +35,10 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
         }
         catch (Exception ex)
         {
-            return new JsonResult(new { errorMessage = ex.Message });
+            return new(new { errorMessage = ex.Message });
         }
 
-        return new JsonResult(true);
+        return new(true);
     }
     #endregion
 
@@ -47,7 +48,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
     public JsonResult PostLogin([FromBody] LoginViewModel model)
     {
         if (!ModelState.IsValid)// Forms filled out incorrectly
-            return new JsonResult(new { alert = "warning", msg = "Felaktigt eller ofullständigt ifyllda formulär" });
+            return _help.Warning();
 
         try
         {
@@ -64,7 +65,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
                 // If the user tried to put in a wrong password, save this like +1 a wrong attempt and the max is 4 attempts
                 _session?.SetInt32("LoginAttempt", loginAttempt += 1);
 
-                return new JsonResult(new
+                return new(new
                 {
                     alert = "error",
                     loginAttempt,
@@ -97,8 +98,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
             // Failed! Permission missed
             if (permissionGroups.Count == 0 && roles.Count == 0)
-                return new JsonResult(new { alert = "warning", msg = "Åtkomst nekad! Behörighet saknas." });
-
+                return _help.Warning("Åtkomst nekad! Behörighet saknas.");
           
             var groups = permissionGroups.OrderBy(x => x.Name).Select(s => new GroupModel
             {
@@ -114,7 +114,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             var responseMessage = $"Tillåtna behöregiheter för grupp(er):<br/> <b>&nbsp;&nbsp;&nbsp;- {groupsNames.Replace(",", "<br/>&nbsp;&nbsp;&nbsp; -")}</b>.";
 
             // Your access has been confirmed.
-            return new JsonResult(new
+            return new(new
             {
                 alert = "success",
                 token,
@@ -125,12 +125,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
         catch (Exception ex)
         {
             // Activate a button in the user interface for sending an error message to the system developer if the same error is repeated more than two times during the same session
-            return new JsonResult(new
-            {
-                alert = "error",
-                msg = "Något har gått snett. Var vänlig försök igen.",
-                errorMessage = ex.Message
-            });
+            return _help.Error("AuthenticationController: PostLogin", ex.Message);
         }
     }
     #endregion
@@ -161,12 +156,12 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             new("Roles", str?[0] ?? "")
         };
 
-        foreach (var role in str[0]?.Split(","))
+        foreach (var role in str[0].Split(","))
             claims.Add(new Claim(opt.ClaimsIdentity.RoleClaimType, role));
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(claims.ToArray()),
+            Subject = new ClaimsIdentity([.. claims]),
             Expires = DateTime.Now.AddDays(3),
             SigningCredentials = credentials
         };
@@ -202,11 +197,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
         var timeLeft = new DateTime(Math.Abs(timeLeftTicks));
 
-        return new JsonResult(new
-        {
-            timeLeft = timeLeft.ToString("T")
-            //blockTime = blockTimeStamp.ToString("G")
-        });
+        return new(new { timeLeft = timeLeft.ToString("T") });
     }
     #endregion
 }

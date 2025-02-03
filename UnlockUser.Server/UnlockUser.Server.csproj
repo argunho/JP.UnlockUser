@@ -10,6 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\logfiles\**" />
+    <Content Remove="wwwroot\logfiles\**" />
+    <EmbeddedResource Remove="wwwroot\logfiles\**" />
+    <None Remove="wwwroot\logfiles\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\unlockuser.client\unlockuser.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
@@ -29,8 +36,6 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\files\" />
-    <Folder Include="wwwroot\logfiles\errors\" />
-    <Folder Include="wwwroot\logfiles\history\" />
   </ItemGroup>
 
   <ItemGroup>

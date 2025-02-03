@@ -16,7 +16,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
     #region GET
     // Search one user
     [HttpGet("user/{name}/{group}/{match:bool}")]
-    public JsonResult FindUser(string name, string group, bool match = false)
+    public async Task<JsonResult> FindUser(string name, string group, bool match = false)
     {
         var users = new List<User>();
         var support = group == "Support";
@@ -29,10 +29,13 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
             {
                 DirectorySearcher result = _provider.GetMembers(groupName);
 
-                if (match)
-                    result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(|(displayName=*{name}*)(|(givenName=*{name}*))(|(upn=*{name.ToLower()}*))(sn=*{name}*))))";
-                else
-                    result.Filter = $"(&(objectClass=User)(|(cn={name})(|(displayName={name})(|(givenName={name}))(sn={name}))))";
+                if(result != null)
+                {
+                    if (match)
+                        result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(|(displayName=*{name}*)(|(givenName=*{name}*))(|(upn=*{name.ToLower()}*))(sn=*{name}*))))";
+                    else
+                        result.Filter = $"(&(objectClass=User)(|(cn={name})(|(displayName={name})(|(givenName={name}))(sn={name}))))";
+                }
 
                 var user = _provider.GetUsers(result, group);
 
@@ -41,33 +44,32 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
         }
         catch (Exception ex)
         {
-            _help.SaveFile(["FindUser", $"Fel: {ex.Message}"], @"logfiles\errors");
-            return _help.Response(ex.Message, "error");
+            return _help.Error("SearchController: FindUser", ex.Message);
         }
 
         // If the result got a successful result
         if (users.Count > 0)
         {
-            _session.SetString("GroupName", group);
-            return new JsonResult(new { users = users.OrderBy(x => x.Name) });
+            _session?.SetString("GroupName", group);
+            return new(new { users = users.OrderBy(x => x.Name) });
         }
 
         // If result got no results
-        return _help.Response("Inga användarkonto hittades.");
+        return _help.Warning("Inga användarkonto hittades.");
     }
 
     // Search class students by class and school name
     [HttpGet("students/{department}/{office}")]
-    public JsonResult FindClassMembers(string department, string office)
+    public async Task<JsonResult> FindClassMembers(string department, string office)
     {
         try
         {
             List<User> users = []; // Empty list of users
             var context = _provider.GetContext(); // Get active derictory context
 
-            _session.SetString("ManagedOffice", office);
-            _session.SetString("ManagedDepartment", department);
-            _session.SetString("GroupName", "Studenter");
+            _session?.SetString("ManagedOffice", office);
+            _session?.SetString("ManagedDepartment", department);
+            _session?.SetString("GroupName", "Studenter");
 
             DirectorySearcher result = _provider.GetMembers("Students");
 
@@ -77,12 +79,11 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
             if (users.Count > 0)
                 return new JsonResult(new { users = users.Distinct().OrderBy(x => x.Department).ThenBy(x => x.Name) });
 
-            return new JsonResult(new { alert = "warning", msg = "Inga användarkonto hittades. Var vänlig kontrollera klass- och skolnamn." });
+            return _help.Warning("Inga användarkonto hittades. Var vänlig kontrollera klass- och skolnamn.");
         }
         catch (Exception ex)
         {
-            _help.SaveFile(["FindClassMembers", $"Fel: {ex.Message}"], @"logfiles\errors");
-            return _help.Response(ex.Message, "error");
+            return _help.Error("SearchController:  FindClassMembers", ex.Message);
         }
 
     }
@@ -95,11 +96,11 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
     {
         try
         {
-            roles ??= GetClaim("roles") ?? "";
+            roles ??= _help.GetClaim("roles") ?? "";
             // If user is not a member from support group, filter users result
             if (!roles.Contains("Support", StringComparison.CurrentCulture))
             {
-                username ??= GetClaim("username") ?? "";
+                username ??= _help.GetClaim("username") ?? "";
                 List<GroupUsersViewModel> groups = IHelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
                 List<User>? employees = groups.FirstOrDefault(x => x.Group.Name == groupName)?.Employees;
                 User? sessionUser = employees?.FirstOrDefault(x => x.Name == username);
@@ -131,25 +132,10 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
         }
         catch (Exception ex)
         {
-            _help.SaveFile(["FilteredListOfUsers", $"Fel: {ex.Message}"], @"logfiles\errors");
+            _help.SaveLogFile(["SearchController: FilteredListOfUsers", $"Fel: {ex.Message}"], "errors");
         }
 
         return users;
-    }
-
-    // Get claim
-    public string? GetClaim([FromBody] string? name)
-    {
-        try
-        {
-            var claims = User.Claims;
-            if (!claims.Any()) return null;
-            return claims.FirstOrDefault(x => x.Type?.ToLower() == name?.ToLower())?.Value?.ToString();
-        }
-        catch (Exception)
-        {
-            return null;
-        }
     }
     #endregion
 }

@@ -60,7 +60,7 @@ function Header({ authContext }) {
 
             // If the current user is logged in, the name of the user is visible in the navigation bar
             setDisplayName(decodedToken?.DisplayName);
-            setLinkName(`UnlockUser<br/><span>${decodedToken.Groups.replaceAll(",", ", ")}<span/>`);
+            setLinkName(`UnlockUser<br/><span>${decodedToken?.Groups?.replaceAll(",", ", ")}<span/>`);
 
             setIsSupport(decodedToken?.Roles?.indexOf("Support") > -1);
         }

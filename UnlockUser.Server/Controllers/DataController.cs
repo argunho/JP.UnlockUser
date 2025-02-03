@@ -7,12 +7,8 @@ namespace UnlockUser.Server.Controllers;
 [Route("[controller]")]
 [ApiController]
 [Authorize]
-
-public class DataController(IHelp help, IActiveDirectory provider) : ControllerBase
+public class DataController : ControllerBase
 {
-    private readonly IHelp _help = help;
-    private readonly IActiveDirectory _provider = provider;
-
     #region GET
     // Get all txt files
     [HttpGet("logfiles/{param}")]
@@ -45,12 +41,12 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
             logs = logs?.OrderByDescending(x => System.IO.File.GetLastWriteTime(x).Ticks)?
                             .Select(x => x.Replace("\\", "/")[(x.LastIndexOf("/") + 1)..].Replace(".txt", "")).ToList() ?? null;
 
-            return new JsonResult(logs);
+            return new(logs);
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"{nameof(GetTextFiles)} Fel: {ex.Message}");
-            return new JsonResult(null);
+            return new(null);
         }
     }
 
@@ -167,21 +163,4 @@ public class DataController(IHelp help, IActiveDirectory provider) : ControllerB
     }
     #endregion
 
-    #region Help
-    // Get claim
-    public string? GetClaim([FromBody] string? name)
-    {
-        try
-        {
-            var claims = User.Claims;
-            if (!claims.Any()) return null;
-
-            return claims.FirstOrDefault(x => x.Type?.ToLower() == name?.ToLower())?.Value?.ToString();
-        }
-        catch (Exception)
-        {
-            return null;
-        }
-    }
-    #endregion
 }

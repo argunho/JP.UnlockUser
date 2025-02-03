@@ -34,6 +34,8 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             DirectorySearcher members = _provider.GetMembers(groupName);
             members.Filter = $"(&(objectClass=User)(|(cn={name})(sAMAccountname={name})))";
 
+            var claims = _help.GetClaims("roles", "username");
+
             if (members.FindOne() != null)
             {
                 var user = (_provider.GetUsers(members, group)).FirstOrDefault();
@@ -44,18 +46,17 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 _session.SetString("ManagedOffice", user.Office);
                 _session.SetString("ManagedDepartment", user.Department);
 
-                user = (_search.FilteredListOfUsers([user], false, group, GetClaim("roles"), GetClaim("username")))?.FirstOrDefault();
+                user = (_search.FilteredListOfUsers([user], false, group, claims["roles"], claims["username"]))?.FirstOrDefault();
                 if (user != null)
-                    return new JsonResult(new { user });
+                    return new(new { user });
             }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.Message);
-            return _help.Response(ex.Message, "error");
+            return _help.Error("UserController: GetUser", ex.Message);
         }
 
-        return _help.Response($"Användaren med anvädarnamn {name} hittades inte");
+        return _help.NotFound("Användaren");
     }
 
     [HttpGet("unlock/{name}")] // Unlock user
@@ -70,18 +71,17 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
             var message = _provider.UnlockUser(UpdatedUser(model));
             if (message.Length > 0)
-                return new JsonResult(new { alert = "warning", msg = message });
+                return _help.Warning(message);
         }
         catch (Exception ex)
         {
-            _help.SaveFile(["UnlockUser", $"Fel: {ex.Message}"], @"logfiles\errors");
-            return _help.Response(ex.Message, "error");
+            return _help.Error("UserController: UnlockUser", ex.Message);
         }
 
         // Save/Update statistics
         await SaveUpdateStatitics("Unlocked", 1);
 
-        return new JsonResult(new { success = true, unlocked = true, alert = "success", msg = "Användaren har låsts upp!" });
+        return new(new { success = true, unlocked = true, alert = "success", msg = "Användaren har låsts upp!" });
     }
     #endregion
 
@@ -92,25 +92,26 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         try
         {
             // Check model is valid or not and return warning is true or false
-           if (model.Users.Count == 0)
-                return new JsonResult(new { alert = "warning", msg = "Användare för lösenordsåterställning har inte specificerats." }); // Password reset user not specified
+            if (model.Users.Count == 0)
+                return _help.Warning("Användare för lösenordsåterställning har inte specificerats."); // Password reset user not specified
 
             string message = string.Empty;
 
             Data sessionUserData = GetLogData();
-            string sessionOffice = sessionUserData.Office?.ToLower();
+            string? sessionOffice = sessionUserData.Office?.ToLower();
 
-            var roles = GetClaim("roles");
-            var groups = (GetClaim("groups"))?.Split(",").ToList() ?? [];
+            var claims = _help.GetClaims("groups", "roles", "username");
+            var groups = claims?["groups"].Split(",") ?? [];
+            var roles = claims?["roles"].Split(",") ?? [];
 
             var groupsList = _config.GetSection("Groups").Get<List<GroupModel>>();
-            if (groupsList?.Select(s => s.Name).Intersect(groups) == null)
-                return new JsonResult(new { alert = "error", msg = $"Behörigheter saknas!" }); // Warning!
+            if (groupsList?.Select(s => s.Name).Intersect(groups).Count() == 0)
+                return _help.Warning("Behörigheter saknas!"); // Warning!
 
-            var stoppedToEdit = new List<string>();
-            var permissionGroups = groupsList.Select(s => s.PermissionGroup).ToList();
+            List<string> stoppedToEdit = [];
+            List<string> permissionGroups = [.. groupsList.Select(s => s.PermissionGroup)];
 
-            if (roles != null && !roles.Contains("Support", StringComparison.CurrentCulture))
+            if (!roles.Contains("Support"))
             {
                 //Loop each username
                 foreach (var userModel in model.Users)
@@ -122,7 +123,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                     var userGroups = _provider.GetUserGroups(user);
                     var forbidden = userGroups.Exists(x => permissionGroups.Contains(x));
                     var filteredList = _search.FilteredListOfUsers([new User { Name = user.Name, Title = user.Title }], false,
-                                userModel.GroupName, GetClaim("roles"), GetClaim("username"));
+                                userModel.GroupName, claims["roles"], claims["username"]);
 
                     if (user == null || filteredList?.Count == 0 || forbidden)
                     {
@@ -145,8 +146,9 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
                 if (!model.Check)
                     SaveHistoryLogFile(sessionUserData);
+
                 if (!string.IsNullOrEmpty(_help.Message))
-                    return new JsonResult(new { error = message });
+                    return _help.Warning(message);
             }
 
             // Save/Update statistics
@@ -154,20 +156,18 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 await SaveUpdateStatitics("PasswordsChange", model.Users.Count);
 
             if (message?.Length > 0)
-                return new JsonResult(new { alert = "warning", msg = message });
+                return _help.Warning(message);
             else if (stoppedToEdit?.Count > 0 && model.Users.Count == 0)
-                return new JsonResult(new { alert = "error", msg = $"Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!" }); // Warning!
+                return _help.Warning($"Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!"); // Warning!
             else if (stoppedToEdit?.Count > 0)
-                return new JsonResult(new { alert = "info", msg = $"Lösenordsåterställningen lyckades men inte till alla! Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!" });
+                return _help.Response("info", $"Lösenordsåterställningen lyckades men inte till alla! Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!");
 
 
-            return new JsonResult(new { alert = "success", msg = "Lösenordsåterställningen lyckades!" }); //Success! Password reset was successful!
+            return _help.Response("success", "Lösenordsåterställningen lyckades!"); //Success! Password reset was successful!
         }
         catch (Exception ex)
         {
-
-            _help.SaveFile(["SetPassword", $"Fel: {ex.Message}"], @"logfiles\errors");
-            return new JsonResult(new { alert = "error", msg = $"Något har gått snett: Fel: {ex.Message}" });
+            return _help.Error("UsersController: SetPassword", ex.Message);
         }
     }
 
@@ -178,27 +178,24 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         {
             MailService ms = new(); // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
 
-            string? mail = GetClaim("Email");
+            var claims = _help.GetClaims("email", "displayname") ?? [];
 
-            var success = ms.SendMail(mail, "Lista över nya lösenord till " + str + " elever",
-                        $"Hej {GetClaim("DisplayName")}!<br/> Här bifogas PDF document filen med nya lösenord till elever från klass {str}.",
-                        mail ?? "", _session?.GetString("Password") ?? "", attachedFile);
+            var success = ms.SendMail(claims["email"], "Lista över nya lösenord till " + str + " elever",
+                        $"Hej {claims["displayname"]}!<br/> Här bifogas PDF document filen med nya lösenord till elever från klass {str}.",
+                        claims["email"] ?? "", _session?.GetString("Password") ?? "", attachedFile);
+
             if (!success)
-                return new JsonResult(new
-                {
-                    alert = "warning",
-                    msg = $"Det gick inte att skicka e-post med pdf dokument till e-postadress {mail}",
-                    errorMessage = MailService._message
-                });
+            {
+                return _help.Error("UsersController: SendEmail",
+                    $"Det gick inte att skicka e-post med pdf dokument till e-postadress {claims["email"]}. {MailService._message}");
+            }
         }
         catch (Exception ex)
         {
-
-            _help.SaveFile(["SendEmail", $"Fel: {ex.Message}"], @"logfiles\errors");
-            return _help.Response(ex.Message);
+            return _help.Error("UserController: SendEmail", ex.Message);
         }
 
-        return new JsonResult(new { result = true });
+        return new(new { result = true });
     }
     #endregion
 
@@ -208,7 +205,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     {
         user.Credentials = new UserCredentials
         {
-            Username = GetClaim("Username"),
+            Username = _help.GetClaim("Username"),
             Password = _session.GetString("Password")
         };
 
@@ -218,25 +215,26 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     // Return information
     public Data GetLogData()
     {
-        var ip = Request.HttpContext.Connection.RemoteIpAddress.ToString();
+        var ip = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
 
         // Get computer name
         IPHostEntry GetIPHost = Dns.GetHostEntry(IPAddress.Parse(ip));
-        List<string> compName = GetIPHost.HostName.ToString().Split('.').ToList();
+        List<string> compName = [.. GetIPHost.HostName.ToString().Split('.')];
         string pcName = compName.First();
         //string computerName = (Environment.MachineName ?? System.Net.Dns.GetHostName() ?? Environment.GetEnvironmentVariable("COMPUTERNAME"));
 
+        var claims = _help.GetClaims("office", "department") ?? [];
         try
         {
             return new Data
             {
-                Office = GetClaim("Office"),
-                Department = GetClaim("Department"),
+                Office = claims["office"],
+                Department = claims["department"],
                 ManagedUserOffice = _session.GetString("ManagedOffice"),
                 ManagedUserDepartment = _session.GetString("ManagedDepartment"),
                 Group = _session.GetString("GroupName"),
                 ComputerName = pcName,
-                IpAddress = _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString()
+                IpAddress = _contextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString()
             };
         }
         catch (Exception ex)
@@ -245,22 +243,6 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
 
         return new Data();
-    }
-
-    // Get claim
-    public string? GetClaim([FromBody] string? name)
-    {
-        try
-        {
-            var claims = User.Claims;
-            if (!claims.Any()) return null;
-
-            return claims.FirstOrDefault(x => x.Type?.ToLower() == name?.ToLower())?.Value?.ToString();
-        }
-        catch (Exception)
-        {
-            return null;
-        }
     }
 
     // Save update statistik
@@ -310,7 +292,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            _help.SaveFile(["Save statistics", $"Fel: {ex.Message}"], @"logfiles\errors");
+            _help.SaveLogFile(["Save statistics", $"Fel: {ex.Message}"], "errors");
         }
     }
 
@@ -319,8 +301,8 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     {
         try
         {
-            var user = _provider.FindUserByExtensionProperty(GetClaim("Username"));
-            var groupName = model?.Group.ToLower();
+            var user = _provider.FindUserByExtensionProperty(_help.GetClaim("Username") ?? "");
+            var groupName = model?.Group?.ToLower();
             string fileName = (groupName ?? "") + "_";
 
             if (groupName != "studenter")
@@ -365,12 +347,11 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 contentList.Add($"\t-{model?.Group}: {model?.Users[0]}");
             }
 
-            _help.SaveFile(contentList, @"logfiles\history");
+            _help.SaveLogFile(contentList, "history");
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.Message);
-            _help.SaveFile(["SaveLogFile", $"Fel: {ex.Message}"], @"logfiles\errors");
+            _help.SaveLogFile(["SaveLogFile", $"Fel: {ex.Message}"], "errors");
         }
     }
     #endregion
