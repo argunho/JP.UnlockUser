@@ -39,6 +39,10 @@ function AuthRoutes({authContext }) {
       element: <EmployeesList {...props} />
     },
     {
+      path: "/employees/:groupName",
+      element: <EmployeesList {...props} />
+    },
+    {
       path: '/manage-user/:id',
       element: <UserManager {...props} />
     },

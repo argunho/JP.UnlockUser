@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 
 // Installed
 import {
-    Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton,
+    Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, capitalize,
     InputLabel, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, ListSubheader, MenuItem, Pagination, Select, Tooltip, Typography
 } from '@mui/material';
 import { CheckBox, CheckBoxOutlineBlank, Close, Delete, OpenInFull, Refresh } from '@mui/icons-material';
+import { useParams } from 'react-router-dom';
+
 
 // Components
 import SearchFilter from '../../components/SearchFilter';
@@ -43,6 +45,8 @@ function EmployeesList({ navigate }) {
 
     const noResult = { alert: "info", msg: "Inga personal hittades." };
 
+    const { groupName } = useParams();
+
     useEffect(() => {
         getGroups();
     }, [])
@@ -58,7 +62,13 @@ function EmployeesList({ navigate }) {
         await ApiRequest(`app/groups`).then(res => {
             if (res.data != null) {
                 setGroups(res.data);
-                setGroup(res.data[0]);
+
+                if (!groupName) {
+                    setGroup(res.data[0]);
+                    navigate(`/employees/${res.data[0]?.toLowerCase()}`, { replace: true });
+                } else
+                    setGroup(capitalize(groupName));
+
             } else
                 setLoading(false);
         }, error => {
@@ -168,6 +178,11 @@ function EmployeesList({ navigate }) {
         setChanged(false);
     }
 
+    function switchGroup(e) {
+        setGroup(e.target.value);
+        navigate(`/employees/${e.target.value?.toLowerCase()}`, { replace: true });
+    }
+
     async function onSubmit() {
         setUpdating(true);
 
@@ -213,7 +228,7 @@ function EmployeesList({ navigate }) {
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Grupper</InputLabel>
                         <Select value={group ?? ""} label="Grupper" labelId="demo-simple-select-label"
-                            onChange={(e) => setGroup(e.target.value)} sx={{ height: 50, color: "#1976D2" }} disabled={loading}>
+                            onChange={switchGroup} sx={{ height: 50, color: "#1976D2" }} disabled={loading}>
                             {groups?.map((name, index) => (
                                 <MenuItem value={name} key={index}>
                                     <span style={{ marginLeft: "10px" }}> - {name}</span>
@@ -290,13 +305,14 @@ function EmployeesList({ navigate }) {
                         <List className="d-row view-modal-list w-100">
                             {!!userData && userData.includedList?.map((item, ind) => {
                                 const schools = group === "Studenter";
+                                const disabled = updating || (schools && ["IT avdelning", "IT-avdelning", "IT-enhet"].indexOf(item?.primary) > -1);
+                                console.log(item, schools && ["IT avdelning", "IT-avdelning", "IT-enhet"].indexOf(item?.primary) > -1);
                                 return <ListItem key={ind} className='modal-list-item w-100'
-                                    secondaryAction={<IconButton onClick={() => clickHandle(item, ind)} disabled={updating}>
-                                        {schools ? <Delete color="error" /> : (item?.boolValue ? <CheckBoxOutlineBlank /> : <CheckBox color="primary" />)}
+                                    secondaryAction={<IconButton onClick={() => clickHandle(item, ind)}
+                                        color={(disabled || item?.boolValue) ? "inherit" : (schools ? "error" : "primary")} disabled={disabled}>
+                                        {schools ? <Delete /> : (item?.boolValue ? <CheckBoxOutlineBlank /> : <CheckBox />)}
                                     </IconButton>}>
-                                    <ListItemAvatar>
-                                        {ind + 1}
-                                    </ListItemAvatar>
+                                    <ListItemAvatar> {ind + 1} </ListItemAvatar>
                                     <ListItemText primary={item.primary} secondary={item?.secondary} />
                                 </ListItem>
                             })}

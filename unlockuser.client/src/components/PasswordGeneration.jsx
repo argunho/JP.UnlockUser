@@ -3,8 +3,7 @@
 import React from 'react';
 
 // Installed
-import { Button, Tooltip } from '@mui/material'
-import { capitalize } from '@mui/material';
+import { Button, Tooltip, capitalize } from '@mui/material'
 
 // Components
 import ListCategories from './ListCategories';

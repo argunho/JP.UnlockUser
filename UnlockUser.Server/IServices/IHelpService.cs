@@ -130,7 +130,7 @@ public partial class IHelpService : IHelp
 
             return keysValues;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return null;
         }
