@@ -125,7 +125,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                 search.Filter = String.Format("distinguishedName={0}", userManager);
                 search = UpdatedProparties(search);
 
-                User? manager = GetUserParams(search?.FindOne().Properties);
+                User? manager = GetUserParams(search?.FindOne()?.Properties);
                 if (hasManager = (manager != null) && manager.Manager != userManager)
                 {
                     var existing = user.Managers?.Count > 0 ? user.Managers?.First(x => x.Username == manager?.Name) : null;
@@ -339,25 +339,29 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
         return result;
     }
 
-    public User GetUserParams(ResultPropertyCollection? props)
+    public User? GetUserParams(ResultPropertyCollection? props)
     {
         var isLocked = false;
-        if (props.Contains("lockoutTime") && int.TryParse(props["lockoutTime"][0]?.ToString(), out int number))
+        if(props != null)
         {
-            isLocked = number >= 1;
+            if (props.Contains("lockoutTime") && int.TryParse(props["lockoutTime"]?[0]?.ToString(), out int number))
+                isLocked = number >= 1;
+
+            return new User
+            {
+                Name = props["cn"][0].ToString(),
+                DisplayName = props.Contains("displayName") ? props["displayName"][0]?.ToString() : "",
+                Email = props.Contains("userPrincipalName") ? props["userPrincipalName"][0]?.ToString() : "",
+                Manager = props.Contains("manager") ? props["manager"][0]?.ToString() : "",
+                Office = props.Contains("physicalDeliveryOfficeName") ? props["physicalDeliveryOfficeName"][0]?.ToString() : "",
+                Division = props.Contains("division") ? props["division"][0]?.ToString() : "",
+                Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
+                Title = props.Contains("title") ? props["title"][0]?.ToString() : "",
+                IsLocked = isLocked
+            };
         }
-        return new User
-        {
-            Name = props["cn"][0].ToString(),
-            DisplayName = props.Contains("displayName") ? props["displayName"][0]?.ToString() : "",
-            Email = props.Contains("userPrincipalName") ? props["userPrincipalName"][0]?.ToString() : "",
-            Manager = props.Contains("manager") ? props["manager"][0]?.ToString() : "",
-            Office = props.Contains("physicalDeliveryOfficeName") ? props["physicalDeliveryOfficeName"][0]?.ToString() : "",
-            Division = props.Contains("division") ? props["division"][0]?.ToString() : "",
-            Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
-            Title = props.Contains("title") ? props["title"][0]?.ToString() : "",
-            IsLocked = isLocked
-        };
+
+        return null;
     }
 
     public bool CheckManager(string jobTitle) =>

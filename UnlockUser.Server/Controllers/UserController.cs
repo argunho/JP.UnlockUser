@@ -224,12 +224,13 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         //string computerName = (Environment.MachineName ?? System.Net.Dns.GetHostName() ?? Environment.GetEnvironmentVariable("COMPUTERNAME"));
 
         var claims = _help.GetClaims("office", "department") ?? [];
+        var data = new Data();
         try
         {
-            return new Data
+            data = new()
             {
                 Office = claims["office"],
-                Department = claims["department"],
+                Department = claims?["department"] ?? null,
                 ManagedUserOffice = _session.GetString("ManagedOffice"),
                 ManagedUserDepartment = _session.GetString("ManagedDepartment"),
                 Group = _session.GetString("GroupName"),
@@ -242,7 +243,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             Debug.WriteLine(ex.Message);
         }
 
-        return new Data();
+        return data;
     }
 
     // Save update statistik

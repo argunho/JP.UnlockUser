@@ -151,6 +151,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             new("Username", user.Name),
             new("Manager", user.Manager),
             new("Office", user.Office),
+            new("Department", user.Department),
             new("Division", user.Division),
             new("Groups", str?[2] ?? ""),
             new("Roles", str?[0] ?? "")

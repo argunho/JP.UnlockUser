@@ -5,7 +5,6 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using UnlockUser.Server.Interface;
 
 namespace UnlockUser.Server.IServices;
 
