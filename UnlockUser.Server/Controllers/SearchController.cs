@@ -16,7 +16,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
     #region GET
     // Search one user
     [HttpGet("user/{name}/{group}/{match:bool}")]
-    public async Task<JsonResult> FindUser(string name, string group, bool match = false)
+    public JsonResult FindUser(string name, string group, bool match = false)
     {
         var users = new List<User>();
         var support = group == "Support";
@@ -60,7 +60,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
 
     // Search class students by class and school name
     [HttpGet("students/{department}/{office}")]
-    public async Task<JsonResult> FindClassMembers(string department, string office)
+    public JsonResult FindClassMembers(string department, string office)
     {
         try
         {

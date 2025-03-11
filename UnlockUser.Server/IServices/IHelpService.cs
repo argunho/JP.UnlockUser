@@ -11,8 +11,8 @@ namespace UnlockUser.Server.IServices;
 public partial class IHelpService : IHelp
 {
     public string Message { get; set; } = "";
-    private static byte[] secureKeyInBytes = Encoding.UTF8.GetBytes("unlockuser_2024key_alvestakommun");
-    private static byte[] secureKeyIV = Encoding.UTF8.GetBytes("unlock_user_2024");
+    private static byte[] secureKeyInBytes = Encoding.UTF8.GetBytes("unlockuser_2024key_alvestakommun"); // Length 36 chars
+    private static byte[] secureKeyIV = Encoding.UTF8.GetBytes("unlock_user_2024"); // Length 16 chars
     private readonly IHttpContextAccessor _httpContext;
 
     public IHelpService()
@@ -247,15 +247,15 @@ public partial class IHelpService : IHelp
         return encrypted;
     }
 
-    static string DecryptStringFromBytes(byte[] cipherText)
+    static string DecryptStringFromBytes(byte[] cypherText)
     {
         // Check arguments.
-        if (cipherText == null || cipherText.Length <= 0)
-            throw new ArgumentNullException("cipherText");
+        if (cypherText == null || cypherText.Length <= 0)
+            throw new ArgumentNullException("cypherText");
 
         // Declare the string used to hold
         // the decrypted text.
-        string plaintext = null;
+        string plainText = null;
 
         // Create an Aes object
         // with the specified key and IV.
@@ -270,16 +270,16 @@ public partial class IHelpService : IHelp
             ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
             // Create the streams used for decryption.
-            using MemoryStream msDecrypt = new(cipherText);
+            using MemoryStream msDecrypt = new(cypherText);
             using CryptoStream csDecrypt = new(msDecrypt, decryptor, CryptoStreamMode.Read);
             using StreamReader srDecrypt = new(csDecrypt);
 
             // Read the decrypted bytes from the decrypting stream
             // and place them in a string.
-            plaintext = srDecrypt.ReadToEnd();
+            plainText = srDecrypt.ReadToEnd();
         }
 
-        return plaintext;
+        return plainText;
     }
 
     // Update configuration json
