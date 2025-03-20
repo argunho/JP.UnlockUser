@@ -27,16 +27,16 @@ const choices = [
     { label: "Exakt", match: false }
 ]
 
-const defaultData = {
-    input: "",
-    additionInput: ""
-}
-
 function Home({ authContext, navigate }) {
     Home.displayName = "Home";
 
+    const defaultData = {
+        input: "",
+        additionInput: ""
+    }
     const sOption = sessionStorage.getItem("sOption");
     const groups = authContext.groups;
+
     const [formData, setFormData] = useState(defaultData);
     const [users, setUsers] = useState(!!sessionStorage.getItem("users") ? JSON.parse(sessionStorage.getItem("users")) : null);
     const [loading, setLoading] = useState(false);
@@ -54,6 +54,7 @@ function Home({ authContext, navigate }) {
     const sFormParams = !clsStudents ? forms?.single : forms?.group;
     const isActive = (formData.input || formData.additionInput).length > 0;
     const arrayTexts = group === "Studenter" ? studentsList.concat(defaultList) : defaultList;
+
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
@@ -96,7 +97,7 @@ function Home({ authContext, navigate }) {
         if (schools?.length > 0)
             return;
         await ApiRequest("data/schools").then(res => {
-
+console.log(res.data)
             if (res.data?.length > 0) {
                 sessionStorage.setItem("schools", JSON.stringify(res.data));
                 setSchools(res.data);
@@ -120,7 +121,7 @@ function Home({ authContext, navigate }) {
     }
 
     // Recognize Enter press to submit search form
-    function handleKeyDown(e){
+    function handleKeyDown(e) {
         if (e.key === 'Enter') {
             setFormData({ ...formData, [e.target.name]: e.target.value });
             getSearchResult(e);
@@ -128,7 +129,7 @@ function Home({ authContext, navigate }) {
     }
 
     // Function - submit form
-    async function getSearchResult(e){
+    async function getSearchResult(e) {
         e.preventDefault();
 
         const { input, additionInput } = formData;
@@ -171,7 +172,7 @@ function Home({ authContext, navigate }) {
         });
     }
 
-    function reset(){
+    function reset() {
         setUsers(null);
         setResponse(null);
 
@@ -180,7 +181,7 @@ function Home({ authContext, navigate }) {
         sessionStorage.removeItem("selectedUsers")
     }
 
-    function resetData(){
+    function resetData() {
         reset();
         setFormData(defaultData);
         setOpen(false);

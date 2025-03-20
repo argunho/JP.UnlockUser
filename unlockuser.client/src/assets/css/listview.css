@@ -24,6 +24,8 @@
 
 .view-list-result button {
     margin-right: -15px !important;
+    margin-left: 25px !important;
+    height: 40px;
 }
 
 .list-container,

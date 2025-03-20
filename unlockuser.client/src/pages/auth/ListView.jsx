@@ -30,6 +30,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
     const [confirm, setConfirm] = useState(null);
     const [visibleForm, setVisibleForm] = useState(false);
     const [response, setResponse] = useState(null);
+    const [noData, setNoData] = useState(null);
     const [viewCount, setViewCount] = useState();
     const [item, setItem] = useState(fields);
     const [required, setRequired] = useState([]);
@@ -44,13 +45,14 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
             getList();
         else {
             if (list.length === 0)
-                setResponse(empty);
+                setNoData(empty);
             setLoading(false);
             setList(includedList);
         }
     }, [loc])
 
     async function getList() {
+        setNoData();
         await ApiRequest(api).then(res => {
             const { list, count } = res.data;
             setList(!!list ? list : res.data);
@@ -59,7 +61,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
                 setViewCount(count);
 
             if (res.data?.length == 0)
-                setResponse(empty);
+                setNoData(empty);
             else
                 sessionStorage.setItem("schools", JSON.stringify(res?.data));
         })
@@ -149,7 +151,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
         <List className="d-row list-container" component="div">
             {/* Actions/Info */}
             <ListItem className='view-list-result' secondaryAction={!!fields
-                && <Button size='large' style={{ minWidth: "120px" }} variant='outlined' color={visibleForm ? "error" : "primary"} disabled={loading} onClick={formHandle}>
+                && <Button style={{ minWidth: "120px" }} variant='outlined' color={visibleForm ? "error" : "primary"} disabled={loading} onClick={formHandle}>
                     {visibleForm ? "Avryt" : "Lägg till ny"}
                 </Button>}>
                 <ListItemText primary={label} secondary={loading ? "Data hämtning pågå ..." : (!!viewCount ? viewCount : `Antal: ${list?.length}`)} />
@@ -157,6 +159,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
 
             {/* Response */}
             {!!response && <Response res={response} reset={() => setResponse(null)} />}
+            {!!noData && <Response res={noData} />}
 
             {/* Confirm/Form block */}
             {!!fields && <Collapse in={open} className='d-row' timeout="auto" unmountOnExit>

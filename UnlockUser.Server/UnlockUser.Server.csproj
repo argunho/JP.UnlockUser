@@ -35,10 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\files\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="wwwroot\alvestakommun.png" />
   </ItemGroup>
 

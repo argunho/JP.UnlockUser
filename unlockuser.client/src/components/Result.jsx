@@ -26,26 +26,26 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
 
     const sl = selectedList.length;
     const selected = (list?.length === sl);
-    
+
     const refResult = useRef(null);
     const refCheckbox = useRef([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-        if(loading)
+        if (loading)
             setResult("Sökning pågår ...");
     }, [loading])
 
     useEffect(() => {
-        if(list?.length > 0)
+        if (list?.length > 0)
             setResult(`Hittades: ${list?.length} användare`);
-        else if(list == null)   
+        else if (list == null)
             setResult(defMessage);
     }, [list])
 
     useEffect(() => {
-        if(!!response)
-            setResult(`Hittades 0 användare`);    
+        if (!!response)
+            setResult(`Hittades 0 användare`);
     }, [response])
 
     useEffect(() => {
@@ -127,37 +127,41 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
         <div className='interior-div result-div' ref={refResult}>
 
             {/* Result info box */}
-            {resultBlock && <ListItem className='search-result'>
+            {resultBlock && <ListItem className='view-list-result' secondaryAction={
+                <>
+                    {/* Hidden form to reset selected users password */}
+                    {(clsStudents && list?.length > 0) && linkButton}
+
+                    {/* Cancel request */}
+                    {loading && <Button
+                        variant='contained'
+                        color="error"
+                        className='button-action'
+                        onClick={cancelRequest}>
+                        <Cancel />
+                        <span>Avbryt sökning</span>
+                    </Button>}
+
+                    {/* Button to reset search result */}
+                    <Tooltip arrow
+                        disableHoverListener={!isVisibleTips}
+                        title="Ta bort sökresultat."
+                        classes={{ tooltip: "tooltip tooltip-error", arrow: "arrow-error" }}>
+                        <span>
+                            <Button variant="text"
+                                
+                                color="error"
+                                className="reset-button"
+                                onClick={resetResult}
+                                disabled={loading || !list} >
+                                <DeleteSweep /></Button>
+                        </span>
+                    </Tooltip>
+                </>
+            }>
                 {/* Result info */}
                 <ListItemText primary="Resultat" secondary={res} />
 
-                {/* Hidden form to reset selected users password */}
-                {(clsStudents && list?.length > 0) && linkButton}
-
-                {/* Cancel request */}
-                {loading && <Button
-                    variant='contained'
-                    color="error"
-                    className='button-action'
-                    onClick={cancelRequest}>
-                    <Cancel />
-                    <span>Avbryt sökning</span>
-                </Button>}
-
-                {/* Button to reset search result */}
-                <Tooltip arrow
-                    disableHoverListener={!isVisibleTips}
-                    title="Ta bort sökresultat."
-                    classes={{ tooltip: "tooltip tooltip-error", arrow: "arrow-error" }}>
-                    <span>
-                        <Button variant="text"
-                            color="error"
-                            className="reset-button"
-                            onClick={resetResult}
-                            disabled={loading || !list} >
-                            <DeleteSweep /></Button>
-                    </span>
-                </Tooltip>
             </ListItem>}
 
 
