@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from 'react';
+import { useRef, useState, forwardRef } from 'react';
 
 // Installed
 import { AlertTitle, Checkbox, FormControlLabel, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
@@ -10,7 +10,7 @@ import Table from './Table';
 import FormButtons from './FormButtons';
 
 // eslint-disable-next-line react-refresh/only-export-components
-function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false, isSubmit = false,
+function ModalHelpTexts({ children, data, cls = "situated-btn", isTable = false, isSubmit = false,
     isTitle, inverseFunction, regeneratePassword, view }, ref) {
     ModalHelpTexts.displayName = "ModalHelpTexts";
 
@@ -36,7 +36,7 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
     }
 
     const handleMenuOpen = () => {
-        setOpen(!open);
+        setOpen((open) => !open);
         setConfirm(false)
     }
 
@@ -47,9 +47,9 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
     }
 
     return (
-        <React.Fragment>
+        <>
             {!view && <FormControlLabel
-                className={'help-btn' + cls}
+                className={`help-btn ${cls}`}
                 control={<Checkbox size='small'
                     color="primary"
                     checked={open}
@@ -127,12 +127,12 @@ function ModalHelpTexts({ children, data, cls = " situated-btn", isTable = false
 
                 </DialogActions>}
 
-                {children && <DialogActions className="no-print buttons-wrapper">{children}</DialogActions>}
+                {(!!data && children) && <DialogActions className="no-print buttons-wrapper">{children}</DialogActions>}
             </Dialog>
 
-        </React.Fragment>
+        </>
     );
 }
 
-const refModal = React.forwardRef(ModalHelpTexts);
+const refModal = forwardRef(ModalHelpTexts);
 export default refModal;

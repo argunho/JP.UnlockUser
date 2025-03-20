@@ -36,18 +36,18 @@ function UsersManager({ authContext, navigate }) {
     }
 
     return (
-        <div className='interior-div'>
+        <div className='interior-div' id="interior_div">
             <Info
                 name={name}
                 displayName={schoolName}
                 subTitle={`${users.length} elev${users.length === 1 ? "" : "er"}`}
-                check={true}
             />
 
             {/* Edit class members list */}
-            <Button variant='text' onClick={() => setDropdown(!dropdown)} color={dropdown ? "primary" : "inherit"}>
+            <Button variant='text' onClick={() => setDropdown((dropdown) => !dropdown)} color={dropdown ? "primary" : "inherit"}>
                 Klassmedlemmar &nbsp;&nbsp;{dropdown ? <ArrowDropUp /> : <ArrowDropDown />}
             </Button>
+
             <div className={`selected-list dropdown-div ${dropdown ? "dropdown-open" : ""}`}>
                 <p className='tips-p'>Klicka på användare att radera från listan</p>
                 {users?.map((user, index) => (

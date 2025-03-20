@@ -1,6 +1,6 @@
 
 
-import React from 'react';
+import { forwardRef } from 'react';
 
 // Installed
 import { Button, Tooltip, capitalize } from '@mui/material'
@@ -200,5 +200,5 @@ function PasswordGeneration({
     )
 }
 
-const refGenerate = React.forwardRef(PasswordGeneration);
+const refGenerate = forwardRef(PasswordGeneration);
 export default refGenerate;

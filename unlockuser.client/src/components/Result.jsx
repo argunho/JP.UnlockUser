@@ -1,6 +1,6 @@
 
 
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Installed
@@ -15,21 +15,48 @@ import Loading from './Loading';
 import Response from './Response';
 import Info from './Info';
 
+const defMessage = "Ditt sökresultat kommer att visas här nedan"
+
 function Result({ list, clsStudents, isVisibleTips, loading, response, disabled, cancelRequest, resetResult, resultBlock }) {
     Result.displayName = "Result";
 
     const [selectedList, setSelectedList] = useState([]);
     const [isOpenTip, setIsOpenTip] = useState(false);
+    const [res, setResult] = useState(defMessage);
 
-    const navigate = useNavigate();
     const sl = selectedList.length;
     const selected = (list?.length === sl);
+    
     const refResult = useRef(null);
     const refCheckbox = useRef([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        if (isOpenTip)
-            setTimeout(() => { setIsOpenTip(false); }, 2000)
+        if(loading)
+            setResult("Sökning pågår ...");
+    }, [loading])
+
+    useEffect(() => {
+        if(list?.length > 0)
+            setResult(`Hittades: ${list?.length} användare`);
+        else if(list == null)   
+            setResult(defMessage);
+    }, [list])
+
+    useEffect(() => {
+        if(!!response)
+            setResult(`Hittades 0 användare`);    
+    }, [response])
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (isOpenTip)
+                setIsOpenTip(false);
+        }, 2000)
+
+        return () => {
+            clearTimeout(timer);
+        }
     }, [isOpenTip])
 
     // To select all from class students list
@@ -74,6 +101,10 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
         setIsOpenTip(arr.length > 0);
     }
 
+    const handleResponse = useCallback(function handleResponse() {
+        resetResult();
+    }, [])
+
     // Go to password change page
     const linkButton = <Tooltip arrow
         title={`Klicka här att ställa in nytt lösenord för valda ${sl} elev${sl === 1 && "er"}`}
@@ -98,13 +129,10 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
             {/* Result info box */}
             {resultBlock && <ListItem className='search-result'>
                 {/* Result info */}
-                <ListItemText
-                    primary="Result"
-                    secondary={loading ? "Sökning pågår ..." : (list?.length > 0 ? ("Hittades: " + list?.length + " användare")
-                        : "Ditt sökresultat kommer att visas här nedan")} />
+                <ListItemText primary="Resultat" secondary={res} />
 
                 {/* Hidden form to reset selected users password */}
-                {clsStudents && list?.length > 0 && linkButton}
+                {(clsStudents && list?.length > 0) && linkButton}
 
                 {/* Cancel request */}
                 {loading && <Button
@@ -125,7 +153,7 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
                         <Button variant="text"
                             color="error"
                             className="reset-button"
-                            onClick={() => resetResult()}
+                            onClick={resetResult}
                             disabled={loading || !list} >
                             <DeleteSweep /></Button>
                     </span>
@@ -149,7 +177,7 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
                         </ListItemAvatar>
                         <ListItemText
                             primary={`${selected ? "Avmarkera" : "Markera"} alla`}
-                            secondary={<React.Fragment>
+                            secondary={<>
                                 <Typography
                                     sx={{ display: 'inline' }}
                                     component="span"
@@ -159,7 +187,7 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
                                 </Typography>
 
                                 {!resultBlock && linkButton}
-                            </React.Fragment>}
+                            </>}
                         />
                         <Checkbox
                             checked={selected}
@@ -169,39 +197,38 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
                 </List>}
 
             {/* Loop of search result list if result is not null */}
-            {list?.length > 0 && list?.map((s, index) => (
+            {list?.length > 0 && list?.map((user, index) => (
                 <div className='w-100' key={index}>
-                    
+
                     {/* Name of department and office */}
                     {(index === 0 || (index > 0 && list[index - 1].department !== list[index].department)) &&
                         <Typography mt={2} mb={1} variant="body2">
-                            {s.office + ((s.office !== s.department) ? " " + s.department : "")} {clsStudents && <span className='typography-span'>{list.filter(x => x.department === s.department)?.length} elever</span>}
+                            {user.office + ((user.office !== user.department) ? " " + user.department : "")} {clsStudents && <span className='typography-span'>{list.filter(x => x.department === user.department)?.length} elever</span>}
                         </Typography>}
 
                     {/* List object */}
                     <Info
-                        user={s}
-                        displayName={s.displayName}
-                        subTitle={s.office + " " + (s.office !== s.department ? (" " + s?.department) : "")}
+                        user={user}
+                        displayName={user.displayName}
+                        subTitle={user.office + " " + (user.office !== user.department ? (" " + user?.department) : "")}
                         result={true}
-                        check={index === 0}
                         disabled={disabled}
                         updateSession={updateSession}
-                        handleOutsideClick={(e) => clickHandle(e, index, s)}>
+                        handleOutsideClick={(e) => clickHandle(e, index, user)}>
 
                         {/* Checkbox visible only if is success result after users search by class name */}
                         {clsStudents && <Checkbox
                             size='small'
                             color="default"
                             ref={checkbox => refCheckbox.current[index] = checkbox}
-                            checked={selectedList.indexOf(s.name) > -1}
+                            checked={selectedList.indexOf(user.name) > -1}
                         />}
                     </Info>
                 </div>
             ))}
 
             {/* Message if result is null */}
-            {(!loading && response) && <Response res={response} reset={resetResult} />}
+            {(!loading && response) && <Response res={response} reset={handleResponse} />}
         </div>
     )
 }

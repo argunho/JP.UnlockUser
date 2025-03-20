@@ -99,7 +99,7 @@ function Form({ title, name, passwordLength, users, authContext }) {
 
     useEffect(() => {
         if (isOpenTip)
-            setTimeout(() => { setIsOpenTip(!isOpenTip) })
+            setTimeout(() => { setIsOpenTip((isOpenTip) => !isOpenTip) })
     }, [isOpenTip])
 
     useEffect(() => {
@@ -526,7 +526,7 @@ function Form({ title, name, passwordLength, users, authContext }) {
             {/* Preview the list of generated passwords */}
             {multiple && <ModalHelpTexts
                 data={previewList}
-                cls={" none"}
+                cls="none"
                 isTitle={`${title} <span class='typography-span'>${location.replace("%", " ")}</span>`}
                 isTable={true}
                 isSubmit={true}

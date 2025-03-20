@@ -16,8 +16,9 @@ function Contacts() {
 
   function navigate(){
     window.open(
-      "https://alvesta.topdesk.net/tas/public/ssp/","_blank"
-    ) 
+      "https://alvesta.topdesk.net/tas/public/ssp/",
+      "_blank"
+    );
   }
 
   return (

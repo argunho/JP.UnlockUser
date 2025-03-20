@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 // Installed
 import {
@@ -24,6 +24,8 @@ import ApiRequest from '../../services/ApiRequest';
 // Css
 import '../../assets/css/listview.css';
 
+const noResult = { alert: "info", msg: "Inga personal hittades." };
+
 function EmployeesList({ navigate }) {
     EmployeesList.displayName = "EmployeesList";
 
@@ -43,7 +45,6 @@ function EmployeesList({ navigate }) {
     const [open, setOpen] = useState(false);
     const perPage = 20;
 
-    const noResult = { alert: "info", msg: "Inga personal hittades." };
 
     const { groupName } = useParams();
 
@@ -212,6 +213,10 @@ function EmployeesList({ navigate }) {
         })
     }
 
+    const handleResponse = useCallback(function handleResponse() {
+        resetActions();
+    }, []);
+
     const label = group === "Studenter" ? "Skola" : "Chef";
 
     return (
@@ -271,14 +276,14 @@ function EmployeesList({ navigate }) {
 
                 {/* If listan is empty */}
                 {(!loading && list?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.length == 0)
-                    && <Response res={{ alert: "info", msg: "Inga anställda hittades med matchande sökord." }} reset={resetActions} />}
+                    && <Response res={{ alert: "info", msg: "Inga anställda hittades med matchande sökord." }} reset={handleResponse} />}
             </List>
 
             {/* Loading symbol */}
             {loading && <Loading msg="data hämtas ..." />}
 
             {/* Message if result is null */}
-            {(response && !loading && !open) && <Response res={response} reset={resetActions} />}
+            {(response && !loading && !open) && <Response res={response} reset={handleResponse} />}
 
             {/* Pagination */}
             {(list?.length > 0 && !loading) && <div className="pagination w-100">
@@ -306,7 +311,7 @@ function EmployeesList({ navigate }) {
                             {!!userData && userData.includedList?.map((item, ind) => {
                                 const schools = group === "Studenter";
                                 const disabled = updating || (schools && ["IT avdelning", "IT-avdelning", "IT-enhet"].indexOf(item?.primary) > -1);
-                                console.log(item, schools && ["IT avdelning", "IT-avdelning", "IT-enhet"].indexOf(item?.primary) > -1);
+
                                 return <ListItem key={ind} className='modal-list-item w-100'
                                     secondaryAction={<IconButton onClick={() => clickHandle(item, ind)}
                                         color={(disabled || item?.boolValue) ? "inherit" : (schools ? "error" : "primary")} disabled={disabled}>
@@ -341,13 +346,13 @@ function EmployeesList({ navigate }) {
                     {!response && <FormButtons label="Spara" disabled={!changed} loading={updating} swap={true} c
                         confirmable={true} submit={onSubmit} cancel={closeModal} >
                         <Button variant={open ? "outlined" : "contained"} color={!open ? "primary" : "error"}
-                            onClick={() => setOpen(!open)} style={{ width: "140px" }} disabled={updating}>
+                            onClick={() => setOpen((open) => !open)} style={{ width: "140px" }} disabled={updating}>
                             {open ? <Close /> : `Lägg till ${label}`}
                         </Button>
                     </FormButtons>}
 
                     {/* Response */}
-                    {!!response && <Response res={response} reset={resetActions} />}
+                    {!!response && <Response res={response} reset={handleResponse} />}
                 </DialogActions>
             </Dialog>
         </div>

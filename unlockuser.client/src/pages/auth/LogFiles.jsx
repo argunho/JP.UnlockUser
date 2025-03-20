@@ -14,14 +14,13 @@ import ModalHelpTexts from '../../components/ModalHelpTexts'
 import SearchFilter from '../../components/SearchFilter';
 
 // Functions
-import SessionTokenCheck from '../../functions/SessionTokenCheck';
 import { ErrorHandle } from '../../functions/ErrorHandle';
 
 // Services
 import ApiRequest from '../../services/ApiRequest';
 import { useParams } from 'react-router-dom';
 
-function LogFiles({loc, navigate}) {
+function LogFiles({ loc, navigate }) {
     LogFiles.displayName = "LogFiles";
 
     const [list, setList] = useState([]);
@@ -31,9 +30,6 @@ function LogFiles({loc, navigate}) {
     const [label, setLabel] = useState("Logfiler");
 
     const { param } = useParams();
-
-    // Check current user authentication
-    SessionTokenCheck("/");
 
     useEffect(() => {
         const pageLabel = param === "history" ? "Detaljerad historia" : "Loggfiler"
@@ -77,7 +73,7 @@ function LogFiles({loc, navigate}) {
         <div className='interior-div'>
 
             {/* Search filter */}
-            <SearchFilter onChange={valueChangeHandler} onReset={() => setList(initList)} label="logfil" />
+            <SearchFilter label="logfil" onChange={valueChangeHandler} onReset={() => setList(initList)} />
 
             {/* Result info box */}
             <ListItem className='search-result'>
@@ -112,7 +108,7 @@ function LogFiles({loc, navigate}) {
                 </List>}
 
             {/* View log file content in the modal window */}
-            {viewFile && <ModalHelpTexts data={viewFile} isTable={true} view={true} isTitle="Logfilen">
+            {!!viewFile && <ModalHelpTexts data={viewFile} isTable={true} view={true} isTitle="Logfilen">
                 <IconButton onClick={() => setFileView()}>
                     <Close color="error" />
                 </IconButton>
@@ -123,7 +119,7 @@ function LogFiles({loc, navigate}) {
 
             {/* Message if result is null */}
             {(list.length === 0 && !loading) &&
-                <Response res={{ alert: "info", msg: "Här finns inga loggfiler" }} reset={() => navigate(-1)} />}
+                <Response res={{ alert: "info", msg: "Här finns inga loggfiler" }} />}
         </div>
     )
 }

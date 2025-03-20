@@ -36,8 +36,8 @@ div.container {
 .d-flex,
 .d-column,
 .d-row {
-  display: flex;
   -webkit-display: flex;
+  display: flex;
   justify-content: flex-start;
   align-items: center;
   width: 100%;
@@ -112,6 +112,11 @@ span.w-100 {
   height: -webkit-fill-available !important;
   height: -moz-available !important;
   overflow-y: auto;
+}
+
+.progress {
+  margin-left: 10px;
+  width: 200px;
 }
 
 .disabled input {

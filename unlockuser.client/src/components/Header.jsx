@@ -10,31 +10,29 @@ import { Button, Tooltip } from '@mui/material';
 import SessionData from '../functions/SessionData';
 import { DecodedToken } from '../functions/DecodedToken';
 
-// Services
-import ApiRequest from '../services/ApiRequest';
-
 // Images
 import logo from './../assets/images/logotype.png';
+
+let links = [
+    { label: "Hem", url: null, icon: <Home />, access: false, hidden: false },
+    { label: "Skolor", url: "schools", icon: <School />, access: true, hidden: false },
+    { label: "Behöriga användare", url: "employees", icon: <SettingsApplications />, access: true, hidden: false },
+    { label: "Session historia", url: "session/history", icon: <History />, access: false, hidden: SessionData("sessionWork")?.length === 0 },
+    { label: "Detaljerad historia", url: "logs/history", icon: <WorkHistory />, access: true, hidden: false },
+    { label: "Statistik", url: "statistics", icon: <BarChart />, access: true, hidden: false },
+    { label: "Loggfiler", url: "logs/errors", icon: <ErrorOutline />, access: true, hidden: false },
+    { label: "Kontakta support", url: "contact", icon: <LiveHelp />, access: false, hidden: false },
+    { label: "Logga ut", url: "logout", icon: <Logout />, access: false, hidden: false }
+];
 
 function Header({ authContext }) {
 
     const [displayName, setDisplayName] = useState("");
-    const [linkName, setLinkName] = useState("UnlockUser");
     const [isSupport, setIsSupport] = useState(false);
     const [open, setOpen] = useState(false);
 
     const navigate = useNavigate();
-
-    let links = [
-        { label: "Hem", url: null, icon: <Home />, access: false, hidden: false },
-        { label: "Skolor", url: "schools", icon: <School />, access: true, hidden: false },
-        { label: "Behöriga användare", url: "employees", icon: <SettingsApplications />, access: true, hidden: false },
-        { label: "Session historia", url: "session/history", icon: <History />, access: false, hidden: SessionData("sessionWork")?.length === 0 },
-        { label: "Detaljerad historia", url: "logs/history", icon: <WorkHistory />, access: true, hidden: false },
-        { label: "Statistik", url: "statistics", icon: <BarChart />, access: true, hidden: false },
-        { label: "Loggfiler", url: "logs/errors", icon: <ErrorOutline />, access: true, hidden: false },
-        { label: "Kontakta support", url: "contact", icon: <LiveHelp />, access: false, hidden: false }
-    ];
+    const decodedToken = DecodedToken();
 
     if (!isSupport)
         links = links.filter(x => !x.access);
@@ -56,38 +54,20 @@ function Header({ authContext }) {
     // Check current user authentication
     useEffect(() => {
         if (authContext.isAuthorized) {
-            const decodedToken = DecodedToken();
 
             // If the current user is logged in, the name of the user is visible in the navigation bar
             setDisplayName(decodedToken?.DisplayName);
-            setLinkName(`UnlockUser<br/><span>${decodedToken?.Groups?.replaceAll(",", ", ")}<span/>`);
-
             setIsSupport(decodedToken?.Roles?.indexOf("Support") > -1);
         }
     }, [authContext.isAuthorized])
 
     const goToPage = (page) => {
-        if (open)
-            setOpen(false);
+        setOpen((open) => !open);
         authContext.cleanSession();
         if (!!page)
             navigate(`/${page}`);
         else
             navigate("/");
-    }
-
-    const logout = async () => {
-        // If the user is logged out, clear and remove all credential which was saved for the current session
-        setOpen(false);
-        await ApiRequest("authentication/logout").then(res => {
-            if (res.data?.errorMessage)
-                console.error("Error response => " + res.data.errorMessage);
-        }, error => {
-            console.error("Error => " + error?.response)
-        })
-        setLinkName("UnlockUser");
-        authContext.logout();
-        navigate("/");
     }
 
     return (
@@ -102,14 +82,17 @@ function Header({ authContext }) {
                     <div className="d-flex">
                         <Link className="link link-logo d-row" to="/">
                             <HomeSharp />
-                            <p className='d-column' dangerouslySetInnerHTML={{ __html: linkName }}></p>
+                            <p className='d-column'>
+                                <span>UnlockUser</span>
+                                <span>{decodedToken?.Groups?.replaceAll(",", ", ")}</span>
+                            </p>
                         </Link>
                     </div>
 
                     {authContext.isAuthorized && <div className='d-flex'>
                         <p className='display-name'>{displayName}</p>
                         <div className='link-menu'>
-                            <Button variant='outlined' size="large" className={`nav-btn ${open && 'nav-btn-active'}`} onClick={() => setOpen(!open)}>
+                            <Button variant='outlined' size="large" className={`nav-btn ${open && 'nav-btn-active'}`} onClick={() => setOpen((open) => !open)}>
                                 {open ? <Close /> : <Menu />}
                             </Button>
                             <ul className={`menu-wrapper ${open && 'visible-menu-wrapper'}`} ref={refMenu}>
@@ -120,9 +103,6 @@ function Header({ authContext }) {
                                         {link.icon} {link.label}
                                     </li>
                                 })}
-                                <li onClick={logout}>
-                                    <Logout />&nbsp;&nbsp;<span>Logga ut</span>
-                                </li>
                             </ul>
                         </div>
                     </div>}

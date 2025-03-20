@@ -27,15 +27,16 @@ const choices = [
     { label: "Exakt", match: false }
 ]
 
+const defaultData = {
+    input: "",
+    additionInput: ""
+}
+
 function Home({ authContext, navigate }) {
     Home.displayName = "Home";
 
     const sOption = sessionStorage.getItem("sOption");
     const groups = authContext.groups;
-    const defaultData = {
-        input: "",
-        additionInput: ""
-    }
     const [formData, setFormData] = useState(defaultData);
     const [users, setUsers] = useState(!!sessionStorage.getItem("users") ? JSON.parse(sessionStorage.getItem("users")) : null);
     const [loading, setLoading] = useState(false);
@@ -81,7 +82,7 @@ function Home({ authContext, navigate }) {
     const setSearchParameter = value => {
         setOption(value);
         setMatch(clsStudents);
-        setClsStudents(!clsStudents);
+        setClsStudents((clsStudents) => !clsStudents);
         if (!clsStudents)
             getSchools();
         reset();
@@ -96,18 +97,18 @@ function Home({ authContext, navigate }) {
             return;
         await ApiRequest("data/schools").then(res => {
 
-            if (res.data?.length > 0){
+            if (res.data?.length > 0) {
                 sessionStorage.setItem("schools", JSON.stringify(res.data));
                 setSchools(res.data);
             }
-                
+
         }, error => ErrorHandle(error, navigate))
     }
 
     // Switch show of tips
     const switchShowTips = () => {
         localStorage.setItem("showTips", !showTips)
-        setTips(!showTips);
+        setTips((showTips) => !showTips);
     }
 
     function switchGroup(e) {
@@ -119,7 +120,7 @@ function Home({ authContext, navigate }) {
     }
 
     // Recognize Enter press to submit search form
-    const handleKeyDown = (e) => {
+    function handleKeyDown(e){
         if (e.key === 'Enter') {
             setFormData({ ...formData, [e.target.name]: e.target.value });
             getSearchResult(e);
@@ -127,7 +128,7 @@ function Home({ authContext, navigate }) {
     }
 
     // Function - submit form
-    const getSearchResult = async (e) => {
+    async function getSearchResult(e){
         e.preventDefault();
 
         const { input, additionInput } = formData;
@@ -170,7 +171,7 @@ function Home({ authContext, navigate }) {
         });
     }
 
-    const reset = () => {
+    function reset(){
         setUsers(null);
         setResponse(null);
 
@@ -179,7 +180,8 @@ function Home({ authContext, navigate }) {
         sessionStorage.removeItem("selectedUsers")
     }
 
-    const resetData = () => {
+    function resetData(){
+        reset();
         setFormData(defaultData);
         setOpen(false);
     }
@@ -188,7 +190,7 @@ function Home({ authContext, navigate }) {
         <div className='interior-div'>
 
             {/* Search form */}
-            <div className='d-row search-container'>
+            <div className='d-row search-container' id="search_container">
                 <form className='search-wrapper w-100' onSubmit={getSearchResult}>
                     {/* List loop of text fields */}
                     {sFormParams?.map((s, index) => (
@@ -270,7 +272,7 @@ function Home({ authContext, navigate }) {
             </div>
 
             {/* The search parameters to choice */}
-            <div className="checkbox-radio-wrapper d-row" >
+            <div className="checkbox-radio-wrapper d-row" id="crw">
 
                 <div className='left-section d-column'>
 
@@ -337,7 +339,7 @@ function Home({ authContext, navigate }) {
                 disabled={group == "Support"}
                 resultBlock={true}
                 cancelRequest={CancelRequest}
-                resetResult={reset}
+                resetResult={resetData}
             />
         </div >
     )

@@ -43,7 +43,7 @@ function AuthContextProvider({ children }) {
     }
 
     function handleMenu() {
-        setOpenMenu(!openMenu);
+        setOpenMenu((openMenu) => !openMenu);
     }
 
     function updateServiceWorkStatus(value, hide = false) {

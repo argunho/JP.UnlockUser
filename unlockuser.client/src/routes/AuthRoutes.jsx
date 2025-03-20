@@ -80,6 +80,10 @@ function AuthRoutes({authContext }) {
       element: <Logout expired={true} />
     },
     {
+      path: "/logout",
+      element: <Logout />
+    },
+    {
       path: "/*",
       element: <NotFound />
     }

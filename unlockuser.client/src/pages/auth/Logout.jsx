@@ -18,21 +18,23 @@ function Logout({ expired }) {
     const authContext = useContext(AuthContext);
     const navigate = useNavigate();
 
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-
     useEffect(() => {
         document.title = "Utloggning";
 
         if (!expired)
             logout();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [expired])
 
     async function logout() {
-        await ApiRequest("authentication/logout/" + token).then(res => {
-            if (res.data)
-                authContext.logout();
+        // If the user is logged out, clear and remove all credential which was saved for the current session
+        await ApiRequest("authentication/logout").then(res => {
+            if (res.data?.errorMessage)
+                console.error("Error response => " + res.data.errorMessage);
+        }, error => {
+            console.error("Error => " + error?.response)
         })
+        authContext.logout();
+        navigate("/");
     }
 
     if (!!expired)

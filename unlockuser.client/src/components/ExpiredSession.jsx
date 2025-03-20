@@ -13,7 +13,8 @@ function ExpiredSession({ navigate }) {
             error={true}
             open={true}
             msg="Sessionen har löpt ut"
-            content="Var vänlig och logga in igen."
+            content="Du loggas ut."
+            closeTime={3000}
             close={closeModal} />
     )
 }

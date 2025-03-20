@@ -16,6 +16,11 @@ import Loading from "../../components/Loading";
 // Functions
 import { ErrorHandle } from "../../functions/ErrorHandle";
 
+const empty = {
+    alert: "info",
+    msg: "Ingen data att visa ..."
+};
+
 function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels, navigate }) {
     ListView.displayName = "Schools";
 
@@ -29,11 +34,6 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
     const [item, setItem] = useState(fields);
     const [required, setRequired] = useState([]);
     const [collapsedItemIndex, setCollapsedItemIndex] = useState(null);
-
-    const empty = {
-        alert: "info",
-        msg: "Ingen data att visa ..."
-    };
 
     useEffect(() => {
         setOpen(false);
@@ -71,7 +71,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
     }
 
     function confirmHandle(item) {
-        setOpen(!open);
+        setOpen((open) => !open);
         setItem(item)
         if (!confirm)
             setConfirm(item);
@@ -83,7 +83,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
     }
 
     function formHandle() {
-        setOpen(!open);
+        setOpen((open) => !open);
         setItem(fields);
         setResponse();
         if (!visibleForm)
@@ -190,27 +190,26 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
                                     {_.isEqual(confirm, item) ? <CircularProgress size={20} /> : <Delete />}
                                 </IconButton>}
                             </div>
-                        } >
-                        <ListItemIcon>
-                            {index + 1}
-                        </ListItemIcon>
+                        }>
+                        <ListItemIcon>{index + 1}</ListItemIcon>
                         <ListItemText primary={item?.primary} secondary={item?.secondary} {...props} />
                     </ListItem>
 
                     {/* If the item has an included list */}
-                    <Collapse in={collapsedItemIndex === index} className='d-row dropdown-block' timeout="auto" unmountOnExit>
-                        <List style={{ width: "95%", margin: "5px auto" }}>
-                            {item?.includedList?.map((inc, ind) => {
-                                const collapseProps = !!inc?.link ? { onClick: () => navigate(inc.link) } : null;
-                                return <ListItem className="w-100" key={ind} {...collapseProps}>
-                                    <ListItemIcon>
-                                        <CalendarMonth />
-                                    </ListItemIcon>
-                                    <ListItemText primary={inc?.primary} secondary={inc?.secondary} />
-                                </ListItem>
-                            })}
-                        </List>
-                    </Collapse>
+                    {item?.includedList?.length > 0 &&
+                        <Collapse in={collapsedItemIndex === index} className='d-row dropdown-block' timeout="auto" unmountOnExit>
+                            <List style={{ width: "95%", margin: "5px auto" }}>
+                                {item?.includedList?.map((inc, ind) => {
+                                    const collapseProps = !!inc?.link ? { onClick: () => navigate(inc.link) } : null;
+                                    return <ListItem className="w-100" key={ind} {...collapseProps}>
+                                        <ListItemIcon>
+                                            <CalendarMonth />
+                                        </ListItemIcon>
+                                        <ListItemText primary={inc?.primary} secondary={inc?.secondary} />
+                                    </ListItem>
+                                })}
+                            </List>
+                        </Collapse>}
                 </div>
             })}
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Installed
@@ -58,7 +58,7 @@ function Login({ authContext }) {
         setInterval(() => {
             if (sec + min === 0 || res === null) {
                 clearInterval();
-                resetResponse();
+                hndleResponse();
             } else {
                 if (sec === 0) {
                     if (min > 0) min -= 1;
@@ -105,12 +105,12 @@ function Login({ authContext }) {
         })
     }
 
-    const resetResponse = () => {
+    const hndleResponse = useCallback(function handleResponse() {
         if (response?.alert === "success")
             navigate("/");
         else
             setResponse();
-    };
+    }, []);
 
 
     return (
@@ -118,7 +118,7 @@ function Login({ authContext }) {
             <p className='form-title'>Logga in</p>
 
             {/* Response */}
-            {!!response && <Response res={response} reset={resetResponse} />}
+            {!!response && <Response res={response} reset={hndleResponse} />}
 
             {/* Wait */}
             {(!!wait && !loading) && <Alert variant='filled' color="warning" className='w-100'>

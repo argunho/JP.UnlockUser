@@ -54,7 +54,6 @@ function Members({navigate}) {
         <div className='interior-div'>
             {/* Info about user */}
             <Info name="Studenter"
-                check={true}
                 displayName={office + " " + department}
                 subTitle={list?.length > 0 && `Hittade ${list?.length} matchningar`} />
 

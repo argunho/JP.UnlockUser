@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
 import { Button, TextField } from '@mui/material';
 
-function SearchFilter({label, disabled, clean, onChange, onReset}) {
+function SearchFilter({ label, disabled, clean, onChange, onReset }) {
     SearchFilter.displayName = "SearchFilter";
 
     const [keyword, setKeyword] = useState("");
 
     useEffect(() => {
-        if(clean && keyword?.length > 0)
+        if (clean && keyword?.length > 0)
             setKeyword("");
     }, [clean])
 

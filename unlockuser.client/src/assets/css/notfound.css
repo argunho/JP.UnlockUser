@@ -3,46 +3,27 @@
   height: calc(100vh - 220px);
   max-width: 600px;
   margin: auto;
-  display: flex;
-  justify-content: center;
+  justify-content: center !important;
+}
+
+.img-wrapper {
   position: relative;
+  width: 600px;
+  height: 500px;
 }
 
 .notfound-wrapper {
   position: absolute;
   right: 15px;
-  top: 56%;
+  bottom: 15px;
   padding: 15px 10px;
   opacity: 0.95;
-  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#fb1574+0,fb1574+22,f60300+51,f60300+100 */
-  background: #fb1574; /* Old browsers */
-  background: -moz-linear-gradient(
-    left,
-    #fb1574 0%,
-    #fb1574 22%,
-    #f60300 51%,
-    #f60300 100%
-  ); /* FF3.6-15 */
-  background: -webkit-linear-gradient(
-    left,
-    #fb1574 0%,
-    #fb1574 22%,
-    #f60300 51%,
-    #f60300 100%
-  ); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(
-    to right,
-    #fb1574 0%,
-    #fb1574 22%,
-    #f60300 51%,
-    #f60300 100%
-  ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fb1574', endColorstr='#f60300',GradientType=1 ); /* IE6-9 */
+  background: #e9e8e8bd;
 }
 
 .notfound-img {
   width: 100%;
-  height: auto;
+  height: 100%;
   margin: auto;
   box-shadow: 0 0 2px 2px #858585;
 }
@@ -58,7 +39,7 @@
 .notfound-url {
   padding: 0 10px;
   margin: 0;
-  color: #fff;
+  color: #630101;
   cursor: no-drop !important;
   font-size: 17px;
 }

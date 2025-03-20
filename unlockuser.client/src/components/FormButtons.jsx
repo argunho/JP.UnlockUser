@@ -82,7 +82,7 @@ function FormButtons({ children, label, question, disabled, position, swap, conf
             }
         }
 
-        setConfirm(!confirm);
+        setConfirm((confirm) => !confirm);
         setTimeout(() => {
             setDelay(confirm);
         }, 100)

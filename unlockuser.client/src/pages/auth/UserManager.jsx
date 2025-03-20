@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 
 // Installed
@@ -69,17 +69,19 @@ function UserManager({ authContext, navigate }) {
         })
     }
 
+    const handleResponse = useCallback(function handleResponse(){
+        setResponse(null);
+    }, [])
+
     return <div className='interior-div w-100'>
         {/* Info about user */}
-        <Info
-            check={true}
-            user={user}
+        <Info user={user}
             displayName={user?.displayName ?? "Anvädarprofil"}
             subTitle={user?.subTitle ?? ""}
         />
 
         {/* Response */}
-        {response && <Response res={response} reset={() => setResponse(null)} />}
+        {response && <Response res={response} reset={handleResponse} />}
 
         {/* Unlock user */}
         {!!user && <>

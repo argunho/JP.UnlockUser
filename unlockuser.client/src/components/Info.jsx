@@ -1,19 +1,16 @@
 
 
-import { Fragment, useContext, useRef } from 'react';
+import { useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Installed
 import { ArrowRight, EventNote, KeyboardReturnTwoTone, School } from '@mui/icons-material'
 import { Avatar, Button, List, ListItem, ListItemAvatar, ListItemText, Tooltip, Typography } from '@mui/material'
 
-// Functions
-import SessionTokenCheck from '../functions/SessionTokenCheck';
-
 // Services
 import { AuthContext } from '../services/AuthContext';
 
-function Info({ children, user, name, displayName, subTitle, result, check, disabled, updateSession, handleOutsideClick }) {
+function Info({ children, user, name, displayName, subTitle, result, disabled, updateSession, handleOutsideClick }) {
     Info.displayName = "Info";
 
     const navigate = useNavigate(null);
@@ -25,14 +22,10 @@ function Info({ children, user, name, displayName, subTitle, result, check, disa
     const isDisabled = (!user || group?.toLowerCase() !== "studenter" || (typeof children === 'object')
         || !(user.office?.length > 0 && user.department?.length > 0));
 
-    // Check current user authentication
-    if (check)
-        SessionTokenCheck();
-
     const clickHandle = (e) => {
         if (disabled) return;
 
-       if (!isDisabled && refGetMembers?.current && refGetMembers?.current.contains(e?.target)) {
+        if (!isDisabled && refGetMembers?.current && refGetMembers?.current.contains(e?.target)) {
             if (result)
                 updateSession();
             navigate(`/members/${user.office}/${user.department}`);
@@ -47,6 +40,7 @@ function Info({ children, user, name, displayName, subTitle, result, check, disa
         secondaryAction={!result && <Button className='back-button' onClick={() => navigate(-1)} title="Go back">
             <KeyboardReturnTwoTone />
         </Button>}>
+
         <ListItemAvatar>
             <Avatar>
                 {group === "studenter" ? <School /> : <EventNote />}
@@ -57,7 +51,7 @@ function Info({ children, user, name, displayName, subTitle, result, check, disa
         <ListItemText
             primary={user?.name || name}
             secondary={
-                <Fragment>
+                <>
                     {user && user?.email && <span className='typography-email-span'>{user.email}</span>}
                     {displayName && <Typography
                         sx={{ display: 'inline' }}
@@ -83,8 +77,7 @@ function Info({ children, user, name, displayName, subTitle, result, check, disa
                             </Typography>
                         })}
                     </span>}
-
-                </Fragment>} />
+                </>} />
 
 
         {/* Props children */}
