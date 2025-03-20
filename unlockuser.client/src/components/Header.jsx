@@ -13,18 +13,6 @@ import { DecodedToken } from '../functions/DecodedToken';
 // Images
 import logo from './../assets/images/logotype.png';
 
-let links = [
-    { label: "Hem", url: null, icon: <Home />, access: false, hidden: false },
-    { label: "Skolor", url: "schools", icon: <School />, access: true, hidden: false },
-    { label: "Behöriga användare", url: "employees", icon: <SettingsApplications />, access: true, hidden: false },
-    { label: "Session historia", url: "session/history", icon: <History />, access: false, hidden: SessionData("sessionWork")?.length === 0 },
-    { label: "Detaljerad historia", url: "logs/history", icon: <WorkHistory />, access: true, hidden: false },
-    { label: "Statistik", url: "statistics", icon: <BarChart />, access: true, hidden: false },
-    { label: "Loggfiler", url: "logs/errors", icon: <ErrorOutline />, access: true, hidden: false },
-    { label: "Kontakta support", url: "contact", icon: <LiveHelp />, access: false, hidden: false },
-    { label: "Logga ut", url: "logout", icon: <Logout />, access: false, hidden: false }
-];
-
 function Header({ authContext }) {
 
     const [displayName, setDisplayName] = useState("");
@@ -33,6 +21,18 @@ function Header({ authContext }) {
 
     const navigate = useNavigate();
     const decodedToken = DecodedToken();
+
+    let links = [
+        { label: "Hem", url: null, icon: <Home />, access: false, hidden: false },
+        { label: "Skolor", url: "schools", icon: <School />, access: true, hidden: false },
+        { label: "Behöriga användare", url: "employees", icon: <SettingsApplications />, access: true, hidden: false },
+        { label: "Session historia", url: "session/history", icon: <History />, access: false, hidden: SessionData("sessionWork")?.length === 0 },
+        { label: "Detaljerad historia", url: "logs/history", icon: <WorkHistory />, access: true, hidden: false },
+        { label: "Statistik", url: "statistics", icon: <BarChart />, access: true, hidden: false },
+        { label: "Loggfiler", url: "logs/errors", icon: <ErrorOutline />, access: true, hidden: false },
+        { label: "Kontakta support", url: "contact", icon: <LiveHelp />, access: false, hidden: false },
+        { label: "Logga ut", url: "logout", icon: <Logout />, access: false, hidden: false }
+    ];
 
     if (!isSupport)
         links = links.filter(x => !x.access);
