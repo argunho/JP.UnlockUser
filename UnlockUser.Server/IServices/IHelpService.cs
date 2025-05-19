@@ -80,15 +80,15 @@ public partial class IHelpService : IHelp
                 => new(new { alert, msg});
 
     public JsonResult NotFound(string name)
-    => new(new { alert = "warning", msg = $"{name} med matchande Id eller Namn hittades inte." });
+    => new(new { color = "warning", msg = $"{name} med matchande Id eller Namn hittades inte." });
 
     public JsonResult Warning(string? message = null)
-        => new(new { alert = "warning", msg = message ?? "Felaktiga formulärdata. Kontrollera de ifyllda formuläruppgifterna." });
+        => new(new { color = "warning", msg = message ?? "Felaktiga formulärdata. Kontrollera de ifyllda formuläruppgifterna." });
 
     public JsonResult Error(string position, string message, string pathname = "errors")
     {
         SaveLogFile([position, message], pathname);
-        return new (new { alert = "error", msg = $"Något har gått snett. Fel: {message}" });
+        return new (new { color = "error", msg = $"Något har gått snett. Fel: {message}" });
     }
 
     public string? GetClaim(string name)

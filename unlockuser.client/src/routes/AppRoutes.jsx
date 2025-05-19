@@ -4,7 +4,7 @@ import { Route, Routes } from "react-router-dom";
 // Pages
 import Login from "./../pages/open/Login";
 import Contacts from "./../pages/open/Contacts";
-import NotFound from "./../pages/open/NotFound";
+import NotFound from "./../pages/auth/NotFound";
 
 function AppRoutes({authContext}) {
   

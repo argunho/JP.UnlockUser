@@ -1,32 +1,38 @@
-import { useContext, useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 
 // Installed
-import { Container } from "@mui/material";
-
-// Components 
-import Header from "./components/Header";
-
-// Functions
-// import { DecodedToken } from "./functions/DecodedToken";
-
-// Services
-import AuthContextProvider, { AuthContext } from "./services/AuthContext";
+import { useLocation } from 'react-router-dom';
 
 // Storage
+import AuthContextProvider, { AuthContext } from "./storage/AuthContext";
+import FetchContextProvider, { FetchContext } from "./storage/FetchContext"
+
+// Components
+import LinearLoading from "./components/LinearLoading";
 
 // Routes
 import AppRoutes from "./routes/AppRoutes";
 import AuthRoutes from "./routes/AuthRoutes";
 
 // Css
-import './assets/css/custom.css';
+import './assets/css/custom.css';;
+
+const isLocalhost = Boolean(
+    window.location.hostname === 'localhost' ||
+    // [::1] is the IPv6 localhost address.
+    window.location.hostname === '[::1]' ||
+    // 127.0.0.0/8 are considered localhost for IPv4.
+    window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/)
+);
+
+let isInitial = true;
 
 function App() {
-    App.displayName = "App";
-
     return (
         <AuthContextProvider>
-            <Root />
+            <FetchContextProvider>
+                <Root />
+            </FetchContextProvider>
         </AuthContextProvider>
     );
 }
@@ -35,28 +41,40 @@ function Root() {
 
     const [loading, setLoading] = useState(true);
 
-    const authContext = useContext(AuthContext);
+    const { isAuthorized, authorize, logout} = use(AuthContext);
+    const { resData, response, handleResponse, updateResData } = use(FetchContext);
+
+    const loc = useLocation();
+
 
     useEffect(() => {
         const token = localStorage.getItem("token") || sessionStorage.getItem("token");
         if (!!token)
-            authContext.authorize(token);
+            authorize(token);
         else
-            authContext.logout();
+            logout();
 
         setLoading(false);
-    }, [authContext])
+    }, [isAuthorized])
+
+    useEffect(() => {
+        if (isInitial || (!response && !resData)) {
+            isInitial = false;
+            return;
+        }
+
+        if (resData)
+            updateResData();
+        if (response)
+            handleResponse();
+    }, [loc])
 
     if (loading)
-        return null;
+        return <LinearLoading size={35} />;
 
     return (
-        <>
-            <Header authContext={authContext} />
-            <Container>
-                {!authContext.isAuthorized ? <AppRoutes authContext={authContext} /> : <AuthRoutes authContext={authContext} />}
-            </Container>
-        </>
+        /* Routes */
+        !isAuthorized ? <AppRoutes /> : <AuthRoutes isLocalhost={isLocalhost} />
     );
 }
 

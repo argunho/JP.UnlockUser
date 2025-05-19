@@ -8,7 +8,7 @@ import {
 
 // Components
 import ModalHelpTexts from './ModalHelpTexts';
-import Response from './Response';
+import Response from './OldResponse';
 import PDFConverter from './PDFConverter';
 import PasswordGeneration from './PasswordGeneration';
 import ListCategories from './ListCategories';
@@ -263,7 +263,7 @@ function Form({ title, name, passwordLength, users, authContext }) {
         }, error => { // Handle of error
             resetForm();
             setLoad(false);
-            ErrorHandle(error, navigate)
+            ErrorHandle(error);
         })
     }
 
@@ -303,7 +303,7 @@ function Form({ title, name, passwordLength, users, authContext }) {
         }, error => {
             setConfirmSavePdf(false);
             setSavePdf(false);
-            ErrorHandle(error, navigate);
+            ErrorHandle(error);
         });
     }
 
@@ -325,7 +325,7 @@ function Form({ title, name, passwordLength, users, authContext }) {
             <div className='form-actions'>
 
                 {/* Response message */}
-                {!!response && <Response res={response} reset={() => setResponse()} />}
+                {!!response && <Response res={response} cancel={() => setResponse()} />}
 
                 {multiple && <>
                     {/* Loop of radio input choices to choose is password same or not for all students */}

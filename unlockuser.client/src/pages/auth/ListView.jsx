@@ -10,14 +10,14 @@ import FormButtons from "../../components/FormButtons";
 
 // Services
 import ApiRequest from "../../services/ApiRequest";
-import Response from "../../components/Response";
+import Response from "../../components/OldResponse";
 import Loading from "../../components/Loading";
 
 // Functions
 import { ErrorHandle } from "../../functions/ErrorHandle";
 
 const empty = {
-    alert: "info",
+    color: "info",
     msg: "Ingen data att visa ..."
 };
 
@@ -120,12 +120,12 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
             if (res.status == 200)
                 setList(res.data);
             else
-                setResponse({ alert: "error", msg: res.data })
+                setResponse({ color: "error", msg: res.data })
             setItem();
             setLoading(false);
             formHandle();
         }, error => {
-            setResponse(ErrorHandle(error, navigate));
+            setResponse(ErrorHandle(error));
             formHandle();
         })
     }
@@ -140,11 +140,11 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
                     setList(list.filter((x, ind) => ind !== index));
                 }, 100)
             } else
-                setResponse({ alert: "error", msg: res.data })
+                setResponse({ color: "error", msg: res.data })
 
             setConfirm(null);
             setItem(fields);
-        }, error => setResponse(ErrorHandle(error, navigate)))
+        }, error => setResponse(ErrorHandle(error)));
     }
 
     return (
@@ -158,7 +158,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
             </ListItem>
 
             {/* Response */}
-            {!!response && <Response res={response} reset={() => setResponse(null)} />}
+            {!!response && <Response res={response} cancel={() => setResponse(null)} />}
             {!!noData && <Response res={noData} />}
 
             {/* Confirm/Form block */}

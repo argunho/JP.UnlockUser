@@ -1,4 +1,53 @@
 .notfound-container {
+    background-color: #FFFFFF;
+}
+
+.notfound-wrapper {
+    width: 100%;
+    max-width: 700px;
+    height: 500px;
+    max-height: 50vh;
+    padding: 25px 35px 0 35px;
+    box-shadow: inset 0 0 3px 3px #34613d;
+    background-image: url('../images/notfound.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative;
+}
+
+.notfound-title {
+    font-size: 30px;
+    color:#303030;
+    text-transform: uppercase;
+    margin: 0 auto;
+    width: 70%;
+    overflow: hidden;
+    text-align: center
+}
+
+.notfound-btn {
+    font-size: 20px !important;
+    letter-spacing: 1px !important;
+    position: absolute !important;
+    right: 30px;
+    bottom: 30px;
+    padding: 3px 12px !important;
+    background-color: #009e3d !important;
+    color: #FFFFFF !important;
+    min-width: 130px !important;
+}
+
+.notfound-btn:hover {
+    background-color: #009e3db7 !important;
+    color: #FFFFFF !important;
+}
+
+.notfound-btn svg {
+    font-size: 25px !important;
+}
+
+/* .notfound-container {
   width: 100%;
   height: calc(100vh - 220px);
   max-width: 600px;
@@ -18,7 +67,7 @@
   bottom: 15px;
   padding: 15px 10px;
   opacity: 0.95;
-  background: #e9e8e8bd;
+  background-color: #e9e8e8bd;
 }
 
 .notfound-img {
@@ -43,7 +92,8 @@
   cursor: no-drop !important;
   font-size: 17px;
 }
-.notfound-url > span {
+
+.notfound-url>span {
   height: 100%;
   vertical-align: middle;
 }
@@ -53,18 +103,22 @@
     height: max-content;
     margin-top: 50px;
   }
+
   .notfound-img {
     width: 95%;
   }
+
   .notfound-wrapper {
     top: 61%;
     right: calc(2.5% + 5px);
     padding: 7px;
   }
+
   .notfound-title {
     font-size: 3.7vw;
   }
+
   .notfound-url {
     font-size: 2.8vw;
   }
-}
+} */

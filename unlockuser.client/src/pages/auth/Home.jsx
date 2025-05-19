@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use} from 'react';
 
 // Installed
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
@@ -18,24 +18,28 @@ import SessionData from '../../functions/SessionData';
 // Services
 import ApiRequest, { CancelRequest } from '../../services/ApiRequest';
 
+// Storage
+import { AuthContext } from '../../storage/AuthContext';
+
 // Json
 import params from '../../assets/json/helpTexts.json';
 import forms from '../../assets/json/forms.json';
+
 
 const choices = [
     { label: "Match", match: true },
     { label: "Exakt", match: false }
 ]
 
-function Home({ authContext, navigate }) {
-    Home.displayName = "Home";
+function Home() {
 
     const defaultData = {
         input: "",
         additionInput: ""
     }
     const sOption = sessionStorage.getItem("sOption");
-    const groups = authContext.groups;
+
+   const { groups, group: currentGroup, updateGroupName } = use(AuthContext);
 
     const [formData, setFormData] = useState(defaultData);
     const [users, setUsers] = useState(!!sessionStorage.getItem("users") ? JSON.parse(sessionStorage.getItem("users")) : null);
@@ -48,7 +52,7 @@ function Home({ authContext, navigate }) {
     const [hasNoOptions, setNoOptions] = useState(false);
     const [response, setResponse] = useState(null);
     const [showTips, setTips] = useState(localStorage.getItem("showTips") === "true");
-    const [group, setGroup] = useState(authContext.group);
+    const [group, setGroup] = useState(currentGroup);
 
     const { optionsList, studentsList, defaultList } = params;
     const sFormParams = !clsStudents ? forms?.single : forms?.group;
@@ -62,7 +66,7 @@ function Home({ authContext, navigate }) {
 
     useEffect(() => {
         setUsers([]);
-    }, [authContext.group])
+    }, [currentGroup])
 
     // Handle a change of text fields and radio input value
     const changeHandler = (e, open) => {
@@ -97,13 +101,13 @@ function Home({ authContext, navigate }) {
         if (schools?.length > 0)
             return;
         await ApiRequest("data/schools").then(res => {
-console.log(res.data)
+
             if (res.data?.length > 0) {
                 sessionStorage.setItem("schools", JSON.stringify(res.data));
                 setSchools(res.data);
             }
 
-        }, error => ErrorHandle(error, navigate))
+        }, error => ErrorHandle(error));
     }
 
     // Switch show of tips
@@ -115,7 +119,7 @@ console.log(res.data)
     function switchGroup(e) {
         const value = e.target.value;
         sessionStorage.setItem("group", value);
-        authContext.updateGroupName(value);
+        updateGroupName(value);
         setGroup(value);
         reset();
     }
@@ -162,13 +166,13 @@ console.log(res.data)
         }, error => { // Error handle 
             setLoading(false);
             if (error.code === "ERR_CANCELED") {
-                setResponse(ErrorHandle(error, navigate));
+                setResponse(ErrorHandle(error));
                 setTimeout(() => {
                     reset();
                     resetData();
                 }, 3000)
             } else
-                ErrorHandle(error, navigate);
+                ErrorHandle(error);
         });
     }
 

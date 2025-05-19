@@ -1,21 +1,19 @@
+// Installed 
+import { useNavigate } from 'react-router-dom';
+
 // Components
-import ModalView from './ModalView';
+import ModalConfirm from './ModalConfirm';
 
-function ExpiredSession({ navigate }) {
-    ExpiredSession.displayName = "ExpiredSession";
-
-    const closeModal = () => {
-        navigate("/logout");
-    }
+function ExpiredSession() {
+    const navigate = useNavigate();
 
     return (
-        <ModalView
+        <ModalConfirm
             error={true}
             open={true}
             msg="Sessionen har löpt ut"
-            content="Du loggas ut."
-            closeTime={3000}
-            close={closeModal} />
+            content="Var vänlig och logga in igen."
+            clickHandle={() => navigate("/logout")} />
     )
 }
 

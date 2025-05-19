@@ -11,7 +11,7 @@ import { useParams } from 'react-router-dom';
 
 // Components
 import SearchFilter from '../../components/SearchFilter';
-import Response from '../../components/Response';
+import Response from '../../components/OldResponse';
 import Loading from '../../components/Loading';
 import FormButtons from '../../components/FormButtons';
 
@@ -24,7 +24,7 @@ import ApiRequest from '../../services/ApiRequest';
 // Css
 import '../../assets/css/listview.css';
 
-const noResult = { alert: "info", msg: "Inga personal hittades." };
+const noResult = { color: "info", msg: "Inga personal hittades." };
 
 function EmployeesList({ navigate }) {
     EmployeesList.displayName = "EmployeesList";
@@ -73,7 +73,7 @@ function EmployeesList({ navigate }) {
             } else
                 setLoading(false);
         }, error => {
-            ErrorHandle(error, navigate);
+            ErrorHandle(error);
             setLoading(false);
         })
     }
@@ -94,7 +94,7 @@ function EmployeesList({ navigate }) {
             else if (res.data === null || res.data?.length === 0)
                 setResponse(noResult);
         }, error => {
-            ErrorHandle(error, navigate);
+            ErrorHandle(error);
             setLoading(false);
         })
     }
@@ -125,7 +125,7 @@ function EmployeesList({ navigate }) {
 
             setLoading(false);
         }, error => {
-            setResponse({ alert: "warning", msg: `Något har gått snett: Fel: ${error}` });
+            setResponse({ color: "warning", msg: `Något har gått snett: Fel: ${error}` });
             setLoading(false);
         })
     }
@@ -208,7 +208,7 @@ function EmployeesList({ navigate }) {
         await ApiRequest(`app/employee/${group}`, "put", obj).then(res => {
             setResponse(res.data ?? {});
         }, error => {
-            setResponse({ alert: "warning", msg: `Något har gått snett: Fel: ${error}` });
+            setResponse({ color: "warning", msg: `Något har gått snett: Fel: ${error}` });
             closeModal();
         })
     }
@@ -276,14 +276,14 @@ function EmployeesList({ navigate }) {
 
                 {/* If listan is empty */}
                 {(!loading && list?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.length == 0)
-                    && <Response res={{ alert: "info", msg: "Inga anställda hittades med matchande sökord." }} reset={handleResponse} />}
+                    && <Response res={{ color: "info", msg: "Inga anställda hittades med matchande sökord." }} cancel={handleResponse} />}
             </List>
 
             {/* Loading symbol */}
             {loading && <Loading msg="data hämtas ..." />}
 
             {/* Message if result is null */}
-            {(response && !loading && !open) && <Response res={response} reset={handleResponse} />}
+            {(response && !loading && !open) && <Response res={response} cancel={handleResponse} />}
 
             {/* Pagination */}
             {(list?.length > 0 && !loading) && <div className="pagination w-100">
@@ -352,7 +352,7 @@ function EmployeesList({ navigate }) {
                     </FormButtons>}
 
                     {/* Response */}
-                    {!!response && <Response res={response} reset={handleResponse} />}
+                    {!!response && <Response res={response} cancel={handleResponse} />}
                 </DialogActions>
             </Dialog>
         </div>

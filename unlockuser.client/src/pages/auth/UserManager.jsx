@@ -9,7 +9,7 @@ import { Button, CircularProgress } from '@mui/material';
 // Components
 import Form from '../../components/Form';
 import Info from '../../components/Info';
-import Response from '../../components/Response';
+import Response from '../../components/OldResponse';
 import Loading from '../../components/Loading';
 
 // Services
@@ -48,7 +48,7 @@ function UserManager({ authContext, navigate }) {
                 setResponse(res?.data);
             setLoading(false);
         }, error => {
-            ErrorHandle(error, navigate);
+            ErrorHandle(error);
             setLoading(false);
         })
     }
@@ -64,12 +64,12 @@ function UserManager({ authContext, navigate }) {
             setResponse(res?.data);
             getUserData();
         }, error => { // Error handle
-            ErrorHandle(error, navigate);
+            ErrorHandle(error);
             setLoading(false);
         })
     }
 
-    const handleResponse = useCallback(function handleResponse(){
+    const handleResponse = useCallback(function handleResponse() {
         setResponse(null);
     }, [])
 
@@ -81,7 +81,7 @@ function UserManager({ authContext, navigate }) {
         />
 
         {/* Response */}
-        {response && <Response res={response} reset={handleResponse} />}
+        {response && <Response res={response} cancel={handleResponse} />}
 
         {/* Unlock user */}
         {!!user && <>

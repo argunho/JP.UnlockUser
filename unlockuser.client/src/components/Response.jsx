@@ -1,38 +1,39 @@
 import { useEffect } from 'react';
 
 // Installed
-import { Alert } from '@mui/material';
+import { Alert } from "@mui/material";
 
-// Css
-import './../assets/css/response.css';
 
-function Response({ children, res, reset }) {
+function Response({ children, res, cancel, style }) {
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            if (!!reset)
-                reset();
-        }, 5000)
+        let timer = null;
+
+        if (cancel) {
+            timer = setTimeout(() => {
+                cancel(res);
+            }, 10000)
+        }
 
         return () => {
-            clearInterval(timer);
+            clearTimeout(timer);
         }
-    }, [reset])
+    }, [cancel])
 
-    const str = typeof res === "string";
-    const error = str || res?.error;
-    const msg = str ? str : res?.msg;
-    const color = error ? "error" : (res?.alert ?? "success");
 
-    return <div className="response-box d-column w-100">
+    const error = typeof res === "string" ? res : res?.error;
+    const msg = res == 0 ? "Inget data finns att visa..." : (error ? res.error : res?.msg);
+    const color = res == 0 ? "warning" : (error ? "error" : (res?.color ?? "success"));
 
-        {/* Message */}
-        <Alert color={color} variant="standard" severity={color} className="d-row w-100" onClose={reset}>
-            <p className="response-message w-100" dangerouslySetInnerHTML={{ __html: msg ?? "Skickad!" }}></p>
-        </Alert>
+    let props =  cancel ? { onClose: () => cancel(!!msg || error) } : {};
+    if(style)
+        props.style = style;
 
-        {(!error && !!children) && children}
-    </div>
+    return <Alert color={color} variant="standard" severity={color} 
+                className="response-box d-row w-100" {...props} id="response">
+        {children}
+        <p className={`response-message${children ? " combined" : ""}`} dangerouslySetInnerHTML={{ __html: msg }}></p>
+    </Alert>
 }
 
 export default Response;

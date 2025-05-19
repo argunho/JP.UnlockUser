@@ -8,7 +8,7 @@ import { ArrowRight, EventNote, KeyboardReturnTwoTone, School } from '@mui/icons
 import { Avatar, Button, List, ListItem, ListItemAvatar, ListItemText, Tooltip, Typography } from '@mui/material'
 
 // Services
-import { AuthContext } from '../services/AuthContext';
+import { AuthContext } from '../storage/AuthContext';
 
 function Info({ children, user, name, displayName, subTitle, result, disabled, updateSession, handleOutsideClick }) {
     Info.displayName = "Info";

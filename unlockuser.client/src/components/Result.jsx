@@ -12,7 +12,7 @@ import { Cancel, DeleteSweep, Deselect, Edit, SelectAll } from '@mui/icons-mater
 
 // Components
 import Loading from './Loading';
-import Response from './Response';
+import Response from './OldResponse';
 import Info from './Info';
 
 const defMessage = "Ditt sökresultat kommer att visas här nedan"
@@ -149,7 +149,7 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
                         classes={{ tooltip: "tooltip tooltip-error", arrow: "arrow-error" }}>
                         <span>
                             <Button variant="text"
-                                
+
                                 color="error"
                                 className="reset-button"
                                 onClick={resetResult}
@@ -232,7 +232,7 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
             ))}
 
             {/* Message if result is null */}
-            {(!loading && response) && <Response res={response} reset={handleResponse} />}
+            {(!loading && response) && <Response res={response} cancel={handleResponse} />}
         </div>
     )
 }

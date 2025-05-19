@@ -1,67 +1,77 @@
+.login-wrapper {
+    max-width: 700px !important;
+    height: 500px;
+    max-height: 70vh;
+    padding: 25px;
+    margin: auto;
+    box-shadow: 0 0 2px 2px #d8d4d4;
+    border-radius: 5px;
+    color: #000000;
+    position: relative;
+    background-image: url("./../images/background.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 200%;
+    overflow: hidden;
+    position: relative;
+}
+
 .login-form {
-  width: 85%;
-  max-width: 500px;
-  padding: 20px;
-  background-color: #fff;
-  margin: 70px auto;
-  text-align: center;
-  display: block;
-  overflow: hidden;
-  border-radius: 3px;
-  position: relative;
-  border: 1px solid #c4c4c4;
-  box-shadow: 0 0 1px 1px #c4c4c4;
+    width: 350px !important;
+    height: 320px !important;
+    margin-bottom: 0;
+    padding: 15px 30px;
 }
 
-.form-title {
-  width: 95%;
-  margin: 50px auto 10px auto;
-  color: rgb(70, 69, 69);
-  text-transform: uppercase;
-  font-size: 20px;
-  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif !important;
+.login-form h2 {
+    width: 100%;
 }
 
-.login-form .form-title {
-  margin-top: 15px !important;
+.login-input {
+    width: 100% !important;
+    margin-bottom: 15px !important;
 }
 
-.login-form>div:not(.login-form-alert) {
-  width: 100% !important;
-  margin: 10px 0 !important;
+.login-wrapper div:last-of-type>p:first-of-type {
+    font-size: 26px !important;
 }
 
-.login-label {
-  text-align: left;
-  color: #666666 !important;
-  font-size: 13px !important;
-  text-indent: 5px !important;
+.login-wrapper div>p.logotype-subtitle {
+    color: #FFFFFF !important;
+    font-size: 18px !important;
 }
 
-.MuiPaper-root.MuiPaper-elevation {
-  padding: 12px !important;
+.login-wrapper .response-box {
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    right: 0;
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    -ms-border-radius: 0 !important;
+    -o-border-radius: 0 !important;
+    border-radius: 0 !important;
 }
 
-.login-form-img {
-  width: 60px;
-  max-width: 15%;
-  position: absolute;
-  top: 15px;
-  right: 0;
-  transform: rotate(85deg);
+/* #region Mobile */
+@media(max-width: 600px) {
+    .login-wrapper {
+        margin: auto 10px !important;
+        max-width: unset !important;
+        height: 300px;
+        min-height: unset !important;
+        padding: 15px 10px 0 10px;
+    }
+
+    .login-form {
+        padding: 5px 0 !important;
+    }
 }
 
-.login-form button {
-  float: right !important;
+@media(max-width: 450px) {
+    .login-form label>* {
+        font-size: 12px !important;
+    }
 }
 
-.login-form>button {
-  display: inline-block;
-  margin: 10px 0 0 10px;
-  overflow: hidden;
-}
-
-.login-form>button:disabled {
-  background-color: transparent !important;
-  color: #c4c4c4 !important;
-}
+/* #endregion */

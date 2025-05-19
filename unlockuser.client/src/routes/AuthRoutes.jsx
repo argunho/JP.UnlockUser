@@ -11,15 +11,24 @@ import Home from "./../pages/auth/Home";
 import ListView from "../pages/auth/ListView";
 import Contacts from "./../pages/open/Contacts";
 import Logout from "../pages/auth/Logout";
-import NotFound from "./../pages/open/NotFound";
+import NotFound from "./../pages/auth/NotFound";
+
+// Components
+import Header from "../components/Header";
+import ExpiredSession from './../components/ExpiredSession';
 
 // Functions
 import SessionData from "../functions/SessionData";
 
+// Css
+// import 'bootstrap/dist/css/bootstrap.css';
+import '../assets/css/form.css';
+import '../assets/css/blocks.css';
 
-function AuthRoutes({authContext }) {
 
-  const navigate = useNavigate();  
+function AuthRoutes({ authContext }) {
+
+  const navigate = useNavigate();
   const loc = useLocation();
 
   const props = {
@@ -60,11 +69,11 @@ function AuthRoutes({authContext }) {
     },
     {
       path: '/statistics',
-      element: <ListView {...props} label="Statistik" api="data/statistics" fullWidth={true}/>
+      element: <ListView {...props} label="Statistik" api="data/statistics" fullWidth={true} />
     },
     {
       path: '/schools',
-      element: <ListView {...props} label="Skolor" api="data/schools" id="id" fields={{name: "", place: ""}} labels={["Namn", "Plats"]}  />
+      element: <ListView {...props} label="Skolor" api="data/schools" id="id" fields={{ name: "", place: "" }} labels={["Namn", "Plats"]} />
     },
     {
       path: '/contact',
@@ -73,11 +82,10 @@ function AuthRoutes({authContext }) {
     {
       path: '/members/:office/:department',
       element: <Members {...props} />,
-    //   routes: [ ]
     },
     {
       path: "/session/expired",
-      element: <Logout expired={true} />
+      element: <ExpiredSession />
     },
     {
       path: "/logout",
@@ -85,25 +93,32 @@ function AuthRoutes({authContext }) {
     },
     {
       path: "/*",
-      element: <NotFound />
+      element: <NotFound isAuthorized={true} />,
+      open: true
     }
   ];
 
-  return <Routes>
-    {routes.map((route, index) => {
-      const { element, ...rest } = route;
+  return <>
+    <Header />
 
-      if (!!rest?.routes) {
-        return <Route key={index} {...rest} element={element} >
-          {rest?.routes?.map((children, ind) => {
-            const { element, ...rest } = children;
-            return <Route key={ind} {...rest} element={element} />;
-          })}
-        </Route>
-      } else
-        return <Route key={index} {...rest} element={element} />;
-    })}
-  </Routes>
+    <div className="container" id="container">
+      <Routes>
+        {routes.map((route, index) => {
+          const { element, ...rest } = route;
+
+          if (!!rest?.routes) {
+            return <Route key={index} {...rest} element={element} >
+              {rest?.routes?.map((children, ind) => {
+                const { element, ...rest } = children;
+                return <Route key={ind} {...rest} element={element} />;
+              })}
+            </Route>
+          } else
+            return <Route key={index} {...rest} element={element} />;
+        })}
+      </Routes>
+    </div>
+  </>
 }
 
 export default AuthRoutes;

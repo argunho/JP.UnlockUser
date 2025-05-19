@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -67,8 +68,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
                 return new(new
                 {
-                    alert = "error",
-                    loginAttempt,
+                    color = "error",
                     msg = $"<b>Felaktig användarnamn eller lösenord.</b><br/> {4 - loginAttempt} försök kvar."
                 });
             }
@@ -77,9 +77,9 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             _session?.Remove("LoginBlockTime");
 
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
-            var user = _provider.FindUserByExtensionProperty(model.Username);
+            var user = _provider.FindUserByExtensionProperty(model!.Username!);
             var userGroups = _provider.GetUserGroups(user);
-            permissionGroups?.RemoveAll(x => !userGroups.Contains(x.PermissionGroup));
+            permissionGroups?.RemoveAll(x => !userGroups.Contains(x.PermissionGroup!));
             permissionGroups ??= [];
             List<string> roles = [];
 
@@ -105,21 +105,22 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
                 Name = s.Name,
                 Manage = s.Manage
             }).ToList();
+
             var groupsNames = string.Join(",", groups.Select(s => s.Name));
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
             var token = CreateJwtToken(user, string.Join(",", roles), model?.Password ?? "", groupsNames);
 
             // Response message
-            var responseMessage = $"Tillåtna behöregiheter för grupp(er):<br/> <b>&nbsp;&nbsp;&nbsp;- {groupsNames.Replace(",", "<br/>&nbsp;&nbsp;&nbsp; -")}</b>.";
+            //var responseMessage = $"Tillåtna behöregiheter för grupp(er):<br/> <b>&nbsp;&nbsp;&nbsp;- {groupsNames.Replace(",", "<br/>&nbsp;&nbsp;&nbsp; -")}</b>.";
 
             // Your access has been confirmed.
             return new(new
             {
-                alert = "success",
+                //color = "success",
                 token,
-                groups,
-                msg = $"Din åtkomstbehörighet har bekräftats.<br/><br/> {responseMessage}"
+                groups
+                //msg = $"Din åtkomstbehörighet har bekräftats.<br/><br/> {responseMessage}"
             });
         }
         catch (Exception ex)
@@ -137,15 +138,16 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
         if (user == null)
             return null;
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]!));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
         IdentityOptions opt = new();
 
-        _session.SetString("Password", str[1]);
+        _session?.SetString("Password", str[1]);
 
+        var roles = str[0].Split(",").ToList();
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, user.Name),
+            new(ClaimTypes.Name, user?.Name),
             new("Email", user.EmailAddress),
             new("DisplayName", user.DisplayName),
             new("Username", user.Name),
@@ -157,7 +159,10 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             new("Roles", str?[0] ?? "")
         };
 
-        foreach (var role in str[0].Split(","))
+        if (roles.IndexOf("Support") > -1)
+            claims.Add(new("Access", "access"));
+
+        foreach (var role in roles)
             claims.Add(new Claim(opt.ClaimsIdentity.RoleClaimType, role));
 
         var tokenDescriptor = new SecurityTokenDescriptor

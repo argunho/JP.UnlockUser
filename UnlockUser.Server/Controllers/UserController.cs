@@ -81,7 +81,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         // Save/Update statistics
         await SaveUpdateStatitics("Unlocked", 1);
 
-        return new(new { success = true, unlocked = true, alert = "success", msg = "Användaren har låsts upp!" });
+        return new(new { success = true, unlocked = true, color = "success", msg = "Användaren har låsts upp!" });
     }
     #endregion
 

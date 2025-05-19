@@ -1,166 +1,126 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 
-// Installed
-import { Alert, AlertTitle, Button, CircularProgress, FormControl, TextField } from '@mui/material';
+import { useEffect, useActionState, useState, use } from 'react';
+
+// Installed Checkbox, FormControlLabel,
+import { TextField } from '@mui/material';
 
 // Components
-import Response from '../../components/Response';
+import Response from '../../components/OldResponse';
+import Logotype from '../../components/Logotype';
+import FormButtons from './../../components/FormButtons';
+import Loading from '../../components/Loading';
 
 // Functions
-import { ErrorHandle } from '../../functions/ErrorHandle';
+import { ErrorHandle } from './../../functions/ErrorHandle';
 
-// Services
-import ApiRequest from '../../services/ApiRequest';
-
-// Images
-import keys from '../../assets/images/keys.png';
+// storage
+import { AuthContext } from '../../storage/AuthContext';
+import { FetchContext } from './../../storage/FetchContext';
 
 // Css
-import '../../assets/css/login.css';
+import "../../assets/css/login.css";
 
-const formFields = [
-    { label: "Användarnamn", name: "username", type: "text" },
-    { label: "Lösenord", name: "password", type: "password" }
-];
 
-function Login({ authContext }) {
-    Login.displayName = "Login";
+function Login() {
 
-    const [formData, setFormData] = useState({
-        username: "",
-        password: ""
-    });
-    const [response, setResponse] = useState();
-    const [loading, setLoading] = useState(false);
-    const [wait, setWait] = useState();
+  const [wait, setWait] = useState();
 
-    const navigate = useNavigate();
+  const { authorize, isAuthorized } = use(AuthContext);
+  const { reqFn, handleResponse, response } = use(FetchContext);
 
-    useEffect(() => {
-        const token = sessionStorage.getItem("token");
-        if (token !== null && token !== undefined)
-            navigate("/");
-        document.title = "UnlockUser | Logga in";
-    }, [])
+  useEffect(() => {
+    document.title = "UnlockUser | Logga in";
+  }, [])
 
-    const changeHandler = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-        if (!!response)
-            setResponse();
+  const getTimeLeftToUnblock = (timeLeft) => {
+    const num = (wait ?? timeLeft)?.split(":");
+    let sec = parseInt(num[2]);
+    let min = parseInt(num[1]);
+
+    setInterval(() => {
+      if (sec + min === 0) {
+        clearInterval();
+        handleResponse();
+      } else {
+        if (sec === 0) {
+          if (min > 0) min -= 1;
+          else min = 59;
+          sec = 59;
+        } else
+          sec -= 1;
+      }
+
+      setWait(`00:${(min < 10) ? "0" + min : min}:${(sec < 10) ? "0" + sec : sec}`);
+    }, 1000)
+  }
+
+  async function onSubmit(previous, fd) {
+
+    const data = {
+      username: fd.get("username"),
+      password: fd.get("password"),
+      // remember: fd.get("remember") === 'on' ? true : false
     }
 
-    const getTimeLeftToUnblock = (res) => {
-        const num = (wait ?? res?.timeLeft)?.split(":");
-        let sec = parseInt(num[2]);
-        let min = parseInt(num[1]);
+    try {
+      const { token, groups, timeLeft } = await reqFn("authentication", "post", data) ?? {};
 
-        setInterval(() => {
-            if (sec + min === 0 || res === null) {
-                clearInterval();
-                hndleResponse();
-            } else {
-                if (sec === 0) {
-                    if (min > 0) min -= 1;
-                    else min = 59;
-                    sec = 59;
-                } else
-                    sec -= 1;
-            }
+      if (timeLeft)
+        getTimeLeftToUnblock(timeLeft);
+      else if (token) {
+        sessionStorage.setItem("token", token);
+        sessionStorage.setItem("groups", JSON.stringify(groups));
+        sessionStorage.setItem("group", groups[0]?.name);
 
-            setWait(`00:${(min < 10) ? "0" + min : min}:${(sec < 10) ? "0" + sec : sec}`);
-        }, 1000)
+        authorize(token);
+      }
+    } catch (error) {
+      handleResponse(ErrorHandle(error));
+      return data;
     }
+  }
 
-    const submitForm = async (e) => {
-        e.preventDefault();
+  const [formState, formAction, loading] = useActionState(onSubmit)
+  const disabled = loading || !!response;
 
-        setLoading(true);
+  if (isAuthorized)
+    return <Loading />;
 
-        await ApiRequest("authentication", "post", formData).then(res => {
-            const { token, groups, timeLeft, errorMessage } = res.data;
+  return <div className="d-column jc-between ai-start w-100 login-wrapper">
 
-            if (timeLeft)
-                getTimeLeftToUnblock(res.data);
-            else {
-                setResponse(res.data);
-                if (errorMessage)
-                    ErrorHandle("Error => " + errorMessage);
-                else if (!!token) {
-                    sessionStorage.setItem("token", token);
-                    sessionStorage.setItem("groups", JSON.stringify(groups));
-                    sessionStorage.setItem("group", groups[0]?.name);
+    <Logotype />
 
-                    authContext.authorize(token);
-                    authContext.updateGroupName(groups[0]?.name);
-                    setTimeout(() => {
-                        navigate("/");
-                    }, 1500)
-                }
-            }
-            setLoading(false);
-        }, error => {
-            setLoading(false);
-            ErrorHandle(error)
-        })
-    }
+    {/* Form */}
+    <form className="d-column login-form" action={formAction}>
+      <h2>Logga in</h2>
 
-    const hndleResponse = useCallback(function handleResponse() {
-        if (response?.alert === "success")
-            navigate("/");
-        else
-            setResponse();
-    }, []);
+      {[
+        { name: "username", type: "text", label: "Användarnamn", },
+        { name: "password", type: "password", label: "Lösenord" },
+      ].map((props, index) => {
+        return (
+          <TextField key={index}
+            className="login-input"
+            defaultValue={formState && (formState[props.name] ?? "")}
+            {...props} required disabled={disabled}
+          />
+        );
+      })}
 
+      <div className="d-row jc-between w-100">
+        {/* <FormControlLabel className="d-row jc-start w-100" control={
+          <Checkbox id="checkbox" name="remember" color={disabled ? "default" : "success"} disabled={disabled} defaultChecked={formState?.remember ?? false} />
+        } label="Håll mig inloggad" /> */}
 
-    return (
-        <form className='login-form' onSubmit={submitForm}>
-            <p className='form-title'>Logga in</p>
+        {/* Buttons to submit the form data and confirmation to accept this submit action */}
+        <FormButtons label="Logga in" disabled={disabled} loading={loading} />
+      </div>
 
-            {/* Response */}
-            {!!response && <Response res={response} reset={hndleResponse} />}
+    </form>
 
-            {/* Wait */}
-            {(!!wait && !loading) && <Alert variant='filled' color="warning" className='w-100'>
-                <AlertTitle>{`Vänta ${wait} minuter innan du försöker igen.`}</AlertTitle>
-            </Alert>}
-
-            {/* Form content */}
-            {(!response && !wait) && <>
-                {formFields?.map((x, i) => (
-                    <FormControl key={i}>
-                        <TextField
-                            label={x.label}
-                            name={x.name}
-                            type={x.type}
-                            value={formData[x.name]}
-                            variant="outlined"
-                            required
-                            autoComplete='off'
-                            autoSave='off'
-                            inputProps={{
-                                maxLength: 20,
-                                minLength: 5
-                            }}
-                            disabled={loading}
-                            onChange={changeHandler} />
-                    </FormControl>
-                ))}
-
-                <Button variant="outlined"
-                    className='button-btn'
-                    color="inherit"
-                    type="submit"
-                    title="Logga in"
-                    disabled={loading || formData?.username.length < 5 || formData?.password.length < 5} >
-                    {loading ? <CircularProgress style={{ width: "12px", height: "12px", marginTop: "3px" }} /> : "Skicka"}</Button>
-            </>}
-
-
-            {/* Login logo */}
-            <img src={keys} alt="UnlockUser" className='login-form-img' />
-        </form>
-    )
+    {/* Response */}
+    {response && <Response res={response} cancel={() => handleResponse()} />}
+  </div>;
 }
 
 export default Login;

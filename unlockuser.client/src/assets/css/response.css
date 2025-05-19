@@ -1,5 +1,5 @@
 /* #region Response */
-.response-box {
+/* .response-box {
     color: #000000 !important;
     height: max-content;
     margin: 10px auto;
@@ -59,6 +59,6 @@
   .login-container .response-box>div,
   .form-modal div[role="dialog"] .response-box>* {
     margin-bottom: 0 !important;
-  }
+  } */
   
   /* #endregion */

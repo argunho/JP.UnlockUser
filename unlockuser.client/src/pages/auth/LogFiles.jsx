@@ -8,7 +8,7 @@ import moment from "moment";
 import fileDownload from 'js-file-download';
 
 // Components
-import Response from '../../components/Response';
+import Response from '../../components/OldResponse';
 import Loading from '../../components/Loading';
 import ModalHelpTexts from '../../components/ModalHelpTexts'
 import SearchFilter from '../../components/SearchFilter';
@@ -66,7 +66,7 @@ function LogFiles({ loc, navigate }) {
             }
             else
                 console.error(res.data);
-        }, error => ErrorHandle(error, navigate));
+        }, error => ErrorHandle(error));
     }
 
     return (
@@ -119,7 +119,7 @@ function LogFiles({ loc, navigate }) {
 
             {/* Message if result is null */}
             {(list.length === 0 && !loading) &&
-                <Response res={{ alert: "info", msg: "Här finns inga loggfiler" }} />}
+                <Response res={{ color: "info", msg: "Här finns inga loggfiler" }} />}
         </div>
     )
 }

@@ -1,0 +1,130 @@
+/* #region Form */
+/* input {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+} */
+
+label {
+  font-size: 13px !important;
+  letter-spacing: 1px !important;
+  font-weight: 600 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+input::placeholder {
+  font-size: 12px !important;
+}
+
+input[type="password"]:disabled {
+  opacity: 0.5 !important;
+  background-color: #ececec;
+}
+
+.alert {
+  width: 100% !important;
+  margin: 10px auto 25px auto !important;
+  text-align: left !important;
+  font-size: 12px !important;
+}
+
+.collapse-wrapper .alert {
+  width: 95% !important;
+}
+
+.disabled,
+.disabled:hover {
+  opacity: 0.3 !important;
+  cursor: no-drop !important;
+}
+
+.none {
+  visibility: hidden !important;
+  z-index: -1 !important;
+  display: none !important;
+}
+
+.dropdown-div {
+  overflow: hidden !important;
+  max-height: 0;
+  padding: 0;
+  margin: 5px 0 0 0;
+  width: 100%;
+  overflow: hidden;
+  clear: both;
+  transition: max-height 0.9s ease-in-out;
+}
+
+.dropdown-div.dropdown-open {
+  max-height: 1000px;
+  overflow: visible;
+}
+
+.dropdown-interior-div {
+  border: 1px solid #bdbdbd;
+  display: block;
+  padding: 15px;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.last-options {
+  width: 97%;
+  margin: 0 auto 10px auto;
+  color: #686868 !important;
+}
+
+.confirm-wrapper {
+  justify-content: flex-end !important;
+  transition: all 0.5s ease-in;
+}
+
+.confirm-title {
+  color: #cc0000;
+  margin: auto 20px auto 20px;
+  font-weight: 600;
+  font-size: 18px;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+}
+
+.input-block {
+  margin: 20px auto !important;
+  width: 100%;
+  max-width: 300px;
+}
+
+.form-buttons label.checkbox {
+  height: max-content;
+}
+
+.checkbox span {
+  font-size: 12px !important;
+  width: max-content !important;
+}
+
+.checkbox span:first-child {
+  margin-right: 5px !important;
+}
+
+button {
+  letter-spacing: 0.5px !important;
+  font-size: 12px !important;
+}
+
+.button-btn {
+  width: max-content;
+  min-width: 100px !important;
+  min-height: 38px;
+}
+
+div[role="dialog"] {
+  z-index: 3000;
+  transition: all 0.7s ease-in-out;
+}
+
+.modal-view div[role="dialog"] {
+  width: 95%;
+  max-width: 500px;
+  padding: 20px 15px
+}
+
+/* #endregion */
