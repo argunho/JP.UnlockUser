@@ -42,8 +42,6 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
                 // If the user tried to put in a wrong password, save this like +1 a wrong attempt and the max is 4 attempts
                 _session?.SetInt32("LoginAttempt", loginAttempt += 1);
 
-
-
                 return new(new
                 {
                     color = "error",
@@ -89,16 +87,11 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
             var token = CreateJwtToken(user, string.Join(",", roles), model?.Password ?? "", groupsNames);
 
-            // Response message
-            //var responseMessage = $"Tillåtna behöregiheter för grupp(er):<br/> <b>&nbsp;&nbsp;&nbsp;- {groupsNames.Replace(",", "<br/>&nbsp;&nbsp;&nbsp; -")}</b>.";
-
             // Your access has been confirmed.
             return new(new
             {
-                //color = "success",
                 token,
                 groups
-                //msg = $"Din åtkomstbehörighet har bekräftats.<br/><br/> {responseMessage}"
             });
         }
         catch (Exception ex)
@@ -193,7 +186,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
     public JsonResult? ProtectAccount(int attempt)
     {
         var blockTime = _session?.GetString("LoginBlockTime") ?? null;
-        if (attempt >= 4)
+        if (attempt >= 3)
         {
             blockTime = DateTime.Now.ToString();
             _session?.SetString("LoginBlockTime", blockTime);
