@@ -17,6 +17,7 @@ import { ErrorHandle } from './../../functions/ErrorHandle';
 import { AuthContext } from '../../storage/AuthContext';
 import { FetchContext } from './../../storage/FetchContext';
 
+let clear = true;
 
 function Login() {
 
@@ -37,10 +38,12 @@ function Login() {
     let min = parseInt(num[1]);
 
     setInterval(() => {
-      if (sec + min === 0) {
+      if (sec + min === 0 || clear) {
         clearInterval();
-        handleResponse();
-      } else {
+        setWait();
+        return;
+      }
+      else {
         if (sec === 0) {
           if (min > 0) min -= 1;
           else min = 59;
@@ -64,8 +67,10 @@ function Login() {
     try {
       const { token, groups, timeLeft } = await reqFn("authentication", "post", data) ?? {};
 
-      if (timeLeft)
+      if (timeLeft) {
+        clear = false;
         getTimeLeftToUnblock(timeLeft);
+      }
       else if (token) {
         sessionStorage.setItem("token", token);
         sessionStorage.setItem("groups", JSON.stringify(groups));
@@ -73,10 +78,19 @@ function Login() {
 
         authorize(token);
       }
+
+      return data;
     } catch (error) {
       handleResponse(ErrorHandle(error));
       return data;
     }
+  }
+
+  function clearResponse() {
+    if (wait)
+      clear = true;
+    else
+      handleResponse();
   }
 
   const [formState, formAction, loading] = useActionState(onSubmit)
@@ -116,12 +130,13 @@ function Login() {
     </form>
 
     {/* contacts link button  */}
-      <IconButton className="login-contacts-link" onClick={() => navigate("/contacts")} disabled={loading}>
-          <ContactSupportIcon />
-      </IconButton>
+    <IconButton className="login-contacts-link" onClick={() => navigate("/contacts")} disabled={loading}>
+      <ContactSupportIcon />
+    </IconButton>
 
     {/* Response */}
-    {response && <Response res={response} cancel={() => handleResponse()} />}
+    {(response || wait) && <Response res={response ? response : { color: "warning", msg: `Vänta ${wait} minuter innan du försöker igen.` }}
+      cancel={clearResponse} />}
   </div>;
 }
 

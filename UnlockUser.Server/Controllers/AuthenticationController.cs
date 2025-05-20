@@ -42,6 +42,8 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
                 // If the user tried to put in a wrong password, save this like +1 a wrong attempt and the max is 4 attempts
                 _session?.SetInt32("LoginAttempt", loginAttempt += 1);
 
+
+
                 return new(new
                 {
                     color = "error",
@@ -138,6 +140,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
         return new(true);
     }
     #endregion
+    
     #region Helpers
     // Create Jwt Token for authenticating
     private string? CreateJwtToken(UserPrincipalExtension user, [FromBody] params string[] str)
