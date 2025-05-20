@@ -10,7 +10,7 @@ import FormButtons from "../../components/FormButtons";
 
 // Services
 import ApiRequest from "../../services/ApiRequest";
-import Response from "../../components/OldResponse";
+import Response from "../../components/Response";
 import Loading from "../../components/Loading";
 
 // Functions
@@ -162,7 +162,7 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
             {!!noData && <Response res={noData} />}
 
             {/* Confirm/Form block */}
-            {!!fields && <Collapse in={open} className='d-row' timeout="auto" unmountOnExit>
+            {!!fields && <Collapse in={open} className='d-row w-100' timeout="auto" unmountOnExit>
                 {/* Confirm */}
                 {!!confirm && <FormButtons confirmable={true} confirmOnly={true} question="Radera" submit={removeItem} cancel={() => setConfirm(null)} />}
 

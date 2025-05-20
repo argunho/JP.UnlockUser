@@ -17,7 +17,6 @@
     font-size: 16px;
     text-transform: uppercase;
     padding: 10px 0 !important;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     border-bottom: 1px solid #bdbdbd;
     margin-bottom: 20px;
 }
@@ -73,7 +72,7 @@ div.dropdown li button {
 }
 
 div.dropdown>li {
-    border-top: 3px solid #4d4c4c;
+    border-top: 2px solid #4d4c4c;
 }
 
 .dropdown-block,
@@ -107,7 +106,6 @@ div.dropdown>li {
     background-color: rgb(2, 172, 30);
     color: #FFFFFF;
     margin-bottom: 20px !important;
-    font-family: monospace;
 }
 
 .view-modal-label span {
@@ -180,6 +178,6 @@ li.modal-list-item {
     min-width: 120px !important;
     margin-left: 10px !important;
     margin-right: 0 !important;
-    height: 50px !important;
+    height: 56px !important;
     max-width: unset !important;
 }

@@ -1,27 +1,30 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, use } from 'react';
 import _ from 'lodash'; // To compare two objects for identity
 
 // Installed
 import {
     Checkbox, FormControl, FormControlLabel, FormLabel, Radio, TextField, Tooltip
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 // Components
 import ModalHelpTexts from './ModalHelpTexts';
-import Response from './OldResponse';
+import Response from './Response';
 import PDFConverter from './PDFConverter';
 import PasswordGeneration from './PasswordGeneration';
 import ListCategories from './ListCategories';
+import FormButtons from './FormButtons';
 
 // Functions
 import SessionData from '../functions/SessionData';
 import { ErrorHandle } from '../functions/ErrorHandle';
+import { DecodedToken } from '../functions/DecodedToken';
 
 // Services
 import ApiRequest from '../services/ApiRequest';
-import { useNavigate } from 'react-router-dom';
-import { DecodedToken } from '../functions/DecodedToken';
-import FormButtons from './FormButtons';
+
+// Storage
+import { AuthContext } from '../storage/AuthContext';
 
 
 // Form inputs
@@ -30,9 +33,9 @@ const formList = [
     { name: "confirmPassword", label: "Bekräfta lösenord", placeholder: "" }
 ]
 
-function Form({ title, name, passwordLength, users, authContext }) {
-    Form.displayName = "Form";
+function Form({ title, name, passwordLength, users }) {
 
+    const { group } = use(AuthContext);
     const multiple = users.length > 1;
 
     const defaultForm = {
@@ -243,7 +246,7 @@ function Form({ title, name, passwordLength, users, authContext }) {
                 usersArray.push({
                     username: users[i].name,
                     password: formData.password,
-                    groupName: authContext?.group
+                    groupName: group
                 })
             }
             data.users = usersArray;
@@ -310,7 +313,7 @@ function Form({ title, name, passwordLength, users, authContext }) {
     const disabled = load || _.isEqual(formData, defaultForm) || !!response;
 
     return (
-        <div className='collapse-wrapper'>
+        <div className='collapse-wrapper w-100'>
 
             {/* The curtain over the block disables all action if the form data is submitted and waiting for a response */}
             {load && <div className='curtain-block'></div>}

@@ -34,25 +34,29 @@ function SearchFilter({ label, disabled, clean, onChange, onReset }) {
             disabled={!!disabled}
             placeholder="Anvädarnamn, school, klass, datum, gruppnamn ..."
             onChange={changeHandler}
+            InputProps={{
+                endAdornment: <div className="d-row">
+
+                    {/* Reset form - button */}
+                    {keyword?.length > 0 && <Button
+                        variant="text"
+                        color="error"
+                        className="search-reset search-button-mobile"
+                        onClick={resetFilter}>
+                        <SearchOffSharp />
+                    </Button>}
+
+                    {/* Disabled button */}
+                    <Button
+                        variant="outlined"
+                        color="inherit"
+                        className="search-button search-button-mobile"
+                        type="button"
+                        disabled={true}>
+                        <SearchSharp /></Button>
+                </div>
+            }}
         />
-
-        {/* Disabled button */}
-        <Button
-            variant="outlined"
-            color="inherit"
-            className="search-button search-button-mobile"
-            type="button"
-            disabled={true}>
-            <SearchSharp /></Button>
-
-        {/* Reset form - button */}
-        {keyword?.length > 0 && <Button
-            variant="text"
-            color="error"
-            className="search-reset search-button-mobile"
-            onClick={resetFilter}>
-            <SearchOffSharp />
-        </Button>}
     </div>
 }
 

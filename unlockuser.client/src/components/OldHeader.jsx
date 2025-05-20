@@ -108,14 +108,6 @@ function Header() {
                             </ul>
                         </div>
                     </div>
-
-                    {/* {!authContext.isAuthorized && <Tooltip arrow title="Kontakta support"
-                        classes={{ tooltip: "tooltip tooltip-margin" }}>
-                        <Button variant='outlined' size="large" className='nav-btn' onClick={() => navigate("/contact")}>
-                            <LiveHelp />
-                        </Button>
-                    </Tooltip>} */}
-
                 </div>
             </nav>
         </header>

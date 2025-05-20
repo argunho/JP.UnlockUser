@@ -11,7 +11,7 @@ import { useParams } from 'react-router-dom';
 
 // Components
 import SearchFilter from '../../components/SearchFilter';
-import Response from '../../components/OldResponse';
+import Response from '../../components/Response';
 import Loading from '../../components/Loading';
 import FormButtons from '../../components/FormButtons';
 
@@ -229,11 +229,11 @@ function EmployeesList({ navigate }) {
                     onChange={listFilterBySearchKeyword} onReset={resetActions} />
 
                 {/* Groups filter */}
-                <Box sx={{ minWidth: 160, marginBottom: "9px" }}>
+                <Box sx={{ minWidth: 160 }}>
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Grupper</InputLabel>
                         <Select value={group ?? ""} label="Grupper" labelId="demo-simple-select-label"
-                            onChange={switchGroup} sx={{ height: 50, color: "#1976D2" }} disabled={loading}>
+                            onChange={switchGroup} sx={{ color: "#1976D2" }} disabled={loading}>
                             {groups?.map((name, index) => (
                                 <MenuItem value={name} key={index}>
                                     <span style={{ marginLeft: "10px" }}> - {name}</span>

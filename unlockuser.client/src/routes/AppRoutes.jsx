@@ -6,6 +6,9 @@ import Login from "./../pages/open/Login";
 import Contacts from "./../pages/open/Contacts";
 import NotFound from "./../pages/auth/NotFound";
 
+// Css
+import "../assets/css/login.css";
+
 function AppRoutes({authContext}) {
   
   const routes = [
@@ -15,7 +18,7 @@ function AppRoutes({authContext}) {
       element: <Login authContext={authContext}/>
       },
       {
-          path: '/contact',
+          path: '/contacts',
           element: <Contacts />
       },
       {

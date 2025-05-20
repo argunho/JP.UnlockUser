@@ -8,7 +8,7 @@ import moment from "moment";
 import fileDownload from 'js-file-download';
 
 // Components
-import Response from '../../components/OldResponse';
+import Response from '../../components/Response';
 import Loading from '../../components/Loading';
 import ModalHelpTexts from '../../components/ModalHelpTexts'
 import SearchFilter from '../../components/SearchFilter';
@@ -20,8 +20,7 @@ import { ErrorHandle } from '../../functions/ErrorHandle';
 import ApiRequest from '../../services/ApiRequest';
 import { useParams } from 'react-router-dom';
 
-function LogFiles({ loc, navigate }) {
-    LogFiles.displayName = "LogFiles";
+function LogFiles({ loc }) {
 
     const [list, setList] = useState([]);
     const [initList, setInitList] = useState([])

@@ -52,7 +52,6 @@
 
 .form-actions label>span {
   font-size: 14px !important;
-  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
   letter-spacing: 0.5px;
 }
 
@@ -87,11 +86,10 @@
   vertical-align: middle;
 }
 
-.unlock-block>span {
+.unlock-block>div>span {
   margin-left: 15px;
   color: #1976d2;
   vertical-align: middle;
-  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
 }
 
 .unlock-block svg {
@@ -101,12 +99,6 @@
 .locked-account svg,
 .locked-account>span {
   color: #cc0000 !important;
-}
-
-.unlock-btn {
-  position: absolute !important;
-  right: 10px;
-  top: 11px;
 }
 
 .pr-inputs {

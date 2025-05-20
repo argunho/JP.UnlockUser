@@ -1,10 +1,10 @@
-import { useEffect, useState, use} from 'react';
+import { useEffect, useState, use } from 'react';
 
 // Installed
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
 import {
     Button, FormControl, FormControlLabel, Tooltip,
-    Radio, RadioGroup, TextField, Switch, Autocomplete, Select, MenuItem, InputLabel, Box
+    Radio, RadioGroup, TextField, Switch, Autocomplete, Select, MenuItem, InputLabel
 } from '@mui/material'
 
 // Components
@@ -39,7 +39,7 @@ function Home() {
     }
     const sOption = sessionStorage.getItem("sOption");
 
-   const { groups, group: currentGroup, updateGroupName } = use(AuthContext);
+    const { groups, group: currentGroup, updateGroupName } = use(AuthContext);
 
     const [formData, setFormData] = useState(defaultData);
     const [users, setUsers] = useState(!!sessionStorage.getItem("users") ? JSON.parse(sessionStorage.getItem("users")) : null);
@@ -195,7 +195,7 @@ function Home() {
         <div className='interior-div'>
 
             {/* Search form */}
-            <div className='d-row search-container' id="search_container">
+            <section className='d-row jc-between search-container ai-start' id="search_container">
                 <form className='search-wrapper w-100' onSubmit={getSearchResult}>
                     {/* List loop of text fields */}
                     {sFormParams?.map((s, index) => (
@@ -203,7 +203,7 @@ function Home() {
                             key={index}
                             freeSolo
                             disableClearable
-                            className={s.clsName || 'search-full-width'}
+                            className={s.clsName || 'search-full-width d-row'}
                             options={schools}
                             getOptionLabel={(option) => "- " + option?.primary + " (" + option?.secondary + ")"}
                             autoHighlight
@@ -223,7 +223,27 @@ function Home() {
                                     InputProps={{
                                         ...params.InputProps,
                                         maxLength: 30,
-                                        minLength: 2
+                                        minLength: 2,
+                                        endAdornment: (clsStudents && index == 0) ? null :<div className="d-row">
+                                            {/* Reset form - button */}
+                                            {isActive &&
+                                                <Button
+                                                    variant="text"
+                                                    color="error"
+                                                    className="search-reset search-button-mobile"
+                                                    disabled={loading}
+                                                    onClick={resetData}>
+                                                    <SearchOffSharp />
+                                                </Button>}
+
+                                            {/* Submit form - button */}
+                                            <Button variant={isActive ? "contained" : "outlined"}
+                                                color={isActive ? "primary" : "inherit"}
+                                                className="search-button search-button-mobile"
+                                                type="submit"
+                                                disabled={!isActive || loading}>
+                                                <SearchSharp /></Button>
+                                        </div>
                                     }}
                                     value={formData[s.name]}
                                     disabled={loading}
@@ -235,27 +255,10 @@ function Home() {
                         />
                     ))}
 
-                    {/* Submit form - button */}
-                    <Button variant={isActive ? "contained" : "outlined"}
-                        color={isActive ? "primary" : "inherit"}
-                        className="search-button search-button-mobile"
-                        type="submit"
-                        disabled={!isActive || loading}>
-                        <SearchSharp /></Button>
-
-                    {/* Reset form - button */}
-                    {isActive && <Button
-                        variant="text"
-                        color="error"
-                        className="search-reset search-button-mobile"
-                        disabled={loading}
-                        onClick={resetData}>
-                        <SearchOffSharp />
-                    </Button>}
                 </form>
 
                 {/* Choose group */}
-                {groups?.length > 1 && <Box sx={{ minWidth: 160, marginBottom: "9px" }}>
+                {groups?.length > 1 && 
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Hanteras</InputLabel>
                         <Select
@@ -263,7 +266,7 @@ function Home() {
                             label="Hanteras"
                             labelId="demo-simple-select-label"
                             onChange={switchGroup}
-                            sx={{ height: 50, color: "#1976D2" }}
+                            sx={{ color: "#1976D2" }}
                             disabled={groups?.length === 1 || sFormParams?.length > 1}
                         >
                             {groups?.map((group, index) => (
@@ -272,14 +275,13 @@ function Home() {
                                 </MenuItem>
                             ))}
                         </Select>
-                    </FormControl>
-                </Box>}
-            </div>
+                    </FormControl>}
+            </section>
 
             {/* The search parameters to choice */}
-            <div className="checkbox-radio-wrapper d-row" id="crw">
+            <section className="checkbox-radio-wrapper d-row jc-between" id="crw">
 
-                <div className='left-section d-column'>
+                <div className='left-section d-column ai-start'>
 
                     {/* Radio buttons to choice one of search alternatives */}
                     {group === "Studenter" && <FormControl className='checkbox-block-mobile' style={{ display: "inline-block" }}>
@@ -332,7 +334,7 @@ function Home() {
                     {/* Modal  window with help texts */}
                     <ModalHelpTexts data={arrayTexts} isTitle="Förklaring av sökparametrar" />
                 </div>
-            </div>
+            </section>
 
             {/* Result of search */}
             <Result

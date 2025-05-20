@@ -1,3 +1,4 @@
+/* #region Login */
 .login-wrapper {
     max-width: 700px !important;
     height: 500px;
@@ -32,6 +33,21 @@
     margin-bottom: 15px !important;
 }
 
+.login-contacts-link {
+    position: absolute !important;
+    bottom: 20px;
+    right: 20px;
+}
+
+.login-contacts-link svg {
+    font-size: 30px !important;
+
+}
+
+.login-contacts-link:hover {
+    color: #FFFFFF;
+}
+
 .login-wrapper div:last-of-type>p:first-of-type {
     font-size: 26px !important;
 }
@@ -52,26 +68,15 @@
     -o-border-radius: 0 !important;
     border-radius: 0 !important;
 }
+/* #endregion */
 
-/* #region Mobile */
-@media(max-width: 600px) {
-    .login-wrapper {
-        margin: auto 10px !important;
-        max-width: unset !important;
-        height: 300px;
-        min-height: unset !important;
-        padding: 15px 10px 0 10px;
-    }
-
-    .login-form {
-        padding: 5px 0 !important;
-    }
+/* #region Contacts */
+.contacts-container {
+    min-height: unset !important;
+    padding: 50px 0;
 }
 
-@media(max-width: 450px) {
-    .login-form label>* {
-        font-size: 12px !important;
-    }
+.contacts-button {
+    display: visible !important;
 }
-
 /* #endregion */

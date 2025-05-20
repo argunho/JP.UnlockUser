@@ -20,7 +20,7 @@ function Response({ children, res, cancel, style }) {
         }
     }, [cancel])
 
-
+console.log(res.data)
     const error = typeof res === "string" ? res : res?.error;
     const msg = res == 0 ? "Inget data finns att visa..." : (error ? res.error : res?.msg);
     const color = res == 0 ? "warning" : (error ? "error" : (res?.color ?? "success"));

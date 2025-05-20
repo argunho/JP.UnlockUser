@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, use } from 'react';
 import { useParams } from 'react-router-dom';
 
 // Installed
@@ -9,49 +9,56 @@ import { Button, CircularProgress } from '@mui/material';
 // Components
 import Form from '../../components/Form';
 import Info from '../../components/Info';
-import Response from '../../components/OldResponse';
+import Response from '../../components/Response';
 import Loading from '../../components/Loading';
+
+// Functions
+import { ErrorHandle } from '../../functions/ErrorHandle';
 
 // Services
 import ApiRequest from '../../services/ApiRequest';
+
+// Stroage
+import { AuthContext } from '../../storage/AuthContext';
 
 // Css
 import '../../assets/css/userview.css';
 
 // Images
 import loadingImg from "../../assets/images/loading.gif";
-import { ErrorHandle } from '../../functions/ErrorHandle';
 
-function UserManager({ authContext, navigate }) {
-    UserManager.displayName = "UserManager";
+function UserManager() {
 
     const { id } = useParams();
 
     const [user, setUser] = useState(null);
     const [response, setResponse] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { group } = use(AuthContext);
 
     useEffect(() => {
+        document.title = "UnlockUser | Användare";
+
+        async function getUserData() {
+            await ApiRequest(`user/${group}/${id}`).then(res => {
+                const { user, msg } = res?.data;
+                if (user !== undefined && user !== null) {
+                    user.subTitle = user?.office + (user?.office !== user?.department ? (" " + user?.department) : "")
+                    setUser(user);
+                } else if (!!msg)
+                    setResponse(res?.data);
+                setLoading(false);
+            }, error => {
+                ErrorHandle(error);
+                setLoading(false);
+            })
+        }
+
         if (!!id)
             getUserData();
-
-        document.title = "UnlockUser | Användare";
     }, [id])
 
-    async function getUserData() {
-        await ApiRequest(`user/${authContext.group}/${id}`).then(res => {
-            const { user, msg } = res?.data;
-            if (user !== undefined && user !== null) {
-                user.subTitle = user?.office + (user?.office !== user?.department ? (" " + user?.department) : "")
-                setUser(user);
-            } else if (!!msg)
-                setResponse(res?.data);
-            setLoading(false);
-        }, error => {
-            ErrorHandle(error);
-            setLoading(false);
-        })
-    }
+
 
     // Unlock user
     async function unlockUser() {
@@ -62,7 +69,7 @@ function UserManager({ authContext, navigate }) {
         await ApiRequest("user/unlock/" + user?.name).then(res => {
             setLoading(false);
             setResponse(res?.data);
-            getUserData();
+            // getUserData();
         }, error => { // Error handle
             ErrorHandle(error);
             setLoading(false);
@@ -85,9 +92,12 @@ function UserManager({ authContext, navigate }) {
 
         {/* Unlock user */}
         {!!user && <>
-            <div className={'unlock-block' + (user?.isLocked ? " locked-account" : "")}>
-                {user?.isLocked ? <Lock /> : <LockOpen />}
-                <span>{user?.isLocked ? "Kontot är låst" : "Aktiv konto"}</span>
+            <div className={'unlock-block w-100 d-row jc-between' + (user?.isLocked ? " locked-account" : "")}>
+                <div className="d-row">
+                    {user?.isLocked ? <Lock /> : <LockOpen />}
+                    <span>{user?.isLocked ? "Kontot är låst" : "Aktiv konto"}</span>
+                </div>
+
 
                 {/* Unlock user - button */}
                 <Button variant="contained"

@@ -2,14 +2,14 @@
 import { useEffect, useActionState, useState, use } from 'react';
 
 // Installed Checkbox, FormControlLabel,
-import { TextField } from '@mui/material';
+import { TextField, IconButton } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 
 // Components
-import Response from '../../components/OldResponse';
+import Response from '../../components/Response';
 import Logotype from '../../components/Logotype';
 import FormButtons from './../../components/FormButtons';
-import Loading from '../../components/Loading';
-
 // Functions
 import { ErrorHandle } from './../../functions/ErrorHandle';
 
@@ -17,16 +17,15 @@ import { ErrorHandle } from './../../functions/ErrorHandle';
 import { AuthContext } from '../../storage/AuthContext';
 import { FetchContext } from './../../storage/FetchContext';
 
-// Css
-import "../../assets/css/login.css";
-
 
 function Login() {
 
   const [wait, setWait] = useState();
 
-  const { authorize, isAuthorized } = use(AuthContext);
+  const { authorize } = use(AuthContext);
   const { reqFn, handleResponse, response } = use(FetchContext);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "UnlockUser | Logga in";
@@ -83,10 +82,8 @@ function Login() {
   const [formState, formAction, loading] = useActionState(onSubmit)
   const disabled = loading || !!response;
 
-  if (isAuthorized)
-    return <Loading />;
 
-  return <div className="d-column jc-between ai-start w-100 login-wrapper">
+  return <div className="d-column jc-between ai-start w-100 login-wrapper p-rel fade-in">
 
     <Logotype />
 
@@ -117,6 +114,11 @@ function Login() {
       </div>
 
     </form>
+
+    {/* contacts link button  */}
+      <IconButton className="login-contacts-link" onClick={() => navigate("/contacts")} disabled={loading}>
+          <ContactSupportIcon />
+      </IconButton>
 
     {/* Response */}
     {response && <Response res={response} cancel={() => handleResponse()} />}

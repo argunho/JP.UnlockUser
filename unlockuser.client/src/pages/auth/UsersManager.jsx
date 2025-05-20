@@ -4,14 +4,15 @@ import { useEffect, useState } from 'react';
 // Installed
 import { ArrowDropDown, ArrowDropUp, Close } from '@mui/icons-material';
 import { Button } from '@mui/material';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 // Components
 import Form from '../../components/Form';
 import Info from '../../components/Info';
 
-function UsersManager({ authContext, navigate }) {
-    UsersManager.displayName = "UsersManager";
+
+
+function UsersManager() {
 
     const { cls, school } = useParams();
 
@@ -19,6 +20,8 @@ function UsersManager({ authContext, navigate }) {
     const [users, setUsers] = useState([]);
     const [schoolName, setSchoolName] = useState("");
     const [dropdown, setDropdown] = useState(false);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         setName("Klass " + cls);
@@ -36,7 +39,7 @@ function UsersManager({ authContext, navigate }) {
     }
 
     return (
-        <div className='interior-div' id="interior_div">
+        <div className='interior-div w-100' id="interior_div">
             <Info
                 name={name}
                 displayName={schoolName}
@@ -59,8 +62,7 @@ function UsersManager({ authContext, navigate }) {
 
             <Form title={"Nya lösenord till " + users?.length + " elev" + (users?.length === 1 ? "er" : "")}
                 users={users}
-                passwordLength={8}
-                authContext={authContext} />
+                passwordLength={8} />
         </div>
     )
 }

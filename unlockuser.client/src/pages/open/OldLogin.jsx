@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Alert, AlertTitle, Button, CircularProgress, FormControl, TextField } from '@mui/material';
 
 // Components
-import Response from '../../components/OldResponse';
+import Response from '../../components/Response';
 
 // Functions
 import { ErrorHandle } from '../../functions/ErrorHandle';

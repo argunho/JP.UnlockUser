@@ -55,11 +55,12 @@
 }
 
 .search-button {
-  position: absolute !important;
+  /* position: absolute !important;
   top: 7px;
-  right: 10px;
+  right: 10px; */
   font-size: 40px;
   z-index: 1000;
+  margin: auto 5px;
 }
 
 .search-button:disabled {
@@ -74,12 +75,13 @@
 }
 
 .search-reset {
-  position: absolute !important;
-  top: 7px;
+  /* position: absolute !important;
+  top: 7px; 
+  right: 80px;*/
   color: #fff;
-  right: 80px;
   font-size: 40px;
   z-index: 1000;
+  margin-right: 10px !important;
 }
 
 .info-wrapper {
@@ -180,7 +182,7 @@
 }
 
 .checkbox-radio-wrapper {
-  margin-top: 10px;
+  margin-top: 20px;
   padding: 0 3px;
   height: max-content;
   justify-content: space-between;
@@ -280,7 +282,6 @@
   color: #fff;
   margin: 5px 0;
   letter-spacing: 0.5px;
-  font-family: "Courier New", Courier, monospace;
   font-size: 15px;
   padding: 3px 5px;
 }
@@ -396,7 +397,6 @@ pre {
   margin: 10px 0;
   padding: 10px 0;
   text-align: right;
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
 .form-buttons.position-sticky {
@@ -449,30 +449,43 @@ button.confirm-question {
 
 /* #endregion */
 
+/* #region Loading */
+.block-centered {
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.loading {
+  margin-bottom: 20px;
+}
+/* #endregion */
+
 /* #region Contact */
 .contacts-container {
-  width: 100%;
-  height: 100%;
-  max-width: 400px;
   text-align: center;
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
-  min-height: 70vh;
+  margin: 5px auto !important;
+  border: 1px solid #c4c4c4;
+  margin: 80px auto;
+}
+
+.contacts-container > section {
+  flex: 1 1 calc((100% / 2) - 40px);
+  margin: 0 10px;
 }
 
 .contacts-wrapper {
-  width: 100%;
-  height: auto;
-  margin: 80px auto;
+  height: 100%;
   font-size: 18px !important;
-  border: 1px solid #c4c4c4;
-  box-shadow: 0 0 1px 1px #c4c4c4;
+  flex: 1 !important;
+  min-height: 280px;
 }
 
 .contact-img {
   width: 89%;
-  margin: 0 auto 30px auto;
+  margin: -25px auto 30px auto;
   display: block;
   filter: grayscale(100%) !important;
 }
@@ -506,16 +519,24 @@ button.confirm-question {
 
 div.contact-info {
   padding: 0 10px !important;
-  font-size: 9px !important;
   width: 80% !important;
-  margin: 50px auto 34px auto !important;
+  margin: 0 auto !important;
   text-align: left;
-}
-
-.contacts-wrapper .MuiPaper-root:not(.alert) {
   padding: 7px 12px !important;
 }
 
+div.contact-info span {
+  font-size: 14px !important;
+}
+
+.contacts-button {
+  display: none;
+  position: absolute !important;
+  bottom: 0;
+  right: 35px;
+  width: 120px;
+  height: 45px;
+}
 /* #endregion */
 
 /* #region Response */
@@ -596,6 +617,7 @@ div.contact-info {
 
 
 /* #endregion */
+
 
 /* #region Media/Print */
 @media all {

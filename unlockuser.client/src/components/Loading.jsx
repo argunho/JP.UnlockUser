@@ -2,12 +2,10 @@ import loading from '../assets/images/search.gif';
 
 export default function Loading({img, msg }) {
 
-  const loadText = msg || "sökning pågår."
-
   return (
-    <div className='block-centered'>
+    <div className='block-centered d-column mh'>
       <img src={img ?? loading} className='loading' alt="loading" />
-      {!!msg && <p>Var vänlig och vänta, {loadText}</p>}
+      <p>Var vänlig och vänta, {msg || "sökning pågår."}</p>
     </div>
   )
 }

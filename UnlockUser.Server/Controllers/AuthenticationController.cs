@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -10,38 +10,14 @@ namespace UnlockUser.Server.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class AuthenticationController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor, IHelp help) : ControllerBase
+public class AuthenticationController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor, IHelp help, IDistributedCache distributedCache) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
     private readonly ISession? _session = contextAccessor?.HttpContext?.Session;
+    private readonly IDistributedCache _distributedCache = distributedCache;
     private readonly IHelp _help = help;
 
-    #region GET
-    // Logout
-    [HttpGet("logout")]
-    public JsonResult Logout()
-    {
-        try
-        {
-            var _session = HttpContext.Session;
-            _session.Remove("Username");
-            _session.Remove("FullName");
-            _session.Remove("Email");
-            _session.Remove("Password");
-            _session.Remove("GroupToManage");
-            _session.Remove("PasswordResetGroup");
-            _session.Remove("LoginAttempt");
-            _session.Remove("LoginBlockTime");
-        }
-        catch (Exception ex)
-        {
-            return new(new { errorMessage = ex.Message });
-        }
-
-        return new(true);
-    }
-    #endregion
 
     #region POST
     // Log in with another account if authentication with windows username is failed or to authorize another user
@@ -131,6 +107,37 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
     }
     #endregion
 
+
+    #region Delete
+    [HttpDelete("logout/{token}")]
+    public async Task<JsonResult> Logout(string token)
+    {
+        try
+        {
+            var _session = HttpContext.Session;
+            _session.Remove("Username");
+            _session.Remove("FullName");
+            _session.Remove("Email");
+            _session.Remove("Password");
+            _session.Remove("GroupToManage");
+            _session.Remove("PasswordResetGroup");
+            _session.Remove("LoginAttempt");
+            _session.Remove("LoginBlockTime");
+
+            var tokenKey = $"tokens:{token}:deactivated";
+            await _distributedCache.SetStringAsync(tokenKey, " ", new DistributedCacheEntryOptions
+            {
+                AbsoluteExpiration = DateTimeOffset.UtcNow
+            });
+        }
+        catch (Exception ex)
+        {
+            return new(new { errorMessage = ex.Message });
+        }
+
+        return new(true);
+    }
+    #endregion
     #region Helpers
     // Create Jwt Token for authenticating
     private string? CreateJwtToken(UserPrincipalExtension user, [FromBody] params string[] str)
