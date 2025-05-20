@@ -9,13 +9,13 @@ import NotFound from "./../pages/auth/NotFound";
 // Css
 import "../assets/css/login.css";
 
-function AppRoutes({authContext}) {
+function AppRoutes() {
   
   const routes = [
     {
       index: true,
       path: "/",
-      element: <Login authContext={authContext}/>
+      element: <Login />
       },
       {
           path: '/contacts',

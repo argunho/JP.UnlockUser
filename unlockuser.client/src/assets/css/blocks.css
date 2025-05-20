@@ -480,7 +480,6 @@ button.confirm-question {
   height: 100%;
   font-size: 18px !important;
   flex: 1 !important;
-  min-height: 280px;
 }
 
 .contact-img {
@@ -527,15 +526,6 @@ div.contact-info {
 
 div.contact-info span {
   font-size: 14px !important;
-}
-
-.contacts-button {
-  display: none;
-  position: absolute !important;
-  bottom: 0;
-  right: 35px;
-  width: 120px;
-  height: 45px;
 }
 /* #endregion */
 

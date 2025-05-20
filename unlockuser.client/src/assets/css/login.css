@@ -73,10 +73,30 @@
 /* #region Contacts */
 .contacts-container {
     min-height: unset !important;
-    padding: 50px 0;
+    padding: 20px 0;
+    max-width: 1000px;
+}
+
+.contacts-logo {
+    flex: 1 1 100% !important;
+    height: max-content !important;
+    color: #000000 !important;
+    padding: 0 10px;
+    margin-bottom: 30px !important;
+    background-color: #FFFFFF !important;
+    z-index: 3000;
+    margin-top: 0 !important;
 }
 
 .contacts-button {
-    display: visible !important;
+    flex: 1 1 100% !important;
+    height: max-content !important;
+    margin: 20px auto 0 auto;
+}
+
+.contacts-button>button {
+    height: 45px;
+    width: 120px;
+    margin-right: 20px;
 }
 /* #endregion */

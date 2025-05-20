@@ -77,7 +77,7 @@ function AuthRoutes({ authContext }) {
     },
     {
       path: '/contact',
-      element: <Contacts />
+      element: <Contacts isAuthorized={true} />
     },
     {
       path: '/members/:office/:department',
