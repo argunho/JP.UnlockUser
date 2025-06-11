@@ -68,7 +68,7 @@ public class MailService
         {
             var path = Path.Combine(@"wwwroot", "alvestakommun.png");
             var logo = ImageToBase64(path);
-            MailMessage _mail = new(new MailAddress("unlock.contact@alvesta.se", "Unlock User"), new MailAddress("aslan.khadizov@alvesta.se"));
+            MailMessage _mail = new(new MailAddress("unlock.contact@alvesta.se", "Unlock User"), new MailAddress("it.flow@alvesta.se"));
             SmtpClient _smtp = new("smtp.alvesta.local");
             _mail.Subject = model.Title;
             _mail.Body = mailHtml.Replace("{content}", model.Text).Replace("{logo}", logo);
