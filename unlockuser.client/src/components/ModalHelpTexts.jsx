@@ -38,8 +38,12 @@ function ModalHelpTexts({ children, data, cls = "situated-btn", isTable = false,
     }
 
     const handleMenuOpen = () => {
-        console.log(open)
         setOpen(true);
+        setConfirm(false);
+    }
+
+    const handleMenuClose = () =>{
+        setOpen(false);
         setConfirm(false);
     }
 
@@ -59,7 +63,7 @@ function ModalHelpTexts({ children, data, cls = "situated-btn", isTable = false,
                     ref={ref}
                     icon={<HelpOutline />}
                     checkedIcon={<LiveHelpOutlined />}
-                    onClick={() => open ? setOpen(false) : handleMenuOpen()}
+                    onClick={() => open ? handleMenuClose() : handleMenuOpen()}
                     inputProps={{ 'aria-label': 'controlled', color: "primary" }} />}
                 label="Hjälp" />}
 
