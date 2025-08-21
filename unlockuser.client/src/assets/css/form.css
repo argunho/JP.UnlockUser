@@ -95,9 +95,18 @@ input[type="password"]:disabled {
   height: max-content;
 }
 
+.checkbox {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: max-content !important;
+  height: 40px !important;
+}
+
 .checkbox span {
   font-size: 12px !important;
   width: max-content !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px !important;
 }
 
 .checkbox span:first-child {

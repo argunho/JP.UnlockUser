@@ -1,5 +1,5 @@
 
-import { useRef, useState, forwardRef } from 'react';
+import { useRef, useState } from 'react';
 
 // Installed
 import { AlertTitle, Checkbox, FormControlLabel, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
@@ -9,10 +9,12 @@ import { HelpOutline, LiveHelpOutlined, Refresh } from '@mui/icons-material';
 import Table from './Table';
 import FormButtons from './FormButtons';
 
-// eslint-disable-next-line react-refresh/only-export-components
+// Functions
 function ModalHelpTexts({ children, data, cls = "situated-btn", isTable = false, isSubmit = false,
-    isTitle, inverseFunction, regeneratePassword, view }, ref) {
+    isTitle, inverseFunction, regeneratePassword, view, ref }) {
     ModalHelpTexts.displayName = "ModalHelpTexts";
+
+    console.log("ModalHelpTexts", view);
 
     const [open, setOpen] = useState(!!view);
     const [confirm, setConfirm] = useState(false);
@@ -36,8 +38,9 @@ function ModalHelpTexts({ children, data, cls = "situated-btn", isTable = false,
     }
 
     const handleMenuOpen = () => {
-        setOpen((open) => !open);
-        setConfirm(false)
+        console.log(open)
+        setOpen(true);
+        setConfirm(false);
     }
 
     const close = () => {
@@ -56,10 +59,11 @@ function ModalHelpTexts({ children, data, cls = "situated-btn", isTable = false,
                     ref={ref}
                     icon={<HelpOutline />}
                     checkedIcon={<LiveHelpOutlined />}
-                    onClick={handleMenuOpen}
+                    onClick={() => open ? setOpen(false) : handleMenuOpen()}
                     inputProps={{ 'aria-label': 'controlled', color: "primary" }} />}
                 label="Hjälp" />}
 
+            {/* Modal dialog window */}
             <Dialog
                 open={open}
                 onClose={() => setOpen(false)}
@@ -133,6 +137,4 @@ function ModalHelpTexts({ children, data, cls = "situated-btn", isTable = false,
         </>
     );
 }
-
-const refModal = forwardRef(ModalHelpTexts);
-export default refModal;
+export default ModalHelpTexts;

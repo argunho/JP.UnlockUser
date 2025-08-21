@@ -310,6 +310,11 @@ function Form({ title, name, passwordLength, users }) {
         });
     }
 
+    const handleModalOpen = () => {
+        if(!variousPassword) return;
+        refModal.current?.click();
+    }
+
     const disabled = load || _.isEqual(formData, defaultForm) || !!response;
 
     return (
@@ -474,7 +479,7 @@ function Form({ title, name, passwordLength, users }) {
                         loading={load && !response}
                         variant="contained"
                         run={variousPassword}
-                        submit={variousPassword ? () => refModal?.current.click() : null}
+                        submit={handleModalOpen}
                         cancelDisabled={disabled}
                         cancel={() => resetForm(true)}
                     >
@@ -491,7 +496,9 @@ function Form({ title, name, passwordLength, users }) {
 
                             <div className='d-row jc-end w-100'>
                                 {/* Change the password input type */}
-                                {developer && <FormControlLabel className='checkbox'
+                                {developer && <FormControlLabel 
+                                className='checkbox'
+                                        title="Spara inte logfilen"
                                     control={<Checkbox
                                         size='small'
                                         disabled={disabled}
@@ -545,7 +552,7 @@ function Form({ title, name, passwordLength, users }) {
                 list={previewList}
                 savedPdf={(pdf) => setSavedPdf(pdf)}
             />}
-        </div >
+        </div>
     )
 }
 

@@ -218,8 +218,8 @@ main {
   position: absolute;
   top: 0;
   left: 0;
-  background-color: #ffffffcf;
-  z-index: 3000;
+  background-color: #ffffff3d;
+  z-index: 3000 !important;
 }
 
 .w100 {

@@ -34,8 +34,10 @@ function PasswordGeneration({
 
     // Generate handle
     const generateHandle = () => {
-        if (variousPasswords) generateVariousPasswords()
-        else generatePassword();
+        if (variousPasswords) 
+            generateVariousPasswords()
+        else 
+            generatePassword();
     }
 
     // Generate new password
@@ -107,6 +109,7 @@ function PasswordGeneration({
                 i -= 1;
         }
 
+        console.log("Generate password => ", usersArray, "previewList", previewList);
         setForm({ users: usersArray });
         setPreviewList(previewList);
     }
@@ -171,7 +174,7 @@ function PasswordGeneration({
         classes={{
             tooltip: `tooltip tooltip-margin tooltip-${disabledTooltip ? 'error' : 'blue'}`,
             arrow: `arrow-${disabledTooltip ? 'error' : 'blue'}`
-        }}>
+        }} >
         <span className={variousPasswords ? "generate-button-wrapper" : ""}>
             <Button variant="text"
                 color="primary"

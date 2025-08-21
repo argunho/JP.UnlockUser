@@ -114,9 +114,10 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
             className='button-action'
             disabled={sl === 0}
             onClick={(e) => clickHandle(e)}
-            style={{ marginLeft: "10px" }}>
-            <Edit />
-            <span>Ändra lösenord</span>
+            style={{ marginLeft: "10px" }}
+            startIcon={<Edit />}
+            variant="contained">
+            Ändra lösenord
         </Button>
     </Tooltip>;
 
@@ -137,9 +138,9 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
                         variant='contained'
                         color="error"
                         className='button-action'
-                        onClick={cancelRequest}>
-                        <Cancel />
-                        <span>Avbryt sökning</span>
+                        onClick={cancelRequest}
+                        startIcon={<Cancel />}>
+                            Avbryt sökning
                     </Button>}
 
                     {/* Button to reset search result */}

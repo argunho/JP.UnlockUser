@@ -36,8 +36,8 @@ function FormButtons({ children, label, question, disabled, position, swap, conf
             props: {
                 ...{
                     variant: "contained", color: "error", disabled: delay,
-                    type: !!submit ? "button" : "submit"
-                }, ...(!!submit ? { onClick: onSubmit } : null)
+                    type: submit ? "button" : "submit"
+                }, ...(submit ? { onClick: onSubmit } : null)
             }
         },
         {
@@ -51,9 +51,9 @@ function FormButtons({ children, label, question, disabled, position, swap, conf
             props: {
                 ... {
                     variant: (loading || disabled) ? "outlined" : (variant ?? "outlined"), className: "submit-btn", color: ((loading || !!variant) ? "primary" : "inherit"),
-                    disabled: (disabled || loading), type: (!!confirmable || (!confirmable && !!submit)) ? "button" : "submit"
+                    disabled: (disabled || loading), type: (!!confirmable || (!confirmable && submit)) ? "button" : "submit"
                 },
-                ...(!!confirmable ? { onClick: () => confirmHandle(false) } : ((!confirmable && !!submit) ? { onClick: onSubmit }  : null))
+                ...(!!confirmable ? { onClick: () => confirmHandle(false) } : ((!confirmable && submit) ? { onClick: onSubmit }  : null))
             }
         },
     ];

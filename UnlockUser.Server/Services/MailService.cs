@@ -39,15 +39,19 @@ public class MailService
                         + attachedFile.ContentType.Substring(attachedFile.ContentType.IndexOf("/") + 1)));
             }
 
-            SmtpClient _smtp = new();
-            _smtp.Host = "smtp.alvesta.local";
-            _smtp.Port = 25;
-            _smtp.EnableSsl = false;
-            _smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+            SmtpClient _smtp = new()
+            {
+                Host = "smtp.alvesta.local",
+                Port = 25,
+                EnableSsl = false,
+                DeliveryMethod = SmtpDeliveryMethod.Network
+            };
 
-            NetworkCredential credential = new();
-            credential.UserName = emailFrom;
-            credential.Password = password;
+            NetworkCredential credential = new()
+            {
+                UserName = emailFrom,
+                Password = password
+            };
             _smtp.UseDefaultCredentials = false;
             _smtp.Credentials = credential;
 
