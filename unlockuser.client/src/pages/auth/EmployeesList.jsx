@@ -22,7 +22,7 @@ import { ErrorHandle } from '../../functions/ErrorHandle';
 import ApiRequest from '../../services/ApiRequest';
 
 // Css
-import '../../assets/css/listview.css';
+import '../../assets/css/list-view.css';
 
 const noResult = { color: "info", msg: "Inga personal hittades." };
 
@@ -252,9 +252,12 @@ function EmployeesList({ navigate }) {
                     arrow: `arrow-blue`
                 }} arrow>
                     <span>
-                        <Button size='large' variant='outlined'
+                        <Button
+                            size='large'
+                            variant='outlined'
                             disabled={loading || !!sessionStorage.getItem("updated")}
-                            endIcon={<Refresh />} onClick={renewList}>
+                            endIcon={<Refresh />}
+                            onClick={renewList}>
                             Uppdatera listan
                         </Button>
                     </span>
@@ -280,13 +283,13 @@ function EmployeesList({ navigate }) {
             </List>
 
             {/* Loading symbol */}
-            {loading && <Loading msg="data hämtas ..." />}
+            {loading && <Loading msg="data hämtas ..." styles={{ minHeight: "calc(100vh - 400px)" }} />}
 
             {/* Message if result is null */}
             {(response && !loading && !open) && <Response res={response} cancel={handleResponse} />}
 
             {/* Pagination */}
-            {(list?.length > 0 && !loading) && <div className="pagination w-100">
+            {(list?.length > perPage && !loading) && <div className="pagination w-100">
                 <Pagination count={Math.ceil(list?.length / perPage)}
                     page={page} onChange={handlePageChange} variant="outlined" shape="rounded" />
             </div>}

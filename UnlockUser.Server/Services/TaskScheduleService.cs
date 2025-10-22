@@ -41,7 +41,7 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
 
                     if (updated.Day != currentDate.Day)
                     {
-                        var provider = new IADService();
+                        var provider = new ADService();
                         await provider.RenewUsersJsonList(config);
                         UpdateConfigFile("appconfig", "LastUpdatedDate", currentDate.ToString("yyyy.MM.dd HH:mm:ss"));
                     }

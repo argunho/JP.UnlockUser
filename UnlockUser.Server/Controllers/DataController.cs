@@ -54,7 +54,7 @@ public class DataController : ControllerBase
     [HttpGet("schools")]
     public List<ListViewModel>? GetSchools()
     {
-        var list = IHelpService.GetListFromFile<School>("schools").Select(s => new ListViewModel
+        var list = HelpService.GetListFromFile<School>("schools").Select(s => new ListViewModel
         {
             Id = s.Name,
             Primary = s.Name,
@@ -87,7 +87,7 @@ public class DataController : ControllerBase
     {
         try
         {
-            List<Statistics> data = IHelpService.GetListFromFile<Statistics>("statistics");
+            List<Statistics> data = HelpService.GetListFromFile<Statistics>("statistics");
            List<ListViewModel> list = [.. data?.OrderBy(x => x.Year).Select(s => new ListViewModel {
                 Primary = s.Year.ToString(),
                 Secondary = $"Byten lösenord: {s.Months.Sum(s => s.PasswordsChange)}, Upplåst konto: {s.Months.Sum(s => s.Unlocked)}",
@@ -124,13 +124,13 @@ public class DataController : ControllerBase
     {
         try
         {
-            var schools = IHelpService.GetListFromFile<School>("schools");
+            var schools = HelpService.GetListFromFile<School>("schools");
             if(schools.Count == 0)
-                schools = IHelpService.GetJsonFile<School>("schools");
+                schools = HelpService.GetJsonFile<School>("schools");
             schools.Add(school);
             await Task.Delay(1000);
 
-            await IHelpService.SaveUpdateFile(schools, "schools");
+            await HelpService.SaveUpdateFile(schools, "schools");
 
             return Ok(GetSchools());
         }
@@ -148,10 +148,10 @@ public class DataController : ControllerBase
     {
         try
         {
-            var schools = IHelpService.GetListFromFile<School>("schools");
+            var schools = HelpService.GetListFromFile<School>("schools");
             schools.RemoveAll(x => x.Name == name);
             await Task.Delay(1000);
-            await IHelpService.SaveUpdateFile(schools, "schools");
+            await HelpService.SaveUpdateFile(schools, "schools");
         }
         catch (Exception ex)
         {

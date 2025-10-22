@@ -22,8 +22,8 @@ public class Program
         ConfigurationManager configuration = builder.Configuration;
 
         // Services
-        builder.Services.AddScoped<IActiveDirectory, IADService>();
-        builder.Services.AddScoped<IHelp, IHelpService>();
+        builder.Services.AddScoped<IActiveDirectory, ADService>();
+        builder.Services.AddScoped<IHelp, HelpService>();
 
         // Authennticatio with Jwt ---
         builder.Services.AddAuthentication(options =>

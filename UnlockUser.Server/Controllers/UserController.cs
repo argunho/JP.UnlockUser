@@ -17,7 +17,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
     private readonly IActiveDirectory _provider = provider;
     private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
-    private readonly ISession _session = contextAccessor.HttpContext.Session;
+    private readonly ISession _session = contextAccessor.HttpContext!.Session;
     private readonly IConfiguration _config = config;
     private readonly IHelp _help = help;
     private readonly SearchController _search = search;
@@ -256,7 +256,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
             var passChange = (param == "PasswordsChange");
 
-            var statistics = IHelpService.GetListFromFile<Statistics>("statistics");
+            var statistics = HelpService.GetListFromFile<Statistics>("statistics");
             var yearStatistics = statistics.FirstOrDefault(x => x.Year == year);
 
             var newData = new Months
@@ -288,7 +288,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 });
             }
 
-            await IHelpService.SaveUpdateFile(statistics, "statistics");
+            await HelpService.SaveUpdateFile(statistics, "statistics");
 
         }
         catch (Exception ex)

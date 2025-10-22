@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace UnlockUser.Server.IServices;
 
-public class IADService : IActiveDirectory // Help class inherit an interface and this class is a provider to use interface methods into another controller
+public class ADService : IActiveDirectory // Help class inherit an interface and this class is a provider to use interface methods into another controller
 {
     private readonly string domain = "alvesta";
     private readonly string defaultOU = "DC=alvesta,DC=local";
@@ -78,10 +78,10 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
         result = UpdatedProparties(result);
         List<User> users = [];
 
-        List<SearchResult> list = result.FindAll()?.OfType<SearchResult>().ToList();
+        List<SearchResult> list = [.. result.FindAll().OfType<SearchResult>()];
         if (groupName != "Studenter" && list != null)
         {
-            list = list.Where(x => x.Properties["memberOf"].OfType<string>().ToList()
+            list = list.Where(x => x.Properties["memberOf"].OfType<string>()
                 .Any(x => groupName == "Politiker" ? x.Contains("Ciceron-Assistentanvändare") : !x.Contains("Ciceron-Assistentanvändare"))).ToList();
         }
 
@@ -96,49 +96,73 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
     // Get all employee's managers
     public List<Manager> GetUserManagers(User user)
     {
-        List<Manager> managers = [];
 
         DirectorySearcher? search = new(GetContext().Name);
         string? userManager = user.Manager;
         bool hasManager = !string.IsNullOrEmpty(userManager);
-
-        //  Check all user bosses if they exist
-        if (user.Managers.Count > 0)
+        try
         {
-            foreach (var manager in user.Managers)
+            //  Check all user bosses if they exist
+            if (user.Managers.Count > 0)
             {
-                var checkedManager = FindUserByExtensionProperty(manager.Username);
-                if (checkedManager == null || !CheckManager(checkedManager.Title))
-                    user.Managers.Remove(manager);
+                for (int i = 0; i < user.Managers.Count; i++)
+                {
+                    var manager = user.Managers[i];
+                    var checkedManager = FindUserByExtensionProperty(manager.Username!);
+                    if (checkedManager == null || !CheckManager(checkedManager.Title))
+                        user.Managers.RemoveAt(i);
+                }
             }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
 
         int index = 0;
+        List<Manager> managers = [];
         while (hasManager && user.Title != "Kommunchef")
         {
             try
             {
                 search.Filter = String.Format("distinguishedName={0}", userManager);
                 search = UpdatedProparties(search);
+                var properties = search?.FindOne()?.Properties;
 
-                User? manager = GetUserParams(search?.FindOne()?.Properties);
-                if (hasManager = (manager != null) && manager.Manager != userManager)
+                if (properties != null)
                 {
-                    var existing = user.Managers?.Count > 0 ? user.Managers?.First(x => x.Username == manager?.Name) : null;
+                    User? manager = GetUserParams(properties);
+                    hasManager = (manager != null);
 
-                    managers.Add(new Manager
+                    if (hasManager && managers.Exists(m => m.DisplayName == manager.DisplayName && m.Username == manager.Name))
+                        break;
+                    else if (hasManager && manager?.Manager != userManager)
                     {
-                        Username = manager.Name,
-                        DisplayName = manager.DisplayName,
-                        Division = manager.Division,
-                        Default = true,
-                        Disabled = index != 0 && (existing == null || existing.Disabled)
-                    });
+                        var existing = user.Managers?.ToList().FirstOrDefault(x => x.Username!.Equals(manager?.Name, StringComparison.OrdinalIgnoreCase)
+                                        || x.Username.Contains(manager?.Name!, StringComparison.OrdinalIgnoreCase));
 
-                    index++;
 
-                    if (hasManager = !string.IsNullOrEmpty(manager.Manager) && manager.Title != "Kommunchef")
-                        userManager = manager.Manager;
+                        managers.Add(new Manager
+                        {
+                            Username = manager!.Name,
+                            DisplayName = manager.DisplayName,
+                            Division = manager.Division,
+                            Default = true,
+                            Disabled = index != 0 && (existing == null || existing.Disabled)
+                        });
+
+                        index++;
+
+                        if (hasManager = !string.IsNullOrEmpty(manager.Manager) && manager.Title != "Kommunchef")
+                            userManager = manager.Manager;
+                    }
+                    else
+                        break;
+                }
+                else
+                {
+                    hasManager = false;
                 }
             }
             catch (Exception ex)
@@ -148,7 +172,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
             }
         }
 
-        if(user.Managers?.Count > 0)
+        if (user.Managers?.Count > 0)
         {
             user.Managers.RemoveAll(x => managers.Select(s => x.Username).ToList().Contains(x.Username));
             managers.AddRange(user.Managers);
@@ -170,8 +194,8 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
             #region Get employees        
             var groupEmployees = new List<GroupUsersViewModel>();
             var groups = config.GetSection("Groups").Get<List<GroupModel>>();
-            var currentList = IHelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
-            var schools = IHelpService.GetListFromFile<School>("schools");
+            var currentList = HelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
+            var schools = HelpService.GetListFromFile<School>("schools");
 
             foreach (var group in groups)
             {
@@ -186,9 +210,12 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
 
                     // Get member office name
                     var existingUser = cListByGroup?.FirstOrDefault(x => x.Name == user?.SamAccountName);
-                    var userOffices = existingUser?.Offices ?? [];
-                    if (userOffices.IndexOf(user.Office) == -1)
-                        userOffices = [user.Office];
+                    var userOffices = existingUser?.Offices != null
+                     ? [.. existingUser.Offices]
+                     : new List<string>();
+
+                    if (!string.IsNullOrWhiteSpace(user.Office) && !userOffices.Contains(user.Office))
+                        userOffices.Add(user.Office);
 
                     // Check all school staff
                     if (group.Manage != "Students")
@@ -228,7 +255,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                 });
             }
 
-            await IHelpService.SaveUpdateFile(groupEmployees, "employees");
+            await HelpService.SaveUpdateFile(groupEmployees, "employees");
             #endregion
 
             #region Get managers
@@ -247,7 +274,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
                     managers.Add(user);
             }
 
-            await IHelpService.SaveUpdateFile(managers.Select(s => new Manager
+            await HelpService.SaveUpdateFile(managers.Select(s => new Manager
             {
                 Username = s.Name,
                 DisplayName = s.DisplayName,
@@ -338,7 +365,7 @@ public class IADService : IActiveDirectory // Help class inherit an interface an
     public User? GetUserParams(ResultPropertyCollection? props)
     {
         var isLocked = false;
-        if(props != null)
+        if (props != null)
         {
             if (props.Contains("lockoutTime") && int.TryParse(props["lockoutTime"]?[0]?.ToString(), out int number))
                 isLocked = number >= 1;

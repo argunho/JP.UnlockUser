@@ -26,7 +26,7 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
     [HttpGet("authorized/{param}")]
     public JsonResult? GetAuthorizedEmployees(string param)
     {
-        var groupEmployees = IHelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
+        var groupEmployees = HelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
         if (groupEmployees.Count == 0)
             return _help.Warning($"Filen {param} hittades inte. Klicka på Uppdatera listan knappen");
 
@@ -36,7 +36,7 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
         List<ListViewModel> selections;
         if (param == "Studenter")
         {
-            var res = IHelpService.GetListFromFile<School>("schools");
+            var res = HelpService.GetListFromFile<School>("schools");
             selections = [.. res.OrderBy(x => x.Place).ThenBy(x => x.Name).Select(s => new ListViewModel
             {
                 Primary = s.Name,
@@ -45,7 +45,7 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
         }
         else
         {
-            var res = IHelpService.GetListFromFile<Manager>("managers");
+            var res = HelpService.GetListFromFile<Manager>("managers");
             selections = [.. res.OrderBy(x => x.Division).ThenBy(x => x.DisplayName).Select(s => new ListViewModel
             {
                 Id = s.Username,
@@ -80,7 +80,7 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
     public async Task<JsonResult> RenewEmployeesList()
     {
         string res = await _provider.RenewUsersJsonList(_config);
-        IHelpService.UpdateConfigFile("appconfig", "LastUpdatedDate", DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
+        HelpService.UpdateConfigFile("appconfig", "LastUpdatedDate", DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
         return new(string.IsNullOrEmpty(res) ? null : res);
     }
     #endregion
@@ -91,7 +91,7 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
     {
         try
         {
-            var groupEmployees = IHelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
+            var groupEmployees = HelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
             var employees = groupEmployees.FirstOrDefault(x => x.Group?.Name == group)?.Employees ?? [];
             var employee = employees.FirstOrDefault(x => x.Name == model.Name);
             if (employee == null)
@@ -102,7 +102,7 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
             else
                 employee.Managers = model.Managers;
 
-            await IHelpService.SaveUpdateFile(groupEmployees, "employees");
+            await HelpService.SaveUpdateFile(groupEmployees, "employees");
         }
         catch (Exception ex)
         {

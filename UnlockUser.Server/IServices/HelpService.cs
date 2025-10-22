@@ -8,14 +8,14 @@ using System.Text.RegularExpressions;
 
 namespace UnlockUser.Server.IServices;
 
-public partial class IHelpService : IHelp
+public partial class HelpService : IHelp
 {
     public string Message { get; set; } = "";
     private static byte[] secureKeyInBytes = Encoding.UTF8.GetBytes("unlockuser_2024key_alvestakommun"); // Length 36 chars
     private static byte[] secureKeyIV = Encoding.UTF8.GetBytes("unlock_user_2024"); // Length 16 chars
     private readonly IHttpContextAccessor _httpContext;
 
-    public IHelpService()
+    public HelpService()
     {
         _httpContext = new HttpContextAccessor();
     }
@@ -164,7 +164,7 @@ public partial class IHelpService : IHelp
         try
         {
             var directory = @"wwwroot/files/";
-            var help = new IHelpService();
+            var help = new HelpService();
             help.CheckDirectory(directory);
 
             var path = Path.Combine(directory, $"{fileName}.txt");
