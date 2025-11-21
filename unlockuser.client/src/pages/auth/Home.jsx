@@ -9,7 +9,7 @@ import {
 
 // Components
 import Result from '../../components/Result';
-import ModalHelpTexts from '../../components/ModalHelpTexts';
+import ModalHelpTexts from '../../components/modals/ModalHelpTexts';
 
 // Functions
 import { ErrorHandle } from '../../functions/ErrorHandle';
@@ -224,7 +224,7 @@ function Home() {
                                         ...params.InputProps,
                                         maxLength: 30,
                                         minLength: 2,
-                                        endAdornment: (clsStudents && index == 0) ? null :<div className="d-row">
+                                        endAdornment: (clsStudents && index == 0) ? null : <div className="d-row">
                                             {/* Reset form - button */}
                                             {isActive &&
                                                 <Button
@@ -258,7 +258,7 @@ function Home() {
                 </form>
 
                 {/* Choose group */}
-                {groups?.length > 1 && 
+                {groups?.length > 1 &&
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Hanteras</InputLabel>
                         <Select

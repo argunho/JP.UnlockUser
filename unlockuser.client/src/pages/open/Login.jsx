@@ -7,8 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 
 // Components
-import Response from '../../components/Response';
-import Logotype from '../../components/Logotype';
+import Response from '../../components/blocks/Message';
+import Logotype from '../../components/blocks/Logotype';
 import FormButtons from './../../components/FormButtons';
 
 // Functions
@@ -17,6 +17,10 @@ import { ErrorHandle } from './../../functions/ErrorHandle';
 // storage
 import { AuthContext } from '../../storage/AuthContext';
 import { FetchContext } from './../../storage/FetchContext';
+
+// Css
+import "./../../assets/css/login.css";
+
 
 let clear = true;
 
@@ -136,7 +140,7 @@ function Login() {
     </IconButton>
 
     {/* Response */}
-    {(response || wait) && <Response res={response ? response : { color: "warning", msg: `Vänta ${wait} minuter innan du försöker igen.` }}
+    {(response || wait) && <Message res={response ? response : { color: "warning", msg: `Vänta ${wait} minuter innan du försöker igen.` }}
       cancel={clearResponse} />}
   </div>;
 }

@@ -8,8 +8,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 // Components
-import ModalHelpTexts from './ModalHelpTexts';
-import Response from './Response';
+import ModalHelpTexts from './modals/ModalHelpTexts';
+import Response from './blocks/Message';
 import PDFConverter from './PDFConverter';
 import PasswordGeneration from './PasswordGeneration';
 import ListCategories from './ListCategories';
@@ -311,7 +311,7 @@ function Form({ title, name, passwordLength, users }) {
     }
 
     const handleModalOpen = () => {
-        if(!variousPassword) return;
+        if (!variousPassword) return;
         refModal.current?.click();
     }
 
@@ -333,7 +333,7 @@ function Form({ title, name, passwordLength, users }) {
             <div className='form-actions'>
 
                 {/* Response message */}
-                {!!response && <Response res={response} cancel={() => setResponse()} />}
+                {!!response && <Message res={response} cancel={() => setResponse()} />}
 
                 {multiple && <>
                     {/* Loop of radio input choices to choose is password same or not for all students */}
@@ -496,9 +496,9 @@ function Form({ title, name, passwordLength, users }) {
 
                             <div className='d-row jc-end w-100'>
                                 {/* Change the password input type */}
-                                {developer && <FormControlLabel 
-                                className='checkbox'
-                                        title="Spara inte logfilen"
+                                {developer && <FormControlLabel
+                                    className='checkbox'
+                                    title="Spara inte logfilen"
                                     control={<Checkbox
                                         size='small'
                                         disabled={disabled}

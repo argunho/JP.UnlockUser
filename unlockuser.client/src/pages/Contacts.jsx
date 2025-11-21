@@ -6,9 +6,11 @@ import { AccessTime, Phone, Web } from '@mui/icons-material'
 import { Alert, AlertTitle, Button } from '@mui/material'
 import { useNavigate } from 'react-router-dom';
 
+// Components
+import Logotype from './../components/blocks/Logotype';
+
 // Images
-import support from './../../assets/images/support.png';
-import Logotype from '../../components/Logotype';
+import support from './../assets/images/support.png';
 
 function Contacts({ isAuthorized }) {
 

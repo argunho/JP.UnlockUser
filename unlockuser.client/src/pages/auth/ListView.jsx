@@ -10,7 +10,7 @@ import FormButtons from "../../components/FormButtons";
 
 // Services
 import ApiRequest from "../../services/ApiRequest";
-import Response from "../../components/Response";
+import Response from "../../components/blocks/Message";
 import Loading from "../../components/Loading";
 
 // Functions
@@ -158,8 +158,8 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
             </ListItem>
 
             {/* Response */}
-            {!!response && <Response res={response} cancel={() => setResponse(null)} />}
-            {!!noData && <Response res={noData} />}
+            {!!response && <Message res={response} cancel={() => setResponse(null)} />}
+            {!!noData && <Message res={noData} />}
 
             {/* Confirm/Form block */}
             {!!fields && <Collapse in={open} className='d-row w-100' timeout="auto" unmountOnExit>

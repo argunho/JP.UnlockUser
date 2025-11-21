@@ -12,7 +12,7 @@ import { Cancel, DeleteSweep, Deselect, Edit, SelectAll } from '@mui/icons-mater
 
 // Components
 import Loading from './Loading';
-import Response from './Response';
+import Response from './blocks/Message';
 import Info from './Info';
 
 const defMessage = "Ditt sökresultat kommer att visas här nedan"
@@ -140,7 +140,7 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
                         className='button-action'
                         onClick={cancelRequest}
                         startIcon={<Cancel />}>
-                            Avbryt sökning
+                        Avbryt sökning
                     </Button>}
 
                     {/* Button to reset search result */}
@@ -233,7 +233,7 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
             ))}
 
             {/* Message if result is null */}
-            {(!loading && response) && <Response res={response} cancel={handleResponse} />}
+            {(!loading && response) && <Message res={response} cancel={handleResponse} />}
         </div>
     )
 }

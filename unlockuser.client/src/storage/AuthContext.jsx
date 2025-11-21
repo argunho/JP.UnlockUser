@@ -16,14 +16,13 @@ export const AuthContext = createContext({
 
 function AuthContextProvider({ children }) {
 
-    const [authToken, setToken] = useState(null);
+    const [authToken, setToken] = useState(localStorage.getItem("token") || sessionStorage.getItem("token"));
     const [openMenu, setOpenMenu] = useState(false);
     const [serviceWorkStatus, setServiceWorkStatus] = useState(false);
     const [serviceWorkInProgress, setServiceWorkInProgress] = useState(false);
     const [groupName, setGroupName] = useState(sessionStorage.getItem("group"));
 
     function authorize(token) {
-        sessionStorage.setItem("token", token);
         setToken(token);
     }
 

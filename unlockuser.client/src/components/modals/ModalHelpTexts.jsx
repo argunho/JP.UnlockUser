@@ -6,8 +6,8 @@ import { AlertTitle, Checkbox, FormControlLabel, Dialog, DialogActions, DialogCo
 import { HelpOutline, LiveHelpOutlined, Refresh } from '@mui/icons-material';
 
 // Components
-import Table from './Table';
-import FormButtons from './FormButtons';
+import Table from '../Table';
+import FormButtons from '../FormButtons';
 
 // Functions
 function ModalHelpTexts({ children, data, cls = "situated-btn", isTable = false, isSubmit = false,
@@ -42,7 +42,7 @@ function ModalHelpTexts({ children, data, cls = "situated-btn", isTable = false,
         setConfirm(false);
     }
 
-    const handleMenuClose = () =>{
+    const handleMenuClose = () => {
         setOpen(false);
         setConfirm(false);
     }

@@ -10,14 +10,14 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Logotype from './Logotype';
 
 // Functions
-import SessionData from '../functions/SessionData';
-import { DecodedToken } from '../functions/DecodedToken';
+import SessionData from '../../functions/SessionData';
+import { DecodedToken } from '../../functions/DecodedToken';
 
 // Storage
-import { AuthContext } from '../storage/AuthContext';
+import { AuthContext } from '../../storage/AuthContext';
 
 // Css
-import '../assets/css/header.css';
+import '../../assets/css/header.css';
 
 
 const links = [

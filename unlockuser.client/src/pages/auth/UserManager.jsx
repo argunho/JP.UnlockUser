@@ -9,7 +9,7 @@ import { Button, CircularProgress } from '@mui/material';
 // Components
 import Form from '../../components/Form';
 import Info from '../../components/Info';
-import Response from '../../components/Response';
+import Response from '../../components/blocks/Message';
 import Loading from '../../components/Loading';
 
 // Functions
@@ -88,7 +88,7 @@ function UserManager() {
         />
 
         {/* Response */}
-        {response && <Response res={response} cancel={handleResponse} />}
+        {response && <Message res={response} cancel={handleResponse} />}
 
         {/* Unlock user */}
         {!!user && <>

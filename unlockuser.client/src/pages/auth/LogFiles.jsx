@@ -8,9 +8,9 @@ import moment from "moment";
 import fileDownload from 'js-file-download';
 
 // Components
-import Response from '../../components/Response';
+import Response from '../../components/blocks/Message';
 import Loading from '../../components/Loading';
-import ModalHelpTexts from '../../components/ModalHelpTexts'
+import ModalHelpTexts from '../../components/modals/ModalHelpTexts'
 import SearchFilter from '../../components/SearchFilter';
 
 // Functions
@@ -118,7 +118,7 @@ function LogFiles({ loc }) {
 
             {/* Message if result is null */}
             {(list.length === 0 && !loading) &&
-                <Response res={{ color: "info", msg: "Här finns inga loggfiler" }} />}
+                <Message res={{ color: "info", msg: "Här finns inga loggfiler" }} />}
         </div>
     )
 }

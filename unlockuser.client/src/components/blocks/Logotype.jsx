@@ -1,8 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
-
 // Images
-import logo from './../assets/images/alvesta.svg';
+import logo from '../../assets/images/alvesta.svg';
 
 function Logotype() {
 

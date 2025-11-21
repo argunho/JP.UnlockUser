@@ -5,33 +5,40 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace UnlockUser.Server.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class AuthenticationController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor, IHelp help, IDistributedCache distributedCache) : ControllerBase
+public class AuthenticationController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache, 
+    IHelpService help, ICredentialsService credentials) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
     private readonly ISession? _session = contextAccessor?.HttpContext?.Session;
     private readonly IDistributedCache _distributedCache = distributedCache;
-    private readonly IHelp _help = help;
+    private readonly IHelpService _help = help;
+    private readonly ICredentialsService _credentials = credentials;
 
+
+    private readonly string ctrl = nameof(AuthenticationController);
 
     #region POST
-    // Log in with another account if authentication with windows username is failed or to authorize another user
+    
     [HttpPost]
-    public JsonResult PostLogin([FromBody] LoginViewModel model)
+    public async Task<JsonResult> Post([FromBody] LoginViewModel model)
     {
-        if (!ModelState.IsValid)// Forms filled out incorrectly
-            return _help.Warning();
+        // Forms filled out incorrectly
+        if (!ModelState.IsValid)
+            return new(_help.Warning());
 
         try
         {
             int loginAttempt = _session?.GetInt32("LoginAttempt") ?? 0;
-            var response = ProtectAccount(loginAttempt);
-            if (response != null) return response;
+            var timeLeft = ProtectAccount(loginAttempt);
+            if (!string.IsNullOrEmpty(timeLeft)) 
+                return new(new { timeLeft });
 
             // Validate username and password
             var isAutheticated = _provider.AccessValidation(model?.Username, model?.Password);
@@ -41,12 +48,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             {
                 // If the user tried to put in a wrong password, save this like +1 a wrong attempt and the max is 4 attempts
                 _session?.SetInt32("LoginAttempt", loginAttempt += 1);
-
-                return new(new
-                {
-                    color = "error",
-                    msg = $"<b>Felaktig användarnamn eller lösenord.</b><br/> {4 - loginAttempt} försök kvar."
-                });
+                return new(_help.Warning($"Felaktig användarnamn eller lösenord. {4 - loginAttempt} försök kvar."));
             }
 
             _session?.Remove("LoginAttempt");
@@ -74,7 +76,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
             // Failed! Permission missed
             if (permissionGroups.Count == 0 && roles.Count == 0)
-                return _help.Warning("Åtkomst nekad! Behörighet saknas.");
+                return new(_help.Warning("Åtkomst nekad! Behörighet saknas."));
           
             var groups = permissionGroups.OrderBy(x => x.Name).Select(s => new GroupModel
             {
@@ -84,20 +86,42 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
             var groupsNames = string.Join(",", groups.Select(s => s.Name));
 
+
+            List<Claim> claims = [];
+            claims.Add(new(ClaimTypes.Name, user?.Name));
+            claims.Add(new("Email", user.EmailAddress));
+            claims.Add(new("DisplayName", user.DisplayName));
+            claims.Add(new("Username", user.Name));
+            claims.Add(new("Manager", user.Manager));
+            claims.Add(new("Office", user.Office));
+            claims.Add(new("Department", user.Department));
+            claims.Add(new("Division", user.Division));
+            claims.Add(new("Groups", groupsNames));
+            claims.Add(new("Roles", string.Join(",", roles)));
+
+            if (roles.IndexOf("Support") > -1)
+                claims.Add(new("Access", "access"));
+
+            _session?.SetString("Password", model.Password);
+
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
-            var token = CreateJwtToken(user, string.Join(",", roles), model?.Password ?? "", groupsNames);
+            dynamic credentials = _credentials.GenerateJwtToken(
+                    claims,
+                    _config["JwtSettings:Key"]!,
+                    [.. roles.Distinct()],
+                    false);
 
             // Your access has been confirmed.
             return new(new
             {
-                token,
+                credentials.token,
                 groups
             });
         }
         catch (Exception ex)
         {
             // Activate a button in the user interface for sending an error message to the system developer if the same error is repeated more than two times during the same session
-            return _help.Error("AuthenticationController: PostLogin", ex.Message);
+            return new(await _help.Error($"{ctrl}: {nameof(Post)}", ex));
         }
     }
     #endregion
@@ -127,7 +151,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
         }
         catch (Exception ex)
         {
-            return new(new { errorMessage = ex.Message });
+            return new(_help.Error($"{ctrl} {nameof(Logout)}", ex));
         }
 
         return new(true);
@@ -135,55 +159,8 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
     #endregion
     
     #region Helpers
-    // Create Jwt Token for authenticating
-    private string? CreateJwtToken(UserPrincipalExtension user, [FromBody] params string[] str)
-    {
-        if (user == null)
-            return null;
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]!));
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
-        IdentityOptions opt = new();
-
-        _session?.SetString("Password", str[1]);
-
-        var roles = str[0].Split(",").ToList();
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.Name, user?.Name),
-            new("Email", user.EmailAddress),
-            new("DisplayName", user.DisplayName),
-            new("Username", user.Name),
-            new("Manager", user.Manager),
-            new("Office", user.Office),
-            new("Department", user.Department),
-            new("Division", user.Division),
-            new("Groups", str?[2] ?? ""),
-            new("Roles", str?[0] ?? "")
-        };
-
-        if (roles.IndexOf("Support") > -1)
-            claims.Add(new("Access", "access"));
-
-        foreach (var role in roles)
-            claims.Add(new Claim(opt.ClaimsIdentity.RoleClaimType, role));
-
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity([.. claims]),
-            Expires = DateTime.Now.AddDays(3),
-            SigningCredentials = credentials
-        };
-
-        var encodeToken = new JwtSecurityTokenHandler();
-        var securityToken = encodeToken.CreateToken(tokenDescriptor);
-        var token = encodeToken.WriteToken(securityToken);
-
-        return token;
-    }
-
     // Protection against account blocking after several unsuccessful attempts to authenticate
-    public JsonResult? ProtectAccount(int attempt)
+    public string? ProtectAccount(int attempt)
     {
         var blockTime = _session?.GetString("LoginBlockTime") ?? null;
         if (attempt >= 3)
@@ -206,7 +183,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
         var timeLeft = new DateTime(Math.Abs(timeLeftTicks));
 
-        return new(new { timeLeft = timeLeft.ToString("T") });
+        return timeLeft.ToString("T");
     }
     #endregion
 }

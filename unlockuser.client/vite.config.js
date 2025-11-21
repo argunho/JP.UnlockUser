@@ -33,6 +33,26 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
 const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
     env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7293';
 
+// Custom change
+const isProd = env.NODE_ENV === 'production';
+const proxyPaths = [
+    '/app', 
+    '/authentication', 
+    '/data', 
+    '/search',  
+    '/logs', 
+    '/user'
+];
+
+// Convert the array into proxy config entries
+const proxy = Object.fromEntries(
+    proxyPaths.map(path => [
+        `^${path}`,
+        { target, secure: isProd }
+    ])
+)
+// End custom change    
+
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [plugin()],
@@ -42,29 +62,8 @@ export default defineConfig({
         }
     },
     server: {
-        proxy: {
-            '^/app': {
-                target,
-                secure: false
-            },
-            '^/authentication': {
-                target,
-                secure: false
-            },
-            '^/data': {
-                target,
-                secure: false
-            },
-            '^/search': {
-                target,
-                secure: false
-            },
-            '^/user': {
-                target,
-                secure: false
-            }
-        },
-        port: 5173,
+        proxy,
+        port: env.DEV_SERVER_PORT ?? 51173,
         https: {
             key: fs.readFileSync(keyFilePath),
             cert: fs.readFileSync(certFilePath),

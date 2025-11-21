@@ -11,7 +11,7 @@ import { useParams } from 'react-router-dom';
 
 // Components
 import SearchFilter from '../../components/SearchFilter';
-import Response from '../../components/Response';
+import Response from '../../components/blocks/Message';
 import Loading from '../../components/Loading';
 import FormButtons from '../../components/FormButtons';
 
@@ -23,11 +23,11 @@ import ApiRequest from '../../services/ApiRequest';
 
 // Css
 import '../../assets/css/list-view.css';
+import { useNavigate } from 'react-router-dom';
 
 const noResult = { color: "info", msg: "Inga personal hittades." };
 
-function EmployeesList({ navigate }) {
-    EmployeesList.displayName = "EmployeesList";
+function EmployeesList() {
 
     const [initList, setInit] = useState([]);
     const [list, setList] = useState([]);
@@ -47,6 +47,7 @@ function EmployeesList({ navigate }) {
 
 
     const { groupName } = useParams();
+    const navigate = useNavigate()
 
     useEffect(() => {
         getGroups();
@@ -279,14 +280,14 @@ function EmployeesList({ navigate }) {
 
                 {/* If listan is empty */}
                 {(!loading && list?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.length == 0)
-                    && <Response res={{ color: "info", msg: "Inga anställda hittades med matchande sökord." }} cancel={handleResponse} />}
+                    && <Message res={{ color: "info", msg: "Inga anställda hittades med matchande sökord." }} cancel={handleResponse} />}
             </List>
 
             {/* Loading symbol */}
             {loading && <Loading msg="data hämtas ..." styles={{ minHeight: "calc(100vh - 400px)" }} />}
 
             {/* Message if result is null */}
-            {(response && !loading && !open) && <Response res={response} cancel={handleResponse} />}
+            {(response && !loading && !open) && <Message res={response} cancel={handleResponse} />}
 
             {/* Pagination */}
             {(list?.length > perPage && !loading) && <div className="pagination w-100">
@@ -355,7 +356,7 @@ function EmployeesList({ navigate }) {
                     </FormButtons>}
 
                     {/* Response */}
-                    {!!response && <Response res={response} cancel={handleResponse} />}
+                    {!!response && <Message res={response} cancel={handleResponse} />}
                 </DialogActions>
             </Dialog>
         </div>

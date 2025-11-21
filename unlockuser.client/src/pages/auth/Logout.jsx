@@ -2,42 +2,39 @@
 import { useEffect, use } from "react";
 
 // Components
-import Loading from "../../components/Loading";
+import Loading from "../../components/blocks/Loading";
 
-// Fucntions
-import { ErrorHandle } from "../../functions/ErrorHandle";
+// Services
+import { ApiRequest } from "../../services/ApiRequest";
 
 // Storage
-import { FetchContext } from './../../storage/FetchContext';
 import { AuthContext } from "../../storage/AuthContext";
+
+// eslint-disable-next-line react-refresh/only-export-components
+export async function signout() {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    await ApiRequest("authentication/logout/" + token, "delete");
+}
 
 function Logout() {
 
     const { logout } = use(AuthContext);
-    const { reqFetchFn } = use(FetchContext);
 
     useEffect(() => {
-        document.title = "UnlockUser | Utloggning";
+        document.title = "AlvAssets | Utloggning";
 
-        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        const timer = setTimeout(() => {
+            logout();
+            window.location.href = "/";
+        }, 1500);
 
-        async function signout() {
-            try {
-                await reqFetchFn("authentication/logout/" + token, "delete");
-                setTimeout(() => {
-                    logout();
-                }, 1500);
-            } catch (error) {
-                logout();
-                ErrorHandle(error);
-            }
+        return () => {
+            clearTimeout(timer);
         }
-
-        signout();
     }, [])
 
     return (
-        <Loading msg="Du loggas ut" size={35} />
+        <Loading msg="Du loggas ut" color="inherit" size={35} cls="curtain" />
     )
 }
 

@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Mail;
 
-namespace UnlockUser.Services;
+namespace UnlockUser.Server.Services;
 
 public class MailService
 {

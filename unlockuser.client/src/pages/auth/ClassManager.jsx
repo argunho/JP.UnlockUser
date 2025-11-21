@@ -12,7 +12,7 @@ import Info from '../../components/Info';
 
 
 
-function UsersManager() {
+function ClassManager() {
 
     const { cls, school } = useParams();
 
@@ -67,4 +67,4 @@ function UsersManager() {
     )
 }
 
-export default UsersManager;
+export default ClassManager;
