@@ -86,7 +86,6 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
             var groupsNames = string.Join(",", groups.Select(s => s.Name));
 
-
             List<Claim> claims = [];
             claims.Add(new(ClaimTypes.Name, user?.Name));
             claims.Add(new("Email", user.EmailAddress));
@@ -114,7 +113,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             // Your access has been confirmed.
             return new(new
             {
-                credentials.token,
+                token = credentials.token,
                 groups
             });
         }

@@ -12,7 +12,7 @@ import { Cancel, DeleteSweep, Deselect, Edit, SelectAll } from '@mui/icons-mater
 
 // Components
 import Loading from './Loading';
-import Response from './blocks/Message';
+import Message from './blocks/Message';
 import Info from './Info';
 
 const defMessage = "Ditt sökresultat kommer att visas här nedan"

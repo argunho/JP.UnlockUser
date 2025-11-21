@@ -9,14 +9,14 @@ import { Button, CircularProgress } from '@mui/material';
 // Components
 import Form from '../../components/Form';
 import Info from '../../components/Info';
-import Response from '../../components/blocks/Message';
+import Message from '../../components/blocks/Message';
 import Loading from '../../components/Loading';
 
 // Functions
 import { ErrorHandle } from '../../functions/ErrorHandle';
 
 // Services
-import ApiRequest from '../../services/ApiRequest';
+import { ApiRequest } from '../../services/ApiRequest';
 
 // Stroage
 import { AuthContext } from '../../storage/AuthContext';

@@ -1,134 +1,75 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, use } from 'react';
 
 // Installed
 import {
-    Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, capitalize,
-    InputLabel, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, ListSubheader, MenuItem, Pagination, Select, Tooltip, Typography
+    Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton,
+    InputLabel, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, ListSubheader, MenuItem, Select, Tooltip, Typography
 } from '@mui/material';
 import { CheckBox, CheckBoxOutlineBlank, Close, Delete, OpenInFull, Refresh } from '@mui/icons-material';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useLoaderData, useOutletContext } from 'react-router-dom';
 
 
 // Components
 import SearchFilter from '../../components/SearchFilter';
-import Response from '../../components/blocks/Message';
+import Message from '../../components/blocks/Message';
 import Loading from '../../components/Loading';
 import FormButtons from '../../components/FormButtons';
 
-// Functions
-import { ErrorHandle } from '../../functions/ErrorHandle';
+// Hooks
+import usePagination from '../../hooks/usePagination';
 
-// Services
-import ApiRequest from '../../services/ApiRequest';
+// Storage
+import { FetchContext } from '../../storage/FetchContext';
 
 // Css
 import '../../assets/css/list-view.css';
-import { useNavigate } from 'react-router-dom';
 
-const noResult = { color: "info", msg: "Inga personal hittades." };
 
 function EmployeesList() {
 
-    const [initList, setInit] = useState([]);
-    const [list, setList] = useState([]);
-    const [response, setResponse] = useState();
-    const [loading, setLoading] = useState(true);
-    const [groups, setGroups] = useState([]);
     const [group, setGroup] = useState();
-    const [page, setPage] = useState(1);
     const [userData, setUserData] = useState();
-    const [lastUpdated, setLastUpdated] = useState("");
     const [clean, setClean] = useState(false);
-    const [items, setItems] = useState([]);
     const [updating, setUpdating] = useState(false);
     const [changed, setChanged] = useState(false);
     const [open, setOpen] = useState(false);
-    const perPage = 20;
+    const [searchWord, setSearchWord] = useState("");
 
+    const { loading: buffering, groups, id: groupName } = useOutletContext();
+    const { response, pending, fetchData, handleResponse } = use(FetchContext);
+    const loading = buffering || pending;
 
-    const { groupName } = useParams();
     const navigate = useNavigate()
+    const { employees, selections, updated } = useLoaderData() ?? {};
+    const items = selections ?? [];
+
+    const list = searchWord ? employees?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord)) : employees ?? [];
+    const { content: pagination, page, perPage } = usePagination(
+        {
+            length: list.length,
+            loading,
+            number: 20
+        });
+
 
     useEffect(() => {
-        getGroups();
+        document.title = "UnlockUser | Anställda";
+
+        if (!groupName)
+            navigate(`/employees/${groups[0]?.toLowerCase()}`, { replace: true });
+        else
+            setGroup(groupName.charAt(0).toUpperCase() + groupName.slice(1));
     }, [])
 
     useEffect(() => {
         setClean(true);
         setOpen(false);
-        if (group?.length > 0)
-            getEmployees();
     }, [group])
 
-    async function getGroups() {
-        await ApiRequest(`app/groups`).then(res => {
-            if (res.data != null) {
-                setGroups(res.data);
-
-                if (!groupName) {
-                    setGroup(res.data[0]);
-                    navigate(`/employees/${res.data[0]?.toLowerCase()}`, { replace: true });
-                } else
-                    setGroup(capitalize(groupName));
-
-            } else
-                setLoading(false);
-        }, error => {
-            ErrorHandle(error);
-            setLoading(false);
-        })
-    }
-
-    async function getEmployees() {
-        setLoading(true);
-        setResponse();
-        setList([]);
-        await ApiRequest(`app/authorized/${group}`).then(res => {
-            const { employees, selections, updated } = res.data;
-            setInit(employees);
-            setList(employees);
-            setItems(selections);
-            setLoading(false);
-            setLastUpdated(updated);
-            if (!!res.data?.msg)
-                setResponse(res.data);
-            else if (res.data === null || res.data?.length === 0)
-                setResponse(noResult);
-        }, error => {
-            ErrorHandle(error);
-            setLoading(false);
-        })
-    }
-
-    function listFilterBySearchKeyword(value) {
-        if (page > 1)
-            setPage(1);
-        if (value?.length >= 3) {
-            setList(list.filter(x => JSON.stringify(x).toLowerCase().includes(value?.toLowerCase())));
-            if (clean)
-                setClean(false);
-        } else
-            resetActions();
-    }
-
-    function handlePageChange(e, value) {
-        setPage(value);
-    }
 
     async function renewList() {
-        setLoading(true);
-        setList([]);
-        await ApiRequest("app/renew/jsons").then(res => {
-            if (res.status === 200) {
-                getEmployees();
-                sessionStorage.setItem("updated", "true");
-            }
-
-            setLoading(false);
-        }, error => {
-            setResponse({ color: "warning", msg: `Något har gått snett: Fel: ${error}` });
-            setLoading(false);
-        })
+        await fetchData({ api: "app/renew/jsons" });
+        sessionStorage.setItem("updated", "true");
     }
 
     function openModal(item) {
@@ -163,18 +104,15 @@ function EmployeesList() {
         setUserData({ ...userData, includedList: array });
     }
 
-    function closeModal(update = false) {
+    function closeModal() {
         setChanged(false);
         setUpdating(false);
         setUserData(null);
-        if (update)
-            getEmployees();
+        // if (update)
+        //     getEmployees();
     }
 
     function resetActions() {
-        setList(initList);
-        setResponse();
-        setLoading(false);
         setClean(true);
         setUpdating(false);
         setChanged(false);
@@ -206,17 +144,9 @@ function EmployeesList() {
         })
         delete obj.includedList;
 
-        await ApiRequest(`app/employee/${group}`, "put", obj).then(res => {
-            setResponse(res.data ?? {});
-        }, error => {
-            setResponse({ color: "warning", msg: `Något har gått snett: Fel: ${error}` });
-            closeModal();
-        })
+        await fetchData({ api: `app/employee/${group}`, method: "put", data: obj })
+        closeModal();
     }
-
-    const handleResponse = useCallback(function handleResponse() {
-        resetActions();
-    }, []);
 
     const label = group === "Studenter" ? "Skola" : "Chef";
 
@@ -227,7 +157,7 @@ function EmployeesList() {
             <div className="d-row view-list-container search-container">
                 {/* Search filter */}
                 <SearchFilter label="anställda" disabled={loading || response} clean={clean || loading}
-                    onChange={listFilterBySearchKeyword} onReset={resetActions} />
+                    onChange={(value) => setSearchWord(value.toLowercase())} onReset={resetActions} />
 
                 {/* Groups filter */}
                 <Box sx={{ minWidth: 160 }}>
@@ -248,7 +178,7 @@ function EmployeesList() {
             {/* Result list */}
             <List className="d-row list-container">
                 {/* Actions/Info */}
-                <ListItem className='view-list-result' secondaryAction={<Tooltip title={`Senast uppdaterade datum: ${lastUpdated}`} classes={{
+                <ListItem className='view-list-result' secondaryAction={<Tooltip title={`Senast uppdaterade datum: ${updated}`} classes={{
                     tooltip: `tooltip tooltip-margin tooltip-blue`,
                     arrow: `arrow-blue`
                 }} arrow>
@@ -290,10 +220,7 @@ function EmployeesList() {
             {(response && !loading && !open) && <Message res={response} cancel={handleResponse} />}
 
             {/* Pagination */}
-            {(list?.length > perPage && !loading) && <div className="pagination w-100">
-                <Pagination count={Math.ceil(list?.length / perPage)}
-                    page={page} onChange={handlePageChange} variant="outlined" shape="rounded" />
-            </div>}
+            {(list?.length > perPage && !loading) && pagination}
 
             {/* Modal form */}
             <Dialog open={!!userData} onClose={() => closeModal()} aria-labelledby="draggable-dialog-title" className='modal-wrapper print-page' id="content" >

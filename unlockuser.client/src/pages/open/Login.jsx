@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 
 // Components
-import Response from '../../components/blocks/Message';
+import Message from '../../components/blocks/Message';
 import Logotype from '../../components/blocks/Logotype';
 import FormButtons from './../../components/FormButtons';
 
@@ -29,7 +29,7 @@ function Login() {
   const [wait, setWait] = useState();
 
   const { authorize } = use(AuthContext);
-  const { reqFn, handleResponse, response } = use(FetchContext);
+  const { response, fetchData, handleResponse } = use(FetchContext);
 
   const navigate = useNavigate();
 
@@ -65,12 +65,11 @@ function Login() {
 
     const data = {
       username: fd.get("username"),
-      password: fd.get("password"),
-      // remember: fd.get("remember") === 'on' ? true : false
+      password: fd.get("password")
     }
 
     try {
-      const { token, groups, timeLeft } = await reqFn("authentication", "post", data) ?? {};
+      const { token, groups, timeLeft } = await fetchData({ api: "authentication", method: "post", data: data, action: "return" }) ?? {};
 
       if (timeLeft) {
         clear = false;
@@ -101,7 +100,6 @@ function Login() {
   const [formState, formAction, loading] = useActionState(onSubmit)
   const disabled = loading || !!response;
 
-
   return <div className="d-column jc-between ai-start w-100 login-wrapper p-rel fade-in">
 
     <Logotype />
@@ -123,15 +121,8 @@ function Login() {
         );
       })}
 
-      <div className="d-row jc-between w-100">
-        {/* <FormControlLabel className="d-row jc-start w-100" control={
-          <Checkbox id="checkbox" name="remember" color={disabled ? "default" : "success"} disabled={disabled} defaultChecked={formState?.remember ?? false} />
-        } label="Håll mig inloggad" /> */}
-
         {/* Buttons to submit the form data and confirmation to accept this submit action */}
         <FormButtons label="Logga in" disabled={disabled} loading={loading} />
-      </div>
-
     </form>
 
     {/* contacts link button  */}

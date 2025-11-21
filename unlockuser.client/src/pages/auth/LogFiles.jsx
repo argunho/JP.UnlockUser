@@ -8,7 +8,7 @@ import moment from "moment";
 import fileDownload from 'js-file-download';
 
 // Components
-import Response from '../../components/blocks/Message';
+import Message from '../../components/blocks/Message';
 import Loading from '../../components/Loading';
 import ModalHelpTexts from '../../components/modals/ModalHelpTexts'
 import SearchFilter from '../../components/SearchFilter';
@@ -17,7 +17,7 @@ import SearchFilter from '../../components/SearchFilter';
 import { ErrorHandle } from '../../functions/ErrorHandle';
 
 // Services
-import ApiRequest from '../../services/ApiRequest';
+import { ApiRequest } from '../../services/ApiRequest';
 import { useParams } from 'react-router-dom';
 
 function LogFiles({ loc }) {

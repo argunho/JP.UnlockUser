@@ -2,6 +2,7 @@
 import AppLayout from '../Layouts/AppLayout';
 import SessionLayout from './../layouts/SessionLayout';
 import ListLayout from '../layouts/ListLayout';
+import UsersLayout from '../Layouts/UsersLayout';
 
 // Pages
 import EmployeesList from "../pages/auth/EmployeesList";
@@ -12,13 +13,15 @@ import Members from "../pages/auth/Members";
 import Home from "../pages/auth/Home";
 import ListView from "../pages/auth/ListView";
 import Logout, { signout } from "../pages/auth/Logout";
+import ExpiredSession from '../pages/auth/ExpiredSession';
+
 import Contacts from "../pages/Contacts";
 import NotFound from "../pages/NotFound";
 import ErrorView from '../pages/ErrorView';
 
 // Function 
 import SessionData from "../functions/SessionData";
-// import { loader, loaderByApiParam, loaderById, loaderCheck } from '../functions/LoadFunctions';
+import { loader, loaderByApiParam, loaderById } from '../functions/LoadFunctions';
 
 // Storage
 import FetchContextProvider from '../storage/FetchContext';
@@ -27,8 +30,6 @@ import FetchContextProvider from '../storage/FetchContext';
 // import 'bootstrap/dist/css/bootstrap.css';
 import '../assets/css/form.css';
 import '../assets/css/blocks.css';
-import ExpiredSession from '../pages/auth/ExpiredSession';
-
 
 const AppRoutes = () => [
   {
@@ -37,6 +38,7 @@ const AppRoutes = () => [
       <AppLayout />
     </FetchContextProvider>,
     errorElement: <NotFound isAuthorized={true} />,
+    loader: loader("data/schools"),
     children: [
       {
         index: true,
@@ -100,17 +102,32 @@ const AppRoutes = () => [
         element: <ListView label="Skolor" api="data/schools" id="id" fields={{ name: "", place: "" }} labels={["Namn", "Plats"]} />,
         errorElement: <ErrorView />
       },
+    ]
+  },
+  {
+    path: "/employees",
+    element: <FetchContextProvider>
+      <UsersLayout />¨
+    </FetchContextProvider>,
+    errorElement: <NotFound isAuthorized={true} />,
+    loader: loader("app/groups"),
+    children: [
       {
-        path: "employees",
-        element: <EmployeesList />
+        index: true,
+        element: <EmployeesList />,
+        errorElement: <ErrorView />
       },
       {
-        path: "employees/:groupName",
-        element: <EmployeesList />
+        path: ":id",
+        element: <EmployeesList />,
+        errorElement: <ErrorView />,
+        loader: loaderById("employees")
       },
       {
-        path: 'members/:office/:department',
+        path: ':office/:department',
         element: <Members />,
+        errorElement: <ErrorView />,
+        loader: loaderByApiParam("search/members", ["department", "office"])
       },
     ]
   },

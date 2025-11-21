@@ -5,26 +5,21 @@ import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
 import {
     Button, FormControl, FormControlLabel, Tooltip,
     Radio, RadioGroup, TextField, Switch, Autocomplete, Select, MenuItem, InputLabel
-} from '@mui/material'
+} from '@mui/material';
+import { useOutletContext } from 'react-router-dom';
+
 
 // Components
 import Result from '../../components/Result';
 import ModalHelpTexts from '../../components/modals/ModalHelpTexts';
 
-// Functions
-import { ErrorHandle } from '../../functions/ErrorHandle';
-import SessionData from '../../functions/SessionData';
-
-// Services
-import ApiRequest, { CancelRequest } from '../../services/ApiRequest';
-
 // Storage
 import { AuthContext } from '../../storage/AuthContext';
+import { FetchContext } from '../../storage/FetchContext';
 
 // Json
 import params from '../../assets/json/helpTexts.json';
 import forms from '../../assets/json/forms.json';
-
 
 const choices = [
     { label: "Match", match: true },
@@ -43,14 +38,11 @@ function Home() {
 
     const [formData, setFormData] = useState(defaultData);
     const [users, setUsers] = useState(!!sessionStorage.getItem("users") ? JSON.parse(sessionStorage.getItem("users")) : null);
-    const [loading, setLoading] = useState(false);
     const [option, setOption] = useState(sOption || "user");
     const [isOpen, setOpen] = useState(false);
     const [clsStudents, setClsStudents] = useState(option === "students");
-    const [schools, setSchools] = useState(SessionData("schools"))
     const [match, setMatch] = useState(true);
     const [hasNoOptions, setNoOptions] = useState(false);
-    const [response, setResponse] = useState(null);
     const [showTips, setTips] = useState(localStorage.getItem("showTips") === "true");
     const [group, setGroup] = useState(currentGroup);
 
@@ -59,6 +51,8 @@ function Home() {
     const isActive = (formData.input || formData.additionInput).length > 0;
     const arrayTexts = group === "Studenter" ? studentsList.concat(defaultList) : defaultList;
 
+    const { schools } = useOutletContext();
+    const { response, loading, fetchData, handleResponse } = use(FetchContext);
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
@@ -67,6 +61,7 @@ function Home() {
     useEffect(() => {
         setUsers([]);
     }, [currentGroup])
+
 
     // Handle a change of text fields and radio input value
     const changeHandler = (e, open) => {
@@ -88,26 +83,13 @@ function Home() {
         setOption(value);
         setMatch(clsStudents);
         setClsStudents((clsStudents) => !clsStudents);
-        if (!clsStudents)
-            getSchools();
+        // if (!clsStudents)
+        // getSchools();
         reset();
         resetData();
 
         //  Save choice of search parameters in sessionStorage to mind the user choice and use it with page refresh
         sessionStorage.setItem("sOption", value)
-    }
-
-    async function getSchools() {
-        if (schools?.length > 0)
-            return;
-        await ApiRequest("data/schools").then(res => {
-
-            if (res.data?.length > 0) {
-                sessionStorage.setItem("schools", JSON.stringify(res.data));
-                setSchools(res.data);
-            }
-
-        }, error => ErrorHandle(error));
     }
 
     // Switch show of tips
@@ -142,43 +124,23 @@ function Home() {
         if (input.length < 1)
             return;
 
-        setLoading(true);
         reset();
 
         // API parameters by chosen searching alternative
         const params = (!clsStudents) ? group + "/" + match : additionInput;
 
-        // API request
-        await ApiRequest("search/" + option + "/" + input + "/" + params).then(res => {
-            // Response
-            const { users, errorMessage } = res.data;
-            setUsers(users || []);
-            setLoading(false);
-            setFormData({
-                ...formData,
-                input: users?.length > 0 ? "" : input,
-                additionInput: users?.length > 0 ? "" : additionInput,
-            })
-            setResponse(users ? null : res.data);
-
-            // If something is wrong, view error message in browser console
-            if (errorMessage) ErrorHandle("Error => " + errorMessage);
-        }, error => { // Error handle 
-            setLoading(false);
-            if (error.code === "ERR_CANCELED") {
-                setResponse(ErrorHandle(error));
-                setTimeout(() => {
-                    reset();
-                    resetData();
-                }, 3000)
-            } else
-                ErrorHandle(error);
-        });
+        const { users } = await fetchData({ api: "search/" + option + "/" + input + "/" + params, method: "get", action: "return" });
+        setUsers(users);
+        setFormData({
+            ...formData,
+            input: users?.length > 0 ? "" : input,
+            additionInput: users?.length > 0 ? "" : additionInput,
+        })
     }
 
     function reset() {
         setUsers(null);
-        setResponse(null);
+        handleResponse();
 
         // Remove result from sessionStorage
         sessionStorage.removeItem("users");
@@ -190,6 +152,7 @@ function Home() {
         setFormData(defaultData);
         setOpen(false);
     }
+
 
     return (
         <div className='interior-div'>
@@ -345,7 +308,7 @@ function Home() {
                 response={response}
                 disabled={group == "Support"}
                 resultBlock={true}
-                cancelRequest={CancelRequest}
+                // cancelRequest={CancelRequest}
                 resetResult={resetData}
             />
         </div >

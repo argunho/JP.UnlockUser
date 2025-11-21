@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 // Installed
-import { Outlet, useNavigation } from 'react-router-dom';
+import { Outlet, useNavigation, useLoaderData } from 'react-router-dom';
 
 // Components
 import Header from "../components/blocks/Header";
@@ -12,6 +12,8 @@ function AppLayout() {
   const refContainer = useRef();
   const navigation = useNavigation();
 
+  const schools = useLoaderData();
+
   useEffect(() => {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
   }, [])
@@ -21,7 +23,7 @@ function AppLayout() {
       <Header />
 
       <div className="container d-column jc-start fade-in" ref={refContainer}>
-        <Outlet context={{ loading: navigation.state === "loading" }} />
+        <Outlet context={{ loading: navigation.state === "loading", schools }} />
       </div>
     </>
 
