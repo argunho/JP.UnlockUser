@@ -56,7 +56,7 @@ function LogFiles({ loc }) {
 
     const handleFile = async (file, download = false) => {
         // const fileDownload = require('js-file-download');
-        await ApiRequest("data/read/file/" + file).then(res => {
+        await ApiRequest("api/data/read/file/" + file).then(res => {
             if (res.status === 200) {
                 if (download)
                     fileDownload(res.data, file.slice(file.lastIndexOf("_") + 1) + ".txt");

@@ -1,22 +1,16 @@
-import { useNavigate } from 'react-router-dom';
-
 export function ErrorHandle(error) {
 
-    const navigate = useNavigate();
-
-    if (error?.response?.status === 401){
-        navigate("/session/expired");
-        return null;
-    }
-
-    let errorMessage = "Något har gått snett.";
-    if(error !== null)
-        errorMessage += typeof error === "object" ? error?.message : error;
-
-    console.error(errorMessage)
-
-    return {
+    const errorResponse = {
         color: "error",
-        msg: errorMessage
+        msg: "Något har gått snett.<br/>Fel: "
     }
+
+    if (error?.response && error?.response?.status === 401)
+        window.location.pathname = "/session/expired";
+    else if (error?.code && error?.code === "ERR_CANCELED")
+        errorResponse.msg = error?.message;
+    else
+        errorResponse.msg += typeof error === "object" ? error?.message : error;
+
+    return errorResponse;
 }

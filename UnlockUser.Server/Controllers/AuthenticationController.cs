@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json;
 using System.Security.Claims;
 using System.Text;
 
@@ -20,10 +21,9 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
     private readonly string ctrl = nameof(AuthenticationController);
 
-    #region POST
-    
+    #region POST   
     [HttpPost]
-    public async Task<JsonResult> Post([FromBody] LoginViewModel model)
+    public async Task<JsonResult> PostLogin([FromBody] LoginViewModel model)
     {
         // Forms filled out incorrectly
         if (!ModelState.IsValid)
@@ -100,7 +100,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             _session?.SetString("Password", model.Password);
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
-            dynamic credentials = _credentials.GenerateJwtToken(
+            var credentials = _credentials.GenerateJwtToken(
                     claims,
                     _config["JwtSettings:Key"]!,
                     [.. roles.Distinct()],
@@ -109,18 +109,16 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             // Your access has been confirmed.
             return new(new
             {
-                token = credentials.token,
+                token = credentials.Token,
                 groups
             });
         }
         catch (Exception ex)
         {
-            // Activate a button in the user interface for sending an error message to the system developer if the same error is repeated more than two times during the same session
-            return new(await _help.Error($"{ctrl}: {nameof(Post)}", ex));
+            return new(await _help.Error($"{ctrl}: {nameof(PostLogin)}", ex));
         }
     }
     #endregion
-
 
     #region Delete
     [HttpDelete("logout/{token}")]

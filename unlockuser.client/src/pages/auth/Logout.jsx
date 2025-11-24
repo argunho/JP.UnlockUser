@@ -1,4 +1,3 @@
-
 import { useEffect, use } from "react";
 
 // Components
@@ -13,7 +12,7 @@ import { AuthContext } from "../../storage/AuthContext";
 // eslint-disable-next-line react-refresh/only-export-components
 export async function signout() {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-    await ApiRequest("authentication/logout/" + token, "delete");
+    await ApiRequest("api/authentication/logout/" + token, "delete");
 }
 
 function Logout() {
@@ -21,7 +20,7 @@ function Logout() {
     const { logout } = use(AuthContext);
 
     useEffect(() => {
-        document.title = "AlvAssets | Utloggning";
+        document.title = "UnlockUser | Utloggning";
 
         const timer = setTimeout(() => {
             logout();

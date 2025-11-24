@@ -87,10 +87,9 @@ function FetchContextProvider({ children }) {
                 signal: controllerRef.current.signal
             };
 
-            api = "api/" + api;
             const response = data
-                ? await axios[method](api, data, config)
-                : (["post", "patch", "put"].includes(method) ? await axios[method](api, {}, config) : await axios[method](api, config));
+                ? await axios[method](`api/${api}`, data, config)
+                : (["post", "patch", "put"].includes(method) ? await axios[method](`api/${api}`, {}, config) : await axios[method](`api/${api}`, config));
 
             const res = response?.data !== undefined ? response.data : response;
             const warning = (res?.msg || res?.result?.msg || res?.response);

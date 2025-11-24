@@ -1,4 +1,4 @@
-import { useEffect, useState, use } from 'react';
+import { useEffect, use, useReducer } from 'react';
 
 // Installed
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
@@ -13,6 +13,7 @@ import { useOutletContext } from 'react-router-dom';
 import Result from '../../components/Result';
 import ModalHelpTexts from '../../components/modals/ModalHelpTexts';
 
+
 // Storage
 import { AuthContext } from '../../storage/AuthContext';
 import { FetchContext } from '../../storage/FetchContext';
@@ -20,34 +21,56 @@ import { FetchContext } from '../../storage/FetchContext';
 // Json
 import params from '../../assets/json/helpTexts.json';
 import forms from '../../assets/json/forms.json';
+import ModalView from '../../components/modals/ModalView';
+const defaultData = {
+    input: "",
+    additionInput: ""
+}
 
 const choices = [
     { label: "Match", match: true },
     { label: "Exakt", match: false }
 ]
 
+const initialState = {
+    formData: defaultData,
+    users: [],
+    option: null,
+    isOpen: false,
+    isClass: false,
+    isMatch: true,
+    hasNoOptions: false,
+    showTips: false,
+    group: null
+}
+
+// Action reducer
+function actionReducer(state, action) {
+    const obj = action.payload ? action.payload : null;
+    switch (action.type) {
+        case "PARAM":
+            return {
+                ...state, [action.name]: obj
+            };
+        case "START":
+            return {
+                ...state, users: sessionStorage.getItem("users") ? JSON.parse(sessionStorage.getItem("users")) : [],
+                option: sessionStorage.getItem("sOption") ?? "user", isClass: sessionStorage.getItem("sOption") === "students",
+                showTips: localStorage.getItem("showTips") === "true", [action.name]: obj
+            };
+        default:
+            return state;
+    }
+}
+
 function Home() {
 
-    const defaultData = {
-        input: "",
-        additionInput: ""
-    }
-    const sOption = sessionStorage.getItem("sOption");
-
+    const [state, dispatch] = useReducer(actionReducer, initialState);
+    const { formData, users, option, isOpen, isClass, isMatch, hasNoOptions, showTips, group } = state;
     const { groups, group: currentGroup, updateGroupName } = use(AuthContext);
 
-    const [formData, setFormData] = useState(defaultData);
-    const [users, setUsers] = useState(!!sessionStorage.getItem("users") ? JSON.parse(sessionStorage.getItem("users")) : null);
-    const [option, setOption] = useState(sOption || "user");
-    const [isOpen, setOpen] = useState(false);
-    const [clsStudents, setClsStudents] = useState(option === "students");
-    const [match, setMatch] = useState(true);
-    const [hasNoOptions, setNoOptions] = useState(false);
-    const [showTips, setTips] = useState(localStorage.getItem("showTips") === "true");
-    const [group, setGroup] = useState(currentGroup);
-
     const { optionsList, studentsList, defaultList } = params;
-    const sFormParams = !clsStudents ? forms?.single : forms?.group;
+    const sFormParams = !isClass ? forms?.single : forms?.group;
     const isActive = (formData.input || formData.additionInput).length > 0;
     const arrayTexts = group === "Studenter" ? studentsList.concat(defaultList) : defaultList;
 
@@ -56,19 +79,24 @@ function Home() {
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
+
+        dispatch({ type: "START", name: "group", payload: currentGroup });
     }, []);
 
     useEffect(() => {
-        setUsers([]);
+        handleDispatch("users", []);
     }, [currentGroup])
 
+    function handleDispatch(name, value) {
+        dispatch({ type: "PARAM", name: name, payload: value });
+    }
 
     // Handle a change of text fields and radio input value
     const changeHandler = (e, open) => {
         const inp = e.target;
         if (!inp) return;
-        setFormData({ ...formData, [inp.name]: inp.value })
-        setNoOptions((open) ? schools?.filter(x => x?.name.includes(inp.value)).length === 0 : false);
+        handleDispatch("formData", { ...formData, [inp.name]: inp.value })
+        handleDispatch("hasNoOptions", (open) ? schools?.filter(x => x?.name.includes(inp.value)).length === 0 : false);
         reset();
     }
 
@@ -80,11 +108,9 @@ function Home() {
 
     // Handle changes in search alternatives and parameters
     const setSearchParameter = value => {
-        setOption(value);
-        setMatch(clsStudents);
-        setClsStudents((clsStudents) => !clsStudents);
-        // if (!clsStudents)
-        // getSchools();
+        handleDispatch("option", value);
+        handleDispatch("isMatch", isClass);
+        handleDispatch("isClass", !isClass);
         reset();
         resetData();
 
@@ -95,21 +121,21 @@ function Home() {
     // Switch show of tips
     const switchShowTips = () => {
         localStorage.setItem("showTips", !showTips)
-        setTips((showTips) => !showTips);
+        handleDispatch("showTips", !showTips);
     }
 
     function switchGroup(e) {
         const value = e.target.value;
         sessionStorage.setItem("group", value);
         updateGroupName(value);
-        setGroup(value);
+        handleDispatch("group", value);
         reset();
     }
 
     // Recognize Enter press to submit search form
     function handleKeyDown(e) {
         if (e.key === 'Enter') {
-            setFormData({ ...formData, [e.target.name]: e.target.value });
+            handleDispatch("formData", { ...formData, [e.target.name]: e.target.value });
             getSearchResult(e);
         }
     }
@@ -127,11 +153,11 @@ function Home() {
         reset();
 
         // API parameters by chosen searching alternative
-        const params = (!clsStudents) ? group + "/" + match : additionInput;
+        const params = (!isClass) ? group + "/" + isMatch : additionInput;
 
         const { users } = await fetchData({ api: "search/" + option + "/" + input + "/" + params, method: "get", action: "return" });
-        setUsers(users);
-        setFormData({
+        handleDispatch("users", users);
+        handleDispatch("formData", {
             ...formData,
             input: users?.length > 0 ? "" : input,
             additionInput: users?.length > 0 ? "" : additionInput,
@@ -139,7 +165,7 @@ function Home() {
     }
 
     function reset() {
-        setUsers(null);
+        handleDispatch("users", null);
         handleResponse();
 
         // Remove result from sessionStorage
@@ -149,8 +175,8 @@ function Home() {
 
     function resetData() {
         reset();
-        setFormData(defaultData);
-        setOpen(false);
+        handleDispatch("formData", defaultData);
+        handleDispatch("isOpen", false);
     }
 
 
@@ -172,10 +198,10 @@ function Home() {
                             autoHighlight
                             open={s.autoOpen && isOpen && !hasNoOptions}
                             inputValue={formData[s.name]}
-                            onChange={(e, option) => (e.key === "Enter") ? handleKeyDown : setFormData({ ...formData, [s.name]: option.primary })}
-                            onBlur={() => setOpen(false)}
-                            onClose={() => setOpen(false)}
-                            onFocus={() => setOpen(s.autoOpen && !hasNoOptions)}
+                            onChange={(e, option) => (e.key === "Enter") ? handleKeyDown : handleDispatch("formData", { ...formData, [s.name]: option.primary })}
+                            onBlur={() => handleDispatch("isOpen", false)}
+                            onClose={() => handleDispatch("isOpen", false)}
+                            onFocus={() => handleDispatch("isOpen", s.autoOpen && !hasNoOptions)}
                             renderInput={(params) =>
                                 <TextField
                                     {...params}
@@ -187,7 +213,7 @@ function Home() {
                                         ...params.InputProps,
                                         maxLength: 30,
                                         minLength: 2,
-                                        endAdornment: (clsStudents && index == 0) ? null : <div className="d-row">
+                                        endAdornment: (isClass && index == 0) ? null : <div className="d-row">
                                             {/* Reset form - button */}
                                             {isActive &&
                                                 <Button
@@ -208,9 +234,10 @@ function Home() {
                                                 <SearchSharp /></Button>
                                         </div>
                                     }}
+                                    InputLabelProps={{ shrink: true }}
                                     value={formData[s.name]}
                                     disabled={loading}
-                                    placeholder={!match ? s.placeholder : ""}
+                                    placeholder={!isMatch ? s.placeholder : "Sök ord här ..."}
                                     onKeyDown={handleKeyDown}
                                     onChange={(e) => changeHandler(e, s.autoOpen)}
                                     helperText={formData[s.name].length > 0 ? `${30 - formData[s.name].length} tecken kvar` : "Min 2 & Max 30 tecken"}
@@ -223,9 +250,10 @@ function Home() {
                 {/* Choose group */}
                 {groups?.length > 1 &&
                     <FormControl fullWidth>
-                        <InputLabel id="demo-simple-select-label">Hanteras</InputLabel>
+                        <InputLabel id="demo-simple-select-label" shrink>Hanteras</InputLabel>
                         <Select
-                            value={group}
+                            displayEmpty
+                            value={group ?? ""}
                             label="Hanteras"
                             labelId="demo-simple-select-label"
                             onChange={switchGroup}
@@ -278,11 +306,11 @@ function Home() {
                                         value={c.match}
                                         control={<Radio
                                             size='small'
-                                            checked={match === c.match}
-                                            disabled={clsStudents} />}
+                                            checked={isMatch === c.match}
+                                            disabled={isClass} />}
                                         label={c.label}
                                         name="match"
-                                        onChange={() => setMatch(c.match)} />
+                                        onChange={() => handleDispatch("isMatch", c.match)} />
                                 </Tooltip>
                             ))}
                         </RadioGroup>
@@ -294,15 +322,16 @@ function Home() {
                     <FormControlLabel className='switch-btn'
                         control={<Switch checked={showTips} color='info'
                             onChange={switchShowTips} />} label="Tips" />
+
                     {/* Modal  window with help texts */}
-                    <ModalHelpTexts data={arrayTexts} isTitle="Förklaring av sökparametrar" />
+                    <ModalView data={arrayTexts} label="Förklaring av sökparametrar" />
                 </div>
             </section>
 
             {/* Result of search */}
             <Result
                 list={users}
-                clsStudents={clsStudents}
+                clsStudents={isClass}
                 isVisibleTips={showTips}
                 loading={loading}
                 response={response}

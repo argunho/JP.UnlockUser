@@ -29,7 +29,7 @@ const links = [
     { label: "Statistik", url: "statistics", icon: <BarChart />, access: true, hidden: false },
     { label: "Loggfiler", url: "logs/errors", icon: <ErrorOutline />, access: true, hidden: false },
     { label: "Kontakta support", url: "contact", icon: <LiveHelp />, access: false, hidden: false },
-    { label: "Logga ut", url: "logout", icon: <Logout />, access: false, hidden: false }
+    { label: "Logga ut", url: "session/logout", icon: <Logout />, access: false, hidden: false }
 ];
 
 const Header = memo(function Header() {

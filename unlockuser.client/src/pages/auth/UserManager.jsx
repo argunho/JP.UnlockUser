@@ -66,7 +66,7 @@ function UserManager() {
         setResponse(null);
 
         // Request
-        await ApiRequest("user/unlock/" + user?.name).then(res => {
+        await ApiRequest("api/user/unlock/" + user?.name).then(res => {
             setLoading(false);
             setResponse(res?.data);
             // getUserData();
