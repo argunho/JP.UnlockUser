@@ -12,6 +12,9 @@ import Logotype from './../components/blocks/Logotype';
 // Images
 import support from './../assets/images/support.png';
 
+// Css
+import './../assets/css/contacts.css';
+
 function Contacts({ isAuthorized }) {
 
   const navigate = useNavigate();
@@ -29,7 +32,7 @@ function Contacts({ isAuthorized }) {
 
   return (
     // Contact information
-    <main className="contacts-container d-row ai-start wrap mh fade-in p-rel">
+    <main className="contacts-container d-row ai-start wrap fade-in p-rel w-100">
 
       {!isAuthorized && <section className='w-100 jc-start contacts-logo' id="logotype">
         <Logotype />

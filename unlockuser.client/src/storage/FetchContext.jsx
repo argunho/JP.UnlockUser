@@ -12,7 +12,7 @@ import { TokenConfig } from '../services/TokenConfig';
 
 axios.defaults.baseURL = window.location.origin;
 
-// eslint-disable-next-line react-refresh/only-export-components
+
 export const FetchContext = createContext();
 
 const initialState = {

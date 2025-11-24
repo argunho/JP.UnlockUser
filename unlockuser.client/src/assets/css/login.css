@@ -37,16 +37,14 @@
     position: absolute !important;
     bottom: 20px;
     right: 20px;
+    border: 1px solid #FFFFFF;
 }
 
 .login-contacts-link svg {
     font-size: 30px !important;
-
-}
-
-.login-contacts-link:hover {
     color: #FFFFFF;
 }
+
 
 .login-wrapper div:last-of-type>p:first-of-type {
     font-size: 26px !important;
