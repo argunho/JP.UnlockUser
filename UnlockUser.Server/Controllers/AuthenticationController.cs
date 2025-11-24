@@ -80,8 +80,6 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
                 Manage = s.Manage
             }).ToList();
 
-            var groupsNames = string.Join(",", groups.Select(s => s.Name));
-
             List<Claim> claims = [];
             claims.Add(new(ClaimTypes.Name, user?.Name));
             claims.Add(new("Email", user.EmailAddress));
@@ -91,7 +89,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             claims.Add(new("Office", user.Office));
             claims.Add(new("Department", user.Department));
             claims.Add(new("Division", user.Division));
-            claims.Add(new("Groups", groupsNames));
+            claims.Add(new("Groups", JsonConvert.SerializeObject(groups)));
             claims.Add(new("Roles", string.Join(",", roles)));
 
             if (roles.IndexOf("Support") > -1)
@@ -100,18 +98,11 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             _session?.SetString("Password", model.Password);
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
-            var credentials = _credentials.GenerateJwtToken(
+            return new(_credentials.GenerateJwtToken(
                     claims,
                     _config["JwtSettings:Key"]!,
                     [.. roles.Distinct()],
-                    false);
-
-            // Your access has been confirmed.
-            return new(new
-            {
-                token = credentials.Token,
-                groups
-            });
+                    false));
         }
         catch (Exception ex)
         {

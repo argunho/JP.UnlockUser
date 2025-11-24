@@ -177,13 +177,14 @@ main,
 .tooltip-white,
 .tooltip-green,
 .tooltip-red {
-    padding: 10px 12px !important;
-    font-size: 16px !important;
+    padding: 15px !important;
+    font-size: 14px !important;
     text-align: center !important;
     cursor: alias !important;
     z-index: 5000 !important;
     color: #FFFFFF !important;
     letter-spacing: 1px !important;
+    font-family: var(--font-primary);
 }
 
 .tooltip-info {
@@ -194,8 +195,7 @@ main,
     margin-top: 30px !important;
 }
 
-.tooltip-white,
-.tooltip-green {
+.tooltip-white {
     background-color: #FFFFFF !important;
     font-size: 12px !important;
     padding: 15px 20px !important;
@@ -207,15 +207,9 @@ main,
     color: #202020 !important;
 }
 
-.tooltip-green {
-    color: #000000 !important;
-    margin-bottom: 25px !important;
-    border: 2px dashed #11581f !important;
-}
 
 .tooltip-white,
-.tooltip-multiline,
-.tooltip-green {
+.tooltip-multiline {
     text-transform: uppercase !important;
     text-align: left !important;
 }

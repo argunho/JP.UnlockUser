@@ -123,16 +123,4 @@ button {
   min-width: 100px !important;
   min-height: 38px;
 }
-
-div[role="dialog"] {
-  z-index: 3000;
-  transition: all 0.7s ease-in-out;
-}
-
-.modal-view div[role="dialog"] {
-  width: 95%;
-  max-width: 500px;
-  padding: 20px 15px
-}
-
 /* #endregion */

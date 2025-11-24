@@ -21,7 +21,7 @@ import '../../assets/css/header.css';
 
 
 const links = [
-    { label: "Hem", url: "/home", icon: <Home />, access: false, hidden: false },
+    { label: "Hem", url: "/search", icon: <Home />, access: false, hidden: false },
     { label: "Skolor", url: "schools", icon: <School />, access: true, hidden: false },
     { label: "Behöriga användare", url: "employees", icon: <SettingsApplications />, access: true, hidden: false },
     { label: "Session historia", url: "session/history", icon: <History />, access: false, hidden: SessionData("sessionWork")?.length === 0 },
@@ -41,7 +41,7 @@ const Header = memo(function Header() {
     const refMenu = useRef();
     const { cleanSession } = use(AuthContext);
     const { Groups, DisplayName, Access } = DecodedToken();
-
+    const groups = JSON.parse(Groups).map(x => x.Name);
 
     useEffect(() => {
         let clickHandler = (event) => {
@@ -83,7 +83,7 @@ const Header = memo(function Header() {
 
                         <p className='d-column ai-start'>
                             <span>{DisplayName}</span>
-                            <span>{Groups?.replaceAll(",", ", ")}</span>
+                            <span>{groups.join(", ")}</span>
                         </p>
                     </div>
 

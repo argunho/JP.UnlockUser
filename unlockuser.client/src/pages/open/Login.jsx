@@ -69,7 +69,7 @@ function Login() {
     }
 
     try {
-      const { token, groups, timeLeft } = await fetchData({ api: "authentication", method: "post", data: data, action: "return" }) ?? {};
+      const { token, timeLeft } = await fetchData({ api: "authentication", method: "post", data: data, action: "return" }) ?? {};
 
       if (timeLeft) {
         clear = false;
@@ -77,9 +77,6 @@ function Login() {
       }
       else if (token) {
         sessionStorage.setItem("token", token);
-        sessionStorage.setItem("groups", JSON.stringify(groups));
-        sessionStorage.setItem("group", groups[0]?.name);
-
         authorize(token);
       }
 

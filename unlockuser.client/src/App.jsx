@@ -12,6 +12,7 @@ import AppRoutes from "./routes/AppRoutes";
 
 // Css
 import './assets/css/index.css';
+import './assets/css/modals.css';
 
 function App() {
     return (

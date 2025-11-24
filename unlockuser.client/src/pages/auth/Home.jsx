@@ -4,32 +4,36 @@ import { useEffect, use, useReducer } from 'react';
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
 import {
     Button, FormControl, FormControlLabel, Tooltip,
-    Radio, RadioGroup, TextField, Switch, Autocomplete, Select, MenuItem, InputLabel
+    Radio, RadioGroup, TextField, Switch, Autocomplete, Checkbox
 } from '@mui/material';
 import { useOutletContext } from 'react-router-dom';
 
-
 // Components
 import Result from '../../components/Result';
-import ModalHelpTexts from '../../components/modals/ModalHelpTexts';
+import ModalView from '../../components/modals/ModalView';
+import DropdownMenu from '../../components/lists/DropdownMenu';
 
+// Functions
+import { Claim } from '../../functions/DecodedToken';
 
 // Storage
-import { AuthContext } from '../../storage/AuthContext';
 import { FetchContext } from '../../storage/FetchContext';
 
+// Models
+import { AllTips, Tips } from '../../models/HelpTexts';
+import { Colors } from '../../models/Colors';
+
 // Json
-import params from '../../assets/json/helpTexts.json';
 import forms from '../../assets/json/forms.json';
-import ModalView from '../../components/modals/ModalView';
+
 const defaultData = {
     input: "",
     additionInput: ""
 }
 
-const choices = [
-    { label: "Match", match: true },
-    { label: "Exakt", match: false }
+const optionsList = [
+    { "label": "Användare", "value": "user" },
+    { "label": "Klass elever", "value": "students" }
 ]
 
 const initialState = {
@@ -54,9 +58,10 @@ function actionReducer(state, action) {
             };
         case "START":
             return {
-                ...state, users: sessionStorage.getItem("users") ? JSON.parse(sessionStorage.getItem("users")) : [],
-                option: sessionStorage.getItem("sOption") ?? "user", isClass: sessionStorage.getItem("sOption") === "students",
-                showTips: localStorage.getItem("showTips") === "true", [action.name]: obj
+                ...state,
+                users: sessionStorage.getItem("users") ? JSON.parse(sessionStorage.getItem("users")) : [],
+                option: sessionStorage.getItem("sOption") ?? "user",
+                isClass: sessionStorage.getItem("sOption") === "students"
             };
         default:
             return state;
@@ -67,27 +72,28 @@ function Home() {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
     const { formData, users, option, isOpen, isClass, isMatch, hasNoOptions, showTips, group } = state;
-    const { groups, group: currentGroup, updateGroupName } = use(AuthContext);
 
-    const { optionsList, studentsList, defaultList } = params;
+    const groups = Claim("groups");
+
     const sFormParams = !isClass ? forms?.single : forms?.group;
     const isActive = (formData.input || formData.additionInput).length > 0;
-    const arrayTexts = group === "Studenter" ? studentsList.concat(defaultList) : defaultList;
 
-    const { schools } = useOutletContext();
+    const { schools, groupName } = useOutletContext();
     const { response, loading, fetchData, handleResponse } = use(FetchContext);
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
-
-        dispatch({ type: "START", name: "group", payload: currentGroup });
+        dispatch({ type: "START" });
     }, []);
 
     useEffect(() => {
+        const currentGroup = groupName ? groups.find(x => x.name.toLowerCase() == groupName)?.name : groups[0]?.name;
         handleDispatch("users", []);
-    }, [currentGroup])
+        handleDispatch("group", currentGroup);
+    }, [groupName])
 
     function handleDispatch(name, value) {
+        console.log(name, value)
         dispatch({ type: "PARAM", name: name, payload: value });
     }
 
@@ -100,12 +106,6 @@ function Home() {
         reset();
     }
 
-    // Return one from help texts found by the keyword
-    const returnToolTipByKeyword = (keyword, students) => {
-        if (!showTips) return "";
-        return (students ? params.studentsList : params.defaultList).find(x => x.label === keyword)?.tip;
-    }
-
     // Handle changes in search alternatives and parameters
     const setSearchParameter = value => {
         handleDispatch("option", value);
@@ -116,20 +116,6 @@ function Home() {
 
         //  Save choice of search parameters in sessionStorage to mind the user choice and use it with page refresh
         sessionStorage.setItem("sOption", value)
-    }
-
-    // Switch show of tips
-    const switchShowTips = () => {
-        localStorage.setItem("showTips", !showTips)
-        handleDispatch("showTips", !showTips);
-    }
-
-    function switchGroup(e) {
-        const value = e.target.value;
-        sessionStorage.setItem("group", value);
-        updateGroupName(value);
-        handleDispatch("group", value);
-        reset();
     }
 
     // Recognize Enter press to submit search form
@@ -237,50 +223,77 @@ function Home() {
                                     InputLabelProps={{ shrink: true }}
                                     value={formData[s.name]}
                                     disabled={loading}
-                                    placeholder={!isMatch ? s.placeholder : "Sök ord här ..."}
+                                    placeholder={isMatch ? s.placeholder : "Sök ord här ..."}
                                     onKeyDown={handleKeyDown}
                                     onChange={(e) => changeHandler(e, s.autoOpen)}
                                     helperText={formData[s.name].length > 0 ? `${30 - formData[s.name].length} tecken kvar` : "Min 2 & Max 30 tecken"}
                                 />}
                         />
                     ))}
-
                 </form>
 
                 {/* Choose group */}
-                {groups?.length > 1 &&
-                    <FormControl fullWidth>
-                        <InputLabel id="demo-simple-select-label" shrink>Hanteras</InputLabel>
-                        <Select
-                            displayEmpty
-                            value={group ?? ""}
-                            label="Hanteras"
-                            labelId="demo-simple-select-label"
-                            onChange={switchGroup}
-                            sx={{ color: "#1976D2" }}
-                            disabled={groups?.length === 1 || sFormParams?.length > 1}
-                        >
-                            {groups?.map((group, index) => (
-                                <MenuItem value={group?.name} key={index}>
-                                    <span style={{ marginLeft: "10px" }}> - {group?.name}</span>
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>}
+                {groups?.length > 0 && <DropdownMenu
+                    label="Hanteras"
+                    list={groups}
+                    value={group}
+                    link="/search/"
+                    disabled={groups?.length === 1 || sFormParams?.length > 1} />}
             </section>
 
             {/* The search parameters to choice */}
             <section className="checkbox-radio-wrapper d-row jc-between" id="crw">
 
-                <div className='left-section d-column ai-start'>
+                <div className='left-section d-row ai-start'>
+
+                    {/* Checkbox and radio with search parameters to choose for user search */}
+                    <FormControlLabel
+                        control={<Checkbox
+                                size='small'
+                                disabled={isClass}
+                                checked={isMatch}
+                                onClick={() => handleDispatch("isMatch", !isMatch)} />}
+                        label={<Tooltip
+                            disableHoverListener={!showTips}
+                            title={Tips.find(x => x.value === "match")?.secondary}
+                            classes={{
+                                tooltip: "tooltip-default"
+                            }}
+                            PopperProps={{
+                                sx: {
+                                    '& .MuiTooltip-tooltip': {
+                                        backgroundColor: Colors["primary"]
+                                    },
+                                    '& .MuiTooltip-arrow': {
+                                        color: Colors["primary"]
+                                    }
+                                }
+                            }}
+                            arrow>Exact match</Tooltip>} />
 
                     {/* Radio buttons to choice one of search alternatives */}
-                    {group === "Studenter" && <FormControl className='checkbox-block-mobile' style={{ display: "inline-block" }}>
+                    {group === "Studenter" && <FormControl className='checkbox-block-mobile'>
                         <RadioGroup row name="row-radio-buttons-group">
                             {/* Loop of radio input choices */}
                             {optionsList?.map((p, index) => (
-                                <Tooltip key={index} disableHoverListener={!showTips} title={returnToolTipByKeyword(p.label, true)}
-                                    classes={{ tooltip: "tooltip tooltip-green", arrow: "arrow-green" }} arrow>
+                                <Tooltip
+                                    key={index}
+                                    disableHoverListener={!showTips}
+                                    title={AllTips.find(x => x.value === p.value)?.secondary}
+                                    classes={{
+                                        tooltip: "tooltip-default"
+                                    }}
+                                    PopperProps={{
+                                        sx: {
+                                            '& .MuiTooltip-tooltip': {
+                                                backgroundColor: Colors["success"]
+                                            },
+                                            '& .MuiTooltip-arrow': {
+                                                color: Colors["success"]
+                                            }
+                                        }
+                                    }}
+                                    arrow>
                                     <FormControlLabel
                                         value={option === p.value}
                                         control={<Radio
@@ -294,48 +307,34 @@ function Home() {
                             ))}
                         </RadioGroup>
                     </FormControl>}
-
-                    {/* Checkbox and radio with search parameters to choose for user search */}
-                    <FormControl style={{ display: "block" }}>
-                        <RadioGroup row name="row-radio-buttons-group">
-                            {/* Loop of radio input choices */}
-                            {choices.map((c, index) => (
-                                <Tooltip key={index} disableHoverListener={!showTips} title={returnToolTipByKeyword(c.label)}
-                                    classes={{ tooltip: "tooltip tooltip-blue", arrow: "arrow-blue" }} arrow>
-                                    <FormControlLabel
-                                        value={c.match}
-                                        control={<Radio
-                                            size='small'
-                                            checked={isMatch === c.match}
-                                            disabled={isClass} />}
-                                        label={c.label}
-                                        name="match"
-                                        onChange={() => handleDispatch("isMatch", c.match)} />
-                                </Tooltip>
-                            ))}
-                        </RadioGroup>
-                    </FormControl>
                 </div>
 
                 <div className='right-section d-row'>
                     {/* Switchable box */}
-                    <FormControlLabel className='switch-btn'
-                        control={<Switch checked={showTips} color='info'
-                            onChange={switchShowTips} />} label="Tips" />
+                    <FormControlLabel
+                        className='switch-btn'
+                        control={<Switch
+                            checked={showTips}
+                            color='info'
+                            onChange={() => handleDispatch("showTips", !showTips)} />}
+                        label="Tips" />
 
                     {/* Modal  window with help texts */}
-                    <ModalView data={arrayTexts} label="Förklaring av sökparametrar" />
+                    <ModalView
+                        label="Förklaring av sökparametrar"
+                        content={group === "Studenter" ? AllTips : Tips} />
                 </div>
-            </section>
+            </section >
 
             {/* Result of search */}
-            <Result
+            < Result
                 list={users}
                 clsStudents={isClass}
                 isVisibleTips={showTips}
                 loading={loading}
                 response={response}
-                disabled={group == "Support"}
+                disabled={group == "Support"
+                }
                 resultBlock={true}
                 // cancelRequest={CancelRequest}
                 resetResult={resetData}

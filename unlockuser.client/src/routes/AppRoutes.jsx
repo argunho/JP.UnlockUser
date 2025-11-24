@@ -1,3 +1,6 @@
+// Installed
+import { Navigate } from 'react-router-dom';
+
 // Layouts
 import AppLayout from '../layouts/AppLayout';
 import SessionLayout from './../layouts/SessionLayout';
@@ -27,7 +30,6 @@ import { loader, loaderByApiParam, loaderById } from '../functions/LoadFunctions
 import FetchContextProvider from '../storage/FetchContext';
 
 // Css
-// import 'bootstrap/dist/css/bootstrap.css';
 import '../assets/css/form.css';
 import '../assets/css/blocks.css';
 
@@ -42,13 +44,24 @@ const AppRoutes = () => [
     children: [
       {
         index: true,
-        element: <Home />,
+        element: <Navigate to="/search" replace />,
         errorElement: <ErrorView />
       },
       {
         path: "home",
+        element: <Navigate to="/search" replace />,
+        errorElement: <ErrorView />
+      },
+      {
+        path: "search",
         element: <Home />,
         errorElement: <ErrorView />
+      },
+      {
+        path: "search/:group",
+        element: <Home />,
+        errorElement: <ErrorView />
+        // loader: loaderByParams("search", "group")
       },
       {
         path: 'contact',

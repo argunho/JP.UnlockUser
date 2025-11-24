@@ -109,7 +109,6 @@ function PasswordGeneration({
                 i -= 1;
         }
 
-        console.log("Generate password => ", usersArray, "previewList", previewList);
         setForm({ users: usersArray });
         setPreviewList(previewList);
     }

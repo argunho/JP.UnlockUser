@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 // Installed
-import { Outlet, useNavigation, useLoaderData } from 'react-router-dom';
+import { Outlet, useNavigation, useLoaderData, useParams } from 'react-router-dom';
 
 // Components
 import Header from "../components/blocks/Header";
@@ -11,6 +11,7 @@ function AppLayout() {
 
   const refContainer = useRef();
   const navigation = useNavigation();
+  const { group } = useParams();
 
   const schools = useLoaderData();
 
@@ -23,7 +24,7 @@ function AppLayout() {
       <Header />
 
       <div className="container d-column jc-start fade-in" ref={refContainer}>
-        <Outlet context={{ loading: navigation.state === "loading", schools }} />
+        <Outlet context={{ loading: navigation.state === "loading", schools, groupName: group }} />
       </div>
     </>
 

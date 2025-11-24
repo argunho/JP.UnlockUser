@@ -12,9 +12,6 @@ import FormButtons from '../FormButtons';
 // Functions
 function ModalHelpTexts({ children, open = true, data, cls = "situated-btn", isTable = false, isSubmit = false,
     isTitle, inverseFunction, regeneratePassword, view, ref }) {
-    ModalHelpTexts.displayName = "ModalHelpTexts";
-
-    console.log("ModalHelpTexts", view);
 
     const [confirm, setConfirm] = useState(false);
     const [savePdf, setSavePdf] = useState(false);
