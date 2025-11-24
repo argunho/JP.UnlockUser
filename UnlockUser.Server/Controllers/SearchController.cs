@@ -4,7 +4,7 @@ using System.DirectoryServices;
 
 namespace UnlockUser.Server.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 [Authorize]
 public class SearchController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IHelp help) : ControllerBase

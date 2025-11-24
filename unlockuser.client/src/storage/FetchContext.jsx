@@ -87,6 +87,7 @@ function FetchContextProvider({ children }) {
                 signal: controllerRef.current.signal
             };
 
+            api = "api/" + api;
             const response = data
                 ? await axios[method](api, data, config)
                 : (["post", "patch", "put"].includes(method) ? await axios[method](api, {}, config) : await axios[method](api, config));

@@ -1,8 +1,8 @@
 // Layouts
-import AppLayout from '../Layouts/AppLayout';
+import AppLayout from '../layouts/AppLayout';
 import SessionLayout from './../layouts/SessionLayout';
 import ListLayout from '../layouts/ListLayout';
-import UsersLayout from '../Layouts/UsersLayout';
+import UsersLayout from '../layouts/UsersLayout';
 
 // Pages
 import EmployeesList from "../pages/auth/EmployeesList";

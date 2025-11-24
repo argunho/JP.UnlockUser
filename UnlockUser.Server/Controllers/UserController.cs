@@ -8,7 +8,7 @@ using System.Globalization;
 
 namespace UnlockUser.Server.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 [Authorize]
 public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IHelp help, IConfiguration config, SearchController search) : ControllerBase

@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace UnlockUser.Server.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 [Authorize]
 public class DataController : ControllerBase

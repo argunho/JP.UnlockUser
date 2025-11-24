@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace UnlockUser.Server.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 [Authorize(Roles = "Developer,Manager,Support")]
 public class AppController(IConfiguration config, IActiveDirectory provider, IHelp help) : ControllerBase

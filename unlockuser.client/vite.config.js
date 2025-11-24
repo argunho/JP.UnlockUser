@@ -35,22 +35,15 @@ const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_H
 
 // Custom change
 const isProd = env.NODE_ENV === 'production';
-const proxyPaths = [
-    '/app', 
-    '/authentication', 
-    '/data', 
-    '/search',  
-    '/logs', 
-    '/user'
-];
 
 // Convert the array into proxy config entries
-const proxy = Object.fromEntries(
-    proxyPaths.map(path => [
-        `^${path}`,
-        { target, secure: isProd }
-    ])
-)
+const proxy = {
+    '^/api/.*': {
+        target,
+        changeOrigin: true,
+        secure: isProd, // dev certs: allow self-signed
+    },
+}
 // End custom change    
 
 // https://vitejs.dev/config/

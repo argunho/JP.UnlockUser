@@ -5,8 +5,8 @@ using System.Diagnostics;
 namespace UnlockUser.Server.Controllers;
 
 [ApiController]
-[Route("Log")]
-[Route("Logs")]
+[Route("api/Log")]
+[Route("api/Logs")]
 [Authorize(Roles = "DevTeam")]
 public class LogController(IHelpService help, IFileService fileService) : ControllerBase
 {
