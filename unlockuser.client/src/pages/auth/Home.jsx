@@ -167,10 +167,10 @@ function Home() {
 
 
     return (
-        <div className='interior-div'>
+        <>
 
             {/* Search form */}
-            <section className='d-row jc-between search-container ai-start' id="search_container">
+            <section className='d-row jc-between search-container w-100 ai-start' id="search_container">
                 <form className='search-wrapper w-100' onSubmit={getSearchResult}>
                     {/* List loop of text fields */}
                     {sFormParams?.map((s, index) => (
@@ -242,17 +242,17 @@ function Home() {
             </section>
 
             {/* The search parameters to choice */}
-            <section className="checkbox-radio-wrapper d-row jc-between" id="crw">
+            <section className="checkbox-radio-wrapper d-row jc-between w-100" id="crw">
 
                 <div className='left-section d-row ai-start'>
 
                     {/* Checkbox and radio with search parameters to choose for user search */}
                     <FormControlLabel
                         control={<Checkbox
-                                size='small'
-                                disabled={isClass}
-                                checked={isMatch}
-                                onClick={() => handleDispatch("isMatch", !isMatch)} />}
+                            size='small'
+                            disabled={isClass}
+                            checked={isMatch}
+                            onClick={() => handleDispatch("isMatch", !isMatch)} />}
                         label={<Tooltip
                             disableHoverListener={!showTips}
                             title={Tips.find(x => x.value === "match")?.secondary}
@@ -339,7 +339,7 @@ function Home() {
                 // cancelRequest={CancelRequest}
                 resetResult={resetData}
             />
-        </div >
+        </>
     )
 }
 

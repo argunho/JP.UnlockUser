@@ -102,7 +102,7 @@
     height: 60px;
   }
 
-  .menu-wrapper {
+  .ul-menu-wrapper {
     padding: 0 5px
   }
 }
@@ -114,7 +114,7 @@
 }
 
 @media (max-width: 485px) {
-  .menu-wrapper {
+  .ul-menu-wrapper {
     bottom: -210px;
   }
 

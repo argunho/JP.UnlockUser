@@ -1,64 +1,132 @@
 .header-container {
-  height: 210px !important;
-  background-color: #FFFFFF;
-  color: #000000;
-  position: sticky;
-  top: 0;
-  z-index: 3000 !important;
+    height: var(--header-height);
+    background-color: #FFFFFF;
+    color: #000000;
+    padding: 0 !important;
+    position: sticky;
+    top: 0;
+    z-index: 3000 !important;
 }
 
 .header-wrapper {
-  height: 100% !important;
-  max-width: 1400px !important;
-  margin: auto;
+    height: calc(var(--header-height) - 70px);
 }
 
-.header-nav {
-  background-color: var(--color-primary);
-}
-
-.display-name {
-  margin-right: 20px !important;
+.header-wrapper,
+.menu-wrapper {
+    max-width: var(--max-width) !important;
+    margin: auto;
 }
 
 /*  #region Logotype */
 .logotype {
-  height: max-content;
-  width: max-content;
+    height: max-content;
+    width: max-content;
 }
 
 .logo-wrapper {
-  width: 65px;
-  overflow: hidden;
-  margin: auto 20px auto 0;
+    width: 65px;
+    overflow: hidden;
+    margin: auto 20px auto 0;
 }
 
 .logo {
-  height: 70px;
+    height: 70px;
 }
 
 .logotype>div.d-column {
-  align-items: flex-start;
+    align-items: flex-start;
 }
 
 .logotype>div>p {
-  margin: 0;
-  font-size: 25px;
+    margin: 0;
+    font-size: 25px;
 }
 
 .logotype-subtitle {
-  text-align: right;
-  font-size: 14px !important;
-  font-style: italic;
-  text-transform: uppercase;
-  color: #3a5342;
-  margin-bottom: 15px;
-  width: 100%;
+    text-align: right;
+    font-size: 14px !important;
+    font-style: italic;
+    text-transform: uppercase;
+    color: #3a5342;
+    margin-bottom: 15px;
+    width: 100%;
 }
 
 /* #endregion */
 
-/* #region Home link */
+/* #region Menu */
+.menu-container {
+    background-color: var(--color-primary);
+    height: 70px;
+}
+
+.menu-wrapper {
+    overflow: hidden;
+    padding: 0 15px;
+    height: 100%;
+    position: relative;
+    color: #FFFFFF !important;
+}
+
+.menu-link {
+    padding: 4px 6px;
+    border: 2px solid transparent;
+    transition: all 0.5s ease-in-out !important;
+    border-radius: 50%;
+}
+
+.menu-link span {
+    display: none;
+}
+
+.menu-link:not(.selected):hover span,
+.selected span {
+    display: block;
+    position: absolute;
+    top: 0;
+    color: #FFFFFF;
+    padding: 24px 15px;
+    font-size: 18px !important;
+    white-space: nowrap;
+    text-transform: uppercase;
+    background-color: var(--color-primary);
+    text-align: right;
+}
+
+
+.menu-link:not(.selected):hover span {
+    z-index: 1000;
+}
+
+.menu-link:not(.menu-link:first-of-type) {
+    margin-left: 25px !important;
+}
+
+.menu-link>svg {
+    font-size: 30px;
+    color: #FFFFFF;
+    transition: all 0.5s ease-in-out;
+}
+
+.menu-link:not(.selected):hover svg {
+    transform: scale(1.2);
+}
+
+.menu-link.selected {
+    box-shadow: 0 0 3px 3px #FFFFFF;
+}
+
+.menu-link.selected>svg {
+    color: #FFFFFF;
+}
+
+.menu-link.selected:hover {
+    border-color: #FFFFFF !important;
+}
+/* #endregion */
+
+/* #region Home link  */
 .home-link {
   padding: 9px;
   border: 2px solid #ffffffd8 !important;
@@ -88,9 +156,79 @@
   border-color: #FFFFFF !important;
 }
 
-/* #endregion */
+/* #endregion  */
 
 /* #region Nav */
+.nav-wrapper>div {
+  width: max-content;
+}
+
+.nav-btn {
+  color: #fff !important;
+  border-color: #fff !important;
+  margin-left: 15px !important;
+}
+
+.nav-btn:hover,
+.nav-btn-active {
+  box-shadow: 0 0 1px 1px #FFFFFF;
+}
+
+.nav-btn:last-child svg {
+  font-size: 24px !important;
+}
+
+/* #endregion */
+
+@media(max-width: 1920px) {
+    .header-container {
+        height: 200px;
+    }
+
+    .menu-container,
+    .menu-wrapper {
+        height: 65px;
+    }
+
+    .menu-link {
+        padding: 3px 5px;
+        border-radius: 50%;
+    }
+
+    .menu-link>svg {
+        font-size: 25px;
+    }
+}
+
+
+/* .header-container {
+  height: 210px !important;
+  background-color: #FFFFFF;
+  color: #000000;
+  position: sticky;
+  top: 0;
+  z-index: 3000 !important;
+}
+
+.header-wrapper {
+  height: 100% !important;
+  max-width: 1400px !important;
+  margin: auto;
+}
+
+.header-nav {
+  background-color: var(--color-primary);
+}
+
+.display-name {
+  margin-right: 20px !important;
+}
+
+
+
+
+
+#region Nav 
 .nav-wrapper {
   width: 100%;
   position: relative;
@@ -127,9 +265,9 @@
   font-size: 24px !important;
 }
 
-/* #endregion */
+/* #endregion 
 
-/* #region Dropdow menu */
+/* #region Dropdow menu 
 .menu-container {
   position: relative;
 }
@@ -184,4 +322,4 @@
   display: block;
 }
 
-/* #endregion */
+#endregion */

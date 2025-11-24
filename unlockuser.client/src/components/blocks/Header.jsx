@@ -71,8 +71,8 @@ const Header = memo(function Header() {
                 <Logotype />
             </section>
 
-            <nav className="nav-wrapper header-nav w-100" id="header-nav">
-                <div className='d-row jc-between w-100'>
+            <section className="menu-container w-100" id="menu-container">
+                <div className='menu-wrapper d-row jc-between'>
                     <div className="d-row" id="header-home">
                         <IconButton
                             className={`home-link${loc.pathname === "/" ? " selected" : ""}`}
@@ -87,24 +87,22 @@ const Header = memo(function Header() {
                         </p>
                     </div>
 
-                    <div className='d-row' id="header-menu">
-                        <div className='menu-container'>
-                            <Button variant='outlined' size="large" className={`nav-btn ${open && 'nav-btn-active'}`} onClick={() => setOpen((open) => !open)}>
-                                {open ? <Close /> : <Menu />}
-                            </Button>
-                            <ul className={`menu-wrapper ${open && 'visible-menu-wrapper'}`} ref={refMenu}>
+                    <div className='d-row nav-wrapper' id="header-menu">
+                        <Button variant='outlined' size="large" className={`nav-btn ${open && 'nav-btn-active'}`} onClick={() => setOpen((open) => !open)}>
+                            {open ? <Close /> : <Menu />}
+                        </Button>
+                        <ul className={`ul-menu-wrapper ${open && 'visible-menu-wrapper'}`} ref={refMenu}>
 
-                                {/* Loop links */}
-                                {(Access ? links : links.filter(x => !x.access)).filter(x => !x?.hidden).map((link, ind) => {
-                                    return <li className='d-row w-100 jc-start' key={ind} onClick={() => goToPage(link.url)}>
-                                        {link.icon} {link.label}
-                                    </li>
-                                })}
-                            </ul>
-                        </div>
+                            {/* Loop links */}
+                            {(Access ? links : links.filter(x => !x.access)).filter(x => !x?.hidden).map((link, ind) => {
+                                return <li className='d-row w-100 jc-start' key={ind} onClick={() => goToPage(link.url)}>
+                                    {link.icon} {link.label}
+                                </li>
+                            })}
+                        </ul>
                     </div>
                 </div>
-            </nav>
+            </section>
 
         </header>
     )
