@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, use, memo } from 'react';
 // Installed
 import { LiveHelp, Logout, Menu, Close, History, SettingsApplications, School, WorkHistory, ErrorOutline, BarChart, Home } from '@mui/icons-material';
 import { Button, IconButton } from '@mui/material';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 
 // Components
 import Logotype from './Logotype';
@@ -87,24 +87,24 @@ const Header = memo(function Header() {
                         </p>
                     </div>
 
-                    <div className='d-row nav-wrapper' id="header-menu">
-                        <Button variant='outlined' size="large" className={`nav-btn ${open && 'nav-btn-active'}`} onClick={() => setOpen((open) => !open)}>
-                            {open ? <Close /> : <Menu />}
-                        </Button>
-                        <ul className={`ul-menu-wrapper ${open && 'visible-menu-wrapper'}`} ref={refMenu}>
+                    {/* Navigation button */}
+                    <Button variant='outlined' size="large" className={`nav-btn ${open && 'nav-btn-active'}`} onClick={() => setOpen((open) => !open)}>
+                        {open ? <Close /> : <Menu />}
+                    </Button>
+                    {/* Navigation hidden menu */}
+                    <div className={`nav-wrapper${open ? ' visible' : ""}`} ref={refMenu}>
 
-                            {/* Loop links */}
-                            {(Access ? links : links.filter(x => !x.access)).filter(x => !x?.hidden).map((link, ind) => {
-                                return <li className='d-row w-100 jc-start' key={ind} onClick={() => goToPage(link.url)}>
-                                    {link.icon} {link.label}
-                                </li>
-                            })}
-                        </ul>
+                        {/* Loop links */}
+                        {(Access ? links : links.filter(x => !x.access)).filter(x => !x?.hidden).map((link, ind) => {
+                            return <NavLink className={({ isActive }) => `d-row w-100 jc-start${isActive ? " active" : ""}`} key={ind} to={link.url}>
+                                {link.icon} {link.label}
+                            </NavLink>
+                        })}
                     </div>
                 </div>
             </section>
 
-        </header>
+        </header >
     )
 })
 
