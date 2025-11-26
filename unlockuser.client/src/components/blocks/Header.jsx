@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, use, memo } from 'react';
+import { useEffect, useRef, useState, memo } from 'react';
 
 
 // Installed
@@ -11,13 +11,11 @@ import Logotype from './Logotype';
 
 // Functions
 import SessionData from '../../functions/SessionData';
-import { DecodedToken } from '../../functions/DecodedToken';
-
-// Storage
-import { AuthContext } from '../../storage/AuthContext';
+import { DecodedClaims } from '../../functions/DecodedToken';
 
 // Css
 import '../../assets/css/header.css';
+import HiddenMenu from './HiddenMenu';
 
 
 const links = [
@@ -39,9 +37,9 @@ const Header = memo(function Header() {
     const navigate = useNavigate();
     const loc = useLocation();
     const refMenu = useRef();
-    const { cleanSession } = use(AuthContext);
-    const { Groups, DisplayName, Access } = DecodedToken();
-    const groups = JSON.parse(Groups).map(x => x.Name);
+    const { groups: groupsString, displayName, access } = DecodedClaims();
+    const groups = JSON.parse(groupsString).map(x => x.Name);
+    console.log(DecodedClaims())
 
     useEffect(() => {
         let clickHandler = (event) => {
@@ -55,15 +53,10 @@ const Header = memo(function Header() {
         }
     })
 
-    const goToPage = (page) => {
-        setOpen((open) => !open);
-        cleanSession();
-        if (!!page)
-            navigate(`/${page}`);
-        else
-            navigate("/");
-    }
-
+    useEffect(() => {
+        if (open)
+            setOpen(false);
+    }, [loc])
 
     return (
         <header className='header-container w-100 d-column'>
@@ -82,7 +75,7 @@ const Header = memo(function Header() {
                         </IconButton>
 
                         <p className='d-column ai-start'>
-                            <span>{DisplayName}</span>
+                            <span>{displayName}</span>
                             <span>{groups.join(", ")}</span>
                         </p>
                     </div>
@@ -91,19 +84,22 @@ const Header = memo(function Header() {
                     <Button variant='outlined' size="large" className={`nav-btn ${open && 'nav-btn-active'}`} onClick={() => setOpen((open) => !open)}>
                         {open ? <Close /> : <Menu />}
                     </Button>
+
+                    {/* Hidden menu */}
+                    {access && <HiddenMenu open={open} links={links} onClose={() => setOpen(false)} />}
+
                     {/* Navigation hidden menu */}
-                    <div className={`nav-wrapper${open ? ' visible' : ""}`} ref={refMenu}>
+                    {!access && <div key={loc} className={`nav-wrapper${open ? ' visible' : ""}`} ref={refMenu}>
 
                         {/* Loop links */}
-                        {(Access ? links : links.filter(x => !x.access)).filter(x => !x?.hidden).map((link, ind) => {
+                        {links.filter(x => !x.access && !x?.hidden).map((link, ind) => {
                             return <NavLink className={({ isActive }) => `d-row w-100 jc-start${isActive ? " active" : ""}`} key={ind} to={link.url}>
                                 {link.icon} {link.label}
                             </NavLink>
                         })}
-                    </div>
+                    </div>}
                 </div>
             </section>
-
         </header >
     )
 })

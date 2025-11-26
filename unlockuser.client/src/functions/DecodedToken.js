@@ -15,7 +15,10 @@ export function DecodedToken(token = null) {
 export function DecodedClaims(token = null) {
     var decodedToken = DecodedToken(token);
     return decodedToken ? Object.fromEntries(
-        Object.entries(decodedToken).map(([key, value]) => [key.toLowerCase(), value])
+        Object.entries(decodedToken).map(([key, value]) => {
+            key = key[0].toLowerCase() + key.slice(1);
+            return [key, value]
+        })
     ) : null;
 }
 

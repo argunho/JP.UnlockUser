@@ -15,7 +15,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
 
     #region GET
     // Search one user
-    [HttpGet("user/{name}/{group}/{match:bool}")]
+    [HttpGet("person/{name}/{group}/{match:bool}")]
     public JsonResult FindUser(string name, string group, bool match = false)
     {
         var users = new List<User>();
@@ -121,7 +121,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
                     }
                 }
                 else if(groupName == "Studenter" || groupName == "Students")
-                    users = users.Where(x => sessionUser.Offices.Contains(x.Office)).ToList();
+                    users = users.Where(x => sessionUser!.Offices.Contains(x.Office!)).ToList();
 
                 users = usersToView;
             } else if(groupName != "Students")

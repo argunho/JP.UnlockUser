@@ -1,4 +1,5 @@
-import { useEffect, use, useReducer } from 'react';
+import { useEffect, use, useReducer, useActionState } from 'react';
+import _ from "lodash";
 
 // Installed
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
@@ -22,14 +23,8 @@ import { FetchContext } from '../../storage/FetchContext';
 // Models
 import { AllTips, Tips } from '../../models/HelpTexts';
 import { Colors } from '../../models/Colors';
+import { SearchFields } from '../../models/FormFIelds';
 
-// Json
-import forms from '../../assets/json/forms.json';
-
-const defaultData = {
-    input: "",
-    additionInput: ""
-}
 
 const optionsList = [
     { "label": "Användare", "value": "user" },
@@ -37,15 +32,15 @@ const optionsList = [
 ]
 
 const initialState = {
-    formData: defaultData,
-    users: [],
     option: null,
     isOpen: false,
     isClass: false,
     isMatch: true,
+    fields: SearchFields.person,
     hasNoOptions: false,
     showTips: false,
-    group: null
+    group: null,
+    isChanged: false
 }
 
 // Action reducer
@@ -59,7 +54,6 @@ function actionReducer(state, action) {
         case "START":
             return {
                 ...state,
-                users: sessionStorage.getItem("users") ? JSON.parse(sessionStorage.getItem("users")) : [],
                 option: sessionStorage.getItem("sOption") ?? "user",
                 isClass: sessionStorage.getItem("sOption") === "students"
             };
@@ -71,15 +65,12 @@ function actionReducer(state, action) {
 function Home() {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { formData, users, option, isOpen, isClass, isMatch, hasNoOptions, showTips, group } = state;
+    const { option, isOpen, isClass, isMatch, isChanged, fields, hasNoOptions, showTips, group } = state;
 
     const groups = Claim("groups");
 
-    const sFormParams = !isClass ? forms?.single : forms?.group;
-    const isActive = (formData.input || formData.additionInput).length > 0;
-
     const { schools, groupName } = useOutletContext();
-    const { response, loading, fetchData, handleResponse } = use(FetchContext);
+    const { response, loading, resData: users, fetchData, handleResponse } = use(FetchContext);
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
@@ -88,12 +79,10 @@ function Home() {
 
     useEffect(() => {
         const currentGroup = groupName ? groups.find(x => x.name.toLowerCase() == groupName)?.name : groups[0]?.name;
-        handleDispatch("users", []);
         handleDispatch("group", currentGroup);
     }, [groupName])
 
     function handleDispatch(name, value) {
-        console.log(name, value)
         dispatch({ type: "PARAM", name: name, payload: value });
     }
 
@@ -101,7 +90,6 @@ function Home() {
     const changeHandler = (e, open) => {
         const inp = e.target;
         if (!inp) return;
-        handleDispatch("formData", { ...formData, [inp.name]: inp.value })
         handleDispatch("hasNoOptions", (open) ? schools?.filter(x => x?.name.includes(inp.value)).length === 0 : false);
         reset();
     }
@@ -111,8 +99,7 @@ function Home() {
         handleDispatch("option", value);
         handleDispatch("isMatch", isClass);
         handleDispatch("isClass", !isClass);
-        reset();
-        resetData();
+        handleDispatch("fields", SearchFields[isClass ? "person" : "students"]);
 
         //  Save choice of search parameters in sessionStorage to mind the user choice and use it with page refresh
         sessionStorage.setItem("sOption", value)
@@ -121,33 +108,42 @@ function Home() {
     // Recognize Enter press to submit search form
     function handleKeyDown(e) {
         if (e.key === 'Enter') {
-            handleDispatch("formData", { ...formData, [e.target.name]: e.target.value });
-            getSearchResult(e);
+            onSubmit(e);
         }
     }
 
     // Function - submit form
-    async function getSearchResult(e) {
-        e.preventDefault();
+    async function onSubmit(previous, fd) {
+        let data = {};
+        let errors = [];
+        let error = null;
 
-        const { input, additionInput } = formData;
+        const defFields = fields.map((field) => field.name);
+        if (_.isEqual(defFields, fd)) {
+            error = "Begäran avvisades. Inga ändringar gjordes i formulärets data."
 
-        // Return if form is invalid
-        if (input.length < 1)
-            return;
-
-        reset();
+            return {
+                data: defFields,
+                error
+            }
+        }
 
         // API parameters by chosen searching alternative
-        const params = (!isClass) ? group + "/" + isMatch : additionInput;
+        let options = isClass ? "students" : "person";
 
-        const { users } = await fetchData({ api: "search/" + option + "/" + input + "/" + params, method: "get", action: "return" });
-        handleDispatch("users", users);
-        handleDispatch("formData", {
-            ...formData,
-            input: users?.length > 0 ? "" : input,
-            additionInput: users?.length > 0 ? "" : additionInput,
+        defFields?.forEach(field => {
+            data[field.name] = fd.get(field.name);
+            options += "/" + fd.get(field.name);
         })
+
+        if (errors?.length > 0) {
+            return {
+                data: data,
+                errors: errors
+            }
+        }
+
+        await fetchData({ api: `search/${options}`, method: "get" });
     }
 
     function reset() {
@@ -159,21 +155,15 @@ function Home() {
         sessionStorage.removeItem("selectedUsers")
     }
 
-    function resetData() {
-        reset();
-        handleDispatch("formData", defaultData);
-        handleDispatch("isOpen", false);
-    }
-
+    const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
 
     return (
         <>
-
             {/* Search form */}
             <section className='d-row jc-between search-container w-100 ai-start' id="search_container">
-                <form className='search-wrapper w-100' onSubmit={getSearchResult}>
+                <form key={isClass?.toString()} className='search-wrapper w-100' action={formAction}>
                     {/* List loop of text fields */}
-                    {sFormParams?.map((s, index) => (
+                    {fields?.map((s, index) => (
                         <Autocomplete
                             key={index}
                             freeSolo
@@ -183,8 +173,8 @@ function Home() {
                             getOptionLabel={(option) => "- " + option?.primary + " (" + option?.secondary + ")"}
                             autoHighlight
                             open={s.autoOpen && isOpen && !hasNoOptions}
-                            inputValue={formData[s.name]}
-                            onChange={(e, option) => (e.key === "Enter") ? handleKeyDown : handleDispatch("formData", { ...formData, [s.name]: option.primary })}
+                            // inputValue={formData[s.name]}
+                            // onChange={(e, option) => (e.key === "Enter") ? handleKeyDown : handleDispatch("formData", { ...formData, [s.name]: option.primary })}
                             onBlur={() => handleDispatch("isOpen", false)}
                             onClose={() => handleDispatch("isOpen", false)}
                             onFocus={() => handleDispatch("isOpen", s.autoOpen && !hasNoOptions)}
@@ -200,14 +190,41 @@ function Home() {
                                         maxLength: 30,
                                         minLength: 2,
                                         endAdornment: (isClass && index == 0) ? null : <div className="d-row">
+
+                                            {/* Checkbox and radio with search parameters to choose for user search */}
+                                            <FormControlLabel
+                                                control={<Checkbox
+                                                    size='small'
+                                                    name="match"
+                                                    disabled={isClass}
+                                                    checked={isMatch}
+                                                    onClick={() => handleDispatch("isMatch", !isMatch)} />}
+                                                label={<Tooltip
+                                                    disableHoverListener={!showTips}
+                                                    title={Tips.find(x => x.value === "match")?.secondary}
+                                                    classes={{
+                                                        tooltip: "tooltip-default"
+                                                    }}
+                                                    PopperProps={{
+                                                        sx: {
+                                                            '& .MuiTooltip-tooltip': {
+                                                                backgroundColor: Colors["primary"]
+                                                            },
+                                                            '& .MuiTooltip-arrow': {
+                                                                color: Colors["primary"]
+                                                            }
+                                                        }
+                                                    }}
+                                                    arrow>Exact match</Tooltip>} />
+
                                             {/* Reset form - button */}
-                                            {isActive &&
+                                            {isChanged &&
                                                 <Button
                                                     variant="text"
                                                     color="error"
                                                     className="search-reset search-button-mobile"
-                                                    disabled={loading}
-                                                    onClick={resetData}>
+                                                    disabled={loading}>
+                                                    {/* onClick={resetData} */}
                                                     <SearchOffSharp />
                                                 </Button>}
 
@@ -220,16 +237,18 @@ function Home() {
                                                 <SearchSharp /></Button>
                                         </div>
                                     }}
+
                                     InputLabelProps={{ shrink: true }}
-                                    value={formData[s.name]}
+                                    // value={formData[s.name]}
                                     disabled={loading}
                                     placeholder={isMatch ? s.placeholder : "Sök ord här ..."}
                                     onKeyDown={handleKeyDown}
                                     onChange={(e) => changeHandler(e, s.autoOpen)}
-                                    helperText={formData[s.name].length > 0 ? `${30 - formData[s.name].length} tecken kvar` : "Min 2 & Max 30 tecken"}
+                                // helperText={formData[s.name].length > 0 ? `${30 - formData[s.name].length} tecken kvar` : "Min 2 & Max 30 tecken"}
                                 />}
                         />
                     ))}
+
                 </form>
 
                 {/* Choose group */}
@@ -238,7 +257,7 @@ function Home() {
                     list={groups}
                     value={group}
                     link="/search/"
-                    disabled={groups?.length === 1 || sFormParams?.length > 1} />}
+                    disabled={groups?.length === 1 || fields?.length > 1} />}
             </section>
 
             {/* The search parameters to choice */}
@@ -246,30 +265,6 @@ function Home() {
 
                 <div className='left-section d-row ai-start'>
 
-                    {/* Checkbox and radio with search parameters to choose for user search */}
-                    <FormControlLabel
-                        control={<Checkbox
-                            size='small'
-                            disabled={isClass}
-                            checked={isMatch}
-                            onClick={() => handleDispatch("isMatch", !isMatch)} />}
-                        label={<Tooltip
-                            disableHoverListener={!showTips}
-                            title={Tips.find(x => x.value === "match")?.secondary}
-                            classes={{
-                                tooltip: "tooltip-default"
-                            }}
-                            PopperProps={{
-                                sx: {
-                                    '& .MuiTooltip-tooltip': {
-                                        backgroundColor: Colors["primary"]
-                                    },
-                                    '& .MuiTooltip-arrow': {
-                                        color: Colors["primary"]
-                                    }
-                                }
-                            }}
-                            arrow>Exact match</Tooltip>} />
 
                     {/* Radio buttons to choice one of search alternatives */}
                     {group === "Studenter" && <FormControl className='checkbox-block-mobile'>
@@ -327,17 +322,15 @@ function Home() {
             </section >
 
             {/* Result of search */}
-            < Result
+            <Result
                 list={users}
                 clsStudents={isClass}
                 isVisibleTips={showTips}
                 loading={loading}
                 response={response}
-                disabled={group == "Support"
-                }
+                disabled={group == "Support"}
                 resultBlock={true}
-                // cancelRequest={CancelRequest}
-                resetResult={resetData}
+            // resetResult={resetData}
             />
         </>
     )

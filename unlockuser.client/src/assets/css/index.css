@@ -22,7 +22,7 @@
     --color-link-hover: #000000 !important;
     --color-light-link: #dce5f6 !important;
     --color-danger-shadow: #a5002998 !important;
-    --link-background-color: #e1dede38 !important;
+    --color-background: #0000001a !important;
 
     --border: 1px solid transparent;
     --border-color: 1px solid var(--color-primary) !important;
@@ -262,8 +262,8 @@ main,
 
 .background {
     position: fixed;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: -1;
+    background-color: var(--color-background);
+    z-index: 0;
 }
 
 .background,
@@ -610,6 +610,7 @@ main,
 @media(max-width: 1920px) {
     :root {      
         --max-width: 1300px !important;
+        --header-height: 200px !important;
         min-height: calc(100vh - 200px);
     }
 }
