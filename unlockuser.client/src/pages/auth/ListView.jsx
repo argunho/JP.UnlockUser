@@ -6,7 +6,7 @@ import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListIte
 import { ArrowDropDown, ArrowDropUp, CalendarMonth, Delete } from "@mui/icons-material";
 
 // Components
-import FormButtons from "../../components/FormButtons";
+import FormButtons from "../../components/forms/FormButtons";
 
 // Services
 import { ApiRequest } from "../../services/ApiRequest";

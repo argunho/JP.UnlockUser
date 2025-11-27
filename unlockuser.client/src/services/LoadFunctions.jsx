@@ -1,8 +1,9 @@
 // Services
-import { ApiRequest } from "../services/ApiRequest";
+import { ApiRequest } from "./ApiRequest";
 
 // Dynamic loader function
 export function loader(api) {
+    console.log(api)
     return async function load() {
         const res = await ApiRequest(api, "get");
         return res;

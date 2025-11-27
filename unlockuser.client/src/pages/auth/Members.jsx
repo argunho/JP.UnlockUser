@@ -1,8 +1,8 @@
 import { useParams, useLoaderData, useOutletContext } from 'react-router-dom';
 
 // Components
-import Info from '../../components/Info';
-import Result from '../../components/Result';
+import Info from '../../components/blocks/Info';
+import ResultView from '../../components/blocks/ResultView';
 
 function Members() {
 
@@ -18,7 +18,7 @@ function Members() {
                 subTitle={users?.length > 0 && `Hittade ${users?.length} matchningar`} />
 
             {/* Result of search */}
-            <Result
+            <ResultView
                 list={users}
                 clsStudents={true}
                 loading={loading}

@@ -14,7 +14,7 @@ function AppLayout() {
   const { group } = useParams();
 
   const schools = useLoaderData();
-
+console.log(schools)
   useEffect(() => {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
   }, [])

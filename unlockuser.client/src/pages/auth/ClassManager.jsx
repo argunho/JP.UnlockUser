@@ -7,8 +7,8 @@ import { Button } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 
 // Components
-import Form from '../../components/Form';
-import Info from '../../components/Info';
+import Form from '../../components/forms/Form';
+import Info from '../../components/blocks/Info';
 
 
 

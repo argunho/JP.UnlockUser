@@ -11,14 +11,14 @@ import {
 import { Cancel, DeleteSweep, Deselect, Edit, SelectAll } from '@mui/icons-material';
 
 // Components
-import Loading from './Loading';
-import Message from './blocks/Message';
+import Loading from '../Loading';
+import Message from './Message';
 import Info from './Info';
 
 const defMessage = "Ditt sökresultat kommer att visas här nedan"
 
-function Result({ list, clsStudents, isVisibleTips, loading, response, disabled, cancelRequest, resetResult, resultBlock }) {
-    Result.displayName = "Result";
+function ResultView({ list, clsStudents, isVisibleTips, loading, response, disabled, cancelRequest, resetResult, resultBlock }) {
+
 
     const [selectedList, setSelectedList] = useState([]);
     const [isOpenTip, setIsOpenTip] = useState(false);
@@ -238,4 +238,4 @@ function Result({ list, clsStudents, isVisibleTips, loading, response, disabled,
     )
 }
 
-export default Result;
+export default ResultView;

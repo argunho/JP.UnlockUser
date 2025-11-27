@@ -11,7 +11,7 @@ import fileDownload from 'js-file-download';
 import Message from '../../components/blocks/Message';
 import Loading from '../../components/Loading';
 import ModalHelpTexts from '../../components/modals/ModalHelpTexts'
-import SearchFilter from '../../components/SearchFilter';
+import SearchFilter from '../../components/forms/SearchFilter';
 
 // Functions
 import { ErrorHandle } from '../../functions/ErrorHandle';

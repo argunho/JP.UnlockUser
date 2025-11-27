@@ -6,17 +6,16 @@ import { forwardRef } from 'react';
 import { Button, Tooltip, capitalize } from '@mui/material'
 
 // Components
-import ListCategories from './ListCategories';
+import ListCategories from './../components/lists/ListCategories';
 
 // Functions
-import ReplaceLetters from '../functions/ReplaceLetters';
+import ReplaceLetters from './ReplaceLetters';
 
 /* eslint-disable react-refresh/only-export-components */
 function PasswordGeneration({
     disabledTooltip, disabledClick, regex, users, regenerate,
     wordsList, numbersCount, strongPassword, variousPasswords, passwordLength,
     setGenerated, updatePasswordForm, updatePreviewList }, ref) {
-    PasswordGeneration.displayName = "PasswordGeneration";
 
     const eng = /^[A-Za-z]+$/;
     const symbols = "!@?$&#^%*-,;._";
@@ -34,9 +33,9 @@ function PasswordGeneration({
 
     // Generate handle
     const generateHandle = () => {
-        if (variousPasswords) 
+        if (variousPasswords)
             generateVariousPasswords()
-        else 
+        else
             generatePassword();
     }
 
@@ -129,8 +128,8 @@ function PasswordGeneration({
         password += (Math.random() * (randomNumber - min) + min).toFixed(0);
 
         password = capitalize(password);
-        if (users.length > 0){
-            for(var i = 0;i < users.length;i++){
+        if (users.length > 0) {
+            for (var i = 0; i < users.length; i++) {
                 usersArray.push({
                     username: users[i].name,
                     password: password

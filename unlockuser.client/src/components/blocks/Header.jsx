@@ -39,7 +39,6 @@ const Header = memo(function Header() {
     const refMenu = useRef();
     const { groups: groupsString, displayName, access } = DecodedClaims();
     const groups = JSON.parse(groupsString).map(x => x.Name);
-    console.log(DecodedClaims())
 
     useEffect(() => {
         let clickHandler = (event) => {
@@ -60,7 +59,7 @@ const Header = memo(function Header() {
 
     return (
         <header className='header-container w-100 d-column'>
-            <section className='header-wrapper wh-100 d-row jc-start' id="logotype">
+            <section className='header-wrapper wrapper wh-100 d-row jc-start' id="logotype">
                 <Logotype />
             </section>
 
@@ -74,10 +73,16 @@ const Header = memo(function Header() {
                             <Home />
                         </IconButton>
 
-                        <p className='d-column ai-start'>
+                        <div className="hml-wrapper">
                             <span>{displayName}</span>
-                            <span>{groups.join(", ")}</span>
-                        </p>
+                            <span className="d-row">
+                                {groups.map((name, ind) => {
+                                    return <NavLink key={ind} className="header-link" to={`/search/${name?.toLowerCase()}`}>
+                                        {name}
+                                    </NavLink>;
+                                })}
+                            </span>
+                        </div>
                     </div>
 
                     {/* Navigation button */}
@@ -93,7 +98,7 @@ const Header = memo(function Header() {
 
                         {/* Loop links */}
                         {links.filter(x => !x.access && !x?.hidden).map((link, ind) => {
-                            return <NavLink className={({ isActive }) => `d-row w-100 jc-start${isActive ? " active" : ""}`} key={ind} to={link.url}>
+                            return <NavLink key={ind} className={({ isActive }) => `d-row w-100 jc-start${isActive ? " active" : ""}`} to={link.url}>
                                 {link.icon} {link.label}
                             </NavLink>
                         })}

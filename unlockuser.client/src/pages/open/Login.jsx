@@ -9,7 +9,7 @@ import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 // Components
 import Message from '../../components/blocks/Message';
 import Logotype from '../../components/blocks/Logotype';
-import FormButtons from './../../components/FormButtons';
+import FormButtons from '../../components/forms/FormButtons';
 
 // Functions
 import { ErrorHandle } from './../../functions/ErrorHandle';
@@ -118,8 +118,8 @@ function Login() {
         );
       })}
 
-        {/* Buttons to submit the form data and confirmation to accept this submit action */}
-        <FormButtons label="Logga in" disabled={disabled} loading={loading} />
+      {/* Buttons to submit the form data and confirmation to accept this submit action */}
+      <FormButtons label="Logga in" disabled={disabled} loading={loading} />
     </form>
 
     {/* contacts link button  */}

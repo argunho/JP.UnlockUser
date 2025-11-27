@@ -5,84 +5,6 @@
   overflow: hidden;
 }
 
-.search-container {
-  justify-content: flex-start;
-  align-items: flex-start;
-  height: 70px;
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
-
-.search-wrapper,
-.search-wrapper-logs {
-  position: relative;
-  display: inline-flex;
-}
-
-.search-wrapper {
-  min-width: calc(100% - 172px);
-  margin-right: 10px !important;
-}
-
-.search-wrapper-logs {
-  margin: 20px 0 !important;
-}
-
-.search-wrapper-logs,
-.search-full-width {
-  width: 100%;
-}
-
-.input-root {
-  padding: 0 !important;
-  background-color: #000;
-}
-
-.css-1wc848c-MuiFormHelperText-root {
-  font-size: 9px !important;
-  margin-left: 5px !important;
-  margin-bottom: -10px !important;
-  height: 20px;
-}
-
-.search-first-input {
-  width: 24.5% !important;
-  margin-right: 0.5% !important;
-}
-
-.search-second-input {
-  width: 75% !important;
-}
-
-.search-button {
-  /* position: absolute !important;
-  top: 7px;
-  right: 10px; */
-  font-size: 40px;
-  z-index: 1000;
-  margin: auto 5px;
-}
-
-.search-button:disabled {
-  border-color: #c4c4c4;
-  color: #c4c4c4;
-  background-color: transparent;
-}
-
-.interior-div>ul:not(.list-container) {
-  padding-bottom: 0 !important;
-  min-height: 100px !important;
-}
-
-.search-reset {
-  /* position: absolute !important;
-  top: 7px; 
-  right: 80px;*/
-  color: #fff;
-  font-size: 40px;
-  z-index: 1000;
-  margin-right: 10px !important;
-}
 
 .info-wrapper {
   width: 100% !important;
@@ -181,20 +103,19 @@
   margin-left: 5px !important;
 }
 
-.checkbox-radio-wrapper {
-  margin-top: 20px;
+.actions-wrapper {
   padding: 0 3px;
   height: max-content;
   justify-content: space-between;
 }
 
-.checkbox-radio-wrapper span.MuiFormControlLabel-label {
+.actions-wrapper span.MuiFormControlLabel-label {
   color: #4b4b4b !important;
   font-size: 12px !important;
 }
 
-.checkbox-radio-wrapper span.MuiCheckbox-root,
-.checkbox-radio-wrapper span.MuiCheckbox-root:active {
+.actions-wrapper span.MuiCheckbox-root,
+.actions-wrapper span.MuiCheckbox-root:active {
   background-color: transparent !important;
 }
 
@@ -419,13 +340,14 @@ pre {
 
 .form-buttons>button {
   min-width: max-content;
-  height: 40px; ;
+  height: 40px;
+  ;
 }
 
 .form-buttons>.d-row button {
   margin-left: 10px;
   height: 40px !important;
-  font-size: 14px !important 
+  font-size: 14px !important
 }
 
 button.confirm-question {
@@ -462,82 +384,83 @@ button.confirm-question {
 .loading {
   margin-bottom: 20px;
 }
+
 /* #endregion */
 
 /* #region Response */
 .response-box {
-    color: #000000 !important;
-    height: max-content;
-    font-family: Calibri !important;
-    margin: 10px auto !important;
-    padding: 15px 20px !important;
+  color: #000000 !important;
+  height: max-content;
+  font-family: Calibri !important;
+  margin: 10px auto !important;
+  padding: 15px 20px !important;
 }
 
 .response-box>div>* {
-    margin: 0;
-    font-weight: 600;
+  margin: 0;
+  font-weight: 600;
 }
 
 .response-box>div:last-of-type {
-    display: flex;
-    justify-content: space-arround;
+  display: flex;
+  justify-content: space-arround;
 }
 
 .response-box .MuiAlert-message {
-    width: -webkit-fill-available !important;
-    width: -moz-available !important;
+  width: -webkit-fill-available !important;
+  width: -moz-available !important;
 }
 
 .response-message {
-    width: auto;
-    margin: 0 10px !important;
-    font-size: 16px;
-    letter-spacing: 1px;
-    text-align: left !important;
+  width: auto;
+  margin: 0 10px !important;
+  font-size: 16px;
+  letter-spacing: 1px;
+  text-align: left !important;
 }
 
 .response-message.combined {
-    margin-left: 50px !important;
+  margin-left: 50px !important;
 }
 
 .response-box .error-message {
-    margin: 0 auto;
-    font-size: 16px;
-    font-style: italic;
-    color: #FFFFFF;
-    width: auto !important;
-    display: block;
-    padding: 12px;
-    max-width: 100%;
-    margin-top: 15px;
-    border-radius: 3px;
-    background-color: rgba(204, 0, 00, 0.2);
+  margin: 0 auto;
+  font-size: 16px;
+  font-style: italic;
+  color: #FFFFFF;
+  width: auto !important;
+  display: block;
+  padding: 12px;
+  max-width: 100%;
+  margin-top: 15px;
+  border-radius: 3px;
+  background-color: rgba(204, 0, 00, 0.2);
 }
 
 .form-wrapper div[role="presentation"] {
-    box-shadow: 0 0 1px 1px #dfd7d7;
-    background-color: #FFFFFF !important;
+  box-shadow: 0 0 1px 1px #dfd7d7;
+  background-color: #FFFFFF !important;
 }
 
 .form-wrapper div[role="presentation"]>div>ul {
-    overflow-y: auto;
-    padding: 10px 5px 20px 10px !important;
-    max-height: 170px !important;
+  overflow-y: auto;
+  padding: 10px 5px 20px 10px !important;
+  max-height: 170px !important;
 }
 
 .login-container .response-box {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    z-index: 5000;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 5000;
 }
 
 .login-container .response-box>* {
-    border-radius: 0 !important;
+  border-radius: 0 !important;
 }
 
 .login-container .response-box {
-    margin-bottom: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 

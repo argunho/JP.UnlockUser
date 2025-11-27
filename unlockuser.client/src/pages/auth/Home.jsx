@@ -1,18 +1,19 @@
-import { useEffect, use, useReducer, useActionState } from 'react';
+import { useEffect, use, useReducer, useRef, useActionState } from 'react';
 import _ from "lodash";
 
 // Installed
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
 import {
     Button, FormControl, FormControlLabel, Tooltip,
-    Radio, RadioGroup, TextField, Switch, Autocomplete, Checkbox
+    Radio, RadioGroup, TextField, Switch, Checkbox
 } from '@mui/material';
 import { useOutletContext } from 'react-router-dom';
 
 // Components
-import Result from '../../components/Result';
 import ModalView from '../../components/modals/ModalView';
 import DropdownMenu from '../../components/lists/DropdownMenu';
+import AutocompleteList from './../../components/lists/AutocompleteList';
+import ResultView from '../../components/blocks/ResultView';
 
 // Functions
 import { Claim } from '../../functions/DecodedToken';
@@ -23,7 +24,6 @@ import { FetchContext } from '../../storage/FetchContext';
 // Models
 import { AllTips, Tips } from '../../models/HelpTexts';
 import { Colors } from '../../models/Colors';
-import { SearchFields } from '../../models/FormFIelds';
 
 
 const optionsList = [
@@ -33,10 +33,8 @@ const optionsList = [
 
 const initialState = {
     option: null,
-    isOpen: false,
     isClass: false,
     isMatch: true,
-    fields: SearchFields.person,
     hasNoOptions: false,
     showTips: false,
     group: null,
@@ -62,15 +60,19 @@ function actionReducer(state, action) {
     }
 }
 
+// Css
+import './../../assets/css/home.css'
+
 function Home() {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { option, isOpen, isClass, isMatch, isChanged, fields, hasNoOptions, showTips, group } = state;
+    const { option, isClass, isMatch, isChanged, showTips, group } = state;
 
     const groups = Claim("groups");
 
     const { schools, groupName } = useOutletContext();
     const { response, loading, resData: users, fetchData, handleResponse } = use(FetchContext);
+    const ref = useRef(null);
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
@@ -78,7 +80,7 @@ function Home() {
     }, []);
 
     useEffect(() => {
-        const currentGroup = groupName ? groups.find(x => x.name.toLowerCase() == groupName)?.name : groups[0]?.name;
+        const currentGroup = groupName ? groups.find(x => x.name.toLowerCase() == groupName) : groups[0];
         handleDispatch("group", currentGroup);
     }, [groupName])
 
@@ -86,20 +88,11 @@ function Home() {
         dispatch({ type: "PARAM", name: name, payload: value });
     }
 
-    // Handle a change of text fields and radio input value
-    const changeHandler = (e, open) => {
-        const inp = e.target;
-        if (!inp) return;
-        handleDispatch("hasNoOptions", (open) ? schools?.filter(x => x?.name.includes(inp.value)).length === 0 : false);
-        reset();
-    }
-
     // Handle changes in search alternatives and parameters
     const setSearchParameter = value => {
         handleDispatch("option", value);
         handleDispatch("isMatch", isClass);
         handleDispatch("isClass", !isClass);
-        handleDispatch("fields", SearchFields[isClass ? "person" : "students"]);
 
         //  Save choice of search parameters in sessionStorage to mind the user choice and use it with page refresh
         sessionStorage.setItem("sOption", value)
@@ -112,29 +105,33 @@ function Home() {
         }
     }
 
+    function onChange(e) {
+        console.log(e.target)
+    }
+
     // Function - submit form
     async function onSubmit(previous, fd) {
-        let data = {};
+        let data = {
+            name: ""
+        };
+        if (isClass)
+            data.school = "";
+
         let errors = [];
         let error = null;
 
-        const defFields = fields.map((field) => field.name);
-        if (_.isEqual(defFields, fd)) {
+        if (_.isEqual(data, fd)) {
             error = "Begäran avvisades. Inga ändringar gjordes i formulärets data."
 
             return {
-                data: defFields,
+                data,
                 error
             }
         }
 
         // API parameters by chosen searching alternative
-        let options = isClass ? "students" : "person";
-
-        defFields?.forEach(field => {
-            data[field.name] = fd.get(field.name);
-            options += "/" + fd.get(field.name);
-        })
+        let options = isClass ? `students${fd.get("school")}/${fd.get("name")}`
+            : `person/${fd.get("name")}/${group?.manage}/${fd.get("match")}`;
 
         if (errors?.length > 0) {
             return {
@@ -146,128 +143,104 @@ function Home() {
         await fetchData({ api: `search/${options}`, method: "get" });
     }
 
-    function reset() {
-        handleDispatch("users", null);
-        handleResponse();
-
-        // Remove result from sessionStorage
-        sessionStorage.removeItem("users");
-        sessionStorage.removeItem("selectedUsers")
-    }
-
     const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
 
     return (
         <>
-            {/* Search form */}
-            <section className='d-row jc-between search-container w-100 ai-start' id="search_container">
-                <form key={isClass?.toString()} className='search-wrapper w-100' action={formAction}>
-                    {/* List loop of text fields */}
-                    {fields?.map((s, index) => (
-                        <Autocomplete
-                            key={index}
-                            freeSolo
-                            disableClearable
-                            className={s.clsName || 'search-full-width d-row'}
-                            options={schools}
-                            getOptionLabel={(option) => "- " + option?.primary + " (" + option?.secondary + ")"}
-                            autoHighlight
-                            open={s.autoOpen && isOpen && !hasNoOptions}
-                            // inputValue={formData[s.name]}
-                            // onChange={(e, option) => (e.key === "Enter") ? handleKeyDown : handleDispatch("formData", { ...formData, [s.name]: option.primary })}
-                            onBlur={() => handleDispatch("isOpen", false)}
-                            onClose={() => handleDispatch("isOpen", false)}
-                            onFocus={() => handleDispatch("isOpen", s.autoOpen && !hasNoOptions)}
-                            renderInput={(params) =>
-                                <TextField
-                                    {...params}
-                                    name={s.name}
-                                    label={s.label}
-                                    error={response?.warning || false}
-                                    required
-                                    InputProps={{
-                                        ...params.InputProps,
-                                        maxLength: 30,
-                                        minLength: 2,
-                                        endAdornment: (isClass && index == 0) ? null : <div className="d-row">
+            {/* Search form container */}
+            <section className='d-row jc-between search-section w-100 ai-start' id="search_container">
 
-                                            {/* Checkbox and radio with search parameters to choose for user search */}
-                                            <FormControlLabel
-                                                control={<Checkbox
-                                                    size='small'
-                                                    name="match"
-                                                    disabled={isClass}
-                                                    checked={isMatch}
-                                                    onClick={() => handleDispatch("isMatch", !isMatch)} />}
-                                                label={<Tooltip
-                                                    disableHoverListener={!showTips}
-                                                    title={Tips.find(x => x.value === "match")?.secondary}
-                                                    classes={{
-                                                        tooltip: "tooltip-default"
-                                                    }}
-                                                    PopperProps={{
-                                                        sx: {
-                                                            '& .MuiTooltip-tooltip': {
-                                                                backgroundColor: Colors["primary"]
-                                                            },
-                                                            '& .MuiTooltip-arrow': {
-                                                                color: Colors["primary"]
-                                                            }
-                                                        }
-                                                    }}
-                                                    arrow>Exact match</Tooltip>} />
+                {/* Search form */}
+                <form key={isClass?.toString()} className='d-row search-container w-100' action={formAction}>
 
-                                            {/* Reset form - button */}
-                                            {isChanged &&
-                                                <Button
-                                                    variant="text"
-                                                    color="error"
-                                                    className="search-reset search-button-mobile"
-                                                    disabled={loading}>
-                                                    {/* onClick={resetData} */}
-                                                    <SearchOffSharp />
-                                                </Button>}
+                    {/* collections lust to choose */}
+                    {isClass && <AutocompleteList
+                        label="Skolnamn"
+                        name="school"
+                        collection={schools}
+                        required={true}
+                        placeholder="Skriv exakt skolnamn här .." />}
 
-                                            {/* Submit form - button */}
-                                            <Button variant={isActive ? "contained" : "outlined"}
-                                                color={isActive ? "primary" : "inherit"}
-                                                className="search-button search-button-mobile"
-                                                type="submit"
-                                                disabled={!isActive || loading}>
-                                                <SearchSharp /></Button>
-                                        </div>
-                                    }}
+                    {/* Field name */}
+                    <TextField
+                        name="name"
+                        label={isClass ? "Klassbeteckning" : "Namn"}
+                        variant="outlined"
+                        required
+                        className="search-wrapper w-100"
+                        InputProps={{
+                            maxLength: 30,
+                            minLength: 2,
+                            endAdornment: <div className="d-row jc-end search-actions">
+                                {/* Checkbox and radio with search parameters to choose for user search */}
+                                {!isClass && <FormControlLabel
+                                    control={<Checkbox
+                                        name="match"
+                                        disabled={isClass}
+                                        checked={isMatch}
+                                        onClick={() => handleDispatch("isMatch", !isMatch)} />}
+                                    label={<Tooltip
+                                        disableHoverListener={!showTips}
+                                        title={Tips.find(x => x.value === "match")?.secondary}
+                                        classes={{
+                                            tooltip: "tooltip-default"
+                                        }}
+                                        PopperProps={{
+                                            sx: {
+                                                '& .MuiTooltip-tooltip': {
+                                                    backgroundColor: Colors["primary"]
+                                                },
+                                                '& .MuiTooltip-arrow': {
+                                                    color: Colors["primary"]
+                                                }
+                                            }
+                                        }}
+                                        arrow>Exact match</Tooltip>} />}
 
-                                    InputLabelProps={{ shrink: true }}
-                                    // value={formData[s.name]}
-                                    disabled={loading}
-                                    placeholder={isMatch ? s.placeholder : "Sök ord här ..."}
-                                    onKeyDown={handleKeyDown}
-                                    onChange={(e) => changeHandler(e, s.autoOpen)}
-                                // helperText={formData[s.name].length > 0 ? `${30 - formData[s.name].length} tecken kvar` : "Min 2 & Max 30 tecken"}
-                                />}
-                        />
-                    ))}
+                                {/* Reset form - button */}
+                                <Button
+                                    color="error"
+                                    className="search-reset"
+                                    type="reset"
+                                    disabled={loading || !isChanged}>
+                                    <SearchOffSharp />
+                                </Button>
 
+                                {/* Submit form - button */}
+                                <Button variant={isChanged ? "contained" : "outlined"}
+                                    color={isChanged ? "primary" : "inherit"}
+                                    className="search-button"
+                                    type="submit"
+                                    disabled={!isChanged || loading}
+                                    ref={ref}>
+                                    <SearchSharp /></Button>
+                            </div>
+                        }}
+                        InputLabelProps={{ shrink: true }}
+                        disabled={loading}
+                        placeholder={isClass ? "Skriv exakt klassbeteckning här ..." : (isMatch ? "Skriv exakt fullständigt namn eller anvädarnamn här ..." : "Sök ord här ...")}
+                        onKeyDown={handleKeyDown}
+                        onChange={onChange}
+                    // helperText={formData[s.name].length > 0 ? `${30 - formData[s.name].length} tecken kvar` : "Min 2 & Max 30 tecken"}
+                    />
                 </form>
 
                 {/* Choose group */}
-                {groups?.length > 0 && <DropdownMenu
+                <DropdownMenu
                     label="Hanteras"
                     list={groups}
-                    value={group}
+                    value={group ? group?.name : ""}
                     link="/search/"
-                    disabled={groups?.length === 1 || fields?.length > 1} />}
+                    disabled={groups?.length === 1} />
             </section>
 
             {/* The search parameters to choice */}
-            <section className="checkbox-radio-wrapper d-row jc-between w-100" id="crw">
+            <section className="actions-wrapper d-row jc-between w-100" id="crw">
 
                 <div className='left-section d-row ai-start'>
 
-
                     {/* Radio buttons to choice one of search alternatives */}
-                    {group === "Studenter" && <FormControl className='checkbox-block-mobile'>
+                    {group?.name === "Studenter" && <FormControl className='checkbox-block-mobile'>
                         <RadioGroup row name="row-radio-buttons-group">
                             {/* Loop of radio input choices */}
                             {optionsList?.map((p, index) => (
@@ -317,20 +290,19 @@ function Home() {
                     {/* Modal  window with help texts */}
                     <ModalView
                         label="Förklaring av sökparametrar"
-                        content={group === "Studenter" ? AllTips : Tips} />
+                        content={group?.name === "Studenter" ? AllTips : Tips} />
                 </div>
             </section >
 
             {/* Result of search */}
-            <Result
+            <ResultView
                 list={users}
                 clsStudents={isClass}
                 isVisibleTips={showTips}
                 loading={loading}
                 response={response}
-                disabled={group == "Support"}
+                disabled={group?.name === "Support"}
                 resultBlock={true}
-            // resetResult={resetData}
             />
         </>
     )

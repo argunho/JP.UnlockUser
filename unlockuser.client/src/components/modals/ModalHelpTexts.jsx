@@ -6,8 +6,8 @@ import { AlertTitle, Checkbox, FormControlLabel, Dialog, DialogActions, DialogCo
 import { HelpOutline, LiveHelpOutlined, Refresh } from '@mui/icons-material';
 
 // Components
-import Table from '../Table';
-import FormButtons from '../FormButtons';
+import Table from '../lists/Table';
+import FormButtons from '../forms/FormButtons';
 
 // Functions
 function ModalHelpTexts({ children, open = true, data, cls = "situated-btn", isTable = false, isSubmit = false,

@@ -3,7 +3,7 @@ import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 function DropdownMenu({ label, list, link, value, disabled }) {
-
+console.log(value)
     const navigate = useNavigate();
 
     function onChange(e) {
@@ -13,7 +13,7 @@ function DropdownMenu({ label, list, link, value, disabled }) {
 
     return (
         <FormControl fullWidth>
-            <InputLabel id="demo-simple-select-label" shrink={value}>{label}</InputLabel>
+            <InputLabel key={value} id="demo-simple-select-label" shrink={value}>{label}</InputLabel>
             <Select
                 displayEmpty
                 value={value ?? ""}
@@ -22,6 +22,7 @@ function DropdownMenu({ label, list, link, value, disabled }) {
                 onChange={onChange}
                 sx={{ color: "#1976D2" }}
                 disabled={disabled}
+
             >
                 {/* Loop of list */}
                 {list?.map((group, index) => (

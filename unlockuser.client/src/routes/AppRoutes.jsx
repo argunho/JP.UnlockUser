@@ -24,7 +24,9 @@ import ErrorView from '../pages/ErrorView';
 
 // Function 
 import SessionData from "../functions/SessionData";
-import { loader, loaderByApiParam, loaderById } from '../functions/LoadFunctions';
+
+// Services
+import { loader, loaderByApiParam, loaderById } from '../services/LoadFunctions';
 
 // Storage
 import FetchContextProvider from '../storage/FetchContext';

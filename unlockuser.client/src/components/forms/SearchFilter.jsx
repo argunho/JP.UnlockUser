@@ -26,7 +26,7 @@ function SearchFilter({ label, disabled, clean, onChange, onReset }) {
         onReset();
     }
 
-    return <div className='search-wrapper-logs'>
+    return <div className='search-container-logs'>
         <TextField
             label={`Sök ${label} ...`}
             className='search-full-width'

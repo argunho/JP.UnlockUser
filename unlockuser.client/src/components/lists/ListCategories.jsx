@@ -5,8 +5,8 @@ import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import cities from 'cities.json';
 
 // Json
-import words from '../assets/json/words.json';
-import colors from '../assets/json/colors.json';
+import words from '../../assets/json/words.json';
+import colors from '../../assets/json/colors.json';
 
 // List of alternative to select words list category to generate password
 const passwordKeys = [

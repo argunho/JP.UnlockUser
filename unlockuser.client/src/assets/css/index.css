@@ -18,6 +18,7 @@
     --color-success: #1db822 !important;
     --color-info: #729bee !important;
     --color-active: #4254FB !important;
+    --color-disabled: #c4c4c4 !important;
     --color-link: #828181 !important;
     --color-link-hover: #000000 !important;
     --color-light-link: #dce5f6 !important;
@@ -93,14 +94,22 @@ a:hover {
 }
 
 main,
-.container {
+.container,
+.wrapper {
     margin: 0 auto;
     width: 100% !important;
     max-width: var(--max-width) !important;
     padding: 0 !important;
     overflow-x: hidden;
-    min-height: var(--min-height) !important;
+    padding: 0 15px !important;    
+    width: -webkit-fill-available !important;
+    width: -moz-available !important;
     flex: 1;
+}
+
+main,
+.container {
+    min-height: var(--min-height) !important;
 }
 
 /* #region Flex */

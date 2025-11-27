@@ -7,8 +7,8 @@ import { Lock, LockOpen } from '@mui/icons-material';
 import { Button, CircularProgress } from '@mui/material';
 
 // Components
-import Form from '../../components/Form';
-import Info from '../../components/Info';
+import Form from '../../components/forms/Form';
+import Info from '../../components/blocks/Info';
 import Message from '../../components/blocks/Message';
 import Loading from '../../components/Loading';
 

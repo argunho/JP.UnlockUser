@@ -10,10 +10,10 @@ import { useNavigate, useLoaderData, useOutletContext } from 'react-router-dom';
 
 
 // Components
-import SearchFilter from '../../components/SearchFilter';
+import SearchFilter from '../../components/forms/SearchFilter';
 import Message from '../../components/blocks/Message';
 import Loading from '../../components/Loading';
-import FormButtons from '../../components/FormButtons';
+import FormButtons from '../../components/forms/FormButtons';
 
 // Hooks
 import usePagination from '../../hooks/usePagination';

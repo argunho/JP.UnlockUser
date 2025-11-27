@@ -5,11 +5,11 @@ import { jsPDF } from "jspdf";
 import 'jspdf-autotable'
 
 // Components
-import Table from './Table';
+import Table from '../lists/Table';
 
 export default function PDFConverter({ name, subTitle, names, list, savedPdf }) {
     const regex = /(<([^>]+)>)/ig;
-    
+
     useEffect(() => {
         saveApply();
     }, [])
@@ -76,7 +76,7 @@ export default function PDFConverter({ name, subTitle, names, list, savedPdf }) 
         // }
     }
 
-    return ( <Table names={names}
-            list={list} 
-            cls={" hidden-content"} /> )
+    return (<Table names={names}
+        list={list}
+        cls={" hidden-content"} />)
 }
