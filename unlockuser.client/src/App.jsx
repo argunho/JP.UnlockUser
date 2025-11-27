@@ -3,8 +3,9 @@ import { use } from "react";
 // Installed
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-// Services
+// Storage
 import AuthContextProvider, { AuthContext } from "./storage/AuthContext";
+import DashboardProvider from './storage/DashboardContext';
 
 // Routes
 import OpenRoutes from "./routes/OpenRoutes";
@@ -18,7 +19,9 @@ import './assets/css/animation.css';
 function App() {
     return (
         <AuthContextProvider>
-            <Root />
+            <DashboardProvider>
+                <Root />
+            </DashboardProvider>
         </AuthContextProvider>
     );
 }

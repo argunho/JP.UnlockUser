@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace UnlockUser.Server.Controllers;
@@ -7,13 +8,53 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class DataController(IHelpService helpService) : ControllerBase
+public class DataController(IHelpService helpService, IActiveDirectory provider, ICredentialsService credentials, IConfiguration config) : ControllerBase
 {
     private readonly IHelpService _helpService = helpService;
+    private readonly IActiveDirectory _provider = provider;
+    private readonly ICredentialsService _credentials = credentials;
+    private readonly IConfiguration _config = config;
 
     private readonly string ctrl = nameof(DataController);
 
     #region GET
+    [HttpGet("dashboard")]
+    public async Task<JsonResult> GetGroupUsers()
+    {
+        Dictionary<string, object> data = [];
+        try
+        {
+            List<GroupModel> groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
+            
+            foreach (var group in groups)
+            {
+                var users = _provider.GetUsersByGroupname(group);
+                data.Add(group.Name?.ToLower()!, users);
+            }
+        }
+        catch (Exception ex)
+        {
+            return new(await _helpService.Error($"{ctrl}: {nameof(GetGroupUsers)}", ex));
+        }
+
+        return new(data);
+    }
+
+
+    // Get schools list
+    [HttpGet("schools")]
+    public List<ListViewModel>? GetSchools()
+    {
+        var list = HelpService.GetListFromFile<School>("schools").Select(s => new ListViewModel
+        {
+            Id = s.Name,
+            Primary = s.Name,
+            Secondary = s.Place
+        }).ToList();
+
+        return list;
+    }
+
     // Get all txt files
     [HttpGet("logfiles/{param}")]
     public JsonResult GetTextFiles(string param)
@@ -54,33 +95,6 @@ public class DataController(IHelpService helpService) : ControllerBase
         }
     }
 
-    // Get schools list
-    [HttpGet("schools")]
-    public List<ListViewModel>? GetSchools()
-    {
-        var list = HelpService.GetListFromFile<School>("schools").Select(s => new ListViewModel
-        {
-            Id = s.Name,
-            Primary = s.Name,
-            Secondary = s.Place
-        }).ToList();
-
-        return list;
-    }
-
-    [HttpGet("users/{group}")]
-    public async Task<JsonResult> GetGroupUsers(string group)
-    {
-        try
-        {
-
-        } catch (Exception ex) {
-            return new(await _helpService.Error($"{ctrl}: {nameof(GetGroupUsers)}", ex);
-        }
-
-        return 
-    }
-
     // Get file to download
     [HttpGet("read/file/{directory}/{id}")]
     public ActionResult ReadTextFile(string directory, string id)
@@ -105,7 +119,7 @@ public class DataController(IHelpService helpService) : ControllerBase
         try
         {
             List<Statistics> data = HelpService.GetListFromFile<Statistics>("statistics");
-           List<ListViewModel> list = [.. data?.OrderBy(x => x.Year).Select(s => new ListViewModel {
+            List<ListViewModel> list = [.. data?.OrderBy(x => x.Year).Select(s => new ListViewModel {
                 Primary = s.Year.ToString(),
                 Secondary = $"Byten lösenord: {s.Months.Sum(s => s.PasswordsChange)}, Upplåst konto: {s.Months.Sum(s => s.Unlocked)}",
                 IncludedList = [.. s.Months.OrderBy(o => o.Name).Select(s => new ListViewModel {
@@ -142,7 +156,7 @@ public class DataController(IHelpService helpService) : ControllerBase
         try
         {
             var schools = HelpService.GetListFromFile<School>("schools");
-            if(schools.Count == 0)
+            if (schools.Count == 0)
                 schools = HelpService.GetJsonFile<School>("schools");
             schools.Add(school);
             await Task.Delay(1000);

@@ -55,13 +55,49 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
 
     #region Get users/members
     // Get members list
-    public DirectorySearcher GetMembers(string? groupName)
+    public DirectorySearcher GetMembers(string groupName)
     {
-        DirectoryEntry entry = new($"LDAP://OU={groupName},OU=Users,OU=Kommun,DC=alvesta,DC=local");
-        DirectorySearcher search = new(entry);
+        using DirectoryEntry entry = new($"LDAP://OU={groupName},OU=Users,OU=Kommun,DC=alvesta,DC=local");
+        using DirectorySearcher search = new(entry);
         search.PropertiesToLoad.Add("memberOf");
         entry.Close();
         return search;
+    }
+
+    public List<User> GetUsersByGroupname(GroupModel group)
+    {
+
+        List<User> users = [];
+        using DirectoryEntry entry = new($"LDAP://OU={group.Group},OU=Users,OU=Kommun,DC=alvesta,DC=local");
+        using DirectorySearcher search = new(entry);
+        search.Filter = $"(&(objectClass=User))";
+        var res = UpdatedProparties(search);
+        res.PropertiesToLoad.Add("memberOf");
+
+        res.PageSize = 1000;
+        res.SizeLimit = 0;
+
+        foreach (SearchResult result in res?.FindAll())
+        {
+            if (string.Equals(group.Group, "Stundets", StringComparison.OrdinalIgnoreCase))
+                users.Add(GetUserParams(result?.Properties)!);
+            else if (string.Equals(group.Group, "Employees", StringComparison.OrdinalIgnoreCase))
+            {
+                var properties = result?.Properties["memberOf"].OfType<string>() ?? [];
+                if(string.Equals(group.Group,"Politiker", StringComparison.OrdinalIgnoreCase) 
+                    && properties!.Contains("Ciceron-Assistentanvändare", StringComparer.OrdinalIgnoreCase))
+                {
+                    users.Add(GetUserParams(result?.Properties)!);
+                } else string.Equals(group.Group, "Personal", StringComparison.OrdinalIgnoreCase)
+                    && !properties!.Contains("Ciceron-Assistentanvändare", StringComparer.OrdinalIgnoreCase))
+                {
+                    users.Add(GetUserParams(result?.Properties)!);
+                }
+            }
+        }
+
+        entry.Close();
+        return users;
     }
 
     // Get memebrs from security group
@@ -218,7 +254,7 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
                         userOffices.Add(user.Office);
 
                     // Check all school staff
-                    if (group.Manage != "Students")
+                    if (group.Group != "Students")
                     {
                         foreach (var school in schools)
                         {
@@ -243,7 +279,7 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
                     // If the existing user is null, convert it to the new user
                     existingUser ??= new User { Title = user.Title, Manager = user.Manager };
 
-                    if (group.Manage != "Students")
+                    if (group.Group != "Students")
                         employee.Managers = GetUserManagers(existingUser);
                     employees.Add(employee);
                 }
@@ -263,7 +299,7 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
             DirectorySearcher? search = new(GetContext().Name);
 
             search.Filter = "(title=*)";
-            search.PageSize = 15000;
+            search.PageSize = 1000;
             search = UpdatedProparties(search);
             List<SearchResult> list = search.FindAll()?.OfType<SearchResult>().ToList();
 

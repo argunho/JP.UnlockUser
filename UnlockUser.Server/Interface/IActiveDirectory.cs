@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.DirectoryServices;
+﻿using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 
 
@@ -17,6 +16,7 @@ public interface IActiveDirectory
     List<string> GetUserGroups(UserPrincipalExtension user);
 
     DirectorySearcher GetMembers(string? groupName);
+    List<User> GetUsersByGroupname(GroupModel group);
     List<string> GetSecurityGroupMembers(string? groupName);
     List<User> GetUsers(DirectorySearcher result, string groupName);
     List<Manager> GetUserManagers(User user);
