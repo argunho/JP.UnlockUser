@@ -10,6 +10,9 @@ namespace UnlockUser.Server.Controllers;
 public class DataController(IHelpService helpService) : ControllerBase
 {
     private readonly IHelpService _helpService = helpService;
+
+    private readonly string ctrl = nameof(DataController);
+
     #region GET
     // Get all txt files
     [HttpGet("logfiles/{param}")]
@@ -72,7 +75,7 @@ public class DataController(IHelpService helpService) : ControllerBase
         {
 
         } catch (Exception ex) {
-            return new(await )
+            return new(await _helpService.Error($"{ctrl}: {nameof(GetGroupUsers)}", ex);
         }
 
         return 
