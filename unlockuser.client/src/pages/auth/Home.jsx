@@ -37,7 +37,8 @@ const initialState = {
     hasNoOptions: false,
     showTips: false,
     group: null,
-    isChanged: false
+    isChanged: false, 
+    isErased: null
 }
 
 // Action reducer
@@ -54,6 +55,20 @@ function actionReducer(state, action) {
                 [action.name]: value,
                 isClass: false
             };
+        case "SEARCH_OPTION":
+            return {
+                ...state,
+                [action.name]: value,
+                isChanged: value
+            };
+        case "RESET":
+            return {
+                ...state,
+                isClass: false,
+                isChanged: false,
+                isMatch: false,
+                isErased: new Date().getMilliseconds()
+            };
         default:
             return state;
     }
@@ -65,13 +80,14 @@ import './../../assets/css/home.css'
 function Home() {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { isClass, isMatch, isChanged, showTips, group } = state;
+    const { isClass, isMatch, isChanged, isErased, showTips, group } = state;
 
     const groups = Claim("groups");
 
     const { schools, groupName } = useOutletContext();
     const { response, loading, resData: users, fetchData, handleResponse } = use(FetchContext);
-    const ref = useRef(null);
+    const refSubmit = useRef(null);
+    const refAutocomplete = useRef(null);
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
@@ -94,7 +110,12 @@ function Home() {
     }
 
     function onChange(e) {
-        console.log(e.target)
+        if(isChanged || (isClass && !refAutocomplete?.current))
+            return;
+
+        console.log(e.target.value, refAutocomplete.current?.value)
+
+        handleDispatch("isChanged", e.target.value?.length > 2);
     }
 
     // Function - submit form
@@ -136,7 +157,7 @@ function Home() {
     return (
         <>
             {/* Search form */}
-            <form key={isClass?.toString()} className='d-row search-form w-100' action={formAction}>
+            <form key={isErased} className='d-row search-form w-100' action={formAction}>
 
                 {/* collections lust to choose */}
                 {isClass && <AutocompleteList
@@ -146,7 +167,10 @@ function Home() {
                     required={true}
                     shrink={true}
                     disabled={loading}
-                    placeholder="Skriv exakt skolnamn här .." />}
+                    keyword="id"
+                    placeholder="Skriv exakt skolnamn här .." 
+                    ref={refAutocomplete}
+                />}
 
                 {/* Field name */}
                 <TextField
@@ -191,6 +215,7 @@ function Home() {
                                 className="search-reset"
                                 type="reset"
                                 disabled={loading || !isChanged}
+                                onClick={() => dispatch({ type: "RESET" })}
                                 edge="end">
                                 <SearchOffSharp />
                             </Button>
@@ -201,7 +226,7 @@ function Home() {
                                 className="search-button"
                                 type="submit"
                                 disabled={!isChanged || loading}
-                                ref={ref}
+                                ref={refSubmit}
                                 edge="end">
                                 <SearchSharp /></Button>
                         </InputAdornment>
@@ -255,7 +280,7 @@ function Home() {
                                             checked={p.value === "user" ? !isClass : isClass}
                                             color="success" />}
                                         label={p.label}
-                                        onChange={() => handleDispatch("isClass", !isClass)} />
+                                        onChange={() => handleDispatch("isClass", !isClass, "SEARCH_OPTION")} />
                                 </Tooltip>
                             ))}
                         </RadioGroup>

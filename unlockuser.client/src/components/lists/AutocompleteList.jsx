@@ -5,7 +5,7 @@ import { useState, memo } from "react";
 import { Autocomplete, TextField } from "@mui/material";
 
 const AutocompleteList = memo(function AutocompleteList({ label, multiple, name, collection,
-    defValue, disabled, keyword, required, response, helperText, fullWidth, shrink }) {
+    defValue, disabled, keyword, required, response, helperText, fullWidth, shrink, ref }) {
 
     const defaultValue = multiple ? (defValue ?? []) : ((Array.isArray(defValue) ? defValue[0] : defValue) ?? "")
     const [value, setValue] = useState(defaultValue ?? []);
@@ -42,7 +42,9 @@ const AutocompleteList = memo(function AutocompleteList({ label, multiple, name,
                     label={(!collection || collection?.length === 0) ? "Listan laddas eller saknas ..." : label}
                     required={collection?.length > 0 && (required && !value)}
                     helperText={helperText ?? ""}
-        InputLabelProps={{ shrink: shrink }}
+                    InputLabelProps={{ 
+                        shrink: shrink ?? false
+                    }}
                     className="autocomplete-field"
                     placeholder={defValue?.length > 0 || value?.length > 0 ? "" : `Välj från listan ...`}
                     autoComplete='off'
@@ -52,6 +54,7 @@ const AutocompleteList = memo(function AutocompleteList({ label, multiple, name,
                 <input
                     type="hidden"
                     name={name}
+                    ref={ref}
                     value={multiple ? JSON.stringify(keyword ? value?.map(v => v[keyword]) : value)
                         : (typeof value === "object" ? (keyword ? value[keyword] : JSON.stringify(value)) : value)} />
             </>

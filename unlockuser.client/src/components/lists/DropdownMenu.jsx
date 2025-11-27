@@ -3,7 +3,7 @@ import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 function DropdownMenu({ label, list, link, value, disabled }) {
-console.log(value)
+
     const navigate = useNavigate();
 
     function onChange(e) {
