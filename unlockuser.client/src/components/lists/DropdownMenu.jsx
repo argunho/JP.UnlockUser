@@ -12,7 +12,7 @@ console.log(value)
     }
 
     return (
-        <FormControl fullWidth>
+        <FormControl fullWidth className="w-100" style={{ maxWidth: "200px" }}>
             <InputLabel key={value} id="demo-simple-select-label" shrink={value}>{label}</InputLabel>
             <Select
                 displayEmpty
@@ -20,7 +20,7 @@ console.log(value)
                 label={label}
                 labelId="demo-simple-select-label"
                 onChange={onChange}
-                sx={{ color: "#1976D2" }}
+                sx={{ color: "var(--color-active)" }}
                 disabled={disabled}
 
             >

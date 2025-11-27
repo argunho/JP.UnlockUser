@@ -154,7 +154,7 @@ function EmployeesList() {
         <div className='interior-div view-list'>
 
             {/* List filter */}
-            <div className="d-row view-list-container search-container">
+            <div className="d-row view-list-container search-form">
                 {/* Search filter */}
                 <SearchFilter label="anställda" disabled={loading || response} clean={clean || loading}
                     onChange={(value) => setSearchWord(value.toLowercase())} onReset={resetActions} />

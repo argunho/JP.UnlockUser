@@ -47,12 +47,18 @@ a.header-link {
   margin-right: 18px;
   text-transform: uppercase;
   letter-spacing: 1px;
+  font-size: 15px !important;
 }
 
 a.header-link:hover,
 a.header-link.active {
   color: #FFFFFF !important;
   transform: scaleY(1.25);
+}
+
+a.header-link.active {
+  padding-bottom: 5px;
+  font-weight: 600;
 }
 
 a.header-link.active {

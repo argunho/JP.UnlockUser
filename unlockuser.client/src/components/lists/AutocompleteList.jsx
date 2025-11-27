@@ -5,9 +5,8 @@ import { useState, memo } from "react";
 import { Autocomplete, TextField } from "@mui/material";
 
 const AutocompleteList = memo(function AutocompleteList({ label, multiple, name, collection,
-    defValue, disabled, keyword, required, response, helperText, fullWidth }) {
+    defValue, disabled, keyword, required, response, helperText, fullWidth, shrink }) {
 
-        console.log(collection)
     const defaultValue = multiple ? (defValue ?? []) : ((Array.isArray(defValue) ? defValue[0] : defValue) ?? "")
     const [value, setValue] = useState(defaultValue ?? []);
 
@@ -28,6 +27,7 @@ const AutocompleteList = memo(function AutocompleteList({ label, multiple, name,
         isOptionEqualToValue={(option, value) => {
             return option === value;
         }}
+        shrink={true}
         getOptionLabel={(option) => option?.primary ?? ""}
         renderOption={(props, option, { index }) => {
             const { key, ...other } = props;
@@ -42,8 +42,9 @@ const AutocompleteList = memo(function AutocompleteList({ label, multiple, name,
                     label={(!collection || collection?.length === 0) ? "Listan laddas eller saknas ..." : label}
                     required={collection?.length > 0 && (required && !value)}
                     helperText={helperText ?? ""}
+        InputLabelProps={{ shrink: shrink }}
                     className="autocomplete-field"
-                    placeholder={defValue?.length > 0 || value?.length > 0 ? "" : `Välj från listan`}
+                    placeholder={defValue?.length > 0 || value?.length > 0 ? "" : `Välj från listan ...`}
                     autoComplete='off'
                     autoSave='off' />
 

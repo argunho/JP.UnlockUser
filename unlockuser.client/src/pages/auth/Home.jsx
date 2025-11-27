@@ -5,7 +5,7 @@ import _ from "lodash";
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
 import {
     Button, FormControl, FormControlLabel, Tooltip,
-    Radio, RadioGroup, TextField, Switch, Checkbox
+    Radio, RadioGroup, TextField, Switch, Checkbox, InputAdornment
 } from '@mui/material';
 import { useOutletContext } from 'react-router-dom';
 
@@ -26,13 +26,12 @@ import { AllTips, Tips } from '../../models/HelpTexts';
 import { Colors } from '../../models/Colors';
 
 
-const optionsList = [
-    { "label": "Användare", "value": "user" },
-    { "label": "Klass elever", "value": "students" }
+const radioChoices = [
+    { label: "Användare", value: "user" },
+    { label: "Klass elever", value: "students" }
 ]
 
 const initialState = {
-    option: null,
     isClass: false,
     isMatch: true,
     hasNoOptions: false,
@@ -43,17 +42,17 @@ const initialState = {
 
 // Action reducer
 function actionReducer(state, action) {
-    const obj = action.payload ? action.payload : null;
+    const value = action.payload ? action.payload : null;
     switch (action.type) {
         case "PARAM":
             return {
-                ...state, [action.name]: obj
+                ...state, [action.name]: value
             };
         case "START":
             return {
                 ...state,
-                option: sessionStorage.getItem("sOption") ?? "user",
-                isClass: sessionStorage.getItem("sOption") === "students"
+                [action.name]: value,
+                isClass: false
             };
         default:
             return state;
@@ -66,7 +65,7 @@ import './../../assets/css/home.css'
 function Home() {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { option, isClass, isMatch, isChanged, showTips, group } = state;
+    const { isClass, isMatch, isChanged, showTips, group } = state;
 
     const groups = Claim("groups");
 
@@ -76,26 +75,15 @@ function Home() {
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
-        dispatch({ type: "START" });
     }, []);
 
     useEffect(() => {
         const currentGroup = groupName ? groups.find(x => x.name.toLowerCase() == groupName) : groups[0];
-        handleDispatch("group", currentGroup);
+        handleDispatch("group", currentGroup, "START");
     }, [groupName])
 
-    function handleDispatch(name, value) {
-        dispatch({ type: "PARAM", name: name, payload: value });
-    }
-
-    // Handle changes in search alternatives and parameters
-    const setSearchParameter = value => {
-        handleDispatch("option", value);
-        handleDispatch("isMatch", isClass);
-        handleDispatch("isClass", !isClass);
-
-        //  Save choice of search parameters in sessionStorage to mind the user choice and use it with page refresh
-        sessionStorage.setItem("sOption", value)
+    function handleDispatch(name, value, type = "PARAM" ) {
+        dispatch({ type: type, name: name, payload: value });
     }
 
     // Recognize Enter press to submit search form
@@ -147,103 +135,102 @@ function Home() {
 
     return (
         <>
-            {/* Search form container */}
-            <section className='d-row jc-between search-section w-100 ai-start' id="search_container">
+            {/* Search form */}
+            <form key={isClass?.toString()} className='d-row search-form w-100' action={formAction}>
 
-                {/* Search form */}
-                <form key={isClass?.toString()} className='d-row search-container w-100' action={formAction}>
+                {/* collections lust to choose */}
+                {isClass && <AutocompleteList
+                    label="Skolnamn"
+                    name="school"
+                    collection={schools}
+                    required={true}
+                    shrink={true}
+                    disabled={loading}
+                    placeholder="Skriv exakt skolnamn här .." />}
 
-                    {/* collections lust to choose */}
-                    {isClass && <AutocompleteList
-                        label="Skolnamn"
-                        name="school"
-                        collection={schools}
-                        required={true}
-                        placeholder="Skriv exakt skolnamn här .." />}
-
-                    {/* Field name */}
-                    <TextField
-                        name="name"
-                        label={isClass ? "Klassbeteckning" : "Namn"}
-                        variant="outlined"
-                        required
-                        className="search-wrapper w-100"
-                        InputProps={{
-                            maxLength: 30,
-                            minLength: 2,
-                            endAdornment: <div className="d-row jc-end search-actions">
-                                {/* Checkbox and radio with search parameters to choose for user search */}
-                                {!isClass && <FormControlLabel
-                                    control={<Checkbox
-                                        name="match"
-                                        disabled={isClass}
-                                        checked={isMatch}
-                                        onClick={() => handleDispatch("isMatch", !isMatch)} />}
-                                    label={<Tooltip
-                                        disableHoverListener={!showTips}
-                                        title={Tips.find(x => x.value === "match")?.secondary}
-                                        classes={{
-                                            tooltip: "tooltip-default"
-                                        }}
-                                        PopperProps={{
-                                            sx: {
-                                                '& .MuiTooltip-tooltip': {
-                                                    backgroundColor: Colors["primary"]
-                                                },
-                                                '& .MuiTooltip-arrow': {
-                                                    color: Colors["primary"]
-                                                }
+                {/* Field name */}
+                <TextField
+                    name="name"
+                    label={isClass ? "Klassbeteckning" : "Namn"}
+                    variant="outlined"
+                    required
+                    fullWidth
+                    className="search-wrapper w-100"
+                    InputProps={{
+                        maxLength: 30,
+                        minLength: 2,
+                        endAdornment: <InputAdornment position="end">
+                            {/* Checkbox and radio with search parameters to choose for user search */}
+                            {!isClass && <FormControlLabel
+                                control={<Checkbox
+                                    name="match"
+                                    disabled={isClass}
+                                    checked={isMatch}
+                                    onClick={() => handleDispatch("isMatch", !isMatch)} />}
+                                label={<Tooltip
+                                    disableHoverListener={!showTips}
+                                    title={Tips.find(x => x.value === "match")?.secondary}
+                                    classes={{
+                                        tooltip: "tooltip-default"
+                                    }}
+                                    PopperProps={{
+                                        sx: {
+                                            '& .MuiTooltip-tooltip': {
+                                                backgroundColor: Colors["primary"]
+                                            },
+                                            '& .MuiTooltip-arrow': {
+                                                color: Colors["primary"]
                                             }
-                                        }}
-                                        arrow>Exact match</Tooltip>} />}
+                                        }
+                                    }}
+                                    arrow>Exact match</Tooltip>} />}
 
-                                {/* Reset form - button */}
-                                <Button
-                                    color="error"
-                                    className="search-reset"
-                                    type="reset"
-                                    disabled={loading || !isChanged}>
-                                    <SearchOffSharp />
-                                </Button>
+                            {/* Reset form - button */}
+                            <Button
+                                color="error"
+                                className="search-reset"
+                                type="reset"
+                                disabled={loading || !isChanged}
+                                edge="end">
+                                <SearchOffSharp />
+                            </Button>
 
-                                {/* Submit form - button */}
-                                <Button variant={isChanged ? "contained" : "outlined"}
-                                    color={isChanged ? "primary" : "inherit"}
-                                    className="search-button"
-                                    type="submit"
-                                    disabled={!isChanged || loading}
-                                    ref={ref}>
-                                    <SearchSharp /></Button>
-                            </div>
-                        }}
-                        InputLabelProps={{ shrink: true }}
-                        disabled={loading}
-                        placeholder={isClass ? "Skriv exakt klassbeteckning här ..." : (isMatch ? "Skriv exakt fullständigt namn eller anvädarnamn här ..." : "Sök ord här ...")}
-                        onKeyDown={handleKeyDown}
-                        onChange={onChange}
-                    // helperText={formData[s.name].length > 0 ? `${30 - formData[s.name].length} tecken kvar` : "Min 2 & Max 30 tecken"}
-                    />
-                </form>
+                            {/* Submit form - button */}
+                            <Button variant={isChanged ? "contained" : "outlined"}
+                                color={isChanged ? "primary" : "inherit"}
+                                className="search-button"
+                                type="submit"
+                                disabled={!isChanged || loading}
+                                ref={ref}
+                                edge="end">
+                                <SearchSharp /></Button>
+                        </InputAdornment>
+                    }}
+                    InputLabelProps={{ shrink: true }}
+                    disabled={loading}
+                    placeholder={isClass ? "Skriv exakt klassbeteckning här ..." : (isMatch ? "Skriv exakt fullständigt namn eller anvädarnamn här ..." : "Sök ord här ...")}
+                    onKeyDown={handleKeyDown}
+                    onChange={onChange}
+                />
 
                 {/* Choose group */}
-                <DropdownMenu
+                {groups?.length > 1 && <DropdownMenu
                     label="Hanteras"
                     list={groups}
                     value={group ? group?.name : ""}
                     link="/search/"
-                    disabled={groups?.length === 1} />
-            </section>
+                    disabled={groups?.length === 1} />}
+            </form>
 
             {/* The search parameters to choice */}
             <section className="actions-wrapper d-row jc-between w-100" id="crw">
 
                 <div className='left-section d-row ai-start'>
-
                     {/* Radio buttons to choice one of search alternatives */}
                     {group?.name === "Studenter" && <FormControl className='checkbox-block-mobile'>
                         <RadioGroup row name="row-radio-buttons-group">
                             {/* Loop of radio input choices */}
-                            {optionsList?.map((p, index) => (
+                            {radioChoices?.map((p, index) => (
                                 <Tooltip
                                     key={index}
                                     disableHoverListener={!showTips}
@@ -263,14 +250,12 @@ function Home() {
                                     }}
                                     arrow>
                                     <FormControlLabel
-                                        value={option === p.value}
                                         control={<Radio
                                             size='small'
-                                            checked={option === p.value}
+                                            checked={p.value === "user" ? !isClass : isClass}
                                             color="success" />}
                                         label={p.label}
-                                        name="sOption"
-                                        onChange={() => setSearchParameter(p.value)} />
+                                        onChange={() => handleDispatch("isClass", !isClass)} />
                                 </Tooltip>
                             ))}
                         </RadioGroup>
@@ -292,7 +277,7 @@ function Home() {
                         label="Förklaring av sökparametrar"
                         content={group?.name === "Studenter" ? AllTips : Tips} />
                 </div>
-            </section >
+            </section>
 
             {/* Result of search */}
             <ResultView
