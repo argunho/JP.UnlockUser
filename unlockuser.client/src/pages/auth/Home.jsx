@@ -37,7 +37,7 @@ const initialState = {
     hasNoOptions: false,
     showTips: false,
     group: null,
-    isChanged: false, 
+    isChanged: false,
     isErased: null
 }
 
@@ -98,7 +98,7 @@ function Home() {
         handleDispatch("group", currentGroup, "START");
     }, [groupName])
 
-    function handleDispatch(name, value, type = "PARAM" ) {
+    function handleDispatch(name, value, type = "PARAM") {
         dispatch({ type: type, name: name, payload: value });
     }
 
@@ -110,12 +110,13 @@ function Home() {
     }
 
     function onChange(e) {
-        if(isChanged || (isClass && !refAutocomplete?.current))
+        const value = e.target.value;
+        if ((!isChanged && value?.length < 2)
+            || (isChanged && value?.length > 2)
+            || (isClass && !refAutocomplete?.current))
             return;
 
-        console.log(e.target.value, refAutocomplete.current?.value)
-
-        handleDispatch("isChanged", e.target.value?.length > 2);
+        handleDispatch("isChanged", !isChanged);
     }
 
     // Function - submit form
@@ -140,7 +141,7 @@ function Home() {
 
         // API parameters by chosen searching alternative
         let options = isClass ? `students${fd.get("school")}/${fd.get("name")}`
-            : `person/${fd.get("name")}/${group?.manage}/${fd.get("match")}`;
+            : `person/${fd.get("name")}/${group?.name}/${fd.get("match") === "on" ? true : false}`;
 
         if (errors?.length > 0) {
             return {
@@ -149,10 +150,11 @@ function Home() {
             }
         }
 
+        console.log(options)
         await fetchData({ api: `search/${options}`, method: "get" });
     }
 
-    const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
+    const [formState, formAction] = useActionState(onSubmit, { errors: null });
 
     return (
         <>
@@ -167,8 +169,9 @@ function Home() {
                     required={true}
                     shrink={true}
                     disabled={loading}
+                    defValue={formState?.school}
                     keyword="id"
-                    placeholder="Skriv exakt skolnamn här .." 
+                    placeholder="Skriv exakt skolnamn här .."
                     ref={refAutocomplete}
                 />}
 
@@ -179,6 +182,7 @@ function Home() {
                     variant="outlined"
                     required
                     fullWidth
+                    value={formState?.name}
                     className="search-wrapper w-100"
                     InputProps={{
                         maxLength: 30,
@@ -313,6 +317,7 @@ function Home() {
                 response={response}
                 disabled={group?.name === "Support"}
                 resultBlock={true}
+                reset={() => handleResponse()}
             />
         </>
     )

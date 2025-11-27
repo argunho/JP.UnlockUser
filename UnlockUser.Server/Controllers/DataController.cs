@@ -7,8 +7,9 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class DataController : ControllerBase
+public class DataController(IHelpService helpService) : ControllerBase
 {
+    private readonly IHelpService _helpService = helpService;
     #region GET
     // Get all txt files
     [HttpGet("logfiles/{param}")]
@@ -62,6 +63,19 @@ public class DataController : ControllerBase
         }).ToList();
 
         return list;
+    }
+
+    [HttpGet("users/{group}")]
+    public async Task<JsonResult> GetGroupUsers(string group)
+    {
+        try
+        {
+
+        } catch (Exception ex) {
+            return new(await )
+        }
+
+        return 
     }
 
     // Get file to download
