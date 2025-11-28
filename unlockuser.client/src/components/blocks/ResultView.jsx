@@ -144,14 +144,6 @@ function ResultView({ list, isClass, loading, response, disabled, cancelRequest,
                     <Tooltip
                         title="Rensa sökresultaten."
                         classes={{ tooltip: "tooltip tooltip-red", arrow: "tooltip-arrow-red" }}
-
-                        PopperProps={{
-                            sx: {
-                                '& .MuiTooltip-arrow': {
-                                    marginTop: "20px"
-                                }
-                            }
-                        }}
                         arrow>
                         <span>
                             <Button variant="text"
