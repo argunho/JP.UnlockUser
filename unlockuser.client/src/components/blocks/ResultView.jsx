@@ -8,16 +8,15 @@ import {
     Avatar, Button, Checkbox, List, ListItem,
     ListItemAvatar, ListItemText, Tooltip, Typography
 } from '@mui/material'
-import { Cancel, DeleteSweep, Deselect, Edit, SelectAll } from '@mui/icons-material';
+import { Cancel, Close, Deselect, Edit, SelectAll } from '@mui/icons-material';
 
 // Components
-import Loading from '../Loading';
 import Message from './Message';
 import Info from './Info';
 
 const defMessage = "Ditt sökresultat kommer att visas här nedan"
 
-function ResultView({ list, clsStudents, isVisibleTips, loading, response, disabled, cancelRequest, resetResult, resultBlock }) {
+function ResultView({ list, isClass, loading, response, disabled, cancelRequest, resetResult, resultBlock }) {
 
 
     const [selectedList, setSelectedList] = useState([]);
@@ -71,7 +70,7 @@ function ResultView({ list, clsStudents, isVisibleTips, loading, response, disab
 
     // Navigate to page
     const clickHandle = (e, index, user = null) => {
-        if (clsStudents && refCheckbox?.current[index]?.contains(e.target)) {
+        if (isClass && refCheckbox?.current[index]?.contains(e.target)) {
             handleSelectedList(user.name);
             return;
         }
@@ -121,8 +120,6 @@ function ResultView({ list, clsStudents, isVisibleTips, loading, response, disab
         </Button>
     </Tooltip>;
 
-
-
     return (
         /* Box to view the result of search */
         <div className='interior-div result-div' ref={refResult}>
@@ -131,7 +128,7 @@ function ResultView({ list, clsStudents, isVisibleTips, loading, response, disab
             {resultBlock && <ListItem className='view-list-result' secondaryAction={
                 <>
                     {/* Hidden form to reset selected users password */}
-                    {(clsStudents && list?.length > 0) && linkButton}
+                    {(isClass && list?.length > 0) && linkButton}
 
                     {/* Cancel request */}
                     {loading && <Button
@@ -144,10 +141,18 @@ function ResultView({ list, clsStudents, isVisibleTips, loading, response, disab
                     </Button>}
 
                     {/* Button to reset search result */}
-                    <Tooltip arrow
-                        disableHoverListener={!isVisibleTips}
-                        title="Ta bort sökresultat."
-                        classes={{ tooltip: "tooltip tooltip-error", arrow: "arrow-error" }}>
+                    <Tooltip
+                        title="Rensa sökresultaten."
+                        classes={{ tooltip: "tooltip tooltip-red", arrow: "tooltip-arrow-red" }}
+
+                        PopperProps={{
+                            sx: {
+                                '& .MuiTooltip-arrow': {
+                                    marginTop: "20px"
+                                }
+                            }
+                        }}
+                        arrow>
                         <span>
                             <Button variant="text"
 
@@ -155,7 +160,7 @@ function ResultView({ list, clsStudents, isVisibleTips, loading, response, disab
                                 className="reset-button"
                                 onClick={resetResult}
                                 disabled={loading || !list} >
-                                <DeleteSweep /></Button>
+                                <Close /></Button>
                         </span>
                     </Tooltip>
                 </>
@@ -165,12 +170,8 @@ function ResultView({ list, clsStudents, isVisibleTips, loading, response, disab
 
             </ListItem>}
 
-
-            {/* Visible image under search progress// && users && users.length === 0 */}
-            {loading && <Loading />}
-
             {/* Select or deselect all users in class members list */}
-            {clsStudents && list?.length > 0 &&
+            {isClass && list?.length > 0 &&
                 /* Hidden form to reset selected users password */
                 <List className='w-100'>
                     {/* Select or deselect all list */}
@@ -208,7 +209,7 @@ function ResultView({ list, clsStudents, isVisibleTips, loading, response, disab
                     {/* Name of department and office */}
                     {(index === 0 || (index > 0 && list[index - 1].department !== list[index].department)) &&
                         <Typography mt={2} mb={1} variant="body2">
-                            {user.office + ((user.office !== user.department) ? " " + user.department : "")} {clsStudents && <span className='typography-span'>{list.filter(x => x.department === user.department)?.length} elever</span>}
+                            {user.office + ((user.office !== user.department) ? " " + user.department : "")} {isClass && <span className='typography-span'>{list.filter(x => x.department === user.department)?.length} elever</span>}
                         </Typography>}
 
                     {/* List object */}
@@ -222,7 +223,7 @@ function ResultView({ list, clsStudents, isVisibleTips, loading, response, disab
                         handleOutsideClick={(e) => clickHandle(e, index, user)}>
 
                         {/* Checkbox visible only if is success result after users search by class name */}
-                        {clsStudents && <Checkbox
+                        {isClass && <Checkbox
                             size='small'
                             color="default"
                             ref={checkbox => refCheckbox.current[index] = checkbox}

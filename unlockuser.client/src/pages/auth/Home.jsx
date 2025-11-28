@@ -328,9 +328,9 @@ function Home() {
             {/* Result of search */}
             <ResultView
                 list={users}
-                clsStudents={isClass}
+                isClass={isClass}
                 isVisibleTips={showTips}
-                loading={loading}
+                loading={pending}
                 response={response}
                 disabled={group?.name === "Support"}
                 resultBlock={true}
