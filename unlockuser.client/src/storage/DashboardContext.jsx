@@ -25,24 +25,23 @@ function DashboardProvider({ children }) {
 
     useEffect(() => {
         if (!isAuthorized) return;
-        console.log("hello")
 
         const storedData = sessionStorage.getItem("dashboardData");
 
             fetchDashboardData();
-        // if (!storedData)
-        //     fetchDashboardData();
-        // else {
-        //     setDashboardData(JSON.parse(storedData));
-        //     setLoading(false);
-        // }
+        if (!storedData)
+            fetchDashboardData();
+        else {
+            setDashboardData(JSON.parse(storedData));
+            setLoading(false);
+        }
     }, [isAuthorized])
 
     // Fetch dashboard data
     async function fetchDashboardData() {
         const res = await ApiRequest("data/dashboard", "get");
         setDashboardData(res);
-console.log(res)
+
         if (res) {
             sessionStorage.setItem("dashboardData", JSON.stringify(res));
             Object.keys(res).map((key) => {
@@ -86,8 +85,6 @@ console.log(res)
                 sessionStorage.setItem(collection, "loaded");
 
 
-            // console.log("Dashboard", collection, modelsToUpdate);
-            console.log("Dashboard", collection);
             const updateData = {
                 ...dd,
                 [collection]: modelsToUpdate

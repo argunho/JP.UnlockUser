@@ -30,7 +30,7 @@ const links = [
     { label: "Logga ut", url: "session/logout", icon: <Logout />, access: false, hidden: false }
 ];
 
-const Header = memo(function Header() {
+const Header = memo(function Header({ disabled }) {
 
     const [open, setOpen] = useState(false);
 
@@ -68,6 +68,7 @@ const Header = memo(function Header() {
                     <div className="d-row" id="header-home">
                         <IconButton
                             className={`home-link${loc.pathname === "/" ? " selected" : ""}`}
+                            disabled={disabled}
                             onClick={() => navigate("/")}
                         >
                             <Home />
@@ -77,7 +78,10 @@ const Header = memo(function Header() {
                             <span>{displayName}</span>
                             <span className="d-row">
                                 {groups.map((name, ind) => {
-                                    return <NavLink key={ind} className="header-link" to={`/search/${name?.toLowerCase()}`}>
+                                    return <NavLink 
+                                        key={ind} 
+                                        disabled={disabled}
+                                        className="header-link" to={`/search/${name?.toLowerCase()}`}>
                                         {name}
                                     </NavLink>;
                                 })}
@@ -86,7 +90,12 @@ const Header = memo(function Header() {
                     </div>
 
                     {/* Navigation button */}
-                    <Button variant='outlined' size="large" className={`nav-btn ${open && 'nav-btn-active'}`} onClick={() => setOpen((open) => !open)}>
+                    <Button 
+                        variant='outlined' 
+                        size="large" 
+                        className={`nav-btn ${open && 'nav-btn-active'}`} 
+                        disabled={disabled}
+                        onClick={() => setOpen((open) => !open)}>
                         {open ? <Close /> : <Menu />}
                     </Button>
 

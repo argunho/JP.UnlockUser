@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace UnlockUser.Server.Controllers;
@@ -23,25 +24,31 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     public async Task<JsonResult> GetGroupUsers()
     {
         Dictionary<string, List<User>> data = [];
-        string? username = _credentials.GetClaim("username", Request);
-        string? access = _credentials.GetClaim("access", Request) ?? null;
+        var claims = _credentials.GetClaims(["username", "access", "groups"], Request);
+
+        List<GroupModel> claimGroups = JsonConvert.DeserializeObject<List<GroupModel>>(claims!["groups"]) ?? [];
+        List<string?> sessionUserGroups = [.. claimGroups?.Select(s => s.Name)!];
         try
         {
             List<GroupModel> groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
             foreach (var group in groups)
             {
-                List<string>? checkParams = [];
+                List<string>? alternativeParams = [];
 
-                if (!string.IsNullOrEmpty(access))
+                if (string.IsNullOrEmpty(claims["access"]))
                 {
-                    if(string.Equals(group.Group, "Students", StringComparison.OrdinalIgnoreCase))
-                        checkParams = 
+                    if (!sessionUserGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase))
+                        continue;
 
+                    var user = _localService.GetUserFromFile(claims["username"]!, group.Name!);
+                    if (string.Equals(group.Group, "Students", StringComparison.OrdinalIgnoreCase))
+                        alternativeParams = user?.Offices;
+                    else
+                        alternativeParams = [.. user!.Managers.Select(s => s.Username!.ToString())];
                 }
-                 ? _localService.GetUsersManagers(username!, group.Name!) : null;
                 
-                var users = _provider.GetUsersByGroupName(group, checkParams.Select(s => s.Username).ToList());
+                var users = _provider.GetUsersByGroupName(group, alternativeParams);
                 data.Add(group.Name?.ToLower()!, users);
             }
         }

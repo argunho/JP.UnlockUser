@@ -66,31 +66,37 @@ public class ADService(ILocalFileService localService) : IActiveDirectory // Hel
         return search;
     }
 
-    public List<User> GetUsersByGroupName(GroupModel group, List<string>? managers = null)
+    // Get users by group name
+    public List<User> GetUsersByGroupName(GroupModel group, List<string>? alternativeParams = null)
     {
         List<User> users = [];
-        using DirectoryEntry entry = new($"LDAP://OU={group.Group},OU=Users,OU=Kommun,DC=alvesta,DC=local");
+        using DirectoryEntry entry = new($"LDAP://OU={group.Group!},OU=Users,OU=Kommun,DC=alvesta,DC=local");
         using DirectorySearcher search = new(entry);
         search.Filter = $"(&(objectClass=User))";
-        var res = UpdatedProparties(search);
+
+        if (search == null)
+            return users;
+
+        DirectorySearcher? res = UpdatedProparties(search);
         res.PropertiesToLoad.Add("memberOf");
 
         res.PageSize = 1000;
         res.SizeLimit = 0;
 
         bool isEmployeeGroup = string.Equals(group.Group, "Employees", StringComparison.OrdinalIgnoreCase);
-        List<SearchResult> list = [.. res.FindAll().OfType<SearchResult>()];
-        foreach (SearchResult result in list)
+ 
+        foreach (SearchResult? result in res.FindAll().OfType<SearchResult>())
         {
-            var user = GetUserParams(result?.Properties);
+            var props = result.Properties;  
+            var user = GetUserParams(props);
             if (isEmployeeGroup)
             {
-                var properties = result?.Properties["memberOf"].OfType<string>() ?? [];
-                bool isMatch = properties!.Contains("Ciceron-Assistentanvändare", StringComparer.OrdinalIgnoreCase);
+                var properties = props["memberOf"].OfType<string>() ?? [];
+                bool isMatch = properties.Any(x => x.Contains("Ciceron-Assistentanvändare", StringComparison.OrdinalIgnoreCase));
 
-                if (string.Equals(group.Group, "Politiker", StringComparison.OrdinalIgnoreCase) && !isMatch)
+                if (string.Equals(group.Name, "Politiker", StringComparison.OrdinalIgnoreCase) && !isMatch)
                     continue;
-                else if (string.Equals(group.Group, "Personal", StringComparison.OrdinalIgnoreCase) && isMatch)
+                else if (string.Equals(group.Name, "Personal", StringComparison.OrdinalIgnoreCase) && isMatch)
                     continue;
             }
 
@@ -100,43 +106,24 @@ public class ADService(ILocalFileService localService) : IActiveDirectory // Hel
 
         // Removes users that the session user does not have permission to manage.
         List<User> usersToManage = [];
-        if (users.Count > 0 && managers?.Count > 0 && isEmployeeGroup)
+        if (alternativeParams?.Count > 0)
         {
-            //List<string> userManagers = [];
-            //List<User> managedUsers = [.. users.Where(x => !string.IsNullOrEmpty(x.Manager))];
-
-            foreach (var m in managers)
+            if (users.Count > 0 && isEmployeeGroup)
             {
-                var matchUsers = users.Where(x => x.Manager!.StartsWith($"CN={m}", StringComparison.OrdinalIgnoreCase)).ToList() ?? [];
-                usersToManage.AddRange(matchUsers);
+                foreach (var m in alternativeParams)
+                {
+                    var matchUsers = users.Where(x => x.Manager!.StartsWith($"CN={m}", StringComparison.OrdinalIgnoreCase)).ToList() ?? [];
+                    usersToManage.AddRange(matchUsers);
+                }
             }
-
-            //for (int i = 0; i < managedUsers.Count; i++)
-            //{
-            //    var user = managedUsers[i];
-            //    User? userManager = managedUsers.FirstOrDefault(x => user.Manager!.Contains(x.Name!, StringComparison.OrdinalIgnoreCase));
-            //    List<string> managersHierarchy = [];
-
-            //    while (userManager != null && userManager?.Title != "Kommunchef" && managersHierarchy.Count < 0)
-            //    {
-            //        var nextManager = managedUsers.FirstOrDefault(x => userManager!.Manager!.StartsWith($"CN={x?.Name}", StringComparison.OrdinalIgnoreCase));
-            //        if (nextManager == null || managersHierarchy.Contains(nextManager?.Name, StringComparer.OrdinalIgnoreCase))
-            //            break;
-
-            //        managersHierarchy.Add(nextManager!.Name!);
-            //        userManager = nextManager;
-            //    }
-
-            //    if (!managers.Intersect(managersHierarchy).Any())
-            //        users.Remove(user);
-            //}
+            else
+                usersToManage = [.. users.Where(x => alternativeParams!.Contains(x.Office!, StringComparer.OrdinalIgnoreCase))];
         } else
-            usersToManage = [.. users.Where(x => sessionUser!.Offices.Contains(x.Office!))];
-
-
+            usersToManage = users;
 
         return usersToManage;
     }
+
 
     // Get memebrs from security group
     public List<string> GetSecurityGroupMembers(string? groupName)

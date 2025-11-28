@@ -32,11 +32,11 @@ const radioChoices = [
 ]
 
 const initialState = {
-    isClass: false,
-    isMatch: true,
-    hasNoOptions: false,
     showTips: false,
     group: null,
+    users: [],
+    isClass: false,
+    isMatch: true,
     isChanged: false,
     isErased: null
 }
@@ -80,12 +80,12 @@ import './../../assets/css/home.css'
 function Home() {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { isClass, isMatch, isChanged, isErased, showTips, group } = state;
+    const { isClass, isMatch, isChanged, isErased, users, group, showTips } = state;
 
     const groups = Claim("groups");
 
-    const { schools, groupName } = useOutletContext();
-    const { response, loading, resData: users, fetchData, handleResponse } = use(FetchContext);
+    const { collections, schools, groupName } = useOutletContext();
+    const { response, loading, fetchData, handleResponse } = use(FetchContext);
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
 
@@ -121,6 +121,7 @@ function Home() {
 
     // Function - submit form
     async function onSubmit(previous, fd) {
+
         let data = {
             name: ""
         };
@@ -129,6 +130,8 @@ function Home() {
 
         let errors = [];
         let error = null;
+        
+        handleDispatch("isChanged", false);
 
         if (_.isEqual(data, fd)) {
             error = "Begäran avvisades. Inga ändringar gjordes i formulärets data."
@@ -139,10 +142,6 @@ function Home() {
             }
         }
 
-        // API parameters by chosen searching alternative
-        let options = isClass ? `students${fd.get("school")}/${fd.get("name")}`
-            : `person/${fd.get("name")}/${group?.name}/${fd.get("match") === "on" ? true : false}`;
-
         if (errors?.length > 0) {
             return {
                 data: data,
@@ -150,11 +149,28 @@ function Home() {
             }
         }
 
-        console.log(options)
-        await fetchData({ api: `search/${options}`, method: "get" });
+        const name = fd.get("name")?.toLowerCase();
+        const match = fd.get("match") === "on" ? true : false;
+
+        const collection = collections[group.name?.toLowerCase()];
+        if (collection?.length > 0) {
+            if (isClass)
+                handleDispatch("users", collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === fd.get("school")));
+            else
+                handleDispatch("users", collection?.filter(x => match ? x?.displayName?.toLowerCase() === name : x.displayName?.toLowerCase().includes(name)));
+            console.log(collection?.filter(x => match ? x?.displayName?.toLowerCase() === name : x.displayName?.toLowerCase().includes(name)))
+            return null;
+        }
+
+        // API parameters by chosen searching alternative
+        let options = isClass ? `students${fd.get("school")}/${name}` : `person/${name}/${group?.name}/${match}`;
+
+        const res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
+        if (Array.isArray(res))
+            handleDispatch("users", res);
     }
 
-    const [formState, formAction] = useActionState(onSubmit, { errors: null });
+    const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
 
     return (
         <>
@@ -232,7 +248,8 @@ function Home() {
                                 disabled={!isChanged || loading}
                                 ref={refSubmit}
                                 edge="end">
-                                <SearchSharp /></Button>
+                                <SearchSharp />
+                            </Button>
                         </InputAdornment>
                     }}
                     InputLabelProps={{ shrink: true }}
