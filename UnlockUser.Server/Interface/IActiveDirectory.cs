@@ -16,7 +16,7 @@ public interface IActiveDirectory
     List<string> GetUserGroups(UserPrincipalExtension user);
 
     DirectorySearcher GetMembers(string? groupName);
-    List<User> GetUsersByGroupname(GroupModel group);
+    List<User> GetUsersByGroupName(GroupModel group, List<string>? managers = null);
     List<string> GetSecurityGroupMembers(string? groupName);
     List<User> GetUsers(DirectorySearcher result, string groupName);
     List<Manager> GetUserManagers(User user);

@@ -20,8 +20,10 @@ var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
 
 // Services
-builder.Services.AddScoped<IActiveDirectory, ADService>();
-builder.Services.AddScoped<IHelp, HelpService>();
+builder.Services.AddSingleton<IActiveDirectory, ADService>();
+builder.Services.AddSingleton<IHelp, HelpService>();
+builder.Services.AddSingleton<ILocalFileService, LocalFileService>();
+builder.Services.AddSingleton<ILocalService, LocalService>();
 
 #region Help package library
 // Help library pacjage services

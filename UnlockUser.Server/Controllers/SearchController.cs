@@ -102,7 +102,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
             {
                 username ??= _help.GetClaim("username") ?? "";
                 List<GroupUsersViewModel> groups = HelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
-                List<User>? employees = groups.FirstOrDefault(x => x.Group.Name == groupName)?.Employees;
+                List<User>? employees = groups.FirstOrDefault(x => x.Group!.Name == groupName)?.Employees;
                 User? sessionUser = employees?.FirstOrDefault(x => x.Name == username);
                 List<User> usersToView = [];
 
@@ -115,13 +115,13 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
                         if (managers.Count > 0)
                         {
                             var matched = sessionUserManagers.Intersect(managers);
-                            if (matched.Count() > 0)
+                            if (matched.Any())
                                 usersToView.Add(user);
                         }
                     }
                 }
                 else if(groupName == "Studenter" || groupName == "Students")
-                    users = users.Where(x => sessionUser!.Offices.Contains(x.Office!)).ToList();
+                    users = [.. users.Where(x => sessionUser!.Offices.Contains(x.Office!))];
 
                 users = usersToView;
             } else if(groupName != "Students")

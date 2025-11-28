@@ -255,7 +255,7 @@ public partial class HelpService : IHelp
 
         // Declare the string used to hold
         // the decrypted text.
-        string plainText = null;
+        string? plainText = null;
 
         // Create an Aes object
         // with the specified key and IV.

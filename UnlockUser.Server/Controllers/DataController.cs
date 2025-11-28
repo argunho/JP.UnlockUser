@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace UnlockUser.Server.Controllers;
@@ -8,11 +7,13 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class DataController(IHelpService helpService, IActiveDirectory provider, ICredentialsService credentials, IConfiguration config) : ControllerBase
+public class DataController(IHelpService helpService, IActiveDirectory provider, ICredentialsService credentials,
+                                ILocalService localService, IConfiguration config) : ControllerBase
 {
     private readonly IHelpService _helpService = helpService;
     private readonly IActiveDirectory _provider = provider;
     private readonly ICredentialsService _credentials = credentials;
+    private readonly ILocalService _localService = localService;
     private readonly IConfiguration _config = config;
 
     private readonly string ctrl = nameof(DataController);
@@ -21,14 +22,26 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     [HttpGet("dashboard")]
     public async Task<JsonResult> GetGroupUsers()
     {
-        Dictionary<string, object> data = [];
+        Dictionary<string, List<User>> data = [];
+        string? username = _credentials.GetClaim("username", Request);
+        string? access = _credentials.GetClaim("access", Request) ?? null;
         try
         {
             List<GroupModel> groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
-            
+
             foreach (var group in groups)
             {
-                var users = _provider.GetUsersByGroupname(group);
+                List<string>? checkParams = [];
+
+                if (!string.IsNullOrEmpty(access))
+                {
+                    if(string.Equals(group.Group, "Students", StringComparison.OrdinalIgnoreCase))
+                        checkParams = 
+
+                }
+                 ? _localService.GetUsersManagers(username!, group.Name!) : null;
+                
+                var users = _provider.GetUsersByGroupName(group, checkParams.Select(s => s.Username).ToList());
                 data.Add(group.Name?.ToLower()!, users);
             }
         }
@@ -193,5 +206,6 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         return Ok();
     }
     #endregion
+
 
 }
