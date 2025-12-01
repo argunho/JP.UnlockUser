@@ -34,7 +34,7 @@ const radioChoices = [
 const initialState = {
     showTips: false,
     group: null,
-    users: [],
+    users: null,
     isClass: false,
     isMatch: true,
     isChanged: false,

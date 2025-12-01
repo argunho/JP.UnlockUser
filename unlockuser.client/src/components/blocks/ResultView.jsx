@@ -100,8 +100,14 @@ function ResultView({ list, isClass, disabled, loading, onReset, resultBlock }) 
         <div className='interior-div result-div' ref={refResult}>
 
             {/* Result info box */}
-            {resultBlock && <ListItem className='view-list-result' secondaryAction={
-                <>
+            {resultBlock && <div className='d-row jc-between w-100 view-list-result'>
+                {/* Result info */}
+                <div className="d-column ai-start">
+                    <span>Resultat</span>
+                    <span>{list ? `Hittades: ${list?.length} användare` : "*****************"}</span>
+                </div>
+
+                <div className="d-row">
                     {/* Hidden form to reset selected users password */}
                     {(isClass && list?.length > 0) && linkButton}
 
@@ -117,11 +123,8 @@ function ResultView({ list, isClass, disabled, loading, onReset, resultBlock }) 
                             <Close />
                         </IconButton>
                     </Tooltip>}
-                </>
-            }>
-                {/* Result info */}
-                <ListItemText primary="Resultat" secondary={list ? `Hittades: ${list?.length} användare` : "*****************"} />
-            </ListItem>}
+                </div>
+            </div>}
 
             {/* List loading */}
             {!list && <ListLoading rows={5} pending={loading} />}
@@ -131,7 +134,7 @@ function ResultView({ list, isClass, disabled, loading, onReset, resultBlock }) 
                 /* Hidden form to reset selected users password */
                 <List className='w-100'>
                     {/* Select or deselect all list */}
-                    <ListItem className='search-result-select'>
+                    <ListItem className='result-li'>
                         <ListItemAvatar>
                             <Avatar>
                                 {!selected ? <SelectAll /> : <Deselect color="primary" />}

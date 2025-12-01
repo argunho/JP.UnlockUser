@@ -39,13 +39,17 @@
     color: #232323;
 }
 
-ul>li:not(.pagination li) {
+ul>li:not(.pagination li, .dropdown-li) {
     border: 1px solid var(--color-gray);
     margin: 0 0 5px 0;
     padding: 3px 7px 3px 15px;
     min-height: 80px;
     background-color: #FFFFFF;
     color: var(--color-dark-gray);
+}
+
+.result-li {
+    margin-bottom: 0 !important;
 }
 
 div[role="presentation"] li {
