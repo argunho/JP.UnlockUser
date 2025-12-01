@@ -1,0 +1,84 @@
+/*  #region LoopList  */
+
+.list-view {
+    height: max-content;
+    max-width: 90%;
+    overflow: auto;
+    padding: 5px;
+    margin: 10px auto !important;
+    padding-bottom: 30px !important;
+}
+
+.loop-list {
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.lopp-list li,
+.lopp-list li * {
+    transition: all 0.7s ease-in-out;
+    overflow: hidden
+}
+
+.loop-list:not(.scale-back) li:not(li:hover) div.unread-color {
+    color: var(--color-warning) !important;
+}
+
+.loop-list li:hover {
+    background-color: var(--page-link-background) !important;
+}
+
+.loop-list:not(.scale-back) li:not(.pagination li):hover div>span {
+    transform: scaleY(1.3);
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.loop-list:not(.scale-back) li:hover div:last-child>button {
+    transform: scale(1.3);
+    color: #232323;
+}
+
+ul>li:not(.pagination li) {
+    border: 1px solid var(--color-gray);
+    margin: 0 0 5px 0;
+    padding: 3px 7px 3px 15px;
+    min-height: 80px;
+    background-color: #FFFFFF;
+    color: var(--color-dark-gray);
+}
+
+div[role="presentation"] li {
+    width: 98% !important;
+    margin: 1px auto !important;
+    height: 50px !important;
+    border: unset !important;
+    font-size: 18px !important;
+}
+
+.loop-list li>div>span {
+    font-size: 14px !important;
+}
+
+.loop-list li>div>p {
+    font-size: 12px !important;
+}
+
+.loop-list>div>button {
+    margin-left: 10px !important;
+}
+/*  #endregion */
+
+/* #region Skeleton */
+.skeleton-label {
+    width: 250px;
+    font-size: 35px;
+    background-color: var( --color-list-bg) !important;
+}
+
+span.skeleton-box-list {
+    min-height: 60px;
+    background-color: var( --color-list-bg) !important;
+    margin: 5px 0 !important;
+}
+/* #endregion */

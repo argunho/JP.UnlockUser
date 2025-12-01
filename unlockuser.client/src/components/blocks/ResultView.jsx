@@ -1,27 +1,24 @@
 
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Installed
 import {
-    Avatar, Button, Checkbox, List, ListItem,
+    Avatar, Button, Checkbox, List, ListItem, IconButton,
     ListItemAvatar, ListItemText, Tooltip, Typography
 } from '@mui/material'
-import { Cancel, Close, Deselect, Edit, SelectAll } from '@mui/icons-material';
+import { Close, Deselect, Edit, SelectAll } from '@mui/icons-material';
 
 // Components
 import Message from './Message';
 import Info from './Info';
+import ListLoading from './../lists/ListLoading';
 
-const defMessage = "Ditt sökresultat kommer att visas här nedan"
-
-function ResultView({ list, isClass, loading, response, disabled, cancelRequest, resetResult, resultBlock }) {
-
+function ResultView({ list, isClass, disabled, loading, onReset, resultBlock }) {
 
     const [selectedList, setSelectedList] = useState([]);
     const [isOpenTip, setIsOpenTip] = useState(false);
-    const [res, setResult] = useState(defMessage);
 
     const sl = selectedList.length;
     const selected = (list?.length === sl);
@@ -29,23 +26,6 @@ function ResultView({ list, isClass, loading, response, disabled, cancelRequest,
     const refResult = useRef(null);
     const refCheckbox = useRef([]);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if (loading)
-            setResult("Sökning pågår ...");
-    }, [loading])
-
-    useEffect(() => {
-        if (list?.length > 0)
-            setResult(`Hittades: ${list?.length} användare`);
-        else if (list == null)
-            setResult(defMessage);
-    }, [list])
-
-    useEffect(() => {
-        if (!!response)
-            setResult(`Hittades 0 användare`);
-    }, [response])
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -100,10 +80,6 @@ function ResultView({ list, isClass, loading, response, disabled, cancelRequest,
         setIsOpenTip(arr.length > 0);
     }
 
-    const handleResponse = useCallback(function handleResponse() {
-        resetResult();
-    }, [])
-
     // Go to password change page
     const linkButton = <Tooltip arrow
         title={`Klicka här att ställa in nytt lösenord för valda ${sl} elev${sl === 1 && "er"}`}
@@ -114,8 +90,7 @@ function ResultView({ list, isClass, loading, response, disabled, cancelRequest,
             disabled={sl === 0}
             onClick={(e) => clickHandle(e)}
             style={{ marginLeft: "10px" }}
-            startIcon={<Edit />}
-            variant="contained">
+            startIcon={<Edit />} >
             Ändra lösenord
         </Button>
     </Tooltip>;
@@ -130,37 +105,26 @@ function ResultView({ list, isClass, loading, response, disabled, cancelRequest,
                     {/* Hidden form to reset selected users password */}
                     {(isClass && list?.length > 0) && linkButton}
 
-                    {/* Cancel request */}
-                    {loading && <Button
-                        variant='contained'
-                        color="error"
-                        className='button-action'
-                        onClick={cancelRequest}
-                        startIcon={<Cancel />}>
-                        Avbryt sökning
-                    </Button>}
-
                     {/* Button to reset search result */}
-                    <Tooltip
+                    {list?.length > 0 && <Tooltip
                         title="Rensa sökresultaten."
                         classes={{ tooltip: "tooltip tooltip-red", arrow: "tooltip-arrow-red" }}
                         arrow>
-                        <span>
-                            <Button variant="text"
-
-                                color="error"
-                                className="reset-button"
-                                onClick={resetResult}
-                                disabled={loading || !list} >
-                                <Close /></Button>
-                        </span>
-                    </Tooltip>
+                        <IconButton variant="text"
+                            color="error"
+                            className="reset-button"
+                            onClick={onReset} >
+                            <Close />
+                        </IconButton>
+                    </Tooltip>}
                 </>
             }>
                 {/* Result info */}
-                <ListItemText primary="Resultat" secondary={res} />
-
+                <ListItemText primary="Resultat" secondary={list ? `Hittades: ${list?.length} användare` : "*****************"} />
             </ListItem>}
+
+            {/* List loading */}
+            {!list && <ListLoading rows={5} pending={loading} />}
 
             {/* Select or deselect all users in class members list */}
             {isClass && list?.length > 0 &&
@@ -226,7 +190,7 @@ function ResultView({ list, isClass, loading, response, disabled, cancelRequest,
             ))}
 
             {/* Message if result is null */}
-            {(!loading && response) && <Message res={response} cancel={handleResponse} />}
+            {list?.length == 0 && <Message res={0} cancel={onReset} />}
         </div>
     )
 }

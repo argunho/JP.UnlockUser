@@ -130,7 +130,7 @@ function Home() {
 
         let errors = [];
         let error = null;
-        
+
         handleDispatch("isChanged", false);
 
         if (_.isEqual(data, fd)) {
@@ -168,6 +168,13 @@ function Home() {
         const res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
         if (Array.isArray(res))
             handleDispatch("users", res);
+    }
+
+    function onReset(){
+        if(response)
+            handleResponse();
+        else
+            handleDispatch("users", null);
     }
 
     const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
@@ -326,15 +333,13 @@ function Home() {
             </section>
 
             {/* Result of search */}
-            <ResultView
+           <ResultView
                 list={users}
                 isClass={isClass}
-                isVisibleTips={showTips}
-                loading={pending}
-                response={response}
+                loading={pending || loading}
                 disabled={group?.name === "Support"}
                 resultBlock={true}
-                reset={() => handleResponse()}
+                onReset={onReset}
             />
         </>
     )
