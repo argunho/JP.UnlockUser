@@ -109,7 +109,7 @@ function Home() {
     useEffect(() => {
         const currentGroup = groupName ? groups.find(x => x.name.toLowerCase() == groupName) : groups[0];
         handleDispatch("group", currentGroup, "START");
-        onReset();
+        onReset(!_.isEqual(group, currentGroup));
     }, [groupName])
 
     function handleDispatch(name, value, type = "PARAM") {
@@ -135,7 +135,7 @@ function Home() {
 
     // Function - submit form
     async function onSubmit(previous, fd) {
-        onReset();
+        onReset(true);
         let data = {
             name: ""
         };
@@ -187,11 +187,12 @@ function Home() {
             handleDispatch("users", res, "RESULT");
     }
 
-    function onReset() {
+    function onReset(clean) {
         if (response)
             handleResponse();
         else {
             dispatch({ type: "RESET" });
+            if(clean)
             updateSessionData("users", null);
         }
     }
@@ -359,7 +360,7 @@ function Home() {
                 loading={pending || loading}
                 disabled={group?.name === "Support"}
                 resultBlock={true}
-                onReset={onReset}
+                onReset={() => onReset(true)}
             />
         </>
     )
