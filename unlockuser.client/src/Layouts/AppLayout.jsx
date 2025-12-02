@@ -12,7 +12,7 @@ import { DashboardContext } from '../storage/DashboardContext';
 
 
 function AppLayout() {
- const { dashboardData, loading: load } = use(DashboardContext);
+ const { dashboardData, updateSessionData, loading: load } = use(DashboardContext);
 
   const refContainer = useRef();
   const navigation = useNavigation();
@@ -30,7 +30,7 @@ function AppLayout() {
 
       <div className="container d-column jc-start fade-in" ref={refContainer}>
 
-        {!load && <Outlet context={{ loading: navigation.state === "loading", collections: dashboardData, schools, groupName: group }} />}
+        {!load && <Outlet context={{ loading: navigation.state === "loading", collections: dashboardData, updateSessionData, schools, groupName: group }} />}
 
         {/* Loading */}
         {load && <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain"/>}

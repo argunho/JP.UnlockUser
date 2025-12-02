@@ -91,7 +91,7 @@ function Home() {
 
     const groups = Claim("groups");
 
-    const { collections, schools, groupName } = useOutletContext();
+    const { collections, updateSessionData, schools, groupName } = useOutletContext();
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
@@ -99,6 +99,7 @@ function Home() {
     useEffect(() => {
         document.title = "UnlockUser | Sök";
         handleResponse();
+        
     }, []);
 
     useEffect(() => {
@@ -171,6 +172,9 @@ function Home() {
                 : collection?.filter(x => match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name));
             handleDispatch("users", result, "RESULT");
 
+            if (result?.length > 0)
+                updateSessionData("users", result);
+
             return null;
         }
 
@@ -185,8 +189,10 @@ function Home() {
     function onReset() {
         if (response)
             handleResponse();
-        else
+        else {
             dispatch({ type: "RESET" });
+            updateSessionData("users", null);
+        }
     }
 
     const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
