@@ -25,7 +25,7 @@ import { FetchContext } from '../../storage/FetchContext';
 import '../../assets/css/list-view.css';
 
 
-function EmployeesList() {
+function Employees() {
 
     const [group, setGroup] = useState();
     const [userData, setUserData] = useState();
@@ -290,4 +290,4 @@ function EmployeesList() {
     )
 }
 
-export default EmployeesList;
+export default Employees;

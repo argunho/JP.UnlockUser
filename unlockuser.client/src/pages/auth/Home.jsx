@@ -167,8 +167,6 @@ function Home() {
         const gn = group.name?.toLowerCase()
         const collection = (gn === "support" ? groups.flatMap(g => collections[g.name.toLowerCase()]) : collections[gn]).filter(Boolean);
 
-
-        console.log(collection)
         if (collection?.length > 0) {
             const result = (isClass)
                 ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === fd.get("school"))
@@ -357,6 +355,7 @@ function Home() {
             <ResultView
                 list={users}
                 isClass={isClass}
+                group={group?.name?.toLowerCase()}
                 loading={pending || loading}
                 disabled={group?.name === "Support"}
                 resultBlock={true}

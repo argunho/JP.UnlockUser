@@ -6,13 +6,14 @@ import AppLayout from '../layouts/AppLayout';
 import SessionLayout from './../layouts/SessionLayout';
 import ListLayout from '../layouts/ListLayout';
 import UsersLayout from '../layouts/UsersLayout';
+import AccountManagementLayout from '../layouts/AccountManagementLayout';
 
 // Pages
-import EmployeesList from "../pages/auth/EmployeesList";
+import Employees from "../pages/auth/Employees";
 import ClassManager from "../pages/auth/ClassManager";
 import LogFiles from "../pages/auth/LogFiles";
 import UserManager from "../pages/auth/UserManager";
-import Members from "../pages/auth/Members";
+import ClassStudents from "../pages/auth/ClassStudents";
 import Home from "../pages/auth/Home";
 import ListView from "../pages/auth/ListView";
 import Logout, { signout } from "../pages/auth/Logout";
@@ -34,6 +35,8 @@ import FetchContextProvider from '../storage/FetchContext';
 // Css
 import '../assets/css/form.css';
 import '../assets/css/blocks.css';
+import '../assets/css/modals.css';
+import '../assets/css/lists.css';
 
 const AppRoutes = () => [
   {
@@ -72,9 +75,9 @@ const AppRoutes = () => [
     ]
   },
   {
-    path: "/manage",
+    path: "/manage/:group",
     element: <FetchContextProvider>
-      <AppLayout />
+      <AccountManagementLayout />
     </FetchContextProvider>,
     errorElement: <NotFound isAuthorized={true} />,
     children: [
@@ -129,18 +132,18 @@ const AppRoutes = () => [
     children: [
       {
         index: true,
-        element: <EmployeesList />,
+        element: <Employees />,
         errorElement: <ErrorView />
       },
       {
         path: ":id",
-        element: <EmployeesList />,
+        element: <Employees />,
         errorElement: <ErrorView />,
         loader: loaderById("employees")
       },
       {
         path: ':office/:department',
-        element: <Members />,
+        element: <ClassStudents />,
         errorElement: <ErrorView />,
         loader: loaderByApiParam("search/members", ["department", "office"])
       },

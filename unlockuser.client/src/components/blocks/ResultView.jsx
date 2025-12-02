@@ -15,7 +15,7 @@ import Message from './Message';
 import Info from './Info';
 import ListLoading from './../lists/ListLoading';
 
-function ResultView({ list, isClass, disabled, loading, onReset, resultBlock }) {
+function ResultView({ list, isClass, disabled, group, loading, onReset, resultBlock }) {
 
     const [selectedList, setSelectedList] = useState([]);
     const [isOpenTip, setIsOpenTip] = useState(false);
@@ -56,7 +56,7 @@ function ResultView({ list, isClass, disabled, loading, onReset, resultBlock }) 
         }
 
         // Navigation
-        navigate(selectedList?.length > 1 ? `/manage-users/${list[0].office}/${list[0].department}` : "/manage-user/" + (user?.name ? user?.name : selectedList[0]));
+        navigate(selectedList?.length > 1 ? `/manage/${group}/class/${list[0].office}/${list[0].department}` : `/manage/${group}/user/` + (user?.name ? user?.name : selectedList[0]));
     }
 
     // To select one by one user from the class students' list
