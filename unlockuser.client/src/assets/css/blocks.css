@@ -187,7 +187,7 @@ button.reset-button {
   padding: 3px 5px;
 }
 
-.typography-span {
+.secondary-span {
   padding: 3px 8px;
   background-color: #faebd7;
   margin-left: 10px;
@@ -217,7 +217,7 @@ button.reset-button {
   margin: auto !important;
 }
 
-.modal-wrapper .typography-span {
+.modal-wrapper .office-span {
   display: block !important;
   margin: 15px 0 !important;
   width: max-content !important;
@@ -352,6 +352,35 @@ button.confirm-question {
 
 /* #endregion */
 
+/* #region Tab menu */
+.menu-div {
+  margin: 20px 0 10px 0;
+  padding: 18px;
+  border: 1px solid var(--color-gray);
+}
+
+.label-wrapper {
+  text-align: left;
+}
+
+.label-wrapper>p {
+  font-size: 24px;
+  margin: 0 !important;
+}
+
+.label-wrapper>p>span {
+  font-size: 14px;
+  color: var(--color-dark-gray);
+  text-transform: none;
+  margin-top: 5px;
+  letter-spacing: 1px;
+}
+
+.nav-back {
+  margin-left: 20px !important;
+}
+/* #endregion */
+
 /* #region Loading */
 .block-centered {
   text-align: center;
@@ -370,6 +399,7 @@ button.confirm-question {
   text-transform: uppercase;
   color: var(--color-dark-gray);
 }
+
 /* #endregion */
 
 /* #region Response */

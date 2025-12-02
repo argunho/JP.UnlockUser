@@ -11,7 +11,6 @@ import { Avatar, Button, List, ListItem, ListItemAvatar, ListItemText, Tooltip, 
 import { AuthContext } from '../../storage/AuthContext';
 
 function Info({ children, user, name, displayName, subTitle, result, disabled, updateSession, handleOutsideClick }) {
-    Info.displayName = "Info";
 
     const navigate = useNavigate(null);
     const authContext = useContext(AuthContext);
@@ -63,7 +62,7 @@ function Info({ children, user, name, displayName, subTitle, result, disabled, u
                     {subTitle && <Tooltip arrow
                         disableHoverListener={isDisabled}
                         title={`Sök efter studenter från ${subTitle}`}>
-                        <span className='typography-span' ref={refGetMembers}>{subTitle}</span>
+                        <span className='secondary-span' ref={refGetMembers}>{subTitle}</span>
                     </Tooltip>}
 
                     {/* If a user has a managers list */}

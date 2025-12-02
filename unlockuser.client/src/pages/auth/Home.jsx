@@ -91,7 +91,7 @@ function Home() {
 
     const groups = Claim("groups");
 
-    const { dashboardData, schools, groupName } = useOutletContext();
+    const { dashboardData, schools, group: groupName } = useOutletContext();
     const { collections, updateSessionData, sessionData } = dashboardData;
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
     const refSubmit = useRef(null);
@@ -101,7 +101,7 @@ function Home() {
         document.title = "UnlockUser | Sök";
         if(response)
             handleResponse();
-        console.log(sessionData, sessionData["users"])
+
         if (sessionData["users"])
             handleDispatch("users", sessionData["users"]);
     }, []);

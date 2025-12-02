@@ -45,6 +45,7 @@ const AppRoutes = () => [
     </FetchContextProvider>,
     errorElement: <NotFound isAuthorized={true} />,
     loader: loader("data/schools"),
+    shouldRevalidate: () => false,
     children: [
       {
         index: true,
@@ -83,8 +84,14 @@ const AppRoutes = () => [
       {
         path: "user/:id",
         element: <UserManager />,
+        errorElement: <ErrorView />
+      },
+      {
+        path: "user/:id/load",
+        element: <UserManager />,
         errorElement: <ErrorView />,
-        loader: loaderByParams("user", ["group", "id"])
+        loader: loaderByParams("user", ["group", "id"]),
+        shouldRevalidate: () => false
       },
       {
         path: "class/:id/:school",

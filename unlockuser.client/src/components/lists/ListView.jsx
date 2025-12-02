@@ -6,7 +6,9 @@ function ListView({ list }) {
         <List>
             {list.map((item, index) => {
                 return <ListItem key={index}>
-                    <ListItemText primary={item?.primary} secondary={item.secondary}/>
+                    <ListItemText 
+                        primary={item?.primary} 
+                        secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }}></span>}/>
                 </ListItem>
             })}
         </List>

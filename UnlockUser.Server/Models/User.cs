@@ -15,5 +15,8 @@ public class User
     public List<Manager> Managers { get; set; } = [];
 
     public int PasswordLength { get; set; } = 8;
-    public bool IsLocked { get; set; }  
+    public bool IsLocked { get; set; }
+
+    public string? Primary => DisplayName;
+    public string? Secondary =>  $"{Name} | <span>{Office + (Office != Department ? (" " + Department) : "")}</span>";
 }

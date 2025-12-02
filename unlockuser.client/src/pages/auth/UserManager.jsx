@@ -1,17 +1,14 @@
 
-import { use, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { use, useEffect } from 'react';
 
 // Installed
-import { Lock, LockOpen } from '@mui/icons-material';
 import { Button, CircularProgress } from '@mui/material';
-import { useOutletContext, useLoaderData } from 'react-router-dom';
+import { useOutletContext, useLoaderData, useNavigate } from 'react-router-dom';
 
 // Components
 import Form from '../../components/forms/Form';
-import Info from '../../components/blocks/Info';
 import Message from '../../components/blocks/Message';
-import Loading from '../../components/Loading';
+import TabPanel from '../../components/blocks/TabPanel';
 
 
 // Storage
@@ -23,71 +20,53 @@ import '../../assets/css/user-view.css';
 
 function UserManager() {
 
-    const { group, id } = useParams();
-    const { dashboardData, loading } = useOutletContext();
+    const { dashboardData, loading, group, id  } = useOutletContext();
     const { collections } = dashboardData;
 
-    const { response, fetchData } = use(FetchContext)
+    const { pending, response, fetchData, handleResponse } = use(FetchContext)
+    const navigate = useNavigate();
 
-    const user = collections[group] ? collections[group]?.find(x => x?.name === id) : useLoaderData();
-    if (user !== null)
-        user.subTitle = user?.office + (user?.office !== user?.department ? (" " + user?.department) : "");
+    const loaderData = useLoaderData();
 
+    const user = collections[group] ? collections[group]?.find(x => x?.name === id) : loaderData;
 
-
+    useEffect(() => {
+        if (!user) {
+            navigate(`/manage/${group}/user/${id}/load`, { replace: true });
+        }
+    }, [user]);
 
     // Unlock user
     async function unlockUser() {
-
-
         // Request
-        await ApiRequest("api/user/unlock/" + user?.name).then(res => {
-
+        await fetchData({ api: "api/user/unlock/" + user?.name, method: "patch" });
     }
 
-    const handleResponse = useCallback(function handleResponse() {
-        setResponse(null);
-    }, [])
-
-    return <div className='interior-div w-100'>
-        {/* Info about user */}
-        <Info user={user}
-            displayName={user?.displayName ?? "Anvädarprofil"}
-            subTitle={user?.subTitle ?? ""}
-        />
-
-        {/* Response */}
-        {response && <Message res={response} cancel={handleResponse} />}
-
-        {/* Unlock user */}
-        {!!user && <>
-            <div className={'unlock-block w-100 d-row jc-between' + (user?.isLocked ? " locked-account" : "")}>
-                <div className="d-row">
-                    {user?.isLocked ? <Lock /> : <LockOpen />}
-                    <span>{user?.isLocked ? "Kontot är låst" : "Aktiv konto"}</span>
-                </div>
-
-
-                {/* Unlock user - button */}
+    return <>
+        {/* Tab menu */}
+        <TabPanel primary={user.primary ?? "Anvädarprofil"} secondary={user.secondary}>
+            {/* If account is blocked */}
+            {user.isLocked && <div className="d-row">
+                <span className="unlock-span locked-account">Kontot är låst</span>
                 <Button variant="contained"
                     color="error"
-                    disabled={!user?.isLocked || loading}
+                    disabled={pending}
                     onClick={unlockUser}
                     className="unlock-btn button-btn">
-                    {loading ? <CircularProgress style={{ width: "15px", height: "15px", marginTop: "3px" }} /> : "Lås upp"}
+                    {pending ? <CircularProgress style={{ width: "15px", height: "15px", marginTop: "3px" }} /> : "Lås upp"}
                 </Button>
-            </div>
+            </div>}
+        </TabPanel>
 
-            {/* Change password */}
-            {(user && !user?.isLocked) && <Form
+        {/* Response */}
+        {response && <Message res={response} cancel={() => handleResponse()} />}
+
+        {/* Change password */}
+        {(user && !user?.isLocked) && <Form
                 title="Återställa lösenord"
                 users={[user]}
                 passwordLength={user?.passwordLength} />}
-        </>}
-
-        {/* Visible image under search progress */}
-        {loading && <Loading msg="söker efter användardata." img={loadingImg} />}
-    </div>
+    </>
 
 }
 

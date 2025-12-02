@@ -8,6 +8,7 @@ import {
 
 // Components
 import ModalHelpTexts from '../modals/ModalHelpTexts';
+import ModalView from '../modals/ModalView';
 import Message from '../blocks/Message';
 import PDFConverter from '../blocks/PDFConverter';
 import FormButtons from './FormButtons';
@@ -123,14 +124,12 @@ function Form({ title, name, passwordLength, users }) {
     // Help texts (password)
     const helpTexts = [
         {
-            label: "Lösenord ska innehålla",
-            tip: [
-                "<pre>* Minst en stor bokstav, ej <b>Ö, Ä, Å</b></pre>",
-                "<pre>* Minst en liten liten bokstav, ej <b>ö, ä, å</b></pre>",
-                "<pre>* Minst en siffra</pre>",
-                (strongRegex) ? "<pre>* Minst ett specialtecken, exempelvis !@?$&#^%*-,;._</pre>" : "",
-                "<pre>* Minst " + passwordLength + " tecken långt</pre>"
-            ]
+            primary: "Lösenord ska innehålla",
+            secondary: "<br/>* Minst en stor bokstav, ej <b>Ö, Ä, Å</b>" +
+                "<br/>* Minst en liten liten bokstav, ej <b>ö, ä, å</b>" +
+                "<br/>* Minst en siffra" +
+                (strongRegex) ? "<br/>* Minst ett specialtecken, exempelvis !@?$&#^%*-,;._</br>" : "" +
+                "<br/>* Minst " + passwordLength + " tecken långt"
         }
     ]
 
@@ -327,9 +326,6 @@ function Form({ title, name, passwordLength, users }) {
 
             {/* The curtain over the block disables all action if the form data is submitted and waiting for a response */}
             {load && <div className='curtain-block'></div>}
-
-            {/* Modal  window with help texts */}
-            <ModalHelpTexts data={helpTexts} isTitle="Lösenordskrav" />
 
             {/* Title */}
             <p className='form-title'>{title}</p>
@@ -542,12 +538,17 @@ function Form({ title, name, passwordLength, users }) {
             {multiple && <ModalHelpTexts
                 data={previewList}
                 cls="none"
-                isTitle={`${title} <span class='typography-span'>${location.replace("%", " ")}</span>`}
+                isTitle={`${title} <span class='office-span'>${location.replace("%", " ")}</span>`}
                 isTable={true}
                 isSubmit={true}
                 regeneratePassword={() => refGenerate?.current?.click()}
                 inverseFunction={(save) => saveApply(save)}
                 ref={refModal} />}
+
+            {/* Modal  window with help texts */}
+            <ModalView
+                label="Lösenordskrav"
+                content={helpTexts} />
 
             {/* Save document to pdf */}
             {(savePdf && confirmSavePdf) && <PDFConverter

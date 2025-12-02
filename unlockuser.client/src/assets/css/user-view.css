@@ -75,30 +75,11 @@
   transition: all 0.5s eas;
 }
 
-.unlock-block {
-  width: 100%;
-  padding: 0 10px;
-  border: 1px solid #bdbdbd;
-  margin: 10px 0;
-  position: relative;
-  height: 60px;
-  line-height: 55px;
-  vertical-align: middle;
-}
-
-.unlock-block>div>span {
-  margin-left: 15px;
-  color: #1976d2;
-  vertical-align: middle;
-}
-
-.unlock-block svg {
-  color: #1976d2;
-}
-
-.locked-account svg,
-.locked-account>span {
-  color: #cc0000 !important;
+.unlock-span {
+  margin-right: 20px;
+  color: var(--color-danger);
+  font-size: 16px;
+  text-transform: uppercase;
 }
 
 .pr-inputs {

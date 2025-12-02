@@ -162,7 +162,7 @@ function ResultView({ list, isClass, disabled, group, loading, onReset, resultBl
                     {/* Name of department and office */}
                     {(index === 0 || (index > 0 && list[index - 1].department !== list[index].department)) &&
                         <Typography mt={2} mb={1} variant="body2">
-                            {user.office + ((user.office !== user.department) ? " " + user.department : "")} {isClass && <span className='typography-span'>{list?.filter(x => x.department === user.department)?.length} elever</span>}
+                            {user.office + ((user.office !== user.department) ? " " + user.department : "")} {isClass && <span className='office-span'>{list?.filter(x => x.department === user.department)?.length} elever</span>}
                         </Typography>}
 
                     {/* List object */}

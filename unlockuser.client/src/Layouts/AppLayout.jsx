@@ -16,7 +16,7 @@ function AppLayout() {
 
   const refContainer = useRef();
   const navigation = useNavigation();
-  const { group } = useParams();
+  const { group, id } = useParams();
 
   const loads = dashboardData?.loading;
   const schools = useLoaderData();
@@ -31,7 +31,7 @@ function AppLayout() {
 
       <div className="container d-column jc-start fade-in" ref={refContainer}>
 
-        {!loads && <Outlet context={{ loading: navigation.state === "loading", dashboardData, schools, groupName: group }} />}
+        {!loads && <Outlet context={{ loading: navigation.state === "loading", dashboardData, schools, group, id }} />}
 
         {/* Loading */}
         {loads && <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain" />}
