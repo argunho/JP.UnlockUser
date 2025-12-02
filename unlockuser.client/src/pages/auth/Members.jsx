@@ -4,7 +4,7 @@ import { useParams, useLoaderData, useOutletContext } from 'react-router-dom';
 import Info from '../../components/blocks/Info';
 import ResultView from '../../components/blocks/ResultView';
 
-function ClassStudents() {
+function Members() {
 
     const { department, office } = useParams();
     const { users } = useLoaderData() ?? {};
@@ -28,4 +28,4 @@ function ClassStudents() {
     )
 }
 
-export default ClassStudents;
+export default Members;

@@ -1,10 +1,11 @@
 
-import { useEffect, useState, useCallback, use } from 'react';
+import { use, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 
 // Installed
 import { Lock, LockOpen } from '@mui/icons-material';
 import { Button, CircularProgress } from '@mui/material';
+import { useOutletContext, useLoaderData } from 'react-router-dom';
 
 // Components
 import Form from '../../components/forms/Form';
@@ -12,68 +13,36 @@ import Info from '../../components/blocks/Info';
 import Message from '../../components/blocks/Message';
 import Loading from '../../components/Loading';
 
-// Functions
-import { ErrorHandle } from '../../functions/ErrorHandle';
 
-// Services
-import { ApiRequest } from '../../services/ApiRequest';
-
-// Stroage
-import { AuthContext } from '../../storage/AuthContext';
+// Storage
+import { FetchContext } from '../../storage/FetchContext';
 
 // Css
-import '../../assets/css/userview.css';
+import '../../assets/css/user-view.css';
 
-// Images
-import loadingImg from "../../assets/images/loading.gif";
 
 function UserManager() {
 
-    const { id } = useParams();
+    const { group, id } = useParams();
+    const { dashboardData, loading } = useOutletContext();
+    const { collections } = dashboardData;
 
-    const [user, setUser] = useState(null);
-    const [response, setResponse] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const { group } = use(AuthContext);
+    const { response, fetchData } = use(FetchContext)
 
-    useEffect(() => {
-        document.title = "UnlockUser | Användare";
+    const user = collections[group] ? collections[group]?.find(x => x?.name === id) : useLoaderData();
+    if (user !== null)
+        user.subTitle = user?.office + (user?.office !== user?.department ? (" " + user?.department) : "");
 
-        async function getUserData() {
-            await ApiRequest(`user/${group}/${id}`).then(res => {
-                const { user, msg } = res?.data;
-                if (user !== undefined && user !== null) {
-                    user.subTitle = user?.office + (user?.office !== user?.department ? (" " + user?.department) : "")
-                    setUser(user);
-                } else if (!!msg)
-                    setResponse(res?.data);
-                setLoading(false);
-            }, error => {
-                ErrorHandle(error);
-                setLoading(false);
-            })
-        }
-
-        if (!!id)
-            getUserData();
-    }, [id])
 
 
 
     // Unlock user
     async function unlockUser() {
-        setLoading(true);
-        setResponse(null);
+
 
         // Request
         await ApiRequest("api/user/unlock/" + user?.name).then(res => {
-            setLoading(false);
-            setResponse(res?.data);
-            // getUserData();
-        }, error => { // Error handle
-            ErrorHandle(error);
-            setLoading(false);
-        })
+
     }
 
     const handleResponse = useCallback(function handleResponse() {
