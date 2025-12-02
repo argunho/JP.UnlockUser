@@ -101,6 +101,7 @@ function Home() {
         document.title = "UnlockUser | Sök";
         if(response)
             handleResponse();
+        console.log(sessionData, sessionData["users"])
         if (sessionData["users"])
             handleDispatch("users", sessionData["users"]);
     }, []);
@@ -144,7 +145,6 @@ function Home() {
         let errors = [];
         let error = null;
 
-        handleDispatch("isChanged", false);
 
         if (_.isEqual(data, fd)) {
             error = "Begäran avvisades. Inga ändringar gjordes i formulärets data."

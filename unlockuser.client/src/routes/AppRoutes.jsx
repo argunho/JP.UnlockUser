@@ -139,7 +139,7 @@ const AppRoutes = () => [
         path: ":id",
         element: <Employees />,
         errorElement: <ErrorView />,
-        loader: loaderById("employees")
+        // loader: loaderById("employees")
       },
       {
         path: ':office/:department',

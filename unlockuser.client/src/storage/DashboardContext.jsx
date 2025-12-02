@@ -43,15 +43,10 @@ function DashboardProvider({ children }) {
 
             if (!collection) 
                 return;
-
-            const updateData = {
-                ...sessionData,
-                [collection]: data
-            }
-
+console.log(collection, data)
             setSessionData(previous => ({
                 ...previous,
-                ...updateData
+                [collection]: data
             }));
 
         } catch (error) {

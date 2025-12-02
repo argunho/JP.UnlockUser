@@ -96,7 +96,7 @@ function ResultView({ list, isClass, disabled, group, loading, onReset, resultBl
                 <div className="vlr-info d-column ai-start">
                     <span>Resultat</span>
                     <span className="d-row jc-start">
-                        {list?.length > 0 && <ListView size="small" color="primary" style={{marginRight: 10}} />}
+                        {list?.length > 0 && <ListView size="small" color="primary" style={{ marginRight: 10 }} />}
                         {list ? `${list?.length} användare` : "*****************"}
                     </span>
                 </div>
@@ -186,7 +186,12 @@ function ResultView({ list, isClass, disabled, group, loading, onReset, resultBl
             ))}
 
             {/* Message if result is null */}
-            {list?.length == 0 && <Message res={0} cancel={onReset} />}
+            {list?.length == 0 && <Message res={{
+                color: "warning", msg: "Inget data hittades. \n\nMöjliga orsaker:" +
+                    "\n• Personen/Class saknas i databasen." +
+                    "\n• Sökparametrarna kan vara felstavade." +
+                    "\n• Du saknar behörighet att hantera personens/classens konto."
+            }} cancel={onReset} />}
         </div>
     )
 }
