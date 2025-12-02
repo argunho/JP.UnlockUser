@@ -10,7 +10,7 @@ import { ApiRequest } from '../services/ApiRequest';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export async function loadItems({ params }) {
-  if(!params?.id) return null;
+  if (!params?.id) return null;
   const res = await ApiRequest(`search/assets/by/${params?.id}`);
   return res;
 }
