@@ -11,6 +11,7 @@ import { AuthContext } from './AuthContext';
 export const DashboardContext = createContext({
     dashboardData: null,
     loading: false,
+    sessionData: {},
     fetchDashboardData: () => { },
     updateSessionData: () => { }
 });
@@ -65,6 +66,7 @@ function DashboardProvider({ children }) {
     const value = {
         dashboardData: dashboardData,
         loading: loading,
+        sessionData: sessionData,
         fetchDashboardData: fetchDashboardData,
         updateSessionData: updateSessionData,
     };

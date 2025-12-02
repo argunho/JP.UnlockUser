@@ -91,15 +91,18 @@ function Home() {
 
     const groups = Claim("groups");
 
-    const { collections, updateSessionData, schools, groupName } = useOutletContext();
+    const { dd, schools, groupName } = useOutletContext();
+    const { collections, updateSessionData, sessionData } = dd;
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
-        handleResponse();
-        
+        if(response)
+            handleResponse();
+        if (sessionData["users"])
+            handleDispatch("users", sessionData["users"]);
     }, []);
 
     useEffect(() => {

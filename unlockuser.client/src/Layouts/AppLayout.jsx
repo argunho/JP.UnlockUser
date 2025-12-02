@@ -12,12 +12,13 @@ import { DashboardContext } from '../storage/DashboardContext';
 
 
 function AppLayout() {
- const { dashboardData, updateSessionData, loading: load } = use(DashboardContext);
+  const dd = use(DashboardContext);
 
   const refContainer = useRef();
   const navigation = useNavigation();
   const { group } = useParams();
 
+  const loads = dd?.loading;
   const schools = useLoaderData();
 
   useEffect(() => {
@@ -26,14 +27,14 @@ function AppLayout() {
 
   return (
     <>
-      <Header disabled={load} />
+      <Header disabled={loads} />
 
       <div className="container d-column jc-start fade-in" ref={refContainer}>
 
-        {!load && <Outlet context={{ loading: navigation.state === "loading", collections: dashboardData, updateSessionData, schools, groupName: group }} />}
+        {!loads && <Outlet context={{ loading: navigation.state === "loading", dd, schools, groupName: group }} />}
 
         {/* Loading */}
-        {load && <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain"/>}
+        {loads && <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain" />}
       </div>
     </>
 
