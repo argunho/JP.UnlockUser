@@ -9,10 +9,10 @@ import { AuthContext } from './AuthContext';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const DashboardContext = createContext({
-    dashboardData: null,
+    collections: null,
     loading: false,
     sessionData: {},
-    fetchDashboardData: () => { },
+    fetchCollections: () => { },
     updateSessionData: () => { }
 });
 
@@ -20,20 +20,20 @@ function DashboardProvider({ children }) {
 
     const { isAuthorized } = use(AuthContext);
 
-    const [dashboardData, setDashboardData] = useState(null);
+    const [collections, setCollections] = useState(null);
     const [sessionData, setSessionData] = useState({});
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!isAuthorized) return;
 
-        fetchDashboardData();
+        fetchCollections();
     }, [isAuthorized])
 
     // Fetch dashboard data
-    async function fetchDashboardData() {
+    async function fetchCollections() {
         const res = await ApiRequest("data/dashboard", "get");
-        setDashboardData(res);
+        setCollections(res);
         setLoading(false);
     }
 
@@ -64,10 +64,10 @@ function DashboardProvider({ children }) {
 
     // Return values
     const value = {
-        dashboardData: dashboardData,
+        collections: collections,
         loading: loading,
         sessionData: sessionData,
-        fetchDashboardData: fetchDashboardData,
+        fetchDashboardData: fetchCollections,
         updateSessionData: updateSessionData,
     };
 
