@@ -186,7 +186,7 @@ function Home() {
 
         const res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
         if (Array.isArray(res))
-            handleDispatch("users", res);
+            handleDispatch("users", res, "RESULT");
     }
 
     function onReset() {
