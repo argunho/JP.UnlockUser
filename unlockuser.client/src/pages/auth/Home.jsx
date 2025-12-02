@@ -91,8 +91,8 @@ function Home() {
 
     const groups = Claim("groups");
 
-    const { dd, schools, groupName } = useOutletContext();
-    const { collections, updateSessionData, sessionData } = dd;
+    const { dashboardData, schools, groupName } = useOutletContext();
+    const { collections, updateSessionData, sessionData } = dashboardData;
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);

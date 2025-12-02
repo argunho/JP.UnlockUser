@@ -67,7 +67,7 @@ function DashboardProvider({ children }) {
         collections: collections,
         loading: loading,
         sessionData: sessionData,
-        fetchDashboardData: fetchCollections,
+        fetchCollections: fetchCollections,
         updateSessionData: updateSessionData,
     };
 
