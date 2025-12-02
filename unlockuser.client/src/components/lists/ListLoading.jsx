@@ -5,7 +5,6 @@ import { Lock } from '@mui/icons-material';
 
 function ListLoading({ rows = 1, loading, pending }) {
 
-    console.log(loading && !pending, rows)
     if (loading && !pending) {
         return (
             Array(rows).fill().map((i, ind) => {

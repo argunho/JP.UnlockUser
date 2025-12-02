@@ -90,8 +90,9 @@
   border: 1px solid rgb(118, 131, 143);
 }
 
-.reset-button {
+button.reset-button {
   margin-left: 10px !important;
+  margin-right: 0 !important;
 }
 
 .result-div>button {
@@ -364,6 +365,11 @@ button.confirm-question {
   margin-bottom: 20px;
 }
 
+.loading-message {
+  font-family: var(--fonr-primary);
+  text-transform: uppercase;
+  color: var(--color-dark-gray);
+}
 /* #endregion */
 
 /* #region Response */

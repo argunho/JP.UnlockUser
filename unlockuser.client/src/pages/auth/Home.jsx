@@ -33,7 +33,7 @@ const radioChoices = [
 
 const initialState = {
     showTips: false,
-    group: null,
+    group: [],
     users: null,
     isClass: false,
     isMatch: true,
@@ -61,11 +61,18 @@ function actionReducer(state, action) {
                 [action.name]: value,
                 isChanged: value
             };
+        case "RESULT":
+            return {
+                ...state,
+                [action.name]: value,
+                isChanged: false
+            };
         case "RESET":
             return {
                 ...state,
                 isClass: false,
                 isChanged: false,
+                users: null,
                 isMatch: false,
                 isErased: new Date().getMilliseconds()
             };
@@ -85,17 +92,19 @@ function Home() {
     const groups = Claim("groups");
 
     const { collections, schools, groupName } = useOutletContext();
-    const { response, loading, fetchData, handleResponse } = use(FetchContext);
+    const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
+        handleResponse();
     }, []);
 
     useEffect(() => {
         const currentGroup = groupName ? groups.find(x => x.name.toLowerCase() == groupName) : groups[0];
         handleDispatch("group", currentGroup, "START");
+        onReset();
     }, [groupName])
 
     function handleDispatch(name, value, type = "PARAM") {
@@ -121,7 +130,7 @@ function Home() {
 
     // Function - submit form
     async function onSubmit(previous, fd) {
-
+        onReset();
         let data = {
             name: ""
         };
@@ -151,17 +160,17 @@ function Home() {
 
         const name = fd.get("name")?.toLowerCase();
         const match = fd.get("match") === "on" ? true : false;
+        const gn = group.name?.toLowerCase()
+        const collection = (gn === "support" ? groups.flatMap(g => collections[g.name.toLowerCase()]) : collections[gn]).filter(Boolean);
+
 
         console.log(collection)
-        const gn = group.name?.toLowerCase()
-        const collection = collections[gn];
-
         if (collection?.length > 0) {
-            if (isClass)
-                handleDispatch("users", collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === fd.get("school")));
-            else
-                handleDispatch("users", collection?.filter(x => match ? x?.displayName?.toLowerCase() === name : x.displayName?.toLowerCase().includes(name)));
-            console.log(collection?.filter(x => match ? x?.displayName?.toLowerCase() === name : x.displayName?.toLowerCase().includes(name)))
+            const result = (isClass)
+                ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === fd.get("school"))
+                : collection?.filter(x => match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name));
+            handleDispatch("users", result, "RESULT");
+
             return null;
         }
 
@@ -173,11 +182,11 @@ function Home() {
             handleDispatch("users", res);
     }
 
-    function onReset(){
-        if(response)
+    function onReset() {
+        if (response)
             handleResponse();
         else
-            handleDispatch("users", null);
+            dispatch({ type: "RESET" });
     }
 
     const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
@@ -336,7 +345,7 @@ function Home() {
             </section>
 
             {/* Result of search */}
-           <ResultView
+            <ResultView
                 list={users}
                 isClass={isClass}
                 loading={pending || loading}

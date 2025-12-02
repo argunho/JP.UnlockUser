@@ -55,17 +55,8 @@ function ResultView({ list, isClass, disabled, loading, onReset, resultBlock }) 
             return;
         }
 
-        updateSession();
         // Navigation
         navigate(selectedList?.length > 1 ? `/manage-users/${list[0].office}/${list[0].department}` : "/manage-user/" + (user?.name ? user?.name : selectedList[0]));
-    }
-
-    // Update session data
-    const updateSession = () => {
-        // Save found result i sessionStorage
-        sessionStorage.setItem("users", JSON.stringify(list));
-        sessionStorage.setItem("selectedList", JSON.stringify(selectedList));
-        sessionStorage.setItem("selectedUsers", JSON.stringify(list?.filter(x => selectedList.some(s => s === x.name))));
     }
 
     // To select one by one user from the class students' list
@@ -105,7 +96,8 @@ function ResultView({ list, isClass, disabled, loading, onReset, resultBlock }) 
                 <div className="vlr-info d-column ai-start">
                     <span>Resultat</span>
                     <span className="d-row jc-start">
-                        {list ? <ListView size="small" color="primary" /> `${list?.length} användare` : "*****************"}
+                        {list?.length > 0 && <ListView size="small" color="primary" style={{marginRight: 10}} />}
+                        {list ? `${list?.length} användare` : "*****************"}
                     </span>
                 </div>
 
@@ -170,7 +162,7 @@ function ResultView({ list, isClass, disabled, loading, onReset, resultBlock }) 
                     {/* Name of department and office */}
                     {(index === 0 || (index > 0 && list[index - 1].department !== list[index].department)) &&
                         <Typography mt={2} mb={1} variant="body2">
-                            {user.office + ((user.office !== user.department) ? " " + user.department : "")} {isClass && <span className='typography-span'>{list.filter(x => x.department === user.department)?.length} elever</span>}
+                            {user.office + ((user.office !== user.department) ? " " + user.department : "")} {isClass && <span className='typography-span'>{list?.filter(x => x.department === user.department)?.length} elever</span>}
                         </Typography>}
 
                     {/* List object */}
@@ -180,7 +172,6 @@ function ResultView({ list, isClass, disabled, loading, onReset, resultBlock }) 
                         subTitle={user.office + " " + (user.office !== user.department ? (" " + user?.department) : "")}
                         result={true}
                         disabled={disabled}
-                        updateSession={updateSession}
                         handleOutsideClick={(e) => clickHandle(e, index, user)}>
 
                         {/* Checkbox visible only if is success result after users search by class name */}
