@@ -20,21 +20,19 @@ function DashboardProvider({ children }) {
     const { isAuthorized } = use(AuthContext);
 
     const [dashboardData, setDashboardData] = useState(null);
-
     const [loading, setLoading] = useState(true);
-
+    
     useEffect(() => {
         if (!isAuthorized) return;
 
-        const storedData = sessionStorage.getItem("dashboardData");
+        // const storedData = sessionStorage.getItem("dashboardData");
 
+        // if (!storedData)
             fetchDashboardData();
-        if (!storedData)
-            fetchDashboardData();
-        else {
-            setDashboardData(JSON.parse(storedData));
-            setLoading(false);
-        }
+        // else {
+        //     setDashboardData(JSON.parse(storedData));
+        //     setLoading(false);
+        // }
     }, [isAuthorized])
 
     // Fetch dashboard data
@@ -42,12 +40,12 @@ function DashboardProvider({ children }) {
         const res = await ApiRequest("data/dashboard", "get");
         setDashboardData(res);
 
-        if (res) {
-            sessionStorage.setItem("dashboardData", JSON.stringify(res));
-            Object.keys(res).map((key) => {
-                sessionStorage.setItem(key.toLowerCase(), "loaded");
-            })
-        }
+        // if (res) {
+        //     sessionStorage.setItem("dashboardData", JSON.stringify(res));
+        //     Object.keys(res).map((key) => {
+        //         sessionStorage.setItem(key.toLowerCase(), "loaded");
+        //     })
+        // }
 
         setLoading(false);
     }

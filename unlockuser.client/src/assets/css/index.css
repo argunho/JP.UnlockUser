@@ -30,6 +30,8 @@
     --border-color: 1px solid var(--color-primary) !important;
     --border-secondary: 1px solid var(--color-secondary) !important;
 
+    --box-shadow: 0 0 1px 1px #7e7c7c !important;
+    
     --header-height: 220px !important;
     --min-height: calc(100vh - var(--header-height)) !important;
     --max-width: 1700px !important;

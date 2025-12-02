@@ -8,7 +8,7 @@ import {
     Avatar, Button, Checkbox, List, ListItem, IconButton,
     ListItemAvatar, ListItemText, Tooltip, Typography
 } from '@mui/material'
-import { Close, Deselect, Edit, SelectAll } from '@mui/icons-material';
+import { Close, Deselect, Edit, SelectAll, List as ListView } from '@mui/icons-material';
 
 // Components
 import Message from './Message';
@@ -102,9 +102,11 @@ function ResultView({ list, isClass, disabled, loading, onReset, resultBlock }) 
             {/* Result info box */}
             {resultBlock && <div className='d-row jc-between w-100 view-list-result'>
                 {/* Result info */}
-                <div className="d-column ai-start">
+                <div className="vlr-info d-column ai-start">
                     <span>Resultat</span>
-                    <span>{list ? `Hittades: ${list?.length} användare` : "*****************"}</span>
+                    <span className="d-row jc-start">
+                        {list ? <ListView size="small" color="primary" /> `${list?.length} användare` : "*****************"}
+                    </span>
                 </div>
 
                 <div className="d-row">

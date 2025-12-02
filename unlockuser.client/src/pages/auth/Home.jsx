@@ -152,7 +152,10 @@ function Home() {
         const name = fd.get("name")?.toLowerCase();
         const match = fd.get("match") === "on" ? true : false;
 
-        const collection = collections[group.name?.toLowerCase()];
+        console.log(collection)
+        const gn = group.name?.toLowerCase()
+        const collection = collections[gn];
+
         if (collection?.length > 0) {
             if (isClass)
                 handleDispatch("users", collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === fd.get("school")));
