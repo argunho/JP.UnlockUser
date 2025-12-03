@@ -1,10 +1,9 @@
 // Installed
-import { CancelOutlined } from "@mui/icons-material";
-import { Button, CircularProgress } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 
-function Loading({ msg, color, size, style }) {
+function Loading({ msg, color, size, cls, style }) {
   return (
-    <div className='d-column mh' style={style ?? null}>
+      <div className={`d-column${(cls ? ` ${cls}` : "")}`} style={style ?? null}>
       <CircularProgress size={size ?? 30} color={color ?? "inherit"} />
 
       {msg && <p className="loading-message">{msg}</p>}

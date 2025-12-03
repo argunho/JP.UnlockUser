@@ -113,8 +113,8 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
     #endregion
 
     #region Delete
-    [HttpDelete("logout/{token}")]
-    public async Task<JsonResult> Logout(string token)
+    [HttpDelete("logout")]
+    public async Task<JsonResult> Logout()
     {
         try
         {
@@ -127,6 +127,12 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             _session.Remove("PasswordResetGroup");
             _session.Remove("LoginAttempt");
             _session.Remove("LoginBlockTime");
+
+            var authHeader = HttpContext.Request.Headers.Authorization.ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                return new(_help.Warning("Token saknas"));
+
+            var token = authHeader.Replace("Bearer ", "").Trim();
 
             var tokenKey = $"tokens:{token}:deactivated";
             await _distributedCache.SetStringAsync(tokenKey, " ", new DistributedCacheEntryOptions
