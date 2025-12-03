@@ -15,7 +15,7 @@ import FormButtons from './FormButtons';
 import ListCategories from './../lists/ListCategories';
 
 // Functions
-import SessionData from '../../functions/SessionData';
+// import SessionData from '../../functions/SessionData';
 import { DecodedToken } from '../../functions/DecodedToken';
 
 // Functions
@@ -276,32 +276,32 @@ function Form({ title, name, passwordLength, users }) {
 
         // Request
         await fetchData({ api: "user/reset/password/", method: "post", data: data });
-        setSessionHistory(formData);
+        // setSessionHistory(formData);
         resetForm(true);
         handleDispatch("savePdf", "true");
     }
 
     // Update session list of changed passwords
-    const setSessionHistory = (data) => {
+    // const setSessionHistory = (data) => {
 
-        let sessionData = {
-            primary: ((!data.username ? location : data.username)?.replace("%", " "))?.replace("\" ", ""),
-            secondary: data.users?.length === 0 ? ("Lösenord: " + data.password) : ("Elever: " + data.users?.length),
-            link: data.users?.length === 0 ? `/manage-user/${data?.username}` : null,
-            includedList: data.users?.map((user) => {
-                return {
-                    primary: (user.username?.replace("%", " "))?.replace("\" ", ""),
-                    secondary: "Lösenord: " + user.password,
-                    link: `/manage-user/${user.username}`
-                }
-            })
-        }
+    //     let sessionData = {
+    //         primary: ((!data.username ? location : data.username)?.replace("%", " "))?.replace("\" ", ""),
+    //         secondary: data.users?.length === 0 ? ("Lösenord: " + data.password) : ("Elever: " + data.users?.length),
+    //         link: data.users?.length === 0 ? `/manage-user/${data?.username}` : null,
+    //         includedList: data.users?.map((user) => {
+    //             return {
+    //                 primary: (user.username?.replace("%", " "))?.replace("\" ", ""),
+    //                 secondary: "Lösenord: " + user.password,
+    //                 link: `/manage-user/${user.username}`
+    //             }
+    //         })
+    //     }
 
-        let sessionPasswordsList = SessionData("sessionWork");
-        sessionPasswordsList.push(sessionData);
+    //     let sessionPasswordsList = SessionData("sessionWork");
+    //     sessionPasswordsList.push(sessionData);
 
-        sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
-    }
+    //     sessionStorage.setItem("sessionWork", JSON.stringify(sessionPasswordsList));
+    // }
 
     // Send email to current user with saved pdf document
     const sendEmailWithFile = async () => {

@@ -18,5 +18,5 @@ public class User
     public bool IsLocked { get; set; }
 
     public string? Primary => DisplayName;
-    public string? Secondary =>  $"{Name} | {Email} | <span class=\"secondary-span\">{Office + (Office != Department ? (" " + Department) : "")}</span>";
+    public string? Secondary =>  $"{Name},\t{Email} | <span class=\"secondary-span\">{Office + (Office != Department ? (" " + Department) : "")}</span>";
 }
