@@ -148,7 +148,6 @@ function Home() {
 
         if (_.isEqual(data, fd)) {
             error = "Begäran avvisades. Inga ändringar gjordes i formulärets data."
-
             return {
                 data,
                 error

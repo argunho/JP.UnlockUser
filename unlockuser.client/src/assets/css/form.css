@@ -4,6 +4,8 @@ label {
   letter-spacing: 1px !important;
   font-weight: 600 !important;
   margin-top: 1px !important;
+  background-color: #FFFFFF !important;
+  padding-right: 3px !important;
 }
 
 input::placeholder {
@@ -22,8 +24,25 @@ input[type="password"]:disabled {
   font-size: 12px !important;
 }
 
-.collapse-wrapper .alert {
-  width: 95% !important;
+.form-wrapper {
+  padding: 10px;
+  margin: 10px 0;
+  position: relative;
+  transition: all 0.9s ease-in-out;
+}
+
+.form-wrapper>* {
+  width: 96%;
+  max-width: 950px;
+  margin: auto
+}
+
+.field {
+  margin: 10px 0 !important;
+}
+
+.fieldset>legend {
+  padding: 0 10px !important;
 }
 
 .disabled,
@@ -120,7 +139,8 @@ button {
 }
 
 input::placeholder {
-    font-size: 16px !important;
-    font-style: italic;
+  font-size: 16px !important;
+  font-style: italic;
 }
+
 /* #endregion */

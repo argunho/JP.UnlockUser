@@ -1,6 +1,5 @@
-.user-view-form {
-  margin: 10px auto 30px auto;
-}
+
+
 
 .form-actions {
   width: 95%;
@@ -80,27 +79,6 @@
   color: var(--color-danger);
   font-size: 16px;
   text-transform: uppercase;
-}
-
-.pr-inputs {
-  display: inline-flex;
-  margin: 5px 2px !important;
-  width: 100%;
-}
-
-.pr-inputs input {
-  height: 16px;
-  line-height: 16px;
-}
-
-.pr-inputs label {
-  font-size: 12px !important;
-  letter-spacing: 0.5px;
-}
-
-.user-view-form>button {
-  float: right !important;
-  margin-left: 15px;
 }
 
 .generate-password {

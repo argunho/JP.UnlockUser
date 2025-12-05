@@ -6,10 +6,10 @@ import { forwardRef } from 'react';
 import { Button, Tooltip, capitalize } from '@mui/material'
 
 // Components
-import ListCategories from './../components/lists/ListCategories';
+import ListCategories from './../lists/ListCategories';
 
 // Functions
-import ReplaceLetters from './ReplaceLetters';
+import ReplaceLetters from './../../functions/ReplaceLetters';
 
 /* eslint-disable react-refresh/only-export-components */
 function PasswordGeneration({
@@ -21,7 +21,7 @@ function PasswordGeneration({
     const symbols = "!@?$&#^%*-,;._";
     const randomNumbers = [0, 10, 100, 1000];
 
-    const setForm = (form) => {
+    const setPassword = (form) => {
         updatePasswordForm(form);
         setGenerated(true);
     }
@@ -53,9 +53,9 @@ function PasswordGeneration({
                     password: password
                 })
             }
-            setForm({ password: password, confirmPassword: password, users: usersArray });
+            setPassword({ password: password, confirmPassword: password, users: usersArray });
         } else
-            setForm({ password: password, confirmPassword: password });
+            setPassword({ password: password, confirmPassword: password });
     }
 
     // Generate multiple passwords
@@ -108,7 +108,7 @@ function PasswordGeneration({
                 i -= 1;
         }
 
-        setForm({ users: usersArray });
+        setPassword({ users: usersArray });
         setPreviewList(previewList);
     }
 
@@ -135,10 +135,11 @@ function PasswordGeneration({
                     password: password
                 })
             }
-            setForm({ password: password, confirmPassword: password, users: usersArray });
+            // setPassword({ password: password, confirmPassword: password, users: usersArray });
+            setPassword({ password: password, confirmPassword: password, users: usersArray });
         }
         else
-            setForm({ password: password, confirmPassword: password });
+            setPassword({ password: password, confirmPassword: password });
     }
 
     // Generate strong password
@@ -187,17 +188,15 @@ function PasswordGeneration({
         </span>
     </Tooltip>;
 
-    // Button with list of words category to generate one password
-    const buttonCategoriesList = <ListCategories
+    const passwordCategories = <ListCategories
+        label={`Generera ${regenerate ? " andra" : ""} lösenord`}
+        keyValue="value"
         limitedChars={true}
-        selectChange={(word) => generatePasswordWithRandomWord(word)}
-        multiple={false}
-        reset={!regenerate}
         disabled={disabledClick}
-        label={`Generera ${regenerate ? " andra" : ""} lösenord`} />;
+        onChange={generatePasswordWithRandomWord} />;
 
     return (
-        variousPasswords ? clickSimpleButton : buttonCategoriesList
+        variousPasswords ? clickSimpleButton : passwordCategories
     )
 }
 

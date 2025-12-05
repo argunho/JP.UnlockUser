@@ -20,7 +20,7 @@ import '../../assets/css/user-view.css';
 
 function UserManager() {
 
-    const { dashboardData, loading, group, id  } = useOutletContext();
+    const { dashboardData,  group, id  } = useOutletContext();
     const { collections } = dashboardData;
 
     const { pending, response, fetchData, handleResponse } = use(FetchContext)

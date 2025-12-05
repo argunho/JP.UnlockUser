@@ -269,17 +269,6 @@ pre {
   background-color: #f0f0f0 !important;
 }
 
-.collapse-wrapper {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #bdbdbd;
-  margin: 10px 0;
-  position: relative;
-  min-height: 250px;
-  max-height: 1000px;
-  transition: all 0.9s ease-in-out;
-}
-
 .curtain-block {
   position: absolute;
   display: block;
@@ -379,6 +368,7 @@ button.confirm-question {
 .nav-back {
   margin-left: 20px !important;
 }
+
 /* #endregion */
 
 /* #region Loading */
