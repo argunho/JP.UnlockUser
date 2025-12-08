@@ -30,7 +30,6 @@ function DropdownMenu({ label, list, link, value, disabled, keyValue = "name", k
                 onChange={onChange}
                 sx={{ color: "var(--color-active)", minWidth: 280 }}
                 disabled={disabled}
-
             >
                 {/* Loop of list */}
                 {list?.map((item, index) => (

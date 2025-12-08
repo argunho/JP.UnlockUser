@@ -115,12 +115,8 @@ function PasswordGeneration({
 
     // Generate one password with a word choice from a list of word categories
     const generatePasswordWithRandomWord = (word) => {
+
         let usersArray = [];
-        if (word === null) {
-            console.log("word")
-            generatePassword();
-            return;
-        }
         let password = word;
 
         if (!eng.test(word))
@@ -194,7 +190,10 @@ function PasswordGeneration({
         keyValue="value"
         limitedChars={true}
         disabled={disabledClick}
-        onChange={generatePasswordWithRandomWord} />;
+        onChange={(value) => 
+            value ? generatePasswordWithRandomWord(value) 
+            : generatePassword()
+        } />;
 
     return (
         variousPasswords ? clickSimpleButton : passwordCategories

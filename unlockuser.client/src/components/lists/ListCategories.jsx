@@ -30,36 +30,38 @@ const ListCategories = memo(function ListCategories({ limitedChars, label, multi
     // Password words category
     const handlePasswordChange = (value) => {
         console.log(value)
-        const keyword = groups.find(x => x.value === value).value;
-        let wList = words[keyword] || [];
-        
-        console.log(keyword)
-        if (keyword !== null) {
-            if (wList.length === 0) {
-                if (keyword === "cities")
-                    wList = cities;
-                else if (keyword === "colors")
-                    wList = colors;
-                else
-                    wList = cities.filter(x => x.country === "SE");
+        if (!groups?.find(x => x.value === value) || value === "strong") {
+            onChange();
+            return;
+        }
 
-                wList = wList.filter(x => x.name?.indexOf(" ") === -1 && x.name.length < 10);
+        let wList = words[value] || [];
 
-            } else if (wList.length > 0)
-                wList = wList.filter(x => x.indexOf(" ") === -1 && x.length < 10);
+        if (wList.length === 0) {
+            if (value === "cities")
+                wList = cities;
+            else if (value === "colors")
+                wList = colors;
+            else
+                wList = cities.filter(x => x.country === "SE");
 
-            if (limitedChars && wList.length > 0)
-                wList = wList.filter(x => (x.name && (x.name.length > 4 && x.name.length < 8)) || (x.length > 4 && x.length < 8));
+            wList = wList.filter(x => x.name?.indexOf(" ") === -1 && x.name.length < 10);
 
-            if (multiple)
-                onChange(wList);
-            else {
-                let word = wList[Math.floor(Math.random() * wList.length)]
-                onChange(word?.name || word);
-            }
-        } else onChange(keyword);
+        } else if (wList.length > 0)
+            wList = wList.filter(x => x.indexOf(" ") === -1 && x.length < 10);
+
+        if (limitedChars && wList.length > 0)
+            wList = wList.filter(x => (x.name && (x.name.length > 4 && x.name.length < 8)) || (x.length > 4 && x.length < 8));
+
+        if (multiple)
+            onChange(wList);
+        else {
+            let word = wList[Math.floor(Math.random() * wList.length)]
+            onChange(word?.name || word);
+        }
+
     }
-    
+
     return (
         <DropdownMenu
             label={label}
