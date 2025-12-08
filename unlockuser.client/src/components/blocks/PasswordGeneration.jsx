@@ -186,7 +186,7 @@ function PasswordGeneration({
     </Tooltip>;
 
     const passwordCategories = <ListCategories
-        label={`Generera ${regenerate ? " andra" : ""} lösenord`}
+        label="Generera lösenord"
         keyValue="value"
         limitedChars={true}
         disabled={disabledClick}

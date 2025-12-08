@@ -20,7 +20,7 @@ import '../../assets/css/user-view.css';
 
 function UserManager() {
 
-    const { dashboardData,  group, id  } = useOutletContext();
+    const { dashboardData, group, id  } = useOutletContext();
     const { collections } = dashboardData;
 
     const { pending, response, fetchData, handleResponse } = use(FetchContext)
@@ -41,7 +41,7 @@ function UserManager() {
         // Request
         await fetchData({ api: "api/user/unlock/" + user?.name, method: "patch" });
     }
-
+console.log(user)
     return <>
         {/* Tab menu */}
         <TabPanel primary={user.primary ?? "Anvädarprofil"} secondary={user.secondary}>

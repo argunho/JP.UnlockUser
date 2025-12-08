@@ -35,6 +35,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             foreach (var group in groups)
             {
                 List<string>? alternativeParams = [];
+                bool isStudents = string.Equals(group.Group, "Students", StringComparison.OrdinalIgnoreCase);
 
                 if (string.IsNullOrEmpty(claims["access"]))
                 {
@@ -42,13 +43,16 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                         continue;
 
                     var user = _localService.GetUserFromFile(claims["username"]!, group.Name!);
-                    if (string.Equals(group.Group, "Students", StringComparison.OrdinalIgnoreCase))
+                    if (isStudents)
                         alternativeParams = user?.Offices;
                     else
                         alternativeParams = [.. user!.Managers.Select(s => s.Username!.ToString())];
                 }
                 
                 var users = _provider.GetUsersByGroupName(group, alternativeParams);
+                if (!isStudents)
+                    _ = users.ConvertAll(x => x.PasswordLength = 12).ToList();
+
                 data.Add(group.Name?.ToLower()!, users);
             }
         }

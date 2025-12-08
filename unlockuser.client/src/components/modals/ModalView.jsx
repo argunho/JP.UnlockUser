@@ -19,6 +19,8 @@ function ModalView({ children, label, content }) {
         setOpen(open => !open);
     }
 
+    const  isArray = Array.isArray(content);
+
     return (
         <>
             <IconButton
@@ -40,17 +42,17 @@ function ModalView({ children, label, content }) {
                 <DialogTitle id="alert-dialog-title" color="-moz-initial">
                     {label}
                 </DialogTitle>
-                <DialogContent>
+                <DialogContent sx={{ overflow: isArray && content?.length == 1 ? "visible" : "auto"}}>
                     {children}
 
                     {!children && <>
                         {/* If content is text */}
-                        {!Array.isArray(content) && <DialogContentText id="alert-dialog-description" sx={{ margin: "10px 15px 0 15px" }}>
+                        {!isArray && <DialogContentText id="alert-dialog-description" sx={{ margin: "10px 15px 0 15px" }}>
                             <span dangerouslySetInnerHTML={{ __html: content }}></span>
                         </DialogContentText>}
 
                         {/* If content is an array data */}
-                        {Array.isArray(content) && <ListView list={content} />}
+                        {isArray && <ListView list={content} />}
                     </>}
                 </DialogContent>
                 <DialogActions className="jc-between" >
