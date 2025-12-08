@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, memo } from 'react';
 
 
 // Installed
-import { LiveHelp, Logout, Menu, Close, History, SettingsApplications, School, WorkHistory, ErrorOutline, BarChart, Home } from '@mui/icons-material';
+import { LiveHelp, Logout, Menu, Close, History,FactCheck, SettingsApplications, School, WorkHistory, ErrorOutline, BarChart, Home } from '@mui/icons-material';
 import { Button, IconButton } from '@mui/material';
 import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 
@@ -20,6 +20,7 @@ import HiddenMenu from './HiddenMenu';
 
 const links = [
     { label: "Hem", url: "/search", icon: <Home />, access: false, hidden: false },
+    { label: "Mina behörigheter", url: "/permissions", icon: <FactCheck />, access: false, hidden: false },
     { label: "Skolor", url: "schools", icon: <School />, access: true, hidden: false },
     { label: "Behöriga användare", url: "employees", icon: <SettingsApplications />, access: true, hidden: false },
     { label: "Session historia", url: "session/history", icon: <History />, access: false, hidden: SessionData("sessionWork")?.length === 0 },
@@ -78,12 +79,14 @@ const Header = memo(function Header({ disabled }) {
                             <span>{displayName}</span>
                             <span className="d-row">
                                 {groups.map((name, ind) => {
-                                    return <NavLink 
+                                    return <Button 
                                         key={ind} 
+                                        component={NavLink}
                                         disabled={disabled}
-                                        className="header-link" to={`/search/${name?.toLowerCase()}`}>
+                                        className="header-link" 
+                                        to={`/search/${name?.toLowerCase()}`}>
                                         {name}
-                                    </NavLink>;
+                                    </Button>;
                                 })}
                             </span>
                         </div>

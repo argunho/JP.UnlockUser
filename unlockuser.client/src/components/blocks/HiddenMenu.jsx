@@ -7,7 +7,6 @@ import { NavLink } from 'react-router-dom';
 // Components
 import Logotype from './Logotype';
 
-
 // Css
 import '../../assets/css/hidden-menu.css';
 

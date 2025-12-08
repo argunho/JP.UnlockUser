@@ -10,7 +10,7 @@ function DropdownMenu({ label, list, link, value, disabled, keyValue = "name", k
     const navigate = useNavigate();
 
     function onChange(e) {
-        const value = e.target.value.toLowerCase();
+        const value = e.target.value?.trim()?.toLowerCase();
         if (link)
             navigate(link ? link + value : value, { replace: true })
         else {

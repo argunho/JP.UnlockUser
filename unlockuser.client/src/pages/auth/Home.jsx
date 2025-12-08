@@ -99,7 +99,7 @@ function Home() {
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
-        if(response)
+        if (response)
             handleResponse();
 
         if (sessionData["users"])
@@ -114,13 +114,6 @@ function Home() {
 
     function handleDispatch(name, value, type = "PARAM") {
         dispatch({ type: type, name: name, payload: value });
-    }
-
-    // Recognize Enter press to submit search form
-    function handleKeyDown(e) {
-        if (e.key === 'Enter') {
-            onSubmit(e);
-        }
     }
 
     function onChange(e) {
@@ -191,8 +184,8 @@ function Home() {
             handleResponse();
         else {
             dispatch({ type: "RESET" });
-            if(clean)
-            updateSessionData("users", null);
+            if (clean)
+                updateSessionData("users", null);
         }
     }
 
@@ -281,7 +274,10 @@ function Home() {
                     InputLabelProps={{ shrink: true }}
                     disabled={loading}
                     placeholder={isClass ? "Skriv exakt klassbeteckning här ..." : (isMatch ? "Skriv exakt fullständigt namn eller anvädarnamn här ..." : "Sök ord här ...")}
-                    onKeyDown={handleKeyDown}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter')
+                            refSubmit.current?.click();
+                    }}
                     onChange={onChange}
                 />
 
