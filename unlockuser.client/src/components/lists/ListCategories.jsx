@@ -10,10 +10,10 @@ import DropdownMenu from './DropdownMenu';
 
 // List of alternative to select words list category to generate password
 const groups = [
-    { label: "Komplicerad", value: null },
+    { label: "Komplicerad", value: "strong" },
     { label: "Länder", value: "countries" },
     { label: "Alla städer/tätort", value: "cities" },
-    { label: "Svenska städer/tätort", value: "svCities" },
+    { label: "Svenska städer/tätort", value: "sv_cities" },
     { label: "Färg", value: "colors" },
     { label: "Blommor", value: "flowers" },
     { label: "Frukter", value: "fruits" },
@@ -32,6 +32,8 @@ const ListCategories = memo(function ListCategories({ limitedChars, label, multi
         console.log(value)
         const keyword = groups.find(x => x.value === value).value;
         let wList = words[keyword] || [];
+        
+        console.log(keyword)
         if (keyword !== null) {
             if (wList.length === 0) {
                 if (keyword === "cities")

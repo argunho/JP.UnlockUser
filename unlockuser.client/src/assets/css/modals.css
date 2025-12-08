@@ -10,6 +10,10 @@ div[role="dialog"] {
   padding: 20px 15px
 }
 
+.label .modal-help-btn {
+  margin-bottom: 20px !important;
+}
+
 .modal-help-btn svg{
     font-size: 20px;
 }

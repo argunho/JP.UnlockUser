@@ -15,14 +15,15 @@ import ReplaceLetters from './../../functions/ReplaceLetters';
 function PasswordGeneration({
     disabledTooltip, disabledClick, regex, users, regenerate,
     wordsList, numbersCount, strongPassword, variousPasswords, passwordLength,
-    setGenerated, updatePasswordForm, updatePreviewList }, ref) {
+    setGenerated, onChange, updatePreviewList }, ref) {
 
     const eng = /^[A-Za-z]+$/;
     const symbols = "!@?$&#^%*-,;._";
     const randomNumbers = [0, 10, 100, 1000];
 
-    const setPassword = (form) => {
-        updatePasswordForm(form);
+    const setPassword = (value) => {
+        console.log(value)
+        onChange(value);
         setGenerated(true);
     }
 
@@ -53,9 +54,9 @@ function PasswordGeneration({
                     password: password
                 })
             }
-            setPassword({ password: password, confirmPassword: password, users: usersArray });
+            setPassword({ password: password, users: usersArray });
         } else
-            setPassword({ password: password, confirmPassword: password });
+            setPassword({ password: password });
     }
 
     // Generate multiple passwords
@@ -116,6 +117,7 @@ function PasswordGeneration({
     const generatePasswordWithRandomWord = (word) => {
         let usersArray = [];
         if (word === null) {
+            console.log("word")
             generatePassword();
             return;
         }
@@ -135,11 +137,10 @@ function PasswordGeneration({
                     password: password
                 })
             }
-            // setPassword({ password: password, confirmPassword: password, users: usersArray });
-            setPassword({ password: password, confirmPassword: password, users: usersArray });
+            setPassword({ password: password, users: usersArray });
         }
         else
-            setPassword({ password: password, confirmPassword: password });
+            setPassword({ password: password });
     }
 
     // Generate strong password
