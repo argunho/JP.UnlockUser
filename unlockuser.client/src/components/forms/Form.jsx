@@ -36,7 +36,7 @@ const initialState = {
     requirementError: false,
     regexError: false,
     inputNam: '',
-    password: "",
+    formData: null,
     variousPassword: false,
     selectedCategory: "",
     isOpenTip: false,
@@ -52,11 +52,11 @@ const initialState = {
 
 // Action reducer
 function actionReducer(state, action) {
-    const obj = action.payload ? action.payload : null;
+    const payload = action.payload ? action.payload : null;
     switch (action.type) {
         case "PARAM":
             return {
-                ...state, [action.name]: obj
+                ...state, [action.name]: payload
             };
         case "CLOSE_MODAL":
             return {
@@ -88,7 +88,7 @@ function Form({ title, passwordLength, users }) {
     const multiple = users.length > 1;
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { showPassword, password, noConfirm, requirementError, regexError, inputName, variousPassword,
+    const { showPassword, formData, noConfirm, requirementError, regexError, inputName, variousPassword,
         selectedCategory, isOpenTip, wordsList, numbersCount, previewList, confirmSavePdf, savePdf, savedPdf, isGenerated, passType } = state;
 
     const { response, pending: load, fetchData, handleResponse } = use(FetchContext);
@@ -157,8 +157,9 @@ function Form({ title, passwordLength, users }) {
             handleDispatch("previewList", []);
     }
 
-    function onChange(value) {
-        handleDispatch("password", value.password);
+    function onChange(data) {
+        console.log(data)
+        handleDispatch("formData", data);
     }
 
     // Function - submit form
@@ -170,7 +171,7 @@ function Form({ title, passwordLength, users }) {
             check: false
         };
 
-        if(fd.get("check") === "on")
+        if (fd.get("check") === "on")
             data.check = true;
 
         let errors = [];
@@ -180,7 +181,7 @@ function Form({ title, passwordLength, users }) {
         if (data.password !== data.confirmPassword)
             errors.push("confirmPassword");
 
-        data.users = users?.map((user) => {
+        data.users = formData?.users?.map((user) => {
             return {
                 username: user.name,
                 password: data.password,
@@ -269,10 +270,10 @@ function Form({ title, passwordLength, users }) {
 
                     {/* Passwords inputs */}
                     {/* <div className={`inputs-wrapper dropdown-div${(!variousPassword ? " dropdown-open" : "")}`}> */}
-                    {fields.length > 0 && fields.map((field, i) => {
+                    {fields?.map((field, i) => {
 
-                        const value = formState[field.name] ?? password ?? "";
-                        
+                        const value = formState[field.name] ?? formData?.password ?? "";
+
                         return <FormControl key={i} fullWidth>
                             <TextField
                                 key={value}
