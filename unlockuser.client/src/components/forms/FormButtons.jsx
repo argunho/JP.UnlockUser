@@ -94,7 +94,7 @@ function FormButtons({ children, label, question, disabled, position, swap, conf
     }
 
     return (
-        <div className={`form-buttons d-row w-100 jc-end ${!!position ? `position-${position}` : ""}`}>
+        <div className={`form-buttons d-row w-100 ${children ? "jc-between" : "jc-end"} ${!!position ? `position-${position}` : ""}`}>
             {/* Children buttons */}
             {(!confirm && !!children) && children}
 

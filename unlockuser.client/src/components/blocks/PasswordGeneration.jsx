@@ -13,10 +13,14 @@ import ReplaceLetters from './../../functions/ReplaceLetters';
 
 /* eslint-disable react-refresh/only-export-components */
 function PasswordGeneration({
-    disabledTooltip, disabledClick, regex, users, regenerate,
+    disabledTooltip, disabledClick, users, regenerate,
     wordsList, numbersCount, strongPassword, variousPasswords, passwordLength,
     setGenerated, onChange, updatePreviewList }, ref) {
 
+        // Regex to validate password 
+    const regex = passwordLength === 12
+        ? /^(?=.*[0-9])(?=.*[!@?$&#^%*-,;._])[A-Za-z0-9!@?$&#^%*-,;._]{12,50}$/
+        : /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])[A-Za-z0-9]{8,50}$/;
     const eng = /^[A-Za-z]+$/;
     const symbols = "!@?$&#^%*-,;._";
     const randomNumbers = [0, 10, 100, 1000];

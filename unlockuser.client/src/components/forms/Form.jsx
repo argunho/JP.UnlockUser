@@ -46,8 +46,9 @@ const initialState = {
     confirmSavePdf: false,
     savePdf: false,
     savedPdf: null,
-    isGenerated: false,
-    passType: ""
+    passType: "",
+    isCleaned: null,
+    isChanged: false
 };
 
 // Action reducer
@@ -75,7 +76,7 @@ function actionReducer(state, action) {
             return {
                 ...state, requirementError: false, showPassword: false, numbersCount: 0, variousPassword: false,
                 selectedCategory: "", wordsList: [], isGenerated: false, noConfirm: false, passType: "",
-                regexError: false, inputName: ''
+                regexError: false, inputName: '', formData: null, isCleaned: new Date().getMilliseconds()
             };
         default:
             return state;
@@ -88,14 +89,10 @@ function Form({ title, passwordLength, users }) {
     const multiple = users.length > 1;
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { showPassword, formData, noConfirm, requirementError, regexError, inputName, variousPassword,
-        selectedCategory, isOpenTip, wordsList, numbersCount, previewList, confirmSavePdf, savePdf, savedPdf, isGenerated, passType } = state;
+    const { showPassword, formData, noConfirm, requirementError, regexError, inputName, variousPassword, isCleaned, isChanged,
+        selectedCategory, wordsList, numbersCount, previewList, confirmSavePdf, savePdf, savedPdf, passType } = state;
 
     const { response, pending: load, fetchData, handleResponse } = use(FetchContext);
-
-    // Regex to validate password 
-    const regex = passwordLength === 12 ?
-        /^(?=.*[0-9])(?=.*[!@?$&#^%*-,;._])[A-Za-z0-9!@?$&#^%*-,;._]{12,50}$/ : /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])[A-Za-z0-9]{8,50}$/;
 
     // Student school and class
     const location = users[0]?.office?.replace("%20", " ") + "%" + users[0]?.department?.replace("%20", " ");
@@ -108,36 +105,17 @@ function Form({ title, passwordLength, users }) {
     const decodedToken = DecodedToken();
     const developer = decodedToken?.Roles?.indexOf("Developer") > -1;
 
-    useEffect(() => {
-        if (isOpenTip)
-            handleDispatch("isOpenTip", false);
-    }, [isOpenTip])
-
-    useEffect(() => {
-        resetForm(!variousPassword);
-    }, [variousPassword])
+    // useEffect(() => {
+    //     onReset(!variousPassword);
+    // }, [variousPassword])
 
     useEffect(() => {
         if (savedPdf != null && savePdf)
             sendEmailWithFile();
     }, [savedPdf])
 
-    useEffect(() => {
-        if (isGenerated && previewList.length === 0) {
-            resetForm();
-            handleDispatch("showPassword", true);
-        }
-        resetError();
-    }, [isGenerated])
-
-
     function handleDispatch(name, value) {
         dispatch({ type: "PARAM", name: name, payload: value });
-    }
-
-    // Reset validation error from specific form field 
-    const resetError = () => {
-        dispatch({ type: "RESET_ERROR" });
     }
 
     // Apply and save pdf
@@ -147,11 +125,8 @@ function Form({ title, passwordLength, users }) {
     }
 
     // Reset form
-    const resetForm = (resetTotal = false) => {
-        if (!resetTotal)
-            dispatch({ type: "RESET_FORM_PARTIAL" });
-        else
-            dispatch({ type: "RESET_FORM_TOTAL" });
+    function onReset() {
+        dispatch({ type: "RESET_FORM_TOTAL" });
 
         if (!savePdf)
             handleDispatch("previewList", []);
@@ -160,6 +135,7 @@ function Form({ title, passwordLength, users }) {
     function onChange(data) {
         console.log(data)
         handleDispatch("formData", data);
+        handleDispatch("showPassword", true);
     }
 
     // Function - submit form
@@ -200,7 +176,7 @@ function Form({ title, passwordLength, users }) {
         await fetchData({ api: "user/reset/password/", method: "post", data: data });
 
 
-        resetForm(true);
+        onReset();
         handleDispatch("savePdf", "true");
     }
 
@@ -222,7 +198,7 @@ function Form({ title, passwordLength, users }) {
 
     const disabled = load || !!response;
     const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
-
+    console.log(isCleaned)
     return (
         <>
             <div className='form-wrapper w-100'>
@@ -241,10 +217,10 @@ function Form({ title, passwordLength, users }) {
 
                     {/* Generate password */}
                     <PasswordGeneration
+                        key={isCleaned}
                         disabledTooltip={passType === "medium" && wordsList.length === 0}
                         disabledClick={(variousPassword && !passType)
                             || (passType === "easy" && (wordsList.length === 0 || wordsList[0]?.length < 5))}
-                        regex={regex}
                         users={users}
                         wordsList={wordsList}
                         numbersCount={numbersCount}
@@ -264,7 +240,7 @@ function Form({ title, passwordLength, users }) {
 
 
                 {/* Password form */}
-                <form className='user-view-form' action={formAction}>
+                <form key={isCleaned} className='user-view-form' action={formAction}>
 
                     {multiple && <MultiplePassword selected={selectedCategory} />}
 
@@ -317,30 +293,27 @@ function Form({ title, passwordLength, users }) {
                     {/* Buttons */}
                     <FormButtons
                         label={variousPassword ? "Granska" : "Verkställ"}
-                        disabled={disabled || (!variousPassword && (noConfirm || requirementError || regexError))
-                            || (variousPassword && previewList.length === 0)}
+                        disabled={!formData && !isChanged}
                         confirmable={!variousPassword}
                         loading={load && !response}
                         variant="contained"
                         run={variousPassword}
                         submit={handleModalOpen}
                         cancelDisabled={disabled}
-                        cancel={() => resetForm(true)}
+                        cancel={onReset}
                     >
 
-                        <div className='d-row jc-start w-100'>
-                            {/* Change the password input type */}
-                            {developer && <FormControlLabel
-                                className='checkbox'
-                                title="Spara inte logfilen"
-                                control={<Checkbox
-                                    name="check"
-                                    disabled={disabled} />}
-                                label="Test" />}
-                        </div>
+                        {/* Change the password input type */}
+                        {developer && <FormControlLabel
+                            className='checkbox'
+                            title="Spara inte logfilen"
+                            control={<Checkbox
+                                name="check"
+                                disabled={disabled} />}
+                            label="Test" />}
 
                         {/* Hidden submit input, used for class members password change */}
-                        {previewList?.length > 0 && <input type="submit" className='none' value="" ref={refSubmit} />}
+                        {/* {previewList?.length > 0 && <input type="submit" className='none' value="" ref={refSubmit} />} */}
 
                     </FormButtons>
                 </form>
