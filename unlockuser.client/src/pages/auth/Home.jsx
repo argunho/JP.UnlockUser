@@ -2,9 +2,9 @@ import { useEffect, use, useReducer, useRef, useActionState } from 'react';
 import _ from "lodash";
 
 // Installed
-import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
+import { SearchOffSharp, SearchSharp, Close, List } from '@mui/icons-material';
 import {
-    Button, FormControl, FormControlLabel, Tooltip,
+    Button, FormControl, FormControlLabel, Tooltip, IconButton,
     Radio, RadioGroup, TextField, Switch, Checkbox, InputAdornment
 } from '@mui/material';
 import { useOutletContext } from 'react-router-dom';
@@ -14,6 +14,8 @@ import ModalView from '../../components/modals/ModalView';
 import DropdownMenu from '../../components/lists/DropdownMenu';
 import AutocompleteList from './../../components/lists/AutocompleteList';
 import ResultView from '../../components/blocks/ResultView';
+import ListLoading from './../../components/lists/ListLoading';
+import ListsView from './../../components/lists/ListsView';
 
 // Functions
 import { Claim } from '../../functions/DecodedToken';
@@ -82,7 +84,8 @@ function actionReducer(state, action) {
 }
 
 // Css
-import './../../assets/css/home.css'
+import './../../assets/css/home.css';
+import Message from '../../components/blocks/Message';
 
 function Home() {
 
@@ -157,7 +160,7 @@ function Home() {
         const name = fd.get("name")?.toLowerCase();
         const match = fd.get("match") === "on" ? true : false;
         const gn = group.name?.toLowerCase()
-        const collection = (gn === "support" ? groups.flatMap(g => collections[g.name.toLowerCase()]) : collections[gn]).filter(Boolean);
+        const collection = (gn === "support" ? groups.flatMap(g => collections[g.name.toLowerCase()]) : collections[gn])?.filter(Boolean);
 
         if (collection?.length > 0) {
             const result = (isClass)
@@ -347,7 +350,41 @@ function Home() {
                 </div>
             </section>
 
+
+            {/* Result info box */}
+            <div className='d-row jc-between w-100 view-list-result'>
+                {/* Result info */}
+                <div className="vlr-info d-column ai-start">
+                    <span>Resultat</span>
+                    <span className="d-row jc-start">
+                        {users?.length > 0 && <List size="small" color="primary" style={{ marginRight: 10 }} />}
+                        {users ? `${users?.length} användare` : "*****************"}
+                    </span>
+                </div>
+
+                <div className="d-row">
+
+                    {/* Button to reset search result */}
+                    {users?.length > 0 && <Tooltip
+                        title="Rensa sökresultaten."
+                        classes={{ tooltip: "tooltip tooltip-red", arrow: "tooltip-arrow-red" }}
+                        arrow>
+                        <IconButton variant="text"
+                            color="error"
+                            className="reset-button"
+                            onClick={onReset} >
+                            <Close />
+                        </IconButton>
+                    </Tooltip>}
+                </div>
+            </div>
+
+            {/* List loading */}
+            {!users && <ListLoading rows={5} pending={pending} />}
+
             {/* Result of search */}
+            {users && <ListsView list={users} grouped="office"/>}
+{/* 
             <ResultView
                 list={users}
                 isClass={isClass}
@@ -356,7 +393,15 @@ function Home() {
                 disabled={group?.name === "Support"}
                 resultBlock={true}
                 onReset={() => onReset(true)}
-            />
+            /> */}
+
+            {/* Message if result is null */}
+            {users?.length == 0 && <Message res={{
+                color: "warning", msg: "Inget data hittades. \n\nMöjliga orsaker:" +
+                    "\n• Personen/Class saknas i databasen." +
+                    "\n• Sökparametrarna kan vara felstavade." +
+                    "\n• Du saknar behörighet att hantera personens/classens konto."
+            }} cancel={onReset} />}
         </>
     )
 }

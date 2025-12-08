@@ -1,46 +1,37 @@
-// Installed 
-import { useOutletContext, useLoaderData } from 'react-router-dom';
+// Installed
+import {
+  List, ListItem, ListItemText, ListSubheader
+} from '@mui/material';
 
-// Components
-import ListView from './ListView';
-import TabMenu from './TabMenu';
 
-// Services
-import { ApiRequest } from '../services/ApiRequest';
+function ListsView({ list, grouped }) {
 
-// eslint-disable-next-line react-refresh/only-export-components
-export async function loadItems({ params }) {
-  if (!params?.id) return null;
-  const res = await ApiRequest(`search/assets/by/${params?.id}`);
-  return res;
-}
+  const organized = list.reduce((label, item) => {
+    if (!label[item[grouped]])
+      label[item[grouped]] = [];
 
-function ListsView() {
-
-  const res = useLoaderData("assets-by-id");
-  const props = useOutletContext();
+    label[item[grouped]].push(item);
+    return label;
+  }, {});
 
   return (
-    <div className="v-view d-column jc-start w-100" id="v-view">
-
-      <div className="v-sm-label w-100">
-        {/* Tab panel */}
-        <TabMenu
-          primary={res?.data?.primary ?? "Ej definerad"}
-          secondary={res?.data?.secondary ?? ""}
-        />
-
-      </div>
-
-      <ListView
-        {...props}
-        list={res?.list}
-      />
-
-    </div>
+    <List className="w-100">
+      {Object.entries(organized).map(([name, items]) => {
+        <li>
+          <ListSubheader></ListSubheader>
+          <ul key={name}>
+            {items.map((item, index) => {
+              return <ListItem key={index}>
+                <ListItemText
+                  primary={item?.primary}
+                  secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }}></span>} />
+              </ListItem>
+            })}
+          </ul>
+        </li>
+      })}
+    </List>
   )
 }
 
 export default ListsView;
-
-// <ListView {... props} />

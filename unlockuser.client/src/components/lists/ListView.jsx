@@ -2,8 +2,9 @@
 import { List, ListItem, ListItemText } from '@mui/material';
 
 function ListView({ list }) {
+
     return (
-        <List>
+        <List className="">
             {list.map((item, index) => {
                 return <ListItem key={index}>
                     <ListItemText 
