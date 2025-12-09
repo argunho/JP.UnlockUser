@@ -2,10 +2,10 @@ import { useState } from 'react';
 
 // Installed
 import {
-  List, ListItem, ListItemButton, ListItemText, Typography, ListItemSecondaryAction,
+  List, ListItemButton, ListItemText, Typography, ListItemSecondaryAction,
   ListItemAvatar, Avatar, Checkbox
 } from '@mui/material';
-import { SelectAll, Deselect, WysiwygSharp } from '@mui/icons-material';
+import { WysiwygSharp } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 // Components
@@ -28,10 +28,13 @@ function ListsView({ list, grouped, group, multiple }) {
 
   function onClick(user) {
 
-    // Navigation
-    navigate(selected?.length > 1
-      ? `/manage/${group}/class/${list[0].office}/${list[0].department}`
-      : `/manage/${group}/user/` + (user?.name ? user?.name : selected[0]));
+    if(multiple && selected?.length === 0)
+      return;
+
+    if(!multiple)
+      navigate(`/manage/${group}/user/` + (user?.name ? user?.name : selected[0]));
+
+    navigate(`/manage/${group}/class/${list[0].office}/${list[0].department}`, { state: { selected }})
   }
 
   function onSelected(value) {
@@ -48,7 +51,7 @@ function ListsView({ list, grouped, group, multiple }) {
   return (
     <>
       {/* View panel */}
-      {multiple && <ListPanel onSelected={onSelected} ids={list?.map(x => x.name)} />}
+      {multiple && <ListPanel selected={selected} ids={list?.map(x => x.name)} onClick={onClick} />}
 
       {Object.entries(organized).map(([name, items]) => {
 

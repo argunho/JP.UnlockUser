@@ -95,7 +95,7 @@ function Home() {
     const groups = Claim("groups");
 
     const { dashboardData, schools, group: groupName } = useOutletContext();
-    const { collections, updateSessionData, sessionData } = dashboardData;
+    const { collections, sessionData } = dashboardData;
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
@@ -112,7 +112,7 @@ function Home() {
     useEffect(() => {
         const currentGroup = groupName ? groups.find(x => x.name.toLowerCase() == groupName) : groups[0];
         handleDispatch("group", currentGroup, "START");
-        onReset(!_.isEqual(group, currentGroup));
+        onReset();
     }, [groupName])
 
     function handleDispatch(name, value, type = "PARAM") {
@@ -131,7 +131,7 @@ function Home() {
 
     // Function - submit form
     async function onSubmit(previous, fd) {
-        onReset(true);
+
         let data = {
             name: ""
         };
@@ -168,9 +168,6 @@ function Home() {
                 : collection?.filter(x => match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name));
             handleDispatch("users", result, "RESULT");
 
-            if (result?.length > 0)
-                updateSessionData("users", result);
-
             return null;
         }
 
@@ -182,14 +179,11 @@ function Home() {
             handleDispatch("users", res, "RESULT");
     }
 
-    function onReset(clean) {
+    function onReset() {
         if (response)
             handleResponse();
-        else {
-            dispatch({ type: "RESET" });
-            if (clean)
-                updateSessionData("users", null);
-        }
+
+        dispatch({ type: "RESET" });
     }
 
     const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
@@ -361,29 +355,27 @@ function Home() {
                     </span>
                 </div>
 
-                <div className="d-row">
 
-                    {/* Button to reset search result */}
-                    {users?.length > 0 && <Tooltip
-                        title="Rensa sökresultaten."
-                        classes={{ tooltip: "tooltip tooltip-red", arrow: "tooltip-arrow-red" }}
-                        arrow>
-                        <IconButton variant="text"
-                            color="error"
-                            className="reset-button"
-                            onClick={onReset} >
-                            <Close />
-                        </IconButton>
-                    </Tooltip>}
-                </div>
+                {/* Button to reset search result */}
+                {users?.length > 0 && <Tooltip
+                    title="Rensa sökresultaten."
+                    classes={{ tooltip: "tooltip tooltip-red", arrow: "tooltip-arrow-red" }}
+                    arrow>
+                    <IconButton variant="text"
+                        color="error"
+                        className="reset-button"
+                        onClick={onReset} >
+                        <Close />
+                    </IconButton>
+                </Tooltip>}
             </div>
 
             {/* List loading */}
             {!users && <ListLoading rows={5} pending={pending} />}
 
             {/* Result of search */}
-            {users?.length > 0 && <ListsView 
-                list={users} 
+            {users?.length > 0 && <ListsView
+                list={users}
                 grouped="office"
                 group={group?.name?.toLowerCase()}
                 multiple={isClass}
