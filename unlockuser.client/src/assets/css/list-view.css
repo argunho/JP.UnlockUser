@@ -28,7 +28,6 @@
 }
 
 .vlr-info>span:last-of-type {
-    color: var(--color-active) !important;
     height: 30px;
 }
 

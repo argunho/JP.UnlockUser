@@ -41,40 +41,18 @@
   padding: 0 !important;
 }
 
-.selected-list>button:not(.tips-p) {
-  list-style: none;
-  width: max-content;
-  text-align: left;
-  color: #807f7f;
+.selected-list>button {
   margin: 5px 3px;
-  padding: 3px 5px;
-  border: 1px solid #807f7f;
-  font-size: 14px;
-  opacity: 0.8;
-  border-radius: 0 !important;
-  width: min-content;
-  min-width: calc((100% - 60px) / 10);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  text-transform: lowercase !important;
+  width: calc((100% / 6) - 6px);
+  height: 40px;
+  justify-content: space-between !important;
+  border-color: var(--color-gray);
 }
 
-.tips-p {
-  width: 100%;
-  display: block;
-  border: none;
-  padding: 3px;
-  margin: 15px 0 5px 0;
-  font-size: 11px;
+.dropdown-label {
+  margin: 15px 0 10px 0;
+  font-size: 16px;
   letter-spacing: 1px;
-}
-
-.selected-list>button:not(.tips-p):hover {
-  cursor: pointer;
-  color: #cc0000;
-  border-color: #cc0000;
-  opacity: 1;
 }
 
 .history-dropdown-list {

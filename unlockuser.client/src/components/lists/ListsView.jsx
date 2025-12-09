@@ -27,16 +27,13 @@ function ListsView({ list, grouped, group, multiple }) {
   }, {});
 
   function onClick(user) {
-    console.log(user)
-    if (user) return;
-
-    if (multiple && selected?.length === 0)
+    if ((multiple && selected.length === 0) || (!multiple && !user))
       return;
 
-    if (!multiple)
+    if (user && !multiple)
       navigate(`/manage/${group}/user/` + (user?.name ? user?.name : selected[0]));
-
-    navigate(`/manage/${group}/class/${list[0].office}/${list[0].department}`, { state: { selected } })
+    else
+      navigate(`/manage/${group}/school/${list[0].office}/class/${list[0].department}`, { state: { selected } })
   }
 
   function onSelected(value) {
@@ -53,7 +50,11 @@ function ListsView({ list, grouped, group, multiple }) {
   return (
     <>
       {/* View panel */}
-      {multiple && <ListPanel selected={selected} ids={list?.map(x => x.name)} onSelected={onSelected} onClick={onClick} />}
+      {multiple && <ListPanel
+        selected={selected}
+        ids={list?.map(x => x.name)}
+        onSelected={onSelected}
+        onClick={() => onClick()} />}
 
       {Object.entries(organized).map(([name, items]) => {
 
@@ -73,7 +74,7 @@ function ListsView({ list, grouped, group, multiple }) {
               <ListItemAvatar>
                 {multiple
                   ? <Checkbox
-                    color={checked ? "success" : "warning"}
+                    color="default"
                     checked={checked}
                     onChange={(e) => {
                       e.stopPropagation();
@@ -81,7 +82,7 @@ function ListsView({ list, grouped, group, multiple }) {
                     }}
                     onClick={(e) => e.stopPropagation()}
                   />
-                  : <Avatar sx={{ backgroundColor: "transparent !important", border: "2px solid var(--color-info)" }}> <WysiwygSharp color="primary" /></Avatar>}
+                  : <Avatar sx={{ backgroundColor: "transparent !important" }}> <WysiwygSharp color="success" /></Avatar>}
               </ListItemAvatar>
 
               {/* Data */}

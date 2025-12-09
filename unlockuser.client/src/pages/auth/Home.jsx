@@ -73,7 +73,6 @@ function actionReducer(state, action) {
         case "RESET":
             return {
                 ...state,
-                isClass: false,
                 isChanged: false,
                 users: null,
                 isMatch: false,
@@ -348,7 +347,7 @@ function Home() {
                 {/* Result info */}
                 <div className="vlr-info d-column ai-start">
                     <span>Resultat</span>
-                    <span className="d-row jc-start">
+                    <span className="d-row jc-start" style={{ color: users ? "var(--color-active)" : "var(--color-gray)" }}>
                         {users?.length > 0 && <List size="small" color="primary" style={{ marginRight: 10 }} />}
                         {users ? `${users?.length} användare` : "*****************"}
                     </span>

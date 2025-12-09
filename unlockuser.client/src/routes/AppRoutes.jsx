@@ -66,7 +66,6 @@ const AppRoutes = () => [
         path: "search/:group",
         element: <Home />,
         errorElement: <ErrorView />
-        // loader: loaderByParams("search", "group")
       },
       {
         path: 'contact',
@@ -94,7 +93,7 @@ const AppRoutes = () => [
         shouldRevalidate: () => false
       },
       {
-        path: "class/:id/:school",
+        path: "school/:school/class/:classId",
         element: <ClassManager />,
         errorElement: <ErrorView />
       },
