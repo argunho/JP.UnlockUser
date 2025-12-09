@@ -51,7 +51,7 @@ function actionReducer(state, action) {
     }
 }
 
-function Form({ children, label, passwordLength, users, multiple, visible: isVisible }) {
+function Form({ children, label, passwordLength, users, multiple, hidden }) {
 
     const { group } = use(AuthContext);
 
@@ -161,7 +161,7 @@ function Form({ children, label, passwordLength, users, multiple, visible: isVis
                     {children}
 
                     {/* Passwords inputs */}
-                    {isVisible && fields?.map((field, i) => {
+                    {!hidden && fields?.map((field, i) => {
 
                         const value = formState[field.name] ?? formData?.password ?? "";
 

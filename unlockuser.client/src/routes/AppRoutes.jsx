@@ -36,6 +36,7 @@ import '../assets/css/form.css';
 import '../assets/css/blocks.css';
 import '../assets/css/modals.css';
 import '../assets/css/lists.css';
+import '../assets/css/manage.css';
 
 const AppRoutes = () => [
   {

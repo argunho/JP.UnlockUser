@@ -13,9 +13,6 @@ import TabPanel from '../../components/blocks/TabPanel';
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
 
-// Css
-import '../../assets/css/manage.css';
-
 
 function UserManager() {
 
@@ -61,7 +58,7 @@ function UserManager() {
 
         {/* Change password */}
         {(user && !user?.isLocked) && <Form
-            title="Återställa lösenord"
+            label="Återställa lösenord"
             users={[user]}
             passwordLength={user?.passwordLength} />}
     </>

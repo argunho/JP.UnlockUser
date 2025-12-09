@@ -1,12 +1,11 @@
 import { useReducer } from 'react';
 
 // Installed
-import { FormControlLabel, Radio, FormLabel, Tooltip, RadioGroup } from "@mui/material";
+import { FormControlLabel, Radio, FormLabel, Tooltip, RadioGroup, Button } from "@mui/material";
 import { TextField } from '@mui/material';
 
 // Components
 import ListCategories from './../lists/ListCategories';
-import PDFConverter from './PDFConverter';
 
 
 const initialState = {
@@ -14,10 +13,7 @@ const initialState = {
     wordsList: [],
     numbersCount: 0,
     passType: "",
-    limitedChars: true,    
-    confirmSavePdf: false,
-    savePdf: false,
-    savedPdf: null,
+    limitedChars: true
 };
 
 // Action reducer
@@ -51,12 +47,12 @@ const radio_digits = [
 
 function MultiplePassword({ selected, onSwitch }) {
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { samePassword, wordsList, numbersCount, passType: passwordType, limitedChars, confirmSavePdf, savePdf, savedPdf } = state;
+    const { samePassword, wordsList, numbersCount, passType: passwordType, limitedChars } = state;
 
-    
-        // // To manipulate elements like js getElementById
-        // const refModal = useRef(null);
-        
+
+    // // To manipulate elements like js getElementById
+    // const refModal = useRef(null);
+
     function onChange(value) {
         handleDispatch("samePassword", value);
         setTimeout(() => {
@@ -85,28 +81,8 @@ function MultiplePassword({ selected, onSwitch }) {
         handleDispatch("numbersCount", value);
         handleDispatch("previewList", []);
     }
- 
-    // Apply and save pdf
-    // const saveApply = (save) => {
-    //     handleDispatch("confirmSavePdf", save);
-    //     refSubmit.current.click();
-    // }
 
-    
-        // // Send email to current user with saved pdf document
-        // const sendEmailWithFile = async () => {
-        //     const inf = location.split("%");
-        //     const data = new FormData();
-        //     data.append('attachedFile', savedPdf);
-    
-        //     await fetchData({ api: `user/mail/${inf[1]} ${inf[0]}`, method: "post", data: data });
-        //     handleDispatch("confirmSavePdf", false);
-        //     handleDispatch("savePdf", false);
-        // }
-    
-        // const handleModalOpen = () => {
-        //     refModal.current?.click();
-        // }
+
 
     // Password words category
     const handleSelectListChange = (list) => {
@@ -124,16 +100,11 @@ function MultiplePassword({ selected, onSwitch }) {
 
     const setPreviewList = (previewList) => {
         updatePreviewList(previewList);
-        setGenerated(previewList.length > 0);
     }
 
-    // Generate handle
-    const generateHandle = () => {
-        generatePassword();
-    }
 
     // Generate multiple passwords
-    const generateVariousPasswords = () => {
+    const generatePasswords = () => {
 
         let usersArray = [];
         let previewList = [];
@@ -298,37 +269,18 @@ function MultiplePassword({ selected, onSwitch }) {
                             })}
                         </div>}
                 </div>
+
+                <Button variant="text"
+                    color="primary"
+                    type="button"
+                    size="small"
+                    className="generate-password"
+                    onClick={generatePasswords}
+                    disabled={disabledTooltip || disabledClick}
+                    ref={ref}>
+                    Generera {regenerate && " andra"} lösenord
+                </Button>
             </div>
-
-            <Tooltip arrow
-                title={disabledTooltip ? "Lösenords kategory är inte vald." : ""}
-                classes={{
-                    tooltip: `tooltip tooltip-margin tooltip-${disabledTooltip ? 'error' : 'blue'}`,
-                    arrow: `arrow-${disabledTooltip ? 'error' : 'blue'}`
-                }} >
-                <span className={variousPasswords ? "generate-button-wrapper" : ""}>
-                    <Button variant="text"
-                        color="primary"
-                        type="button"
-                        size="small"
-                        className="generate-password"
-                        onClick={generateHandle}
-                        disabled={disabledTooltip || disabledClick}
-                        ref={ref}>
-                        Generera {regenerate && " andra"} lösenord
-                    </Button>
-                </span>
-            </Tooltip>
-
-
-            {/* Save document to pdf */}
-            {(savePdf && confirmSavePdf) && <PDFConverter
-                name={title}
-                subTitle={location.replace("%", " ")}
-                names={["Namn", "Lösenord"]}
-                list={previewList}
-                savedPdf={(pdf) => handleDispatch("savedPdf", pdf)}
-            />}
         </>
     )
 }

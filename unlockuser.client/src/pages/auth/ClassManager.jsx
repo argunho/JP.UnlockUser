@@ -43,6 +43,28 @@ function ClassManager() {
         setRemoved(previous => [...previous, id]);
     }
 
+        // Apply and save pdf
+    // const saveApply = (save) => {
+    //     handleDispatch("confirmSavePdf", save);
+    //     refSubmit.current.click();
+    // }
+
+
+    // // Send email to current user with saved pdf document
+    // const sendEmailWithFile = async () => {
+    //     const inf = location.split("%");
+    //     const data = new FormData();
+    //     data.append('attachedFile', savedPdf);
+
+    //     await fetchData({ api: `user/mail/${inf[1]} ${inf[0]}`, method: "post", data: data });
+    //     handleDispatch("confirmSavePdf", false);
+    //     handleDispatch("savePdf", false);
+    // }
+
+    // const handleModalOpen = () => {
+    //     refModal.current?.click();
+    // }
+
     const classMembers = users.filter(x => !removed.includes(x.name));
 
     return (
@@ -97,6 +119,16 @@ function ClassManager() {
                 regeneratePassword={() => refGenerate?.current?.click()}
                 inverseFunction={(save) => saveApply(save)}
                 ref={refModal} />} */}
+
+                
+
+            {/* Save document to pdf */}
+            {/* {(savePdf && confirmSavePdf) && <PDFConverter
+                name={title}
+                subTitle={location.replace("%", " ")}
+                names={["Namn", "Lösenord"]}
+                list={previewList}
+                savedPdf={(pdf) => handleDispatch("savedPdf", pdf)}/>} */}
         </>
     )
 }
