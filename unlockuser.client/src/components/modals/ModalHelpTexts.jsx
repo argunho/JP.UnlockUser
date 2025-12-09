@@ -108,7 +108,7 @@ function ModalHelpTexts({ children, open = true, data, cls = "situated-btn", isT
                         confirmOnly={confirm}
                         swap={true}
                         submit={() => clickHandle(confirm)}
-                        cancel={close}
+                        onCancel={close}
                     >
                         {(isSubmit && !confirm) && <div className='d-row jc-between w-100'>
 

@@ -1,9 +1,5 @@
-
-
-import { forwardRef } from 'react';
-
 // Installed
-import { Button, Tooltip, capitalize } from '@mui/material'
+import { capitalize } from '@mui/material'
 
 // Components
 import ListCategories from './../lists/ListCategories';
@@ -11,13 +7,9 @@ import ListCategories from './../lists/ListCategories';
 // Functions
 import ReplaceLetters from './../../functions/ReplaceLetters';
 
-/* eslint-disable react-refresh/only-export-components */
-function PasswordGeneration({
-    disabledTooltip, disabledClick, users, regenerate,
-    wordsList, numbersCount, strongPassword, variousPasswords, passwordLength,
-    setGenerated, onChange, updatePreviewList }, ref) {
+function PasswordGeneration({ disabled, users, passwordLength, setGenerated, onChange }) {
 
-        // Regex to validate password 
+    // Regex to validate password 
     const regex = passwordLength === 12
         ? /^(?=.*[0-9])(?=.*[!@?$&#^%*-,;._])[A-Za-z0-9!@?$&#^%*-,;._]{12,50}$/
         : /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])[A-Za-z0-9]{8,50}$/;
@@ -30,18 +22,6 @@ function PasswordGeneration({
         setGenerated(true);
     }
 
-    const setPreviewList = (previewList) => {
-        updatePreviewList(previewList);
-        setGenerated(previewList.length > 0);
-    }
-
-    // Generate handle
-    const generateHandle = () => {
-        if (variousPasswords)
-            generateVariousPasswords()
-        else
-            generatePassword();
-    }
 
     // Generate new password
     const generatePassword = () => {
@@ -60,60 +40,6 @@ function PasswordGeneration({
             setPassword({ password: password, users: usersArray });
         } else
             setPassword({ password: password });
-    }
-
-    // Generate multiple passwords
-    const generateVariousPasswords = () => {
-
-        let usersArray = [];
-        let previewList = [];
-        for (let i = 0; i < users.length; i++) {
-            let password = ""
-            let broken = false;
-            let randomNumber = randomNumbers[numbersCount];
-
-            if (!strongPassword) {
-                const randomWord = wordsList.length === 1 ? wordsList[0] : wordsList[Math.floor(Math.random() * wordsList.length)];
-                password += (randomWord?.name || randomWord);
-
-                if (randomNumber === 0)
-                    randomNumber = randomNumbers[8 - password.length];
-
-                let min = (randomNumber / 10);
-
-                if (!eng.test(password))
-                    password = ReplaceLetters(password);
-
-                broken = !eng.test(password);
-
-                password += (Math.random() * (randomNumber - min) + min).toFixed(0);
-                if (passwordLength === 12)
-                    password += symbols[Math.floor(Math.random() * symbols.length)];
-
-                password = capitalize(password);
-            } else
-                password = returnGeneratedPassword();
-
-            const noExists = usersArray.find(x => x.password === password) === undefined;
-
-            if (regex.test(password) && !broken && noExists) {
-                usersArray.push({
-                    username: users[i].name,
-                    password: password
-                })
-
-                previewList.push({
-                    displayName: users[i].displayName,
-                    passwordHtml: `<p style='margin-bottom:20px;text-indent:15px'> 
-                                Lösenord: <span style='color:#c00;font-weight:600;letter-spacing:0.5px'>${password}</span></p>`,
-                    password: password
-                });
-            } else
-                i -= 1;
-        }
-
-        setPassword({ users: usersArray });
-        setPreviewList(previewList);
     }
 
     // Generate one password with a word choice from a list of word categories
@@ -167,41 +93,16 @@ function PasswordGeneration({
         return strArr[Math.floor(Math.random() * strArr.length)];
     }
 
-    // Button to generate various password
-    const clickSimpleButton = <Tooltip arrow
-        title={disabledTooltip ? "Lösenords kategory är inte vald." : ""}
-        classes={{
-            tooltip: `tooltip tooltip-margin tooltip-${disabledTooltip ? 'error' : 'blue'}`,
-            arrow: `arrow-${disabledTooltip ? 'error' : 'blue'}`
-        }} >
-        <span className={variousPasswords ? "generate-button-wrapper" : ""}>
-            <Button variant="text"
-                color="primary"
-                type="button"
-                size="small"
-                className="generate-password"
-                onClick={generateHandle}
-                disabled={disabledTooltip || disabledClick}
-                ref={ref}>
-                Generera {regenerate && " andra"} lösenord
-            </Button>
-        </span>
-    </Tooltip>;
-
-    const passwordCategories = <ListCategories
-        label="Generera lösenord"
-        keyValue="value"
-        limitedChars={true}
-        disabled={disabledClick}
-        onChange={(value) => 
-            value ? generatePasswordWithRandomWord(value) 
-            : generatePassword()
-        } />;
-
     return (
-        variousPasswords ? clickSimpleButton : passwordCategories
+        <ListCategories
+            label="Generera lösenord"
+            keyValue="value"
+            limitedChars={true}
+            disabled={disabled}
+            onChange={(value) =>
+                value ? generatePasswordWithRandomWord(value)
+                    : generatePassword()
+            } />
     )
 }
-
-const refGenerate = forwardRef(PasswordGeneration);
-export default refGenerate;
+export default PasswordGeneration;

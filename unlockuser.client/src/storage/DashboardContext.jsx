@@ -43,7 +43,7 @@ function DashboardProvider({ children }) {
 
             if (!collection)
                 return;
-            console.log(collection, data)
+            
             setSessionData(previous => ({
                 ...previous,
                 [collection]: data

@@ -14,12 +14,12 @@ import TabPanel from '../../components/blocks/TabPanel';
 import { FetchContext } from '../../storage/FetchContext';
 
 // Css
-import '../../assets/css/user-view.css';
+import '../../assets/css/manage.css';
 
 
 function UserManager() {
 
-    const { collections, group, id  } = useOutletContext();
+    const { collections, group, id } = useOutletContext();
 
     const { pending, response, fetchData, handleResponse } = use(FetchContext)
     const navigate = useNavigate();
@@ -61,9 +61,9 @@ function UserManager() {
 
         {/* Change password */}
         {(user && !user?.isLocked) && <Form
-                title="Återställa lösenord"
-                users={[user]}
-                passwordLength={user?.passwordLength} />}
+            title="Återställa lösenord"
+            users={[user]}
+            passwordLength={user?.passwordLength} />}
     </>
 
 }

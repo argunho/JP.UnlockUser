@@ -1,4 +1,4 @@
-import { useEffect, useRef, use, useReducer, useActionState } from 'react';
+import { use, useReducer, useActionState } from 'react';
 
 // Installed
 import {
@@ -7,12 +7,9 @@ import {
 import { Abc, Password } from '@mui/icons-material';
 
 // Components
-import ModalHelpTexts from '../modals/ModalHelpTexts';
 import ModalView from '../modals/ModalView';
 import Message from '../blocks/Message';
-import PDFConverter from '../blocks/PDFConverter';
 import FormButtons from './FormButtons';
-import MultiplePassword from '../blocks/MultiplePassword';
 import PasswordGeneration from '../blocks/PasswordGeneration';
 
 // Functions
@@ -32,21 +29,7 @@ const fields = [
 
 const initialState = {
     showPassword: false,
-    noConfirm: false,
-    requirementError: false,
-    regexError: false,
-    inputNam: '',
     formData: null,
-    variousPassword: false,
-    selectedCategory: "",
-    isOpenTip: false,
-    wordsList: [],
-    numbersCount: 0,
-    previewList: [],
-    confirmSavePdf: false,
-    savePdf: false,
-    savedPdf: null,
-    passType: "",
     isCleaned: null,
     isChanged: false
 };
@@ -59,77 +42,35 @@ function actionReducer(state, action) {
             return {
                 ...state, [action.name]: payload
             };
-        case "CLOSE_MODAL":
-            return {
-                ...state, open: false, page: 1, blink: true, sorting: true
-            };
-        case "RESET_ERROR":
-            return {
-                ...state, regexError: false, requirementError: false, inputName: '', noConfirm: false
-            };
-        case "RESET_FORM_PARTIAL":
-            return {
-                ...state, load: false, requirementError: false, passType: "",
-                selectedCategory: "", wordsList: [], isGenerated: false
-            };
         case "RESET_FORM_TOTAL":
             return {
-                ...state, requirementError: false, showPassword: false, numbersCount: 0, variousPassword: false,
-                selectedCategory: "", wordsList: [], isGenerated: false, noConfirm: false, passType: "",
-                regexError: false, inputName: '', formData: null, isCleaned: new Date().getMilliseconds()
+                ...state, showPassword: false, isGenerated: false, formData: null, isCleaned: new Date().getMilliseconds()
             };
         default:
             return state;
     }
 }
 
-function Form({ title, passwordLength, users }) {
+function Form({ children, label, passwordLength, users, multiple, visible: isVisible }) {
 
     const { group } = use(AuthContext);
-    const multiple = users.length > 1;
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { showPassword, formData, noConfirm, requirementError, regexError, inputName, variousPassword, isCleaned, isChanged,
-        selectedCategory, wordsList, numbersCount, previewList, confirmSavePdf, savePdf, savedPdf, passType } = state;
+    const { showPassword, formData, isCleaned, isChanged } = state;
 
     const { response, pending: load, fetchData, handleResponse } = use(FetchContext);
 
-    // Student school and class
-    const location = users[0]?.office?.replace("%20", " ") + "%" + users[0]?.department?.replace("%20", " ");
-
-    // To manipulate elements like js getElementById
-    const refSubmit = useRef(null);
-    const refModal = useRef(null);
-    const refGenerate = useRef(null);
 
     const decodedToken = DecodedToken();
     const developer = decodedToken?.Roles?.indexOf("Developer") > -1;
-
-    // useEffect(() => {
-    //     onReset(!variousPassword);
-    // }, [variousPassword])
-
-    useEffect(() => {
-        if (savedPdf != null && savePdf)
-            sendEmailWithFile();
-    }, [savedPdf])
 
     function handleDispatch(name, value) {
         dispatch({ type: "PARAM", name: name, payload: value });
     }
 
-    // Apply and save pdf
-    const saveApply = (save) => {
-        handleDispatch("confirmSavePdf", save);
-        refSubmit.current.click();
-    }
-
     // Reset form
     function onReset() {
         dispatch({ type: "RESET_FORM_TOTAL" });
-
-        if (!savePdf)
-            handleDispatch("previewList", []);
     }
 
     function onChange(data) {
@@ -176,28 +117,13 @@ function Form({ title, passwordLength, users }) {
 
 
         onReset();
-        handleDispatch("savePdf", "true");
-    }
-
-    // Send email to current user with saved pdf document
-    const sendEmailWithFile = async () => {
-        const inf = location.split("%");
-        const data = new FormData();
-        data.append('attachedFile', savedPdf);
-
-        await fetchData({ api: `user/mail/${inf[1]} ${inf[0]}`, method: "post", data: data });
-        handleDispatch("confirmSavePdf", false);
-        handleDispatch("savePdf", false);
-    }
-
-    const handleModalOpen = () => {
-        if (!variousPassword) return;
-        refModal.current?.click();
+        // handleDispatch("savePdf", "true");
     }
 
     const disabled = load || !!response;
     const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
-
+    const errors = formState.errors;
+    
     return (
         <>
             <div className='form-wrapper w-100'>
@@ -206,7 +132,7 @@ function Form({ title, passwordLength, users }) {
 
                     {/* Title */}
                     <h2 className='label'>
-                        {title}
+                        {label}
 
                         {/* Modal  window with help texts */}
                         <ModalView
@@ -215,23 +141,14 @@ function Form({ title, passwordLength, users }) {
                     </h2>
 
                     {/* Generate password */}
-                    <PasswordGeneration
+                    {!multiple && <PasswordGeneration
                         key={isCleaned}
-                        disabledTooltip={passType === "medium" && wordsList.length === 0}
-                        disabledClick={(variousPassword && !passType)
-                            || (passType === "easy" && (wordsList.length === 0 || wordsList[0]?.length < 5))}
                         users={users}
-                        wordsList={wordsList}
-                        numbersCount={numbersCount}
-                        strongPassword={passType === "strong"}
-                        variousPasswords={variousPassword}
                         passwordLength={passwordLength}
                         disabled={load || !!response}
-                        regenerate={previewList.length > 0}
                         setGenerated={val => handleDispatch("isGenerated", val)}
-                        onChange={onChange}
-                        updatePreviewList={(list) => handleDispatch("previewList", list)}
-                        ref={refGenerate} />
+                        onChange={onChange} />}
+
                 </div>
 
                 {/* Response message */}
@@ -239,13 +156,12 @@ function Form({ title, passwordLength, users }) {
 
 
                 {/* Password form */}
-                <form key={isCleaned} className='user-view-form' action={formAction}>
+                <form key={isCleaned} className='user-view-form fade-in' action={formAction}>
 
-                    {multiple && <MultiplePassword selected={selectedCategory} />}
+                    {children}
 
                     {/* Passwords inputs */}
-                    {/* <div className={`inputs-wrapper dropdown-div${(!variousPassword ? " dropdown-open" : "")}`}> */}
-                    {fields?.map((field, i) => {
+                    {isVisible && fields?.map((field, i) => {
 
                         const value = formState[field.name] ?? formData?.password ?? "";
 
@@ -263,11 +179,10 @@ function Form({ title, passwordLength, users }) {
                                     autoComplete: fields[field.name],
                                     form: { autoComplete: 'off', }
                                 }}
-                                InputProps={(!variousPassword && field.name === "password") ? {
+                                InputProps={field.name === "password" ? {
                                     endAdornment: (
                                         <IconButton
-                                            disabled={disabled || (!variousPassword && (noConfirm || requirementError || regexError))
-                                                || (variousPassword && previewList.length === 0)}
+                                            disabled={disabled}
                                             onClick={() => handleDispatch("showPassword", !showPassword)}
                                             title="Visa lösenord">
                                             {showPassword ? <Abc /> : <Password />}
@@ -275,31 +190,23 @@ function Form({ title, passwordLength, users }) {
                                     )
                                 } : undefined
                                 }
-                                className={`field ${(inputName === field.name && (requirementError || regexError)) ? "error" : ''}`}
-                                error={(field.name === "confirmPassword" && noConfirm) || (inputName === field.name && (requirementError || regexError))}
+                                className={`field ${(errors?.[field.name] ? "error" : '')}`}
+                                error={errors?.[field.name]}
                                 placeholder={field?.placeholder}
                                 disabled={pending}
-                                helperText={(inputName === field.name) &&
-                                    ((regexError && "Ej tillåten tecken")
-                                        || (requirementError && "Uppyller ej lösenordskraven")
-                                        || (noConfirm && "Lösenorden matchar inte"))}
+                                helpText={errors?.[field.name]}
                             />
                         </FormControl>
                     })}
-                    {/* </div> */}
 
 
                     {/* Buttons */}
                     <FormButtons
-                        label={variousPassword ? "Granska" : "Verkställ"}
+                        label={multiple ? "Granska" : "Verkställ"}
                         disabled={!formData && !isChanged}
-                        confirmable={!variousPassword}
+                        confirmable={true}
                         loading={load && !response}
-                        variant="contained"
-                        run={variousPassword}
-                        submit={handleModalOpen}
-                        cancelDisabled={disabled}
-                        cancel={onReset}
+                        onCancel={onReset}
                     >
 
                         {/* Change the password input type */}
@@ -310,34 +217,9 @@ function Form({ title, passwordLength, users }) {
                                 name="check"
                                 disabled={disabled} />}
                             label="Test" />}
-
-                        {/* Hidden submit input, used for class members password change */}
-                        {/* {previewList?.length > 0 && <input type="submit" className='none' value="" ref={refSubmit} />} */}
-
                     </FormButtons>
                 </form>
-
-
-                {/* Save document to pdf */}
-                {(savePdf && confirmSavePdf) && <PDFConverter
-                    name={title}
-                    subTitle={location.replace("%", " ")}
-                    names={["Namn", "Lösenord"]}
-                    list={previewList}
-                    savedPdf={(pdf) => handleDispatch("savedPdf", pdf)}
-                />}
             </div>
-
-            {/* Preview the list of generated passwords */}
-            {multiple && <ModalHelpTexts
-                data={previewList}
-                cls="none"
-                isTitle={`${title} <span class='office-span'>${location.replace("%", " ")}</span>`}
-                isTable={true}
-                isSubmit={true}
-                regeneratePassword={() => refGenerate?.current?.click()}
-                inverseFunction={(save) => saveApply(save)}
-                ref={refModal} />}
         </>
 
     )

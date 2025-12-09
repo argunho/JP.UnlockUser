@@ -57,7 +57,7 @@ input[type="password"]:disabled {
   display: none !important;
 }
 
-.dropdown-div {
+.dropdown-container {
   overflow: hidden !important;
   max-height: 0;
   padding: 0;
@@ -68,16 +68,15 @@ input[type="password"]:disabled {
   transition: max-height 0.9s ease-in-out;
 }
 
-.dropdown-div.dropdown-open {
+.dropdown-container.open {
   max-height: 1000px;
   overflow: visible;
 }
 
-.dropdown-interior-div {
+.dropdown-wrapper {
   border: 1px solid #bdbdbd;
   display: block;
   padding: 15px;
-  width: 100%;
   margin: 10px 0;
 }
 

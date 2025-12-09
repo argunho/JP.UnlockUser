@@ -1,20 +1,23 @@
 import { useReducer } from 'react';
 
 // Installed
-import { FormControlLabel, Radio, FormLabel, Tooltip, } from "@mui/material";
+import { FormControlLabel, Radio, FormLabel, Tooltip, RadioGroup } from "@mui/material";
 import { TextField } from '@mui/material';
-import { FormControl } from '@mui/material';
 
 // Components
 import ListCategories from './../lists/ListCategories';
+import PDFConverter from './PDFConverter';
 
 
 const initialState = {
-    variousPassword: false,
+    samePassword: false,
     wordsList: [],
     numbersCount: 0,
     passType: "",
-    limitedChars: true
+    limitedChars: true,    
+    confirmSavePdf: false,
+    savePdf: false,
+    savedPdf: null,
 };
 
 // Action reducer
@@ -30,20 +33,39 @@ function actionReducer(state, action) {
     }
 }
 
-function MultiplePassword({ selected, resetForm }) {
+const radios = [
+    { label: "Samma lösenord", value: true },
+    { label: "Olika lösenord", value: false }
+];
+
+const radio_group = [
+    { label: "Komplicerad", tips: "Genererad av slumpmässiga tecken", color: "error", value: "strong" },
+    { label: "Lagom", tips: "Olika ord & siffror", color: "primary", value: "medium" },
+    { label: "Enkelt", tips: "Ett liknande ord för alla lösenord med olika siffror.", color: "success", value: "simple" }
+];
+
+const radio_digits = [
+    { label: "Total 8 tecken", value: true },
+    { label: "Från 8 tecken", value: false }
+]
+
+function MultiplePassword({ selected, onSwitch }) {
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { variousPassword, wordsList, numbersCount, passType, limitedChars } = state;
+    const { samePassword, wordsList, numbersCount, passType: passwordType, limitedChars, confirmSavePdf, savePdf, savedPdf } = state;
 
     
-    function handleDispatch(name, value) {
-        dispatch({ type: "PARAM", name: name, payload: value });
+        // // To manipulate elements like js getElementById
+        // const refModal = useRef(null);
+        
+    function onChange(value) {
+        handleDispatch("samePassword", value);
+        setTimeout(() => {
+            onSwitch(value)
+        }, value ? 1000 : 0)
     }
 
-    
-    // Set password typesetPreviewList
-    const setPassTypeValue = (value) => {
-        resetForm();
-        handleDispatch("passType", value);
+    function handleDispatch(name, value) {
+        dispatch({ type: "PARAM", name: name, payload: value });
     }
 
     // Set limited chars
@@ -63,6 +85,28 @@ function MultiplePassword({ selected, resetForm }) {
         handleDispatch("numbersCount", value);
         handleDispatch("previewList", []);
     }
+ 
+    // Apply and save pdf
+    // const saveApply = (save) => {
+    //     handleDispatch("confirmSavePdf", save);
+    //     refSubmit.current.click();
+    // }
+
+    
+        // // Send email to current user with saved pdf document
+        // const sendEmailWithFile = async () => {
+        //     const inf = location.split("%");
+        //     const data = new FormData();
+        //     data.append('attachedFile', savedPdf);
+    
+        //     await fetchData({ api: `user/mail/${inf[1]} ${inf[0]}`, method: "post", data: data });
+        //     handleDispatch("confirmSavePdf", false);
+        //     handleDispatch("savePdf", false);
+        // }
+    
+        // const handleModalOpen = () => {
+        //     refModal.current?.click();
+        // }
 
     // Password words category
     const handleSelectListChange = (list) => {
@@ -77,92 +121,168 @@ function MultiplePassword({ selected, resetForm }) {
             handleDispatch("wordsList", [e.target.value?.replace(" ", "")]);
     }
 
+
+    const setPreviewList = (previewList) => {
+        updatePreviewList(previewList);
+        setGenerated(previewList.length > 0);
+    }
+
+    // Generate handle
+    const generateHandle = () => {
+        generatePassword();
+    }
+
+    // Generate multiple passwords
+    const generateVariousPasswords = () => {
+
+        let usersArray = [];
+        let previewList = [];
+        for (let i = 0; i < users.length; i++) {
+            let password = ""
+            let broken = false;
+            let randomNumber = randomNumbers[numbersCount];
+
+            if (!strongPassword) {
+                const randomWord = wordsList.length === 1 ? wordsList[0] : wordsList[Math.floor(Math.random() * wordsList.length)];
+                password += (randomWord?.name || randomWord);
+
+                if (randomNumber === 0)
+                    randomNumber = randomNumbers[8 - password.length];
+
+                let min = (randomNumber / 10);
+
+                if (!eng.test(password))
+                    password = ReplaceLetters(password);
+
+                broken = !eng.test(password);
+
+                password += (Math.random() * (randomNumber - min) + min).toFixed(0);
+                if (passwordLength === 12)
+                    password += symbols[Math.floor(Math.random() * symbols.length)];
+
+                password = capitalize(password);
+            } else
+                password = returnGeneratedPassword();
+
+            const noExists = usersArray.find(x => x.password === password) === undefined;
+
+            if (regex.test(password) && !broken && noExists) {
+                usersArray.push({
+                    username: users[i].name,
+                    password: password
+                })
+
+                previewList.push({
+                    displayName: users[i].displayName,
+                    passwordHtml: `<p style='margin-bottom:20px;text-indent:15px'> 
+                                    Lösenord: <span style='color:#c00;font-weight:600;letter-spacing:0.5px'>${password}</span></p>`,
+                    password: password
+                });
+            } else
+                i -= 1;
+        }
+
+        setPassword({ users: usersArray });
+        setPreviewList(previewList);
+    }
+
     return (
         <>
             {/* Loop of radio input choices to choose is password same or not for all students */}
-            {[{ label: "Samma lösenord", value: false }, { label: "Olika lösenord", value: true }].map((p, index) => (
-                <FormControlLabel
-                    key={index}
-                    control={<Radio size='small' />}
-                    checked={p.value === variousPassword}
-                    label={p.label}
-                    name="samePassword"
-                    onChange={() => handleDispatch("variousPassword", p.value)} />
-            ))}
+            <RadioGroup
+                row
+                aria-labelledby="demo-radio-buttons-group-label"
+                defaultValue={true}
+                name="radio-password"
+            >
+                {radios.map((radio, index) => (
+                    <FormControlLabel
+                        key={index}
+                        value={radio.value}
+                        control={<Radio size='small' />}
+                        label={radio.label}
+                        onChange={() => onChange(radio.value)} />
+                ))}
+            </RadioGroup>
 
             {/* Different alternatives for password generation */}
-            <div className={`dropdown-div${(variousPassword ? " dropdown-open" : "")}`}>
-                <div className='dropdown-interior-div'>
+            <div className={`dropdown-container w-100${(!samePassword ? " open" : "")}`}>
+                <div className='dropdown-wrapper'>
+
                     {/* Loop of radio input choices to choose password type strong or not */}
                     <FormLabel className="label">Lösenordstyp</FormLabel>
-                    {[
-                        { label: "Komplicerad", tips: "Genererad av slumpmässiga tecken", color: "error", value: "strong" },
-                        { label: "Lagom", tips: "Olika ord & siffror", color: "blue", value: "medium" },
-                        { label: "Enkelt", tips: "Ett liknande ord för alla lösenord med olika siffror.", color: "green", value: "easy" }
-                    ].map((p, index) => (
-                        <Tooltip
-                            key={index}
-                            title={p.tips}
-                            classes={{
-                                tooltip: `tooltip tooltip-margin tooltip-${p.color}`,
-                                arrow: `arrow-${p.color}`
-                            }} arrow>
+                    <RadioGroup
+                        row
+                        aria-labelledby="demo-radio-buttons-group-label"
+                        defaultValue="strong"
+                        name="radio-password-type"
+                    >
+                        {radio_group.map((radio, index) => (
+
                             <FormControlLabel
+                                key={index}
+                                value={radio.value}
                                 control={<Radio
-                                    size='small'
-                                    checked={p.value === passType}
-                                    color={passType === "strong" ? "error" : (passType === "medium" ? "primary" : "success")} />}
-                                label={p.label}
-                                name="passType"
-                                onChange={() => setPassTypeValue(p.value)} />
-                        </Tooltip>
-                    ))}
+                                    color={radio.color} />}
+                                label={<Tooltip
+                                    title={radio.tips}
+                                    classes={{
+                                        tooltip: `tooltip-default`
+                                    }} arrow>{radio.label}</Tooltip>}
+                                onChange={() => handleDispatch("passType", radio.value)} />
+
+                        ))}
+                    </RadioGroup>
+
 
                     {/* Choice of password length */}
-                    {(passType === "medium" || passType === "easy") &&
-                        <><FormLabel className="label-small">Lösenords längd</FormLabel>
-                            {[{ label: "Total 8 tecken", value: true },
-                            { label: "Från 8 tecken", value: false }].map((p, index) => (
-                                <FormControlLabel
-                                    key={index}
-                                    control={<Radio
-                                        size='small'
-                                        checked={p.value === limitedChars}
-                                        color="info" />}
-                                    label={p.label}
-                                    name="digits"
-                                    onChange={() => switchCharsLimit(p.value)} />
-                            ))}
+                    {["medium", "simple"].includes(passwordType) &&
+                        <>
+                            <FormLabel className="label-small" >Lösenords längd</FormLabel>
+                            <RadioGroup
+                                row
+                                aria-labelledby="demo-radio-buttons-group-label"
+                                defaultValue="strong"
+                                name="radio-password-length"
+                            >
+                                {radio_digits.map((radio, index) => (
+                                    <FormControlLabel
+                                        key={index}
+                                        value={radio.value}
+                                        control={<Radio
+                                            color="info" />}
+                                        label={radio.label}
+                                        onChange={() => switchCharsLimit(radio.value)} />
+                                ))}
+                            </RadioGroup>
                         </>}
 
                     {/* Choice of password category */}
-                    {passType === "medium" &&
+                    {passwordType === "medium" &&
                         <ListCategories
                             limitedChars={limitedChars}
                             label="Lösenords kategory"
                             selectChange={(list) => handleSelectListChange(list)}
-                            // reset={_.isEqual(formData, defaultForm)}
                             multiple={true}
                         />}
 
                     {/* Input for password word */}
-                    {passType === "easy" &&
-                        <FormControl className='select-list'>
-                            <TextField
-                                label="Ord"
-                                placeholder={`Ditt ord för lösenord ${limitedChars ? ', från 5 upp till 6 tecken lång' : ''}`}
-                                value={wordsList[0]}
-                                name="passwordWord"
-                                inputProps={{
-                                    maxLength: limitedChars ? 6 : 16,
-                                    minLength: 3
-                                }}
-                                onChange={(e) => passwordWordChange(e)}
-                            />
-                        </FormControl>}
+                    {passwordType === "simple" &&
+                        <TextField
+                            label="Ord"
+                            sx={{ width: 350, marginTop: "15px" }}
+                            placeholder={`Ditt ord för lösenord ${limitedChars ? ', från 5 upp till 6 tecken lång' : ''}`}
+                            value={wordsList[0]}
+                            name="passwordWord"
+                            inputProps={{
+                                maxLength: limitedChars ? 6 : 16,
+                                minLength: 3
+                            }}
+                            onChange={(e) => passwordWordChange(e)}
+                        />}
 
                     {/* List of password examples */}
-                    {(wordsList.length > 0 && passType === "medium" && !limitedChars) &&
+                    {(wordsList.length > 0 && passwordType === "medium" && !limitedChars) &&
                         <div className="last-options">
                             <FormLabel className="label-small">Lösenords alternativ (antal siffror i lösenord)</FormLabel>
                             {["012", "01", "0"].map((param, index) => {
@@ -179,6 +299,36 @@ function MultiplePassword({ selected, resetForm }) {
                         </div>}
                 </div>
             </div>
+
+            <Tooltip arrow
+                title={disabledTooltip ? "Lösenords kategory är inte vald." : ""}
+                classes={{
+                    tooltip: `tooltip tooltip-margin tooltip-${disabledTooltip ? 'error' : 'blue'}`,
+                    arrow: `arrow-${disabledTooltip ? 'error' : 'blue'}`
+                }} >
+                <span className={variousPasswords ? "generate-button-wrapper" : ""}>
+                    <Button variant="text"
+                        color="primary"
+                        type="button"
+                        size="small"
+                        className="generate-password"
+                        onClick={generateHandle}
+                        disabled={disabledTooltip || disabledClick}
+                        ref={ref}>
+                        Generera {regenerate && " andra"} lösenord
+                    </Button>
+                </span>
+            </Tooltip>
+
+
+            {/* Save document to pdf */}
+            {(savePdf && confirmSavePdf) && <PDFConverter
+                name={title}
+                subTitle={location.replace("%", " ")}
+                names={["Namn", "Lösenord"]}
+                list={previewList}
+                savedPdf={(pdf) => handleDispatch("savedPdf", pdf)}
+            />}
         </>
     )
 }

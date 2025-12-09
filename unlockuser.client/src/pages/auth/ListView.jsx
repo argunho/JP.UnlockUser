@@ -164,7 +164,12 @@ function ListView({ loc, includedList, label, fullWidth, api, id, fields, labels
             {/* Confirm/Form block */}
             {!!fields && <Collapse in={open} className='d-row w-100' timeout="auto" unmountOnExit>
                 {/* Confirm */}
-                {!!confirm && <FormButtons confirmable={true} confirmOnly={true} question="Radera" submit={removeItem} cancel={() => setConfirm(null)} />}
+                {!!confirm && <FormButtons 
+                confirmable={true} 
+                confirmOnly={true} 
+                question="Radera" 
+                submit={removeItem} 
+                onCancel={() => setConfirm(null)} />}
 
                 {/* Form */}
                 {!!visibleForm && <form className='d-row view-list-form w-100' onSubmit={onSubmit}>

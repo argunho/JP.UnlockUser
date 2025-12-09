@@ -274,8 +274,14 @@ function Employees() {
 
                 <DialogActions className="list-view-modal-buttons d-column">
                     {/* Actions buttons */}
-                    {!response && <FormButtons label="Spara" disabled={!changed} loading={updating} swap={true} c
-                        confirmable={true} submit={onSubmit} cancel={closeModal} >
+                    {!response && <FormButtons
+                        label="Spara"
+                        disabled={!changed}
+                        loading={updating}
+                        swap={true}
+                        confirmable={true}
+                        submit={onSubmit}
+                        onCancel={closeModal} >
                         <Button variant={open ? "outlined" : "contained"} color={!open ? "primary" : "error"}
                             onClick={() => setOpen((open) => !open)} style={{ width: "140px" }} disabled={updating}>
                             {open ? <Close /> : `Lägg till ${label}`}

@@ -9,12 +9,14 @@ import { useNavigate, useOutletContext, useLocation } from 'react-router-dom';
 // Components
 import Form from '../../components/forms/Form';
 import TabPanel from '../../components/blocks/TabPanel';
-
+import ModalHelpTexts from '../../components/modals/ModalHelpTexts';
+import MultiplePassword from '../../components/blocks/MultiplePassword';
 
 function ClassManager() {
 
     const [dropdown, setDropdown] = useState(false);
     const [removed, setRemoved] = useState([]);
+    const [visible, setVisible] = useState(true);
 
     const { collections, classId, school } = useOutletContext();
 
@@ -41,6 +43,8 @@ function ClassManager() {
         setRemoved(previous => [...previous, id]);
     }
 
+    const classMembers = users.filter(x => !removed.includes(x.name));
+
     return (
         <>
             {/* Tab menu */}
@@ -55,29 +59,44 @@ function ClassManager() {
             </TabPanel>
 
             {/* Student to manage  */}
-            <div className={`selected-list dropdown-div ${dropdown ? "dropdown-open" : ""}`}>
+            <div className={`selected-list dropdown-container ${dropdown ? "open" : ""}`}>
 
                 <p className="w-100 dropdown-label">
                     Klicka på användare att radera från listan
                 </p>
 
                 {/* List of students */}
-                {users.filter(x => !removed.includes(x.name))?.map((user) => (
+                {classMembers?.map((user) => (
                     <Button 
                         key={user.name} 
                         variant='outlined' 
                         color="inherit"
                         endIcon={<Close color="error" />}
-                        onClick={() => spliceUsersList(user)}>
+                        onClick={() => spliceUsersList(user.name)}>
                         {user.displayName} 
                     </Button>
                 ))}
             </div>
 
             <Form 
-                title={"Nya lösenord till " + users?.length + " elev" + (users?.length === 1 ? "er" : "")}
-                users={users}
-                passwordLength={8} />
+                title={"Nya lösenord till " + classMembers?.length + " elev" + (classMembers?.length === 1 ? "er" : "")}
+                users={classMembers}
+                visible={visible}
+                multiple={true}
+                passwordLength={8}>
+                    <MultiplePassword onSwitch={(value) => setVisible(value)} />
+                </Form>
+
+            {/* Preview the list of generated passwords */}
+            {/* {multiple && <ModalHelpTexts
+                data={previewList}
+                cls="none"
+                isTitle={`${title} <span class='office-span'>${location.replace("%", " ")}</span>`}
+                isTable={true}
+                isSubmit={true}
+                regeneratePassword={() => refGenerate?.current?.click()}
+                inverseFunction={(save) => saveApply(save)}
+                ref={refModal} />} */}
         </>
     )
 }

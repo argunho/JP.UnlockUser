@@ -58,13 +58,14 @@
 .label-small {
   color: rgb(49, 47, 47) !important;
   width: max-content;
-  margin: 15px 15px 5px 0;
+  margin: 5px 15px 5px 0 !important;
   display: block;
 }
 
 .label-small {
   font-size: 12px !important;
   color: #525252 !important;
+  margin-top: 20px !important;
 }
 
 .inputs-wrapper {

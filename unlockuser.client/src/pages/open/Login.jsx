@@ -119,7 +119,10 @@ function Login() {
       })}
 
       {/* Buttons to submit the form data and confirmation to accept this submit action */}
-      <FormButtons label="Logga in" disabled={disabled} loading={loading} />
+      <FormButtons
+        label="Logga in"
+        disabled={disabled}
+        loading={loading} />
     </form>
 
     {/* contacts link button  */}

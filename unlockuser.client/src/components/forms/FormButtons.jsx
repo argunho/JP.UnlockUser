@@ -6,9 +6,8 @@ import { Button, CircularProgress } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
 
-function FormButtons({ children, label, question, disabled, position, swap, confirmable,
-    confirmOnly, variant, loading, submit, cancel, cancelDisabled, required, data }) {
-    FormButtons.displayName = "FormButtons";
+function FormButtons({ children, label, disabled, swap, confirmable,
+    confirmOnly, loading, submit, onCancel }) {
 
     const [confirm, setConfirm] = useState(false);
     const [delay, setDelay] = useState(!confirmable);
@@ -23,7 +22,7 @@ function FormButtons({ children, label, question, disabled, position, swap, conf
 
     let buttons = [
         {
-            label: question ?? "Skicka?", visible: confirm, props: { className: "confirm-question" }
+            label: "Skicka?", visible: confirm, props: { className: "confirm-question" }
         },
         {
             label: "Nej",
@@ -42,15 +41,15 @@ function FormButtons({ children, label, question, disabled, position, swap, conf
         },
         {
             label: <Close color="inherit" fontSize="medium" />,
-            visible: (!confirm && !!cancel),
-            props: { variant: loading || cancelDisabled ? "outlined" : "contained", color: "error", disabled: loading || cancelDisabled, onClick: cancel }
+            visible: (!confirm && !!onCancel),
+            props: { variant: "contained", color: "error", disabled: loading, onClick: onCancel }
         },
         {
             label: (loading ? <CircularProgress size={18} color="inherit" /> : (label ?? "Skicka")),
             visible: !confirm,
             props: {
                 ... {
-                    variant: (loading || disabled) ? "outlined" : (variant ?? "outlined"), className: "submit-btn", color: ((loading || !!variant) ? "primary" : "inherit"),
+                    variant: "outlined", className: "submit-btn", color: loading ? "primary" : "inherit",
                     disabled: (disabled || loading), type: (!!confirmable || (!confirmable && submit)) ? "button" : "submit"
                 },
                 ...(!!confirmable ? { onClick: () => confirmHandle(false) } : ((!confirmable && submit) ? { onClick: onSubmit }  : null))
@@ -61,25 +60,11 @@ function FormButtons({ children, label, question, disabled, position, swap, conf
     if (swap)
         [buttons[3], buttons[4]] = [buttons[4], buttons[3]];
 
-    function confirmHandle(cancelAction = false) {
-        if (cancelAction) {
-            cancel();
+    function confirmHandle(cancel) {
+        if (cancel) {
+            onCancel();
             setConfirm(false);
             return;
-        }
-
-        // The control over all fields to find any missed required field
-        if (!!required && !!data) {
-            let missedFields = [];
-            required?.forEach(name => {
-                if (data[name] === undefined || data[name] === null)
-                    missedFields.push(name);
-            })
-
-            if (missedFields.length > 0 && !!cancel) {
-                cancel(missedFields);
-                return;
-            }
         }
 
         setConfirm((confirm) => !confirm);
@@ -94,7 +79,7 @@ function FormButtons({ children, label, question, disabled, position, swap, conf
     }
 
     return (
-        <div className={`form-buttons d-row w-100 ${children ? "jc-between" : "jc-end"} ${!!position ? `position-${position}` : ""}`}>
+        <div className={`form-buttons d-row w-100 ${children ? "jc-between" : "jc-end"}`}>
             {/* Children buttons */}
             {(!confirm && !!children) && children}
 
