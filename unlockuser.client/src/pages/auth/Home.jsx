@@ -13,9 +13,9 @@ import { useOutletContext } from 'react-router-dom';
 import ModalView from '../../components/modals/ModalView';
 import DropdownMenu from '../../components/lists/DropdownMenu';
 import AutocompleteList from './../../components/lists/AutocompleteList';
-import ResultView from '../../components/blocks/ResultView';
 import ListLoading from './../../components/lists/ListLoading';
 import ListsView from './../../components/lists/ListsView';
+import Message from '../../components/blocks/Message';
 
 // Functions
 import { Claim } from '../../functions/DecodedToken';
@@ -61,7 +61,8 @@ function actionReducer(state, action) {
             return {
                 ...state,
                 [action.name]: value,
-                isChanged: value
+                isChanged: value,
+                users: null
             };
         case "RESULT":
             return {
@@ -85,7 +86,6 @@ function actionReducer(state, action) {
 
 // Css
 import './../../assets/css/home.css';
-import Message from '../../components/blocks/Message';
 
 function Home() {
 
@@ -350,7 +350,6 @@ function Home() {
                 </div>
             </section>
 
-
             {/* Result info box */}
             <div className='d-row jc-between w-100 view-list-result'>
                 {/* Result info */}
@@ -389,16 +388,7 @@ function Home() {
                 group={group?.name?.toLowerCase()}
                 multiple={isClass}
             />}
-{/* 
-            <ResultView
-                list={users}
-                isClass={isClass}
-                group={group?.name?.toLowerCase()}
-                loading={pending || loading}
-                disabled={group?.name === "Support"}
-                resultBlock={true}
-                onReset={() => onReset(true)}
-            /> */}
+
 
             {/* Message if result is null */}
             {users?.length == 0 && <Message res={{
