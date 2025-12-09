@@ -383,7 +383,12 @@ function Home() {
             {!users && <ListLoading rows={5} pending={pending} />}
 
             {/* Result of search */}
-            {users && <ListsView list={users} grouped="office"/>}
+            {users?.length > 0 && <ListsView 
+                list={users} 
+                grouped="office"
+                group={group?.name?.toLowerCase()}
+                multiple={isClass}
+            />}
 {/* 
             <ResultView
                 list={users}

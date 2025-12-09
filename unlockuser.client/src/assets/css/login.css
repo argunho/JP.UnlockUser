@@ -55,11 +55,12 @@
     font-size: 18px !important;
 }
 
-.login-wrapper .response-box {
+.login-wrapper .message-box {
     position: absolute;
-    bottom: -10px;
+    bottom: 0;
     left: 0;
     right: 0;
+    margin: 0 !important;
     -webkit-border-radius: 0 !important;
     -moz-border-radius: 0 !important;
     -ms-border-radius: 0 !important;

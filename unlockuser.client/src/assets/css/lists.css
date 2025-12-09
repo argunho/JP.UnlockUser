@@ -24,8 +24,9 @@
     color: var(--color-warning) !important;
 }
 
-.loop-list li:hover {
-    background-color: var(--page-link-background) !important;
+.loop-list li:hover,
+.loop-li:hover {
+    background-color: var(--color-light-gray) !important;
 }
 
 .loop-list:not(.scale-back) li:not(.pagination li):hover div>span {
@@ -86,3 +87,35 @@ span.skeleton-box-list {
     margin: 5px 0 !important;
 }
 /* #endregion */
+
+/* #region Ul panel */
+div.ul-panel {
+    height: 65px !important;
+    border: 1px solid #ccc;
+    border-bottom-width: 3px !important;
+    border-bottom-color: #000000;
+    margin-bottom: 15px !important;
+    max-width: unset !important;
+    padding: 3px 9px !important;
+}
+
+div.ul-panel.checked {
+    border-bottom-color: var(--color-primary) !important;
+}
+
+.ul-panel>button {
+    font-size: 18px !important;
+    margin-left: 17px;
+    min-width: max-content;
+}
+
+.ul-panel>button:hover {
+    background-color: transparent !important;
+}
+
+.ul-panel>button svg {
+    font-size: 25px !important;
+    margin-right: 9px;
+}
+
+/*  #endregion */
