@@ -106,7 +106,7 @@ function ClassManager() {
                 visible={visible}
                 multiple={true}
                 passwordLength={8}>
-                    <MultiplePassword onSwitch={(value) => setVisible(value)} />
+                    <MultiplePassword users={classMembers} onSwitch={(value) => setVisible(value)} />
                 </Form>
 
             {/* Preview the list of generated passwords */}

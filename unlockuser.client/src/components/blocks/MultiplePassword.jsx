@@ -2,18 +2,20 @@ import { useReducer } from 'react';
 
 // Installed
 import { FormControlLabel, Radio, FormLabel, Tooltip, RadioGroup, Button } from "@mui/material";
-import { TextField } from '@mui/material';
+import { TextField, capitalize } from '@mui/material';
 
 // Components
 import ListCategories from './../lists/ListCategories';
+import ReplaceLetters from './../../functions/ReplaceLetters';
 
 
 const initialState = {
     samePassword: false,
     wordsList: [],
     numbersCount: 0,
-    passType: "",
-    limitedChars: true
+    passwordType: "",
+    limitedChars: true, 
+    preview: []
 };
 
 // Action reducer
@@ -45,10 +47,15 @@ const radio_digits = [
     { label: "Från 8 tecken", value: false }
 ]
 
-function MultiplePassword({ selected, onSwitch }) {
+function MultiplePassword({ users, onSwitch }) {
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { samePassword, wordsList, numbersCount, passType: passwordType, limitedChars } = state;
+    const { samePassword, wordsList, numbersCount, passwordType, limitedChars, preview } = state;
 
+        // Regex to validate password 
+    const regex = /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])[A-Za-z0-9]{8,50}$/;
+    const eng = /^[A-Za-z]+$/;
+    const symbols = "!@?$&#^%*-,;._";
+    const randomNumbers = [0, 10, 100, 1000];
 
     // // To manipulate elements like js getElementById
     // const refModal = useRef(null);
@@ -70,8 +77,6 @@ function MultiplePassword({ selected, onSwitch }) {
 
         if (wordsList.length > 0)
             handleDispatch("wordsList", []);
-        if (selected.length > 0)
-            handleDispatch("selectedCategory", "");
 
         handleDispatch("numbersCount", value ? 0 : 3);
     }
@@ -79,27 +84,27 @@ function MultiplePassword({ selected, onSwitch }) {
     // Switch password numbers count
     const switchNumbersCount = (value) => {
         handleDispatch("numbersCount", value);
-        handleDispatch("previewList", []);
+        handleDispatch("preview", []);
     }
 
 
 
     // Password words category
     const handleSelectListChange = (list) => {
-        handleDispatch("previewList", []);
+        handleDispatch("preview", []);
         handleDispatch("wordsList", list);
     }
 
     const passwordWordChange = (e) => {
-        handleDispatch("previewList", []);
+        handleDispatch("preview", []);
         let lng = e?.target?.value?.length;
         if (lng > 0)
             handleDispatch("wordsList", [e.target.value?.replace(" ", "")]);
     }
 
 
-    const setPreviewList = (previewList) => {
-        updatePreviewList(previewList);
+    const setPreview = (value) => {
+        handleDispatch("preview", value);
     }
 
 
@@ -107,13 +112,13 @@ function MultiplePassword({ selected, onSwitch }) {
     const generatePasswords = () => {
 
         let usersArray = [];
-        let previewList = [];
+        let preview = [];
         for (let i = 0; i < users.length; i++) {
             let password = ""
             let broken = false;
             let randomNumber = randomNumbers[numbersCount];
 
-            if (!strongPassword) {
+            if (passwordType !== "strong") {
                 const randomWord = wordsList.length === 1 ? wordsList[0] : wordsList[Math.floor(Math.random() * wordsList.length)];
                 password += (randomWord?.name || randomWord);
 
@@ -143,7 +148,7 @@ function MultiplePassword({ selected, onSwitch }) {
                     password: password
                 })
 
-                previewList.push({
+                preview.push({
                     displayName: users[i].displayName,
                     passwordHtml: `<p style='margin-bottom:20px;text-indent:15px'> 
                                     Lösenord: <span style='color:#c00;font-weight:600;letter-spacing:0.5px'>${password}</span></p>`,
@@ -153,8 +158,7 @@ function MultiplePassword({ selected, onSwitch }) {
                 i -= 1;
         }
 
-        setPassword({ users: usersArray });
-        setPreviewList(previewList);
+        setPreview(preview);
     }
 
     return (
