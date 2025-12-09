@@ -26,7 +26,6 @@ function PasswordGeneration({
     const randomNumbers = [0, 10, 100, 1000];
 
     const setPassword = (value) => {
-        console.log(value)
         onChange(value);
         setGenerated(true);
     }

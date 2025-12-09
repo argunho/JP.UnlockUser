@@ -27,14 +27,16 @@ function ListsView({ list, grouped, group, multiple }) {
   }, {});
 
   function onClick(user) {
+    console.log(user)
+    if (user) return;
 
-    if(multiple && selected?.length === 0)
+    if (multiple && selected?.length === 0)
       return;
 
-    if(!multiple)
+    if (!multiple)
       navigate(`/manage/${group}/user/` + (user?.name ? user?.name : selected[0]));
 
-    navigate(`/manage/${group}/class/${list[0].office}/${list[0].department}`, { state: { selected }})
+    navigate(`/manage/${group}/class/${list[0].office}/${list[0].department}`, { state: { selected } })
   }
 
   function onSelected(value) {
@@ -51,7 +53,7 @@ function ListsView({ list, grouped, group, multiple }) {
   return (
     <>
       {/* View panel */}
-      {multiple && <ListPanel selected={selected} ids={list?.map(x => x.name)} onClick={onClick} />}
+      {multiple && <ListPanel selected={selected} ids={list?.map(x => x.name)} onSelected={onSelected} onClick={onClick} />}
 
       {Object.entries(organized).map(([name, items]) => {
 
@@ -61,7 +63,7 @@ function ListsView({ list, grouped, group, multiple }) {
           {/* Loop of list */}
           {items.map((item, index) => {
             const checked = selected?.includes(item?.name);
-            console.log(item, checked)
+
             return <ListItemButton key={index} component="li" className="loop-li" onClick={() => onClick(item)}>
 
               {item?.isLocked && <ListItemSecondaryAction>
@@ -70,7 +72,15 @@ function ListsView({ list, grouped, group, multiple }) {
 
               <ListItemAvatar>
                 {multiple
-                  ? <Checkbox color={checked ? "success" : "warning"} checked={checked} onChange={() => onSelected(item?.name)} />
+                  ? <Checkbox
+                    color={checked ? "success" : "warning"}
+                    checked={checked}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      onSelected(item?.name)
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
                   : <Avatar sx={{ backgroundColor: "transparent !important", border: "2px solid var(--color-info)" }}> <WysiwygSharp color="primary" /></Avatar>}
               </ListItemAvatar>
 

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 // Installed
 import { ArrowDropDown, ArrowDropUp, Close } from '@mui/icons-material';
 import { Button } from '@mui/material';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 
 // Components
 import Form from '../../components/forms/Form';
@@ -14,14 +14,13 @@ import Info from '../../components/blocks/Info';
 
 function ClassManager() {
 
-    const { cls, school } = useParams();
-
     const [name, setName] = useState("");
     const [users, setUsers] = useState([]);
     const [schoolName, setSchoolName] = useState("");
     const [dropdown, setDropdown] = useState(false);
 
     const navigate = useNavigate();
+    const { collections, group, cls, school, selected } = useOutletContext();
 
     useEffect(() => {
         setName("Klass " + cls);

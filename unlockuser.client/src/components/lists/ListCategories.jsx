@@ -29,7 +29,6 @@ const ListCategories = memo(function ListCategories({ limitedChars, label, multi
 
     // Password words category
     const handlePasswordChange = (value) => {
-        console.log(value)
         if (!groups?.find(x => x.value === value) || value === "strong") {
             onChange();
             return;

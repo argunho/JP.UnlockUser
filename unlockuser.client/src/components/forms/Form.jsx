@@ -133,7 +133,6 @@ function Form({ title, passwordLength, users }) {
     }
 
     function onChange(data) {
-        console.log(data)
         handleDispatch("formData", data);
         handleDispatch("showPassword", true);
     }
@@ -198,7 +197,7 @@ function Form({ title, passwordLength, users }) {
 
     const disabled = load || !!response;
     const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
-    console.log(isCleaned)
+
     return (
         <>
             <div className='form-wrapper w-100'>
