@@ -49,7 +49,7 @@ const PasswordCategories = memo(function PasswordCategories({ label, limit, mult
         } else if (wList.length > 0)
             wList = wList.filter(x => x.indexOf(" ") === -1 && x.length < 10);
 
-        if (limit && limit !== isNaN)
+        if (limit && limit)
             wList = wList.filter(x => (x.name && (x.name.length >= 3 && x.name.length <= limit)) || (x.length >= 3 && x.length <= limit));
 
         if (multiple)

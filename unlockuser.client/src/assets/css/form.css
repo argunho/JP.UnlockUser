@@ -65,6 +65,7 @@ input[type="password"]:disabled {
   overflow: hidden;
   clear: both;
   transition: max-height 0.9s ease-in-out;
+  position: relative;
 }
 
 .dropdown-container.open {
@@ -87,8 +88,7 @@ input[type="password"]:disabled {
 }
 
 .last-options {
-  width: 97%;
-  margin: 0 auto 10px auto;
+  margin: 0 auto;
   color: #686868 !important;
 }
 

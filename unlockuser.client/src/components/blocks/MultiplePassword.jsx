@@ -1,22 +1,21 @@
 import { useReducer } from 'react';
 
 // Installed
-import { FormControlLabel, Radio, FormLabel, Tooltip, RadioGroup, Button } from "@mui/material";
-import { TextField, capitalize } from '@mui/material';
+import { FormControlLabel, Radio, FormLabel, RadioGroup, Button } from "@mui/material";
+import { TextField } from '@mui/material';
 
 // Components
 import PasswordCategories from '../lists/PasswordCategories';
-import ReplaceLetters from './../../functions/ReplaceLetters';
 import { GeneratePasswordWithRandomWord, GenerateStrongPassword } from './PasswordGeneration';
 
 
 const initialState = {
     samePassword: true,
     wordsList: [],
-    numbersCount: 0,
+    numbersCount: 3,
     passwordType: "strong",
-    limit: 8,
-    preview: []
+    inputWord: null,
+    limit: 8
 };
 
 // Action reducer
@@ -26,6 +25,10 @@ function actionReducer(state, action) {
         case "PARAM":
             return {
                 ...state, [action.name]: obj
+            };
+        case "RESET":
+            return {
+                ...state, wordsList: [], numbersCount: 3, passwordType: "strong", inputWord: null, limit: 8
             };
         default:
             return state;
@@ -44,140 +47,65 @@ const password_types = [
 ];
 
 const password_limits = [
-    { label: "Total 8 tecken", value: 8 },
-    { label: "Från 8 tecken", value: NaN }
+    { label: "Total 8 tecken", value: 8, color: "primary" },
+    { label: "Från 8 tecken", value: NaN, color: "success" }
 ]
 
 const password_digits = [
-    { label: "012", value: 3 },
-    { label: "01", value: 2 },
-    { label: "0", value: 1 }
+    { label: "Password012", value: 3, color: "error" },
+    { label: "Password01", value: 2, color: "primary" },
+    { label: "Password0", value: 1, color: "success" }
 ]
 
-function MultiplePassword({ users, disabled, onSwitch }) {
+function MultiplePassword({ users, disabled, onSwitch, onPreview, ref }) {
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { samePassword, wordsList, numbersCount, passwordType, limit, preview } = state;
-
-    // Regex to validate password 
-    const regex = /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])[A-Za-z0-9]{8,50}$/;
-    const eng = /^[A-Za-z]+$/;
-    const symbols = "!@?$&#^%*-,;._";
-    const randomNumbers = [0, 10, 100, 1000];
-
-    // // To manipulate elements like js getElementById
-    // const refModal = useRef(null);
-
-    function onChange(value) {
-        handleDispatch("samePassword", value);
-        setTimeout(() => {
-            onSwitch(!value)
-        }, value ? 1000 : 0)
-    }
+    const { samePassword, wordsList, inputWord, numbersCount, passwordType, limit } = state;
 
     function handleDispatch(name, value) {
         dispatch({ type: "PARAM", name: name, payload: value });
     }
 
-    // Set limited chars
-    const switchCharsLimit = (value) => {
-        handleDispatch("limit", value);
-
-        if (wordsList?.length > 0)
-            handleDispatch("wordsList", []);
-
-        handleDispatch("numbersCount", value ? 0 : 3);
+    function onChange(param, value){
+        dispatch({ type: "RESET" })
+        handleDispatch(param, value);
     }
 
-    // Switch password numbers count
-    const switchNumbersCount = (value) => {
-        handleDispatch("numbersCount", value);
-        handleDispatch("preview", []);
-    }
-
-    // Password words category
-    const onSelectChange = (list) => {
-        handleDispatch("preview", []);
-        handleDispatch("wordsList", list);
-    }
-
-    const passwordWordChange = (e) => {
-        handleDispatch("preview", []);
-        let lng = e?.target?.value?.length;
-        if (lng > 0)
-            handleDispatch("wordsList", [e.target.value?.replace(" ", "")]);
+    function handleFormChange(value) {
+        onChange("samePassword", value);
+        setTimeout(() => {
+            onSwitch(!value)
+        }, value ? 1000 : 0)
     }
 
     // Generate multiple passwords
-    const generatePasswords = () => {
+    function generatePasswords(){
 
-        let usersArray = [];
         let preview = [];
 
-        if(passwordType == "strong"){
-            for(let i = 0;i < users?.length; i++){
-                var password = GenerateStrongPassword(8);
-                usersArray.push({
-                    name: users[i].displayname,
-                    username: users[i].name,
-                    password: password
-                })
-            }
+        for (let i = 0; i < users?.length; i++) {
+            let password = null;
+            if (passwordType == "strong")
+                password = GenerateStrongPassword(8);
+            else if (passwordType === "medium") {
+                let randomWord = null;
+                while (true) {
+                    const randomItem = wordsList[Math.floor(Math.random() * wordsList.length)];
+                    randomWord = randomItem?.name ?? randomItem;
+                    if (!limit || ((limit - numbersCount) >= randomWord?.length))
+                        break;
+                    password = GeneratePasswordWithRandomWord(randomWord, (limit ? limit : (randomWord?.length + numbersCount)), true);
+                }
+            } else if (passwordType === "simple")
+                password = GeneratePasswordWithRandomWord(inputWord, (limit ? limit : (inputWord?.length + numbersCount)), true)
 
-            handleDispatch("preview", usersArray);
-            return;
+            preview.push({
+                name: users[i].displayname,
+                username: users[i].name,
+                password: password
+            })
         }
 
-        if(passwordType === "medium"){
-
-        }
-
-        console.log(preview)
-        for (let i = 0; i < users.length; i++) {
-            let password = ""
-            let broken = false;
-            let randomNumber = randomNumbers[numbersCount];
-
-            // if (passwordType !== "strong") {
-            //     const randomWord = wordsList.length === 1 ? wordsList[0] : wordsList[Math.floor(Math.random() * wordsList.length)];
-            //     password += (randomWord?.name || randomWord);
-
-            //     if (randomNumber === 0)
-            //         randomNumber = randomNumbers[8 - password.length];
-
-            //     let min = (randomNumber / 10);
-
-            //     if (!eng.test(password))
-            //         password = ReplaceLetters(password);
-
-            //     broken = !eng.test(password);
-
-            //     password += (Math.random() * (randomNumber - min) + min).toFixed(0);
-            //     if (passwordLength === 12)
-            //         password += symbols[Math.floor(Math.random() * symbols.length)];
-
-            //     password = capitalize(password);
-            // } else
-            //     password = returnGeneratedPassword();
-
-            // const noExists = usersArray.find(x => x.password === password) === undefined;
-
-            // if (regex.test(password) && !broken && noExists) {
-            //     usersArray.push({
-            //         username: users[i].name,
-            //         password: password
-            //     })
-
-            //     preview.push({
-            //         displayName: users[i].displayName,
-            //         passwordHtml: `<p style='margin-bottom:20px;text-indent:15px'> 
-            //                         Lösenord: <span style='color:#c00;font-weight:600;letter-spacing:0.5px'>${password}</span></p>`,
-            //         password: password
-            //     });
-            // } else
-            //     i -= 1;
-        }
-
-        handleDispatch("preview", preview);
+        onPreview(preview);
     }
 
     return (
@@ -192,10 +120,9 @@ function MultiplePassword({ users, disabled, onSwitch }) {
                 {passwords.map((radio, index) => (
                     <FormControlLabel
                         key={index}
-                        value={radio.value}
+                        {...radio}
                         control={<Radio />}
-                        label={radio.label}
-                        onChange={() => onChange(radio.value)} />
+                        onChange={() => handleFormChange(radio.value)} />
                 ))}
             </RadioGroup>
 
@@ -213,19 +140,11 @@ function MultiplePassword({ users, disabled, onSwitch }) {
                         name="radio-password-type"
                     >
                         {password_types.map((radio, index) => (
-
                             <FormControlLabel
                                 key={index}
-                                value={radio.value}
-                                control={<Radio
-                                    color={radio.color} />}
-                                label={<Tooltip
-                                    title={radio.tips}
-                                    classes={{
-                                        tooltip: `tooltip-default`
-                                    }} arrow>{radio.label}</Tooltip>}
-                                onChange={() => handleDispatch("passwordType", radio.value)} />
-
+                                {...radio}
+                                control={<Radio color={radio.color} />}
+                                onChange={() => onChange("passwordType", radio.value)} />
                         ))}
                     </RadioGroup>
 
@@ -244,11 +163,9 @@ function MultiplePassword({ users, disabled, onSwitch }) {
                                 {password_limits.map((radio, index) => (
                                     <FormControlLabel
                                         key={index}
-                                        value={radio.value}
-                                        control={<Radio
-                                            color="info" />}
-                                        label={radio.label}
-                                        onChange={() => switchCharsLimit(radio.value)} />
+                                        {...radio}
+                                        control={<Radio color={radio.color} />}
+                                        onChange={() => onChange("limit", radio.value)} />
                                 ))}
                             </RadioGroup>
                         </>}
@@ -256,35 +173,34 @@ function MultiplePassword({ users, disabled, onSwitch }) {
                     {/* Choice of password category */}
                     {passwordType === "medium" &&
                         <PasswordCategories
-                            key={passwordType || limit?.tosTring()}
+                            key={`${passwordType}${limit}`}
                             label="Lösenord kategories"
                             limit={limit}
                             multiple={true}
                             disabled={disabled}
-                            onChange={onSelectChange} />}
+                            onChange={(value) => handleDispatch("wordsList", value)} />}
 
                     {/* Input for password word */}
                     {passwordType === "simple" &&
                         <TextField
-                            key={passwordType}
+                            key={`${passwordType}${limit}`}
                             label="Ord"
                             className="field-word"
-                            placeholder={`Ange ett ord för lösenord ${limit !== isNaN ? ', som är 5–6 tecken långt.' : '.'}`}
-                            name="passwordWord"
+                            placeholder={`Ange ett ord för lösenord, som är ${limit ? 'minst 5 och max 6' : 'minst 5'} tecken långt`}
                             inputProps={{
                                 maxLength: limit ? 6 : 16,
                                 minLength: 3
                             }}
-                            onChange={(e) => passwordWordChange(e)}
+                            onChange={(e) => handleDispatch("inputWord", e.target.value)}
                         />}
 
                     {/* List of password examples */}
                     {(wordsList?.length > 0 && passwordType === "medium" && !limit) &&
                         <div className="last-options">
-                            <FormLabel className="radio-label-small">Lösenords alternativ (antal siffror i lösenord)</FormLabel>
+                            <FormLabel className="radio-label-small">Lösenords alternativ (välj antal siffror i slutet)</FormLabel>
                             <RadioGroup
                                 row
-                                key={passwordType}
+                                key={`${passwordType}${limit}`}
                                 aria-labelledby="demo-radio-buttons-group-label"
                                 defaultValue={3}
                                 name="radio-password-length"
@@ -292,26 +208,24 @@ function MultiplePassword({ users, disabled, onSwitch }) {
                                 {password_digits.map((radio, index) => {
                                     return <FormControlLabel
                                         key={index}
-                                        control={<Radio
-                                            size='small'
-                                            color="info" />}
-                                        label={<Tooltip title={`Lösenord med ${radio.value} siffra i slutet`} arrow><span>Password{radio.label}</span></Tooltip>}
-                                        name="digits"
-                                        onChange={() => switchNumbersCount(radio.value)} />
+                                        {...radio}
+                                        control={<Radio size='small' color={radio.color} />}
+                                        onChange={() => handleDispatch("numbersCount", radio.value)}
+                                 />
                                 })}
                             </RadioGroup>
                         </div>}
-                </div>
 
-                <Button variant="text"
-                    color="primary"
-                    type="button"
-                    size="small"
-                    className="generate-password"
-                    onClick={generatePasswords}
-                    disabled={disabled} >
-                    Generera lösenord
-                </Button>
+                    <Button variant="text"
+                        color="primary"
+                        className="generate-password"
+                        onClick={generatePasswords}
+                        ref={ref}
+                        disabled={disabled || (passwordType == "medium" && wordsList?.length === 0)
+                            || (passwordType === "simple" && (!inputWord || inputWord?.length < 5))}>
+                        Generera lösenord
+                    </Button>
+                </div>
             </div>
         </>
     )

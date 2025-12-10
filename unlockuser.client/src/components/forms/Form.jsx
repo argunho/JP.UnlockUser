@@ -151,7 +151,7 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
     }
 
     const [formState, formAction, pending] = useActionState(multiple ? onSubmitMultiple : onSubmit, { error: null });
-    const error = formState.error;
+    const error = formState?.error;
     const disabled = load || !!response || pending;
 
     return (

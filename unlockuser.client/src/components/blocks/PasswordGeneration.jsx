@@ -10,7 +10,7 @@ import ReplaceLetters from './../../functions/ReplaceLetters';
 const eng = /^[A-Za-z]+$/;
 const symbols = "!@?$&#^%*-,;._";
 
-export function GeneratePasswordWithRandomWord(word, lgh) {
+export function GeneratePasswordWithRandomWord(word, lgh, skip) {
     let password = word;
 
     if (!eng.test(word))
@@ -20,7 +20,7 @@ export function GeneratePasswordWithRandomWord(word, lgh) {
 
     const min = (randomNumber / 10);
     password += (Math.random() * (randomNumber - min) + min).toFixed(0);
-    if (lgh > 8)
+    if (lgh > 8 && !skip)
         password += randomSymbol;
 
     return capitalize(password);
