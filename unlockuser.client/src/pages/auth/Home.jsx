@@ -51,30 +51,19 @@ function actionReducer(state, action) {
             };
         case "START":
             return {
-                ...state,
-                [action.name]: value,
-                isClass: false
+                ...state, [action.name]: value, isClass: false
             };
         case "SEARCH_OPTION":
             return {
-                ...state,
-                [action.name]: value,
-                isChanged: value,
-                users: null
+                ...state, [action.name]: value, isChanged: value, users: null
             };
         case "RESULT":
             return {
-                ...state,
-                [action.name]: value,
-                isChanged: false
+                ...state, [action.name]: value, isChanged: false
             };
         case "RESET":
             return {
-                ...state,
-                isChanged: false,
-                users: null,
-                isMatch: false,
-                isCleaned: new Date().getMilliseconds()
+                ...state, isChanged: false, users: null, isMatch: false, isCleaned: new Date().getMilliseconds()
             };
         default:
             return state;
