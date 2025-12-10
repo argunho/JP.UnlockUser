@@ -5,7 +5,7 @@ import { FormControlLabel, Radio, FormLabel, Tooltip, RadioGroup, Button } from 
 import { TextField, capitalize } from '@mui/material';
 
 // Components
-import ListCategories from './../lists/ListCategories';
+import PasswordCategories from '../lists/PasswordCategories';
 import ReplaceLetters from './../../functions/ReplaceLetters';
 
 
@@ -14,7 +14,7 @@ const initialState = {
     wordsList: [],
     numbersCount: 0,
     passwordType: "",
-    limitedChars: true, 
+    limitedChars: true,
     preview: []
 };
 
@@ -51,7 +51,7 @@ function MultiplePassword({ users, disabled, onSwitch }) {
     const [state, dispatch] = useReducer(actionReducer, initialState);
     const { samePassword, wordsList, numbersCount, passwordType, limitedChars, preview } = state;
 
-        // Regex to validate password 
+    // Regex to validate password 
     const regex = /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])[A-Za-z0-9]{8,50}$/;
     const eng = /^[A-Za-z]+$/;
     const symbols = "!@?$&#^%*-,;._";
@@ -233,7 +233,7 @@ function MultiplePassword({ users, disabled, onSwitch }) {
 
                     {/* Choice of password category */}
                     {passwordType === "medium" &&
-                        <ListCategories
+                        <PasswordCategories
                             limitedChars={limitedChars}
                             label="Lösenords kategory"
                             selectChange={(list) => handleSelectListChange(list)}

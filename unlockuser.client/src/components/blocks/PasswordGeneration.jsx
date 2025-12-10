@@ -2,7 +2,7 @@
 import { capitalize } from '@mui/material'
 
 // Components
-import ListCategories from './../lists/ListCategories';
+import PasswordCategories from '../lists/PasswordCategories';
 
 // Functions
 import ReplaceLetters from './../../functions/ReplaceLetters';
@@ -41,7 +41,7 @@ function PasswordGeneration({ disabled, passwordLength, setGenerated, onChange, 
 
         while (!regex.test(password))
             password = returnGeneratedPassword();
-            setPassword(password);
+        setPassword(password);
     }
 
     // Generate one password with a word choice from a list of word categories
@@ -76,7 +76,7 @@ function PasswordGeneration({ disabled, passwordLength, setGenerated, onChange, 
     }
 
     return (
-        <ListCategories
+        <PasswordCategories
             label="Generera lösenord"
             keyValue="value"
             limit={passwordLength - 2}

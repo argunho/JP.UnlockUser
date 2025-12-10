@@ -83,7 +83,7 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
     }
 
     function onChange(value) {
-        dispatch("PASSWORD", value);
+        dispatch({ type: "PASSWORD", payload: value });
     }
 
     // Submit form => This is used when a password is being set for a user.
@@ -226,7 +226,7 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
                                 className={`field ${(error ? "error" : '')}`}
                                 error={error}
                                 placeholder={field?.placeholder}
-                                disabled={pending}
+                                disabled={disabled}
                             />
                         </FormControl>
                     })}

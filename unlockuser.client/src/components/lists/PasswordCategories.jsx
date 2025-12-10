@@ -23,7 +23,7 @@ const groups = [
     { label: "Bilar", value: "cars" }
 ];
 
-const ListCategories = memo(function ListCategories({ limit, label, multiple, disabled, keyValue = "name", onChange }) {
+const PasswordCategories = memo(function PasswordCategories({ limit, label, multiple, disabled, keyValue = "name", onChange }) {
 
     // const refSelect = useRef(null);
 
@@ -35,7 +35,6 @@ const ListCategories = memo(function ListCategories({ limit, label, multiple, di
         }
 
         let wList = words[value] || [];
-        wList.filter(x => (x.name && (x.name.length >= 3 && x.name.length <= limit)) || (x.length >= 3 && x.length <= limit));
 
         if (wList.length === 0) {
             if (value === "cities")
@@ -49,6 +48,8 @@ const ListCategories = memo(function ListCategories({ limit, label, multiple, di
 
         } else if (wList.length > 0)
             wList = wList.filter(x => x.indexOf(" ") === -1 && x.length < 10);
+            
+        wList = wList.filter(x => (x.name && (x.name.length >= 3 && x.name.length <= limit)) || (x.length >= 3 && x.length <= limit));
 
         if (multiple)
             onChange(wList);
@@ -70,7 +71,7 @@ const ListCategories = memo(function ListCategories({ limit, label, multiple, di
     )
 })
 
-export default ListCategories;
+export default PasswordCategories;
 // return (
 //     <FormControl className={'select-list' + ((!multiple) ? " btn-select-list" : "")} ref={refSelect} >
 //         <InputLabel className='select-label'>
