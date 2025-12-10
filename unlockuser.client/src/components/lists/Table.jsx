@@ -1,21 +1,25 @@
-function Table({ names, list, cls = "" }) {
-
-    const keys = list.length > 0 ? Object.keys(list[0]) : [];
-
+function Table({ columns, rows, list }) {
+console.log(rows, list)
     return (
-        <table className={"table table-striped" + cls} id="list">
-            <thead className='styled-thead'>
-                <tr>
-                    <th scope="col" style={{ textAlign: "center" }}>#</th>
-                    {names.map((n, i) => (<th scope="col" key={i}>{n}</th>))}
+        <table className="preview-container w-100 d-column" id="list">
+            <thead className='preview-wrapper w-100'>
+                <tr className="d-row jc-start w-100">
+                    <th className="number d-row">#</th>
+                    {columns.map((n, i) => (<th className="d-row jc-start w-100" key={i}>{n}</th>))}
                 </tr>
             </thead>
-            <tbody>
-                {list.map((l, ind) => (
-                    <tr key={ind}>
-                        <th scope="row" style={{ textAlign: "center" }}>{ind + 1}</th>
-                        <td>{l[keys[0]]}</td>
-                        <td style={{ color: "#c00", width: "35%" }}>{l[keys[2]]}</td>
+            <tbody className="preview-wrapper w-100">
+                {list.map((item, ind) => (
+                    <tr key={ind} className="d-row jc-start w-100">
+                        <th className="number d-row">{ind + 1}</th>
+                        {rows.map((row) => {
+                            return <td
+                                key={row}
+                                className="d-row jc-start w-100"
+                                style={row === "password" ? { color: "#c00" } : undefined}>
+                                {item[row]}
+                            </td>
+                        })}
                     </tr>
                 ))}
             </tbody>

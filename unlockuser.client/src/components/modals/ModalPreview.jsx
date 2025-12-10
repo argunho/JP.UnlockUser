@@ -55,11 +55,13 @@ function ModalPreview({ open = true, data, label, inverseFunction, onChange, onC
                 </DialogTitle>
 
                 {/* View this block if data is an array */}
-              <DialogContent style={{ marginBottom: "25px" }}>
+              <DialogContent style={{ marginBottom: "25px", padding: "0 10px" }}>
                     {/* The table component is required to display the list of students and a list of generated passwords for them. */}
                     <Table
                         name={label}
-                        names={["Namn", "Användarnamn", "Lösenord"]} list={data} /> 
+                        columns={["Namn", "Användarnamn", "Lösenord"]} 
+                        rows={["name", "username", "password"]}
+                        list={data} /> 
                 </DialogContent>
 
                 <DialogActions className="no-print buttons-wrapper">

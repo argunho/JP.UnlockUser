@@ -104,7 +104,7 @@ function MultiplePassword({ users, label, disabled, onSwitch }) {
                 password = GeneratePasswordWithRandomWord(inputWord, (limit ? limit : (inputWord?.length + numbersCount)), true)
 
             preview.push({
-                name: users[i].displayname,
+                name: users[i].displayName,
                 username: users[i].name,
                 password: password
             })
