@@ -32,20 +32,26 @@ function actionReducer(state, action) {
     }
 }
 
-const radios = [
+const passwords = [
     { label: "Samma lösenord", value: true },
     { label: "Olika lösenord", value: false }
 ];
 
-const radio_group = [
+const password_types = [
     { label: "Komplicerad", tips: "Genererad av slumpmässiga tecken", color: "error", value: "strong" },
     { label: "Lagom", tips: "Olika ord & siffror", color: "primary", value: "medium" },
     { label: "Enkelt", tips: "Ett liknande ord för alla lösenord med olika siffror.", color: "success", value: "simple" }
 ];
 
-const radio_digits = [
+const password_limits = [
     { label: "Total 8 tecken", value: 8 },
     { label: "Från 8 tecken", value: NaN }
+]
+
+const password_digits = [
+    { label: "012", value: 3 },
+    { label: "01", value: 2 },
+    { label: "0", value: 1 }
 ]
 
 function MultiplePassword({ users, disabled, onSwitch }) {
@@ -106,7 +112,7 @@ function MultiplePassword({ users, disabled, onSwitch }) {
 
         let usersArray = [];
         let preview = [];
-console.log(passwordType)
+
         if(passwordType == "strong"){
             for(let i = 0;i < users?.length; i++){
                 var password = GenerateStrongPassword(8);
@@ -118,8 +124,11 @@ console.log(passwordType)
             }
 
             handleDispatch("preview", usersArray);
-            console.log(usersArray)
             return;
+        }
+
+        if(passwordType === "medium"){
+
         }
 
         console.log(preview)
@@ -180,7 +189,7 @@ console.log(passwordType)
                 defaultValue={true}
                 name="radio-password"
             >
-                {radios.map((radio, index) => (
+                {passwords.map((radio, index) => (
                     <FormControlLabel
                         key={index}
                         value={radio.value}
@@ -203,7 +212,7 @@ console.log(passwordType)
                         defaultValue="strong"
                         name="radio-password-type"
                     >
-                        {radio_group.map((radio, index) => (
+                        {password_types.map((radio, index) => (
 
                             <FormControlLabel
                                 key={index}
@@ -232,7 +241,7 @@ console.log(passwordType)
                                 defaultValue={8}
                                 name="radio-password-length"
                             >
-                                {radio_digits.map((radio, index) => (
+                                {password_limits.map((radio, index) => (
                                     <FormControlLabel
                                         key={index}
                                         value={radio.value}
@@ -277,19 +286,18 @@ console.log(passwordType)
                                 row
                                 key={passwordType}
                                 aria-labelledby="demo-radio-buttons-group-label"
-                                defaultValue={"012"}
+                                defaultValue={3}
                                 name="radio-password-length"
                             >
-                                {["012", "01", "0"].map((param, index) => {
+                                {password_digits.map((radio, index) => {
                                     return <FormControlLabel
                                         key={index}
                                         control={<Radio
                                             size='small'
-                                            checked={param.length === numbersCount}
                                             color="info" />}
-                                        label={<Tooltip title={`Lösenord med ${param.length} siffra i slutet`} arrow><span>Password{param}</span></Tooltip>}
+                                        label={<Tooltip title={`Lösenord med ${radio.value} siffra i slutet`} arrow><span>Password{radio.label}</span></Tooltip>}
                                         name="digits"
-                                        onChange={() => switchNumbersCount(param.length)} />
+                                        onChange={() => switchNumbersCount(radio.value)} />
                                 })}
                             </RadioGroup>
                         </div>}
