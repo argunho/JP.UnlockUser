@@ -10,7 +10,7 @@ import ReplaceLetters from './../../functions/ReplaceLetters';
 
 
 const initialState = {
-    samePassword: false,
+    samePassword: true,
     wordsList: [],
     numbersCount: 0,
     passwordType: "",
@@ -180,11 +180,11 @@ function MultiplePassword({ users, disabled, onSwitch }) {
             </RadioGroup>
 
             {/* Different alternatives for password generation */}
-            <div className={`dropdown-container w-100${(!samePassword ? " open" : "")}`}>
+            <div className={`dropdown-container w-100${!samePassword ? " open" : ""}`}>
                 <div className='dropdown-wrapper'>
 
                     {/* Loop of radio input choices to choose password type strong or not */}
-                    <FormLabel className="label">Lösenordstyp</FormLabel>
+                    <FormLabel className="radio-label">Lösenordstyp</FormLabel>
                     <RadioGroup
                         row
                         aria-labelledby="demo-radio-buttons-group-label"
@@ -203,7 +203,7 @@ function MultiplePassword({ users, disabled, onSwitch }) {
                                     classes={{
                                         tooltip: `tooltip-default`
                                     }} arrow>{radio.label}</Tooltip>}
-                                onChange={() => handleDispatch("passType", radio.value)} />
+                                onChange={() => handleDispatch("passwordType", radio.value)} />
 
                         ))}
                     </RadioGroup>
@@ -212,7 +212,7 @@ function MultiplePassword({ users, disabled, onSwitch }) {
                     {/* Choice of password length */}
                     {["medium", "simple"].includes(passwordType) &&
                         <>
-                            <FormLabel className="label-small" >Lösenords längd</FormLabel>
+                            <FormLabel className="radio-label-small" >Lösenords längd</FormLabel>
                             <RadioGroup
                                 row
                                 aria-labelledby="demo-radio-buttons-group-label"
@@ -234,17 +234,17 @@ function MultiplePassword({ users, disabled, onSwitch }) {
                     {/* Choice of password category */}
                     {passwordType === "medium" &&
                         <PasswordCategories
-                            limitedChars={limitedChars}
-                            label="Lösenords kategory"
-                            selectChange={(list) => handleSelectListChange(list)}
+                            label="Lösenord kategories"
+                            limit={8}
                             multiple={true}
-                        />}
+                            disabled={disabled}
+                            onChange={handleSelectListChange} />}
 
                     {/* Input for password word */}
                     {passwordType === "simple" &&
                         <TextField
                             label="Ord"
-                            sx={{ width: 350, marginTop: "15px" }}
+                            className="field-word"
                             placeholder={`Ditt ord för lösenord ${limitedChars ? ', från 5 upp till 6 tecken lång' : ''}`}
                             value={wordsList[0]}
                             name="passwordWord"
@@ -258,7 +258,7 @@ function MultiplePassword({ users, disabled, onSwitch }) {
                     {/* List of password examples */}
                     {(wordsList.length > 0 && passwordType === "medium" && !limitedChars) &&
                         <div className="last-options">
-                            <FormLabel className="label-small">Lösenords alternativ (antal siffror i lösenord)</FormLabel>
+                            <FormLabel className="radio-label-small">Lösenords alternativ (antal siffror i lösenord)</FormLabel>
                             {["012", "01", "0"].map((param, index) => {
                                 return <FormControlLabel
                                     key={index}

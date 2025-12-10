@@ -100,7 +100,7 @@ function ClassManager() {
             </div>
 
             <Form 
-                title={"Nya lösenord till " + classMembers?.length + " elev" + (classMembers?.length === 1 ? "er" : "")}
+                label={"Nya lösenord till " + classMembers?.length + " elev" + (classMembers?.length === 1 ? "er" : "")}
                 users={classMembers}
                 visible={visible}
                 multiple={true}

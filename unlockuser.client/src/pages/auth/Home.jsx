@@ -286,26 +286,29 @@ function Home() {
                     </span>
                 </div>
 
+                {/* Actions */}
+                <div className="d-row">
+                    {/* Button to reset search result */}
+                    {users?.length > 0 && <Tooltip
+                        title="Rensa sökresultaten."
+                        classes={{ tooltip: "tooltip tooltip-red", arrow: "tooltip-arrow-red" }}
+                        arrow>
+                        <IconButton variant="text"
+                            color="error"
+                            className="reset-button"
+                            onClick={onReset} >
+                            <Close />
+                        </IconButton>
+                    </Tooltip>}
 
-                {/* Button to reset search result */}
-                {users?.length > 0 && <Tooltip
-                    title="Rensa sökresultaten."
-                    classes={{ tooltip: "tooltip tooltip-red", arrow: "tooltip-arrow-red" }}
-                    arrow>
-                    <IconButton variant="text"
-                        color="error"
-                        className="reset-button"
-                        onClick={onReset} >
-                        <Close />
-                    </IconButton>
-                </Tooltip>}
+                    {/* Modal  window with help texts */}
+                    <ModalView
+                        label="Förklaring av sökparametrar"
+                        content={group?.name === "Studenter" ? AllTips : Tips} />
+                </div>
 
-                {/* Modal  window with help texts */}
-                <ModalView
-                    label="Förklaring av sökparametrar"
-                    content={group?.name === "Studenter" ? AllTips : Tips} />
             </div>
-
+            
             {/* List loading */}
             {!users && <ListLoading rows={5} pending={pending} />}
 

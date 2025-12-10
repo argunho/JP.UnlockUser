@@ -79,6 +79,13 @@ input[type="password"]:disabled {
   margin: 10px 0;
 }
 
+.dropdown-wrapper .dm-wrapper,
+.dropdown-wrapper .field-word {
+  margin-top: 10px !important;
+  width: 350px !important;
+  max-width: unset !important;
+}
+
 .last-options {
   width: 97%;
   margin: 0 auto 10px auto;

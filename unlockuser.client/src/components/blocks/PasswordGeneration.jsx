@@ -27,8 +27,6 @@ export function GeneratePasswordWithRandomWord(word, lgh) {
 }
 
 function PasswordGeneration({ disabled, passwordLength, setGenerated, onChange, regex }) {
-    console.log(passwordLength)
-
 
     const setPassword = (value) => {
         onChange(value);

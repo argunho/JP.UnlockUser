@@ -10,26 +10,26 @@ import DropdownMenu from './DropdownMenu';
 
 // List of alternative to select words list category to generate password
 const groups = [
-    { label: "Komplicerad", value: "strong" },
-    { label: "Länder", value: "countries" },
-    { label: "Alla städer/tätort", value: "cities" },
-    { label: "Svenska städer/tätort", value: "sv_cities" },
-    { label: "Färg", value: "colors" },
-    { label: "Blommor", value: "flowers" },
-    { label: "Frukter", value: "fruits" },
-    { label: "Grönsaker", value: "vegetables" },
-    { label: "Djur", value: "animals" },
-    { label: "Kattens namn (smeknamn)", value: "cats" },
-    { label: "Bilar", value: "cars" }
+    { name: "Komplicerad", value: "strong" },
+    { name: "Länder", value: "countries" },
+    { name: "Alla städer/tätort", value: "cities" },
+    { name: "Svenska städer/tätort", value: "sv_cities" },
+    { name: "Färg", value: "colors" },
+    { name: "Blommor", value: "flowers" },
+    { name: "Frukter", value: "fruits" },
+    { name: "Grönsaker", value: "vegetables" },
+    { name: "Djur", value: "animals" },
+    { name: "Kattens namn (smeknamn)", value: "cats" },
+    { name: "Bilar", value: "cars" }
 ];
 
-const PasswordCategories = memo(function PasswordCategories({ limit, label, multiple, disabled, keyValue = "name", onChange }) {
+const PasswordCategories = memo(function PasswordCategories({ label, limit, multiple, disabled, keyValue = "name", onChange }) {
 
     // const refSelect = useRef(null);
 
     // Password words category
     const handlePasswordChange = (value) => {
-        if (!groups?.find(x => x.value === value) || value === "strong") {
+        if (!groups?.find(x => x[keyValue] === value) || value === "strong") {
             onChange();
             return;
         }
@@ -48,8 +48,9 @@ const PasswordCategories = memo(function PasswordCategories({ limit, label, mult
 
         } else if (wList.length > 0)
             wList = wList.filter(x => x.indexOf(" ") === -1 && x.length < 10);
-            
-        wList = wList.filter(x => (x.name && (x.name.length >= 3 && x.name.length <= limit)) || (x.length >= 3 && x.length <= limit));
+
+        if (limit)
+            wList = wList.filter(x => (x.name && (x.name.length >= 3 && x.name.length <= limit)) || (x.length >= 3 && x.length <= limit));
 
         if (multiple)
             onChange(wList);
@@ -65,7 +66,6 @@ const PasswordCategories = memo(function PasswordCategories({ limit, label, mult
             label={label}
             list={groups}
             keyValue={keyValue}
-            keyName="label"
             disabled={disabled}
             onChange={handlePasswordChange} />
     )
