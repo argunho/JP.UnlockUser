@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState} from 'react';
 
 // Installed
 import { ArrowDropDown, ArrowDropUp, Close } from '@mui/icons-material';
@@ -9,8 +9,8 @@ import { useNavigate, useOutletContext, useLocation } from 'react-router-dom';
 // Components
 import Form from '../../components/forms/Form';
 import TabPanel from '../../components/blocks/TabPanel';
-import ModalHelpTexts from '../../components/modals/ModalHelpTexts';
 import MultiplePassword from '../../components/blocks/MultiplePassword';
+
 
 function ClassManager() {
 
@@ -105,21 +105,9 @@ function ClassManager() {
                 hidden={hidden}
                 multiple={true}
                 passwordLength={8}>
-                    <MultiplePassword users={classMembers} onSwitch={(value) => setHidden(value)} />
+                    <MultiplePassword label={`${school} ${classId}\n${selected?.length} student(er)`} users={classMembers} onSwitch={(value) => setHidden(value)} />
                 </Form>
 
-            {/* Preview the list of generated passwords */}
-            {/* {multiple && <ModalHelpTexts
-                data={previewList}
-                cls="none"
-                isTitle={`${title} <span class='office-span'>${location.replace("%", " ")}</span>`}
-                isTable={true}
-                isSubmit={true}
-                regeneratePassword={() => refGenerate?.current?.click()}
-                inverseFunction={(save) => saveApply(save)}
-                ref={refModal} />} */}
-
-                
 
             {/* Save document to pdf */}
             {/* {(savePdf && confirmSavePdf) && <PDFConverter

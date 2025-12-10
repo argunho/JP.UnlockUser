@@ -1,4 +1,4 @@
-import { useReducer } from 'react';
+import { useReducer, useRef } from 'react';
 
 // Installed
 import { FormControlLabel, Radio, FormLabel, RadioGroup, Button } from "@mui/material";
@@ -7,6 +7,7 @@ import { TextField } from '@mui/material';
 // Components
 import PasswordCategories from '../lists/PasswordCategories';
 import { GeneratePasswordWithRandomWord, GenerateStrongPassword } from './PasswordGeneration';
+import ModalPreview from '../modals/ModalPreview';
 
 
 const initialState = {
@@ -15,7 +16,8 @@ const initialState = {
     numbersCount: 3,
     passwordType: "strong",
     inputWord: null,
-    limit: 8
+    limit: 8,
+    preview: null
 };
 
 // Action reducer
@@ -28,7 +30,7 @@ function actionReducer(state, action) {
             };
         case "RESET":
             return {
-                ...state, wordsList: [], numbersCount: 3, passwordType: "strong", inputWord: null, limit: 8
+                ...state, wordsList: [], numbersCount: 3, passwordType: "strong", inputWord: null, limit: 8, preview: null
             };
         default:
             return state;
@@ -57,15 +59,17 @@ const password_digits = [
     { label: "Password0", value: 1, color: "success" }
 ]
 
-function MultiplePassword({ users, disabled, onSwitch, onPreview, ref }) {
+function MultiplePassword({ users, label, disabled, onSwitch }) {
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { samePassword, wordsList, inputWord, numbersCount, passwordType, limit } = state;
+    const { samePassword, wordsList, inputWord, numbersCount, passwordType, limit, preview } = state;
+
+    const ref = useRef()
 
     function handleDispatch(name, value) {
         dispatch({ type: "PARAM", name: name, payload: value });
     }
 
-    function onChange(param, value){
+    function onChange(param, value) {
         dispatch({ type: "RESET" })
         handleDispatch(param, value);
     }
@@ -78,8 +82,9 @@ function MultiplePassword({ users, disabled, onSwitch, onPreview, ref }) {
     }
 
     // Generate multiple passwords
-    function generatePasswords(){
+    function generatePasswords() {
 
+        handleDispatch("preview", null);
         let preview = [];
 
         for (let i = 0; i < users?.length; i++) {
@@ -105,7 +110,7 @@ function MultiplePassword({ users, disabled, onSwitch, onPreview, ref }) {
             })
         }
 
-        onPreview(preview);
+        handleDispatch("preview", preview);
     }
 
     return (
@@ -211,7 +216,7 @@ function MultiplePassword({ users, disabled, onSwitch, onPreview, ref }) {
                                         {...radio}
                                         control={<Radio size='small' color={radio.color} />}
                                         onChange={() => handleDispatch("numbersCount", radio.value)}
-                                 />
+                                    />
                                 })}
                             </RadioGroup>
                         </div>}
@@ -227,6 +232,18 @@ function MultiplePassword({ users, disabled, onSwitch, onPreview, ref }) {
                     </Button>
                 </div>
             </div>
+
+            {/* Preview the list of generated passwords */}
+            {preview && <ModalPreview
+                data={preview}
+                label={label}
+                onChange={() => ref?.current?.click()}
+                onClose={() => dispatch({ type: "RESET"})}
+                // inverseFunction={(save) => saveApply(save)}
+             />}
+
+            {/* Hidden input */}
+            {preview && <input type="hidden" className="none" value={JSON.stringify(preview)} />}
         </>
     )
 }

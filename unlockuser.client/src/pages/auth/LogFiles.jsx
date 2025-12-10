@@ -10,7 +10,7 @@ import fileDownload from 'js-file-download';
 // Components
 import Message from '../../components/blocks/Message';
 import Loading from '../../components/Loading';
-import ModalHelpTexts from '../../components/modals/ModalHelpTexts'
+import ModalPreview from '../../components/modals/ModalPreview'
 import SearchFilter from '../../components/forms/SearchFilter';
 
 // Functions
@@ -107,11 +107,11 @@ function LogFiles({ loc }) {
                 </List>}
 
             {/* View log file content in the modal window */}
-            {!!viewFile && <ModalHelpTexts data={viewFile} isTable={true} view={true} isTitle="Logfilen">
+            {!!viewFile && <ModalPreview data={viewFile} isTable={true} view={true} isTitle="Logfilen">
                 <IconButton onClick={() => setFileView()}>
                     <Close color="error" />
                 </IconButton>
-            </ModalHelpTexts>}
+            </ModalPreview>}
 
             {/* Loading symbol */}
             {loading && <Loading msg="söker efter loggfiler." />}
