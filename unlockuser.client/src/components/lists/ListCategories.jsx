@@ -23,7 +23,7 @@ const groups = [
     { label: "Bilar", value: "cars" }
 ];
 
-const ListCategories = memo(function ListCategories({ limitedChars, label, multiple, disabled, keyValue = "name", onChange }) {
+const ListCategories = memo(function ListCategories({ limit, label, multiple, disabled, keyValue = "name", onChange }) {
 
     // const refSelect = useRef(null);
 
@@ -35,6 +35,7 @@ const ListCategories = memo(function ListCategories({ limitedChars, label, multi
         }
 
         let wList = words[value] || [];
+        wList.filter(x => (x.name && (x.name.length >= 3 && x.name.length <= limit)) || (x.length >= 3 && x.length <= limit));
 
         if (wList.length === 0) {
             if (value === "cities")
@@ -48,9 +49,6 @@ const ListCategories = memo(function ListCategories({ limitedChars, label, multi
 
         } else if (wList.length > 0)
             wList = wList.filter(x => x.indexOf(" ") === -1 && x.length < 10);
-
-        if (limitedChars && wList.length > 0)
-            wList = wList.filter(x => (x.name && (x.name.length > 4 && x.name.length < 8)) || (x.length > 4 && x.length < 8));
 
         if (multiple)
             onChange(wList);

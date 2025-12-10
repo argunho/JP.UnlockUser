@@ -44,13 +44,3 @@
     color: var(--color-disabled);
     background-color: transparent;
 }
-
-.left-section {
-  width: max-content;
-  align-items: flex-start;
-}
-
-.right-section {
-  width: max-content;
-  align-self: flex-start;
-}

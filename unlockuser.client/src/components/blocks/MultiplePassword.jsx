@@ -47,7 +47,7 @@ const radio_digits = [
     { label: "Från 8 tecken", value: false }
 ]
 
-function MultiplePassword({ users, onSwitch }) {
+function MultiplePassword({ users, disabled, onSwitch }) {
     const [state, dispatch] = useReducer(actionReducer, initialState);
     const { samePassword, wordsList, numbersCount, passwordType, limitedChars, preview } = state;
 
@@ -107,7 +107,6 @@ function MultiplePassword({ users, onSwitch }) {
         handleDispatch("preview", value);
     }
 
-
     // Generate multiple passwords
     const generatePasswords = () => {
 
@@ -118,44 +117,44 @@ function MultiplePassword({ users, onSwitch }) {
             let broken = false;
             let randomNumber = randomNumbers[numbersCount];
 
-            if (passwordType !== "strong") {
-                const randomWord = wordsList.length === 1 ? wordsList[0] : wordsList[Math.floor(Math.random() * wordsList.length)];
-                password += (randomWord?.name || randomWord);
+            // if (passwordType !== "strong") {
+            //     const randomWord = wordsList.length === 1 ? wordsList[0] : wordsList[Math.floor(Math.random() * wordsList.length)];
+            //     password += (randomWord?.name || randomWord);
 
-                if (randomNumber === 0)
-                    randomNumber = randomNumbers[8 - password.length];
+            //     if (randomNumber === 0)
+            //         randomNumber = randomNumbers[8 - password.length];
 
-                let min = (randomNumber / 10);
+            //     let min = (randomNumber / 10);
 
-                if (!eng.test(password))
-                    password = ReplaceLetters(password);
+            //     if (!eng.test(password))
+            //         password = ReplaceLetters(password);
 
-                broken = !eng.test(password);
+            //     broken = !eng.test(password);
 
-                password += (Math.random() * (randomNumber - min) + min).toFixed(0);
-                if (passwordLength === 12)
-                    password += symbols[Math.floor(Math.random() * symbols.length)];
+            //     password += (Math.random() * (randomNumber - min) + min).toFixed(0);
+            //     if (passwordLength === 12)
+            //         password += symbols[Math.floor(Math.random() * symbols.length)];
 
-                password = capitalize(password);
-            } else
-                password = returnGeneratedPassword();
+            //     password = capitalize(password);
+            // } else
+            //     password = returnGeneratedPassword();
 
-            const noExists = usersArray.find(x => x.password === password) === undefined;
+            // const noExists = usersArray.find(x => x.password === password) === undefined;
 
-            if (regex.test(password) && !broken && noExists) {
-                usersArray.push({
-                    username: users[i].name,
-                    password: password
-                })
+            // if (regex.test(password) && !broken && noExists) {
+            //     usersArray.push({
+            //         username: users[i].name,
+            //         password: password
+            //     })
 
-                preview.push({
-                    displayName: users[i].displayName,
-                    passwordHtml: `<p style='margin-bottom:20px;text-indent:15px'> 
-                                    Lösenord: <span style='color:#c00;font-weight:600;letter-spacing:0.5px'>${password}</span></p>`,
-                    password: password
-                });
-            } else
-                i -= 1;
+            //     preview.push({
+            //         displayName: users[i].displayName,
+            //         passwordHtml: `<p style='margin-bottom:20px;text-indent:15px'> 
+            //                         Lösenord: <span style='color:#c00;font-weight:600;letter-spacing:0.5px'>${password}</span></p>`,
+            //         password: password
+            //     });
+            // } else
+            //     i -= 1;
         }
 
         setPreview(preview);
@@ -280,9 +279,8 @@ function MultiplePassword({ users, onSwitch }) {
                     size="small"
                     className="generate-password"
                     onClick={generatePasswords}
-                    disabled={disabledTooltip || disabledClick}
-                    ref={ref}>
-                    Generera {regenerate && " andra"} lösenord
+                    disabled={disabled} >
+                    Generera lösenord
                 </Button>
             </div>
         </>

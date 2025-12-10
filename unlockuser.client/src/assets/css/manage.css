@@ -54,15 +54,15 @@
   letter-spacing: 0.5px;
 }
 
-.label,
-.label-small {
+.radio-label,
+.radio-label-small {
   color: rgb(49, 47, 47) !important;
   width: max-content;
   margin: 5px 15px 5px 0 !important;
   display: block;
 }
 
-.label-small {
+.radio-label-small {
   font-size: 12px !important;
   color: #525252 !important;
   margin-top: 20px !important;

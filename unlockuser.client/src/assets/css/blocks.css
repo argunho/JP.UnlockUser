@@ -80,17 +80,14 @@ button.reset-button {
 .actions-wrapper {
   padding: 0 3px;
   height: max-content;
-  justify-content: space-between;
 }
 
-.actions-wrapper span.MuiFormControlLabel-label {
+.action-wrappers label,
+.actions-wrapper span:last-of-type {
   color: #4b4b4b !important;
-  font-size: 12px !important;
-}
-
-.actions-wrapper span.MuiCheckbox-root,
-.actions-wrapper span.MuiCheckbox-root:active {
-  background-color: transparent !important;
+  font-size: 16px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .link-files {
@@ -148,10 +145,6 @@ button.reset-button {
   position: absolute;
   top: 10px;
   right: 10px;
-}
-
-.right-section .situated-btn {
-  position: unset;
 }
 
 .typography-email-span {

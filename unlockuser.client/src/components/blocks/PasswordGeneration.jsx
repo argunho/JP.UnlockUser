@@ -7,65 +7,47 @@ import ListCategories from './../lists/ListCategories';
 // Functions
 import ReplaceLetters from './../../functions/ReplaceLetters';
 
-function PasswordGeneration({ disabled, users, passwordLength, setGenerated, onChange }) {
+const eng = /^[A-Za-z]+$/;
+const symbols = "!@?$&#^%*-,;._";
 
-    // Regex to validate password 
-    const regex = passwordLength === 12
-        ? /^(?=.*[0-9])(?=.*[!@?$&#^%*-,;._])[A-Za-z0-9!@?$&#^%*-,;._]{12,50}$/
-        : /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])[A-Za-z0-9]{8,50}$/;
-    const eng = /^[A-Za-z]+$/;
-    const symbols = "!@?$&#^%*-,;._";
-    const randomNumbers = [0, 10, 100, 1000];
+export function GeneratePasswordWithRandomWord(word, lgh) {
+    let password = word;
+
+    if (!eng.test(word))
+        password = ReplaceLetters(word);
+    const randomNumber = 10 ** (lgh - word.length); // 10 ** (res - 1)
+    const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+
+    const min = (randomNumber / 10);
+    password += (Math.random() * (randomNumber - min) + min).toFixed(0);
+    if (lgh > 8)
+        password += randomSymbol;
+
+    return capitalize(password);
+}
+
+function PasswordGeneration({ disabled, passwordLength, setGenerated, onChange, regex }) {
+    console.log(passwordLength)
+
 
     const setPassword = (value) => {
         onChange(value);
         setGenerated(true);
     }
 
-
     // Generate new password
     const generatePassword = () => {
-        let usersArray = [];
         let password = returnGeneratedPassword();
 
         while (!regex.test(password))
             password = returnGeneratedPassword();
-        if (users.length > 0) {
-            for (var i = 0; i < users.length; i++) {
-                usersArray.push({
-                    username: users[i].name,
-                    password: password
-                })
-            }
-            setPassword({ password: password, users: usersArray });
-        } else
-            setPassword({ password: password });
+            setPassword(password);
     }
 
     // Generate one password with a word choice from a list of word categories
     const generatePasswordWithRandomWord = (word) => {
-
-        let usersArray = [];
-        let password = word;
-
-        if (!eng.test(word))
-            password = ReplaceLetters(word);
-        const randomNumber = randomNumbers[8 - word.length];
-        const min = (randomNumber / 10);
-        password += (Math.random() * (randomNumber - min) + min).toFixed(0);
-
-        password = capitalize(password);
-        if (users.length > 0) {
-            for (var i = 0; i < users.length; i++) {
-                usersArray.push({
-                    username: users[i].name,
-                    password: password
-                })
-            }
-            setPassword({ password: password, users: usersArray });
-        }
-        else
-            setPassword({ password: password });
+        let password = GeneratePasswordWithRandomWord(word, passwordLength);
+        setPassword(password);
     }
 
     // Generate strong password
@@ -97,7 +79,7 @@ function PasswordGeneration({ disabled, users, passwordLength, setGenerated, onC
         <ListCategories
             label="Generera lösenord"
             keyValue="value"
-            limitedChars={true}
+            limit={passwordLength - 2}
             disabled={disabled}
             onChange={(value) =>
                 value ? generatePasswordWithRandomWord(value)

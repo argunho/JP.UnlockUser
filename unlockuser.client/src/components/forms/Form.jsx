@@ -8,8 +8,8 @@ import { Abc, Password } from '@mui/icons-material';
 
 // Components
 import ModalView from '../modals/ModalView';
-import Message from '../blocks/Message';
 import FormButtons from './FormButtons';
+import Message from './../blocks/Message';
 import PasswordGeneration from '../blocks/PasswordGeneration';
 
 // Functions
@@ -29,7 +29,7 @@ const fields = [
 
 const initialState = {
     showPassword: false,
-    formData: null,
+    password: null,
     isCleaned: null,
     isChanged: false
 };
@@ -41,6 +41,10 @@ function actionReducer(state, action) {
         case "PARAM":
             return {
                 ...state, [action.name]: payload
+            };
+        case "PASSWORD":
+            return {
+                ...state, isChanged: true, showPassword: true, password: payload
             };
         case "RESET_FORM_TOTAL":
             return {
@@ -56,13 +60,18 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
     const { group } = use(AuthContext);
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { showPassword, formData, isCleaned, isChanged } = state;
+    const { showPassword, password, isCleaned, isChanged } = state;
 
     const { response, pending: load, fetchData, handleResponse } = use(FetchContext);
 
 
     const decodedToken = DecodedToken();
     const developer = decodedToken?.Roles?.indexOf("Developer") > -1;
+
+    // Regex to validate password 
+    const regex = passwordLength === 12
+        ? /^(?=.*[0-9])(?=.*[!@?$&#^%*-,;._])[A-Za-z0-9!@?$&#^%*-,;._]{12,50}$/
+        : /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])[A-Za-z0-9]{8,50}$/;
 
     function handleDispatch(name, value) {
         dispatch({ type: "PARAM", name: name, payload: value });
@@ -73,57 +82,78 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
         dispatch({ type: "RESET_FORM_TOTAL" });
     }
 
-    function onChange(data) {
-        handleDispatch("formData", data);
-        handleDispatch("showPassword", true);
+    function onChange(value) {
+        dispatch("PASSWORD", value);
     }
 
-    // Function - submit form
+    // Submit form => This is used when a password is being set for a user.
     async function onSubmit(previous, fd) {
+        const { data, error } = comparePasswords(fd);
+
+        if (error)
+            return { data, error };
+
+        data.username = users[0].name;
+        data.group = group;
+
+        // Request
+        await fetchData({ api: "user/reset/password/", method: "post", data: data });
+
+        onReset();
+
+        return null;
+    }
+
+    // Submit form => This is used when a password is being set for a school class.
+    async function onSubmitMultiple(previous, fd) {
+        let data = {};
+        let error = null;
+
+        // If form inputs not used for password
+        if (!hidden) {
+            const res = comparePasswords(fd);
+            data = res.data;
+            error = res.error;
+        }
+
+        if (error)
+            return { data, error };
+
+        // Request
+        await fetchData({ api: "user/reset/password/", method: "post", data: data });
+
+        onReset();
+
+        return null;
+    }
+
+    function comparePasswords(fd) {
+        const _password = fd.get("password").trim();
+        const _confirmPassword = fd.get("confirmPassword").trim();
+
         let data = {
-            password: fd.get("password"),
-            confirmPassword: fd.get("confirmPassword"),
-            users: [],
+            password: _password,
             check: false
         };
 
         if (fd.get("check") === "on")
             data.check = true;
 
-        let errors = [];
+        let error = null;
+        if (_password.length < passwordLength)
+            error = `Lösenords längd måste bli minst ${passwordLength} tecken`;
+        else if (_password !== _confirmPassword)
+            error = "Lösenorden matchar inte. Kontrollera och försök igen.";
+        else if (!regex.test(password))
+            error = "Lösenordet följer inte det angivna formatet. Var god kontrollera kraven.";
 
-        if (data.password?.length < passwordLength)
-            errors.push("password");
-        if (data.password !== data.confirmPassword)
-            errors.push("confirmPassword");
-
-        data.users = formData?.users?.map((user) => {
-            return {
-                username: user.name,
-                password: data.password,
-                groupName: group
-            };
-        });
-
-        if (errors?.length > 0) {
-            return {
-                data: data,
-                errors: errors
-            }
-        }
-
-        // Request
-        await fetchData({ api: "user/reset/password/", method: "post", data: data });
-
-
-        onReset();
-        // handleDispatch("savePdf", "true");
+        return { data, error };
     }
 
     const disabled = load || !!response;
-    const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
-    const errors = formState.errors;
-    
+    const [formState, formAction, pending] = useActionState(multiple ? onSubmitMultiple : onSubmit, { error: null });
+    const error = formState.error;
+
     return (
         <>
             <div className='form-wrapper w-100'>
@@ -143,10 +173,10 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
                     {/* Generate password */}
                     {!multiple && <PasswordGeneration
                         key={isCleaned}
-                        users={users}
                         passwordLength={passwordLength}
                         disabled={load || !!response}
                         setGenerated={val => handleDispatch("isGenerated", val)}
+                        regex={regex}
                         onChange={onChange} />}
 
                 </div>
@@ -158,12 +188,15 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
                 {/* Password form */}
                 <form key={isCleaned} className='user-view-form fade-in' action={formAction}>
 
+                    {/* Error message */}
+                    {error && <Message res={{color: "error", msg: error }} />}
+
                     {children}
 
                     {/* Passwords inputs */}
                     {!hidden && fields?.map((field, i) => {
 
-                        const value = formState[field.name] ?? formData?.password ?? "";
+                        const value = formState[field.name] ?? password ?? "";
 
                         return <FormControl key={i} fullWidth>
                             <TextField
@@ -190,11 +223,10 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
                                     )
                                 } : undefined
                                 }
-                                className={`field ${(errors?.[field.name] ? "error" : '')}`}
-                                error={errors?.[field.name]}
+                                className={`field ${(error ? "error" : '')}`}
+                                error={error}
                                 placeholder={field?.placeholder}
                                 disabled={pending}
-                                helpText={errors?.[field.name]}
                             />
                         </FormControl>
                     })}
@@ -203,7 +235,7 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
                     {/* Buttons */}
                     <FormButtons
                         label={multiple ? "Granska" : "Verkställ"}
-                        disabled={!formData && !isChanged}
+                        disabled={!isChanged}
                         confirmable={true}
                         loading={load && !response}
                         onCancel={onReset}

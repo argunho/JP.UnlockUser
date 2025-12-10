@@ -288,10 +288,13 @@ function Home() {
             {/* The search parameters to choice */}
             <section className="actions-wrapper d-row jc-between w-100" id="crw">
 
-                <div className='left-section d-row ai-start'>
+                <div className='d-row ai-start'>
                     {/* Radio buttons to choice one of search alternatives */}
-                    {group?.name === "Studenter" && <FormControl className='checkbox-block-mobile'>
-                        <RadioGroup row name="row-radio-buttons-group">
+                    {group?.name === "Studenter" && <FormControl>
+                        <RadioGroup 
+                            row 
+                            name="row-radio-buttons-group">
+
                             {/* Loop of radio input choices */}
                             {radioChoices?.map((p, index) => (
                                 <Tooltip
@@ -314,7 +317,6 @@ function Home() {
                                     arrow>
                                     <FormControlLabel
                                         control={<Radio
-                                            size='small'
                                             checked={p.value === "user" ? !isClass : isClass}
                                             color="success" />}
                                         label={p.label}
@@ -325,7 +327,7 @@ function Home() {
                     </FormControl>}
                 </div>
 
-                <div className='right-section d-row'>
+                <div className='d-row'>
                     {/* Switchable box */}
                     <FormControlLabel
                         className='switch-btn'
