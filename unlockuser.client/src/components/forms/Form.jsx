@@ -100,7 +100,6 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
         await fetchData({ api: "user/reset/password/", method: "post", data: data });
 
         onReset();
-
         return null;
     }
 
@@ -114,16 +113,17 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
             const res = comparePasswords(fd);
             data = res.data;
             error = res.error;
-        }
+        } 
 
         if (error)
             return { data, error };
+
+        data.users = users;
 
         // Request
         await fetchData({ api: "user/reset/password/", method: "post", data: data });
 
         onReset();
-
         return null;
     }
 
@@ -150,9 +150,9 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
         return { data, error };
     }
 
-    const disabled = load || !!response;
     const [formState, formAction, pending] = useActionState(multiple ? onSubmitMultiple : onSubmit, { error: null });
     const error = formState.error;
+    const disabled = load || !!response || pending;
 
     return (
         <>
