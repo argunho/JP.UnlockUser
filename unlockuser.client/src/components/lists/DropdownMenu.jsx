@@ -5,7 +5,7 @@ import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 function DropdownMenu({ label, list, link, value, disabled, keyValue = "name", keyName = "name", onChange: handleChange }) {
-console.log(list)
+
     const [selected, setSelected] = useState();
     const navigate = useNavigate();
 
@@ -14,7 +14,7 @@ console.log(list)
         if (link)
             navigate(link ? link + value : value, { replace: true })
         else {
-            setSelected(list.find(x => x[keyValue] === value));
+            setSelected(list.find(x => x[keyValue].toLowerCase() === value));
             handleChange(value);
         }
     }

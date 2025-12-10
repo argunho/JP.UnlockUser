@@ -26,6 +26,31 @@ export function GeneratePasswordWithRandomWord(word, lgh) {
     return capitalize(password);
 }
 
+export function GenerateStrongPassword(lgh) {
+    let password = "";
+    for (var i = 0; i < lgh; i++) {
+        password += RandomChar(i, lgh);
+    }
+    return password;
+}
+
+// Return random characters to generate password
+export function RandomChar(num, lgh) {
+    let strArr = [
+        String.fromCharCode(Math.floor(Math.random() * 26) + 97),
+        String.fromCharCode(Math.floor(Math.random() * 26) + 65),
+        String.fromCharCode(Math.floor(Math.random() * 10) + 48)
+    ];
+
+    if (lgh === 12 && lgh - (num + 1) === 0)
+        strArr = symbols.split("");
+    else
+        strArr.push(strArr[Math.floor(Math.random() * strArr.length)]);
+
+    return strArr[Math.floor(Math.random() * strArr.length)];
+}
+
+
 function PasswordGeneration({ disabled, passwordLength, setGenerated, onChange, regex }) {
 
     const setPassword = (value) => {
@@ -35,10 +60,10 @@ function PasswordGeneration({ disabled, passwordLength, setGenerated, onChange, 
 
     // Generate new password
     const generatePassword = () => {
-        let password = returnGeneratedPassword();
+        let password = GenerateStrongPassword(passwordLength);
 
         while (!regex.test(password))
-            password = returnGeneratedPassword();
+            password = GenerateStrongPassword(passwordLength);
         setPassword(password);
     }
 
@@ -48,30 +73,6 @@ function PasswordGeneration({ disabled, passwordLength, setGenerated, onChange, 
         setPassword(password);
     }
 
-    // Generate strong password
-    const returnGeneratedPassword = () => {
-        let password = "";
-        for (var i = 0; i < passwordLength; i++) {
-            password += randomChar(i);
-        }
-        return password;
-    }
-
-    // Return random characters to generate password
-    const randomChar = (num) => {
-        let strArr = [
-            String.fromCharCode(Math.floor(Math.random() * 26) + 97),
-            String.fromCharCode(Math.floor(Math.random() * 26) + 65),
-            String.fromCharCode(Math.floor(Math.random() * 10) + 48)
-        ];
-
-        if (passwordLength === 12 && passwordLength - (num + 1) === 0)
-            strArr = symbols.split("");
-        else
-            strArr.push(strArr[Math.floor(Math.random() * strArr.length)]);
-
-        return strArr[Math.floor(Math.random() * strArr.length)];
-    }
 
     return (
         <PasswordCategories

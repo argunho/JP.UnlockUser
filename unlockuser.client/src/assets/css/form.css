@@ -82,7 +82,7 @@ input[type="password"]:disabled {
 .dropdown-wrapper .dm-wrapper,
 .dropdown-wrapper .field-word {
   margin-top: 10px !important;
-  width: 350px !important;
+  width: 400px !important;
   max-width: unset !important;
 }
 

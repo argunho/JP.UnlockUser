@@ -16,7 +16,7 @@ function ClassManager() {
 
     const [dropdown, setDropdown] = useState(false);
     const [removed, setRemoved] = useState([]);
-    const [visible, setVisible] = useState(true);
+    const [hidden, setHidden] = useState(false);
 
     const { collections, classId, school } = useOutletContext();
 
@@ -102,10 +102,10 @@ function ClassManager() {
             <Form 
                 label={"Nya lösenord till " + classMembers?.length + " elev" + (classMembers?.length === 1 ? "er" : "")}
                 users={classMembers}
-                visible={visible}
+                hidden={hidden}
                 multiple={true}
                 passwordLength={8}>
-                    <MultiplePassword users={classMembers} onSwitch={(value) => setVisible(value)} />
+                    <MultiplePassword users={classMembers} onSwitch={(value) => setHidden(value)} />
                 </Form>
 
             {/* Preview the list of generated passwords */}

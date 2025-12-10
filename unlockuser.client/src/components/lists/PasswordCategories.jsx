@@ -25,16 +25,16 @@ const groups = [
 
 const PasswordCategories = memo(function PasswordCategories({ label, limit, multiple, disabled, keyValue = "name", onChange }) {
 
-    // const refSelect = useRef(null);
-
     // Password words category
     const handlePasswordChange = (value) => {
-        if (!groups?.find(x => x[keyValue] === value) || value === "strong") {
+        const group = groups?.find(x => x[keyValue].toLowerCase() === value);
+        
+        if (!group || group?.value === "strong") {
             onChange();
             return;
         }
 
-        let wList = words[value] || [];
+        let wList = words[group?.value] || [];
 
         if (wList.length === 0) {
             if (value === "cities")
@@ -49,7 +49,7 @@ const PasswordCategories = memo(function PasswordCategories({ label, limit, mult
         } else if (wList.length > 0)
             wList = wList.filter(x => x.indexOf(" ") === -1 && x.length < 10);
 
-        if (limit)
+        if (limit && limit !== isNaN)
             wList = wList.filter(x => (x.name && (x.name.length >= 3 && x.name.length <= limit)) || (x.length >= 3 && x.length <= limit));
 
         if (multiple)
@@ -58,7 +58,6 @@ const PasswordCategories = memo(function PasswordCategories({ label, limit, mult
             let word = wList[Math.floor(Math.random() * wList.length)]
             onChange(word?.name || word);
         }
-
     }
 
     return (
@@ -72,31 +71,3 @@ const PasswordCategories = memo(function PasswordCategories({ label, limit, mult
 })
 
 export default PasswordCategories;
-// return (
-//     <FormControl className={'select-list' + ((!multiple) ? " btn-select-list" : "")} ref={refSelect} >
-//         <InputLabel className='select-label'>
-//             {label}
-//         </InputLabel>
-//         <Select
-//             value={selectedCategory}
-//             onChange={handleSelectListChange}
-//             label={label}
-//             sx={{
-//                 height: multiple ? 50 : 40,
-//                 color: disabled ? "#cccccc" : "#1976D2"
-//             }}
-//             disabled={disabled}
-//         >
-
-//             <MenuItem value="">
-//                 <span style={{ marginLeft: "10px", color: "#1976D2" }}>Välj en från listan ...</span>
-//             </MenuItem>
-//             <MenuItem></MenuItem>
-//             {(multiple ? passwordKeys.slice(1) : passwordKeys).map((l, index) => (
-//                 <MenuItem value={l.label} key={index}>
-//                     <span style={{ marginLeft: "10px" }}> - {l.label}</span>
-//                 </MenuItem>
-//             ))}
-//         </Select>
-//     </FormControl>
-// )
