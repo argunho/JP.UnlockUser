@@ -5,11 +5,6 @@ export const Tips = [
         value: "match"
     },
     {
-        primary: "Tips",
-        secondary: "Genom att klicka på varje sökalternativ aktiveras en dold tipsruta som visas när du för musen över sökalternativen.",
-        value: "tips"
-    },
-    {
         primary: "Resultat",
         secondary: "Resultatet kan bli från 0 till flera hittade användare beroende på sökord och sökalternativ.",
         value: ""

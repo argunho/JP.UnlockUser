@@ -5,7 +5,7 @@ import _ from "lodash";
 import { SearchOffSharp, SearchSharp, Close, List } from '@mui/icons-material';
 import {
     Button, FormControl, FormControlLabel, Tooltip, IconButton,
-    Radio, RadioGroup, TextField, Switch, Checkbox, InputAdornment
+    Radio, RadioGroup, TextField, Checkbox, InputAdornment
 } from '@mui/material';
 import { useOutletContext } from 'react-router-dom';
 
@@ -25,7 +25,6 @@ import { FetchContext } from '../../storage/FetchContext';
 
 // Models
 import { AllTips, Tips } from '../../models/HelpTexts';
-import { Colors } from '../../models/Colors';
 
 
 const radioChoices = [
@@ -34,13 +33,12 @@ const radioChoices = [
 ]
 
 const initialState = {
-    showTips: false,
     group: [],
     users: null,
     isClass: false,
     isMatch: true,
     isChanged: false,
-    isErased: null
+    isCleaned: null
 }
 
 // Action reducer
@@ -76,7 +74,7 @@ function actionReducer(state, action) {
                 isChanged: false,
                 users: null,
                 isMatch: false,
-                isErased: new Date().getMilliseconds()
+                isCleaned: new Date().getMilliseconds()
             };
         default:
             return state;
@@ -89,11 +87,11 @@ import './../../assets/css/home.css';
 function Home() {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { isClass, isMatch, isChanged, isErased, users, group, showTips } = state;
+    const { isClass, isMatch, isChanged, isCleaned, users, group } = state;
 
     const groups = Claim("groups");
 
-    const { collections, sessionData , schools, group: groupName } = useOutletContext();
+    const { collections, sessionData, schools, group: groupName } = useOutletContext();
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
@@ -189,7 +187,7 @@ function Home() {
     return (
         <>
             {/* Search form */}
-            <form key={isErased} className='d-row search-form w-100' action={formAction}>
+            <form key={isCleaned} className='d-row search-form w-100' action={formAction}>
 
                 {/* collections lust to choose */}
                 {isClass && <AutocompleteList
@@ -225,23 +223,7 @@ function Home() {
                                     disabled={isClass}
                                     checked={isMatch}
                                     onClick={() => handleDispatch("isMatch", !isMatch)} />}
-                                label={<Tooltip
-                                    disableHoverListener={!showTips}
-                                    title={Tips.find(x => x.value === "match")?.secondary}
-                                    classes={{
-                                        tooltip: "tooltip-default"
-                                    }}
-                                    PopperProps={{
-                                        sx: {
-                                            '& .MuiTooltip-tooltip': {
-                                                backgroundColor: Colors["primary"]
-                                            },
-                                            '& .MuiTooltip-arrow': {
-                                                color: Colors["primary"]
-                                            }
-                                        }
-                                    }}
-                                    arrow>Exact match</Tooltip>} />}
+                                label="Exact match" />}
 
                             {/* Reset form - button */}
                             <Button
@@ -285,64 +267,24 @@ function Home() {
                     disabled={groups?.length === 1} />}
             </form>
 
-            {/* The search parameters to choice */}
-            <section className="actions-wrapper d-row jc-between w-100" id="crw">
+            {/* Radio buttons to choice one of search alternatives */}
+            {group?.name === "Studenter" && <FormControl className="actions-wrapper d-row ai-end w-100">
+                <RadioGroup
+                    row
+                    name="row-radio-buttons-group">
 
-                <div className='d-row ai-start'>
-                    {/* Radio buttons to choice one of search alternatives */}
-                    {group?.name === "Studenter" && <FormControl>
-                        <RadioGroup 
-                            row 
-                            name="row-radio-buttons-group">
-
-                            {/* Loop of radio input choices */}
-                            {radioChoices?.map((p, index) => (
-                                <Tooltip
-                                    key={index}
-                                    disableHoverListener={!showTips}
-                                    title={AllTips.find(x => x.value === p.value)?.secondary}
-                                    classes={{
-                                        tooltip: "tooltip-default"
-                                    }}
-                                    PopperProps={{
-                                        sx: {
-                                            '& .MuiTooltip-tooltip': {
-                                                backgroundColor: Colors["success"]
-                                            },
-                                            '& .MuiTooltip-arrow': {
-                                                color: Colors["success"]
-                                            }
-                                        }
-                                    }}
-                                    arrow>
-                                    <FormControlLabel
-                                        control={<Radio
-                                            checked={p.value === "user" ? !isClass : isClass}
-                                            color="success" />}
-                                        label={p.label}
-                                        onChange={() => handleDispatch("isClass", !isClass, "SEARCH_OPTION")} />
-                                </Tooltip>
-                            ))}
-                        </RadioGroup>
-                    </FormControl>}
-                </div>
-
-                <div className='d-row'>
-                    {/* Switchable box */}
-                    <FormControlLabel
-                        className='switch-btn'
-                        control={<Switch
-                            checked={showTips}
-                            color='info'
-                            onChange={() => handleDispatch("showTips", !showTips)} />}
-                        label="Tips" />
-
-                    {/* Modal  window with help texts */}
-                    <ModalView
-                        label="Förklaring av sökparametrar"
-                        content={group?.name === "Studenter" ? AllTips : Tips} />
-                </div>
-            </section>
+                    {/* Loop of radio input choices */}
+                    {radioChoices?.map((p, index) => (
+                        <FormControlLabel
+                            key={index}
+                            control={<Radio
+                                checked={p.value === "user" ? !isClass : isClass}
+                                color="success" />}
+                            label={p.label}
+                            onChange={() => handleDispatch("isClass", !isClass, "SEARCH_OPTION")} />
+                    ))}
+                </RadioGroup>
+            </FormControl>}
 
             {/* Result info box */}
             <div className='d-row jc-between w-100 view-list-result'>
@@ -368,6 +310,11 @@ function Home() {
                         <Close />
                     </IconButton>
                 </Tooltip>}
+
+                {/* Modal  window with help texts */}
+                <ModalView
+                    label="Förklaring av sökparametrar"
+                    content={group?.name === "Studenter" ? AllTips : Tips} />
             </div>
 
             {/* List loading */}

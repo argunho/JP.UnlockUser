@@ -112,20 +112,6 @@ button.reset-button {
   color: #000 !important;
 }
 
-.switch-btn,
-.help-btn {
-  float: right;
-}
-
-.switch-btn>.MuiSwitch-root {
-  height: 38px;
-}
-
-.switch-btn .MuiSwitch-thumb {
-  height: 18px;
-  width: 18px;
-}
-
 .help-btn label {
   margin-right: 0 !important;
   margin-left: 5px !important;

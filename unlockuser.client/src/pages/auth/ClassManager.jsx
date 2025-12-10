@@ -25,7 +25,6 @@ function ClassManager() {
     const loc = useLocation();
     const { selected } = loc.state;
 
-
     const users = collections.studenter?.map((user) => {
         if (selected.includes(user?.name))
             return user;
