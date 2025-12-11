@@ -30,7 +30,8 @@ function DashboardProvider({ children }) {
         if (!isAuthorized) return;
 
         if (IsLocalhost && sessionStorage.getItem("collections")) {
-            setCollections(JSON.paras(sessionStorage.getItem("collections")));
+            setCollections(JSON.parse(sessionStorage.getItem("collections")));
+            setLoading(false);
             return;
         }
 

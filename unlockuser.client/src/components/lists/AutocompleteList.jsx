@@ -27,7 +27,7 @@ const AutocompleteList = memo(function AutocompleteList({ label, multiple, name,
         isOptionEqualToValue={(option, value) => {
             return option === value;
         }}
-        shrink={true}
+        shrink="true"
         getOptionLabel={(option) => option?.primary ?? ""}
         renderOption={(props, option, { index }) => {
             const { key, ...other } = props;
@@ -51,12 +51,12 @@ const AutocompleteList = memo(function AutocompleteList({ label, multiple, name,
                     autoSave='off' />
 
                 {/* Hidden input to capture value for FormData */}
-                <input
+                {value && <input
                     type="hidden"
                     name={name}
                     ref={ref}
                     value={multiple ? JSON.stringify(keyword ? value?.map(v => v[keyword]) : value)
-                        : (typeof value === "object" ? (keyword ? value[keyword] : JSON.stringify(value)) : value)} />
+                        : (typeof value === "object" ? (keyword ? value?.[keyword] : JSON.stringify(value)) : value)} />}
             </>
         )}
         disableClearable={!value}

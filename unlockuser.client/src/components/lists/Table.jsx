@@ -1,11 +1,11 @@
 function Table({ columns, rows, list }) {
-console.log(rows, list)
+
     return (
         <table className="preview-container w-100 d-column" id="list">
             <thead className='preview-wrapper w-100'>
                 <tr className="d-row jc-start w-100">
                     <th className="number d-row">#</th>
-                    {columns.map((n, i) => (<th className="d-row jc-start w-100" key={i}>{n}</th>))}
+                    {columns.map((column) => (<th className="d-row jc-start w-100" key={column}>{column}</th>))}
                 </tr>
             </thead>
             <tbody className="preview-wrapper w-100">

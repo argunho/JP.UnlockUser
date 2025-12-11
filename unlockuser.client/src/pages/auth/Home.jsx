@@ -186,9 +186,9 @@ function Home() {
                     required={true}
                     shrink={true}
                     disabled={loading}
-                    defValue={formState?.school}
+                    defValue={formState?.school ?? ""}
                     keyword="id"
-                    placeholder="Skriv exakt skolnamn här .."
+                    placeholder="Välj skolnamn .."
                     ref={refAutocomplete}
                 />}
 
@@ -196,10 +196,10 @@ function Home() {
                 <TextField
                     name="name"
                     label={isClass ? "Klassbeteckning" : "Namn"}
-                    variant="outlined"
                     required
                     fullWidth
-                    value={formState?.name}
+                    value={formState?.name ?? ""}
+                    onChange={onChange}
                     className="search-wrapper w-100"
                     InputProps={{
                         maxLength: 30,
@@ -239,12 +239,14 @@ function Home() {
                     }}
                     InputLabelProps={{ shrink: true }}
                     disabled={loading}
-                    placeholder={isClass ? "Skriv exakt klassbeteckning här ..." : (isMatch ? "Skriv exakt fullständigt namn eller anvädarnamn här ..." : "Sök ord här ...")}
+                    placeholder={isClass 
+                        ? "Skriv exakt klassbeteckning här ..." 
+                        : (isMatch ? "Skriv exakt fullständigt namn eller anvädarnamn här ..." : "Sök ord här ...")
+                    }
                     onKeyDown={(e) => {
                         if (e.key === 'Enter')
                             refSubmit.current?.click();
                     }}
-                    onChange={onChange}
                 />
 
                 {/* Choose group */}
