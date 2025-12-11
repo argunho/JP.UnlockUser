@@ -8,14 +8,13 @@ import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 
 // Components
 import Logotype from './Logotype';
+import HiddenMenu from './HiddenMenu';
 
 // Functions
-import SessionData from '../../functions/SessionData';
 import { DecodedClaims } from '../../functions/DecodedToken';
 
 // Css
 import '../../assets/css/header.css';
-import HiddenMenu from './HiddenMenu';
 
 
 const links = [
@@ -23,7 +22,7 @@ const links = [
     { label: "Mina behörigheter", url: "/permissions", icon: <FactCheck />, access: false, hidden: false },
     { label: "Skolor", url: "schools", icon: <School />, access: true, hidden: false },
     { label: "Behöriga användare", url: "employees", icon: <SettingsApplications />, access: true, hidden: false },
-    { label: "Session historia", url: "session/history", icon: <History />, access: false, hidden: SessionData("sessionWork")?.length === 0 },
+    { label: "Session historia", url: "session/history", icon: <History />, access: false, hidden: false },
     { label: "Detaljerad historia", url: "logs/history", icon: <WorkHistory />, access: true, hidden: false },
     { label: "Statistik", url: "statistics", icon: <BarChart />, access: true, hidden: false },
     { label: "Loggfiler", url: "logs/errors", icon: <ErrorOutline />, access: true, hidden: false },

@@ -3,6 +3,9 @@ import { createContext, useEffect, useState, use } from "react";
 // Services
 import { ApiRequest } from "../services/ApiRequest";
 
+// Functions
+import { IsLocalhost } from "../functions/Functions";
+
 // Storage
 import { AuthContext } from './AuthContext';
 
@@ -26,12 +29,21 @@ function DashboardProvider({ children }) {
     useEffect(() => {
         if (!isAuthorized) return;
 
+        if (IsLocalhost && sessionStorage.getItem("collections")) {
+            setCollections(JSON.paras(sessionStorage.getItem("collections")));
+            return;
+        }
+
         fetchCollections();
     }, [isAuthorized])
 
     // Fetch dashboard data
     async function fetchCollections() {
         const res = await ApiRequest("data/dashboard", "get");
+
+        if(IsLocalhost)
+            sessionStorage.setItem("collections", JSON.stringify(res));
+
         setCollections(res);
         setLoading(false);
     }
@@ -43,7 +55,7 @@ function DashboardProvider({ children }) {
 
             if (!collection)
                 return;
-            
+
             setSessionData(previous => ({
                 ...previous,
                 [collection]: data

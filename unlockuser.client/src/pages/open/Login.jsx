@@ -75,10 +75,8 @@ function Login() {
         clear = false;
         getTimeLeftToUnblock(timeLeft);
       }
-      else if (token) {
-        sessionStorage.setItem("token", token);
+      else if (token)
         authorize(token);
-      }
 
       return data;
     } catch (error) {

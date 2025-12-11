@@ -22,8 +22,8 @@ import Contacts from "../pages/Contacts";
 import NotFound from "../pages/NotFound";
 import ErrorView from '../pages/ErrorView';
 
-// Function 
-import SessionData from "../functions/SessionData";
+// Function
+import { SessionData } from './../functions/Functions'; 
 
 // Services
 import { loader, loaderByApiParam, loaderById, loaderByParams } from '../services/LoadFunctions';
