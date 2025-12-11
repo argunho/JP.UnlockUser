@@ -13,7 +13,7 @@ function ErrorView() {
     const error = useRouteError();
 
     useEffect(() => {
-        document.title = "AlvAssets | Error";
+        document.title = "UnlockUser | Error";
 
         const timer = setTimeout(() => {
             setDelay(false);

@@ -27,7 +27,7 @@ function NotFound({ isAuthorized }) {
     }, [])
 
     useEffect(() => {
-        document.title = "AlvAssets | Notfound";
+        document.title = "UnlockUser | Notfound";
 
         if (isAuthorized) return;
         const path = window.location.pathname;

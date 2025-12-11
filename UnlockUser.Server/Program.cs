@@ -43,6 +43,8 @@ if (mailDescriptor != null)
     builder.Services.Remove(mailDescriptor);
 }
 
+
+
 // Replace default registration with one that passes required value if IRequestApiServices is needed
 //builder.Services.AddScoped<IRequestApiService>(sp =>
 //    new RequestApiService("https://example.com")); 

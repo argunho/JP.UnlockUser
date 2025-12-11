@@ -1,17 +1,19 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Text;
 using System.Diagnostics;
-using System.Net;
 using System.DirectoryServices;
 using System.Globalization;
+using System.Net;
+using System.Reflection;
+using System.Text;
+using System.Text.Json;
 
 namespace UnlockUser.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IHelp help, IConfiguration config, SearchController search) : ControllerBase
+public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IWebHostEnvironment env, IHelp help, IHelpService helpService, IConfiguration config, SearchController search) : ControllerBase
 {
 
     private readonly IActiveDirectory _provider = provider;
@@ -19,7 +21,11 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     private readonly ISession _session = contextAccessor.HttpContext!.Session;
     private readonly IConfiguration _config = config;
     private readonly IHelp _help = help;
+    private readonly IHelpService _helpService = helpService;
+    private readonly IWebHostEnvironment _env = env;
     private readonly SearchController _search = search;
+
+    private readonly string ctrl = nameof(UserController);
 
 
     #region GET
@@ -85,90 +91,56 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     #endregion
 
     #region POST
-    [HttpPost("reset/password")] // Reset class students passwords
-    public async Task<JsonResult> SetPaswords(UsersListViewModel model)
+    [HttpPost("reset/passwords")] // Reset class students passwords
+    public async Task<IActionResult> SetPaswords([FromForm] UsersListViewModel model)
     {
         try
         {
-            // Check model is valid or not and return warning is true or false
-            if (model.Users.Count == 0)
-                return _help.Warning("Användare för lösenordsåterställning har inte specificerats."); // Password reset user not specified
+            var res = await SetMultiplePasswords(model);
+            if (string.IsNullOrEmpty(res))
+                return Ok(_helpService.Success("Lösenordsåterställningen lyckades!"));
 
-            string message = string.Empty;
-
-            Data sessionUserData = GetLogData();
-            string? sessionOffice = sessionUserData.Office?.ToLower();
-
-            var claims = _help.GetClaims("groups", "roles", "username");
-            var groups = claims?["groups"].Split(",") ?? [];
-            var roles = claims?["roles"].Split(",") ?? [];
-
-            var groupsList = _config.GetSection("Groups").Get<List<GroupModel>>();
-            if (groupsList?.Select(s => s.Name).Intersect(groups).Count() == 0)
-                return _help.Warning("Behörigheter saknas!"); // Warning!
-
-            List<string> stoppedToEdit = [];
-            List<string> permissionGroups = [.. groupsList.Select(s => s.PermissionGroup)];
-
-            if (!roles.Contains("Support"))
-            {
-                //Loop each username
-                foreach (var userModel in model.Users)
-                {
-                    var username = userModel.Username;
-                    var user = _provider.FindUserByExtensionProperty(username);
-
-                    // Get all user groups to check users membership in permission groups
-                    var userGroups = _provider.GetUserGroups(user);
-                    var forbidden = userGroups.Exists(x => permissionGroups.Contains(x));
-                    var filteredList = _search.FilteredListOfUsers([new User { Name = user.Name, Title = user.Title }], false,
-                                userModel.GroupName, claims["roles"], claims["username"]);
-
-                    if (user == null || filteredList?.Count == 0 || forbidden)
-                    {
-                        stoppedToEdit.Add(username);
-                        continue;
-                    }
-                }
-
-                model.Users.RemoveAll(x => stoppedToEdit.Contains(x.Username));
-            }
-
-            // Set password to class students
-            if (model.Users.Count > 0)
-            {
-                foreach (var user in model.Users)
-                {
-                    message += _provider.ResetPassword(UpdatedUser(user));
-                    sessionUserData.Users.Add(user?.Username ?? "");
-                }
-
-                if (!model.Check)
-                    SaveHistoryLogFile(sessionUserData);
-
-                if (!string.IsNullOrEmpty(_help.Message))
-                    return _help.Warning(message);
-            }
-
-            // Save/Update statistics
-            if (!model.Check)
-                await SaveUpdateStatitics("PasswordsChange", model.Users.Count);
-
-            if (message?.Length > 0)
-                return _help.Warning(message);
-            else if (stoppedToEdit?.Count > 0 && model.Users.Count == 0)
-                return _help.Warning($"Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!"); // Warning!
-            else if (stoppedToEdit?.Count > 0)
-                return _help.Response("info", $"Lösenordsåterställningen lyckades men inte till alla! Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!");
-
-
-            return _help.Response("success", "Lösenordsåterställningen lyckades!"); //Success! Password reset was successful!
+            return BadRequest(_helpService.Warning(res));
         }
         catch (Exception ex)
         {
-            return _help.Error("UsersController: SetPassword", ex.Message);
+            return BadRequest(_help.Error("UsersController: SetPassword", ex.Message));
         }
     }
+
+
+    [HttpPost("reset/save/passwords")]
+    public async Task<IActionResult> SetPasswordsSavePdf([FromForm] IFormFile file, [FromForm] string data)
+    {
+        try
+        {
+
+            bool isFileEmpty = (file == null || file.Length == 0);
+            UsersListViewModel? model = JsonSerializer.Deserialize<UsersListViewModel>(data);
+            var res = await SetMultiplePasswords(model);
+            if (string.IsNullOrEmpty(res))
+            {
+                if (!isFileEmpty)
+                {
+                    using var ms = new MemoryStream();
+                    file.CopyTo(ms);
+                    var bytes = ms.ToArray();
+
+                    return File(bytes, "application/pdf", file.FileName);
+                }
+
+                return Ok(_helpService.Success("Lösenordsåterställningen lyckades!"));
+            }
+
+
+            return BadRequest(_helpService.Warning(res));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(_helpService.Error($"{ctrl}: {nameof(SetPasswordsSavePdf)}", ex));
+        }
+    }
+
 
     [HttpPost("mail/{str}")] // Send email to current logged admin width pdf file
     public JsonResult SendEmail(string str, IFormFile attachedFile)
@@ -244,6 +216,86 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
         return data;
     }
+
+    // Set multiple passwords
+    public async Task<string?> SetMultiplePasswords(UsersListViewModel model)
+    {
+        return null;
+        // Check model is valid or not and return warning is true or false
+        if (model.Users.Count == 0)
+            return "Användare för lösenordsåterställning har inte specificerats."; // Password reset user not specified
+
+        string message = string.Empty;
+
+        Data sessionUserData = GetLogData();
+        string? sessionOffice = sessionUserData.Office?.ToLower();
+
+        var claims = _help.GetClaims("groups", "roles", "username");
+        var groups = claims?["groups"].Split(",") ?? [];
+        var roles = claims?["roles"].Split(",") ?? [];
+
+        var groupsList = _config.GetSection("Groups").Get<List<GroupModel>>();
+        if (groupsList?.Select(s => s.Name).Intersect(groups).Count() == 0)
+            return "Behörigheter saknas!"; // Warning!
+
+        List<string> stoppedToEdit = [];
+        List<string?>? permissionGroups = [.. groupsList!.Select(s => s.PermissionGroup)];
+
+        if (!roles.Contains("Support"))
+        {
+            //Loop each username
+            foreach (var userModel in model.Users)
+            {
+                var username = userModel.Username;
+                var user = _provider.FindUserByExtensionProperty(username);
+
+                // Get all user groups to check users membership in permission groups
+                var userGroups = _provider.GetUserGroups(user);
+                var forbidden = userGroups.Exists(x => permissionGroups.Contains(x));
+                var filteredList = _search.FilteredListOfUsers([new User { Name = user.Name, Title = user.Title }], false,
+                            userModel.GroupName, claims["roles"], claims["username"]);
+
+                if (user == null || filteredList?.Count == 0 || forbidden)
+                {
+                    stoppedToEdit.Add(username);
+                    continue;
+                }
+            }
+
+            model.Users.RemoveAll(x => stoppedToEdit.Contains(x.Username));
+        }
+
+        // Set password to class students
+        if (model.Users.Count > 0)
+        {
+            foreach (var user in model.Users)
+            {
+                message += _provider.ResetPassword(UpdatedUser(user));
+                sessionUserData.Users.Add(user?.Username ?? "");
+            }
+
+            if (!model.Check && _env.IsProduction())
+                SaveHistoryLogFile(sessionUserData);
+
+            if (!string.IsNullOrEmpty(_help.Message))
+                return message;
+        }
+
+        // Save/Update statistics
+        if (!model.Check)
+            await SaveUpdateStatitics("PasswordsChange", model.Users.Count);
+
+        if (message?.Length > 0)
+            return message;
+        else if (stoppedToEdit?.Count > 0 && model.Users.Count == 0)
+            return $"Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!"; // Warning!
+        else if (stoppedToEdit?.Count > 0)
+            return $"Lösenordsåterställningen lyckades men inte till alla! Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!";
+
+
+        return null; //Success! Password reset was successful!
+    }
+
 
     // Save update statistik
     public async Task SaveUpdateStatitics([FromBody] string param, int count)
