@@ -42,26 +42,34 @@ function ModalPreview({ open = true, data, label, inverseFunction, onChange, onC
             <Dialog
                 open={open}
                 onClose={onClose}
-                aria-labelledby="dialog-title"
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
                 draggable={false}
                 className='modal-wrapper print-page'
-                id="content"
+                id="content"                
+                sx={{
+                    zIndex: 3000
+                }}
                 ref={refPrint}>
 
                 <DialogTitle
-                    style={{ cursor: 'move' }}
                     id="dialog-title"
+                    color="-moz-initial"
+                    sx={{
+                        marginTop: "20px",
+                        marginBottom: "20px"
+                    }}
                     dangerouslySetInnerHTML={{ __html: label }}>
                 </DialogTitle>
 
                 {/* View this block if data is an array */}
-              <DialogContent style={{ marginBottom: "25px", padding: "0 10px" }}>
+                <DialogContent style={{ marginBottom: "25px", maxHeight: 400 }}>
                     {/* The table component is required to display the list of students and a list of generated passwords for them. */}
                     <Table
                         name={label}
-                        columns={["Namn", "Användarnamn", "Lösenord"]} 
+                        columns={["Namn", "Användarnamn", "Lösenord"]}
                         rows={["name", "username", "password"]}
-                        list={data} /> 
+                        list={data} />
                 </DialogContent>
 
                 <DialogActions className="no-print buttons-wrapper">
@@ -72,7 +80,7 @@ function ModalPreview({ open = true, data, label, inverseFunction, onChange, onC
                         confirmOnly={confirm}
                         swap={true}
                         submit={() => clickHandle(confirm)}
-                        onCancel={close}
+                        onCancel={onClose}
                     >
                         {!confirm && <div className='d-row jc-between w-100'>
 

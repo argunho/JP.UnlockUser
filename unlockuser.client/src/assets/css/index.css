@@ -353,14 +353,6 @@ main,
     padding: 0 !important;
 }
 
-.modal-wrapper {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background-color: #ffffffcf;
-    z-index: 3000;
-}
-
 .w100 {
     width: 100% !important;
 }

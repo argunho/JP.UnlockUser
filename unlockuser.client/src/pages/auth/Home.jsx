@@ -116,52 +116,54 @@ function Home() {
 
     // Function - submit form
     async function onSubmit(previous, fd) {
+        const name = fd.get("name")?.toLowerCase();
+        const match = fd.get("match") === "on" ? true : false;
+        const school = fd.get("school") ?? "";
 
-        let data = {
-            name: ""
-        };
-        if (isClass)
-            data.school = "";
+        const data = { name, match, school };
 
         let errors = [];
         let error = null;
 
 
-        if (_.isEqual(data, fd)) {
+        if (_.isEqual({ name: "", school: "" }, { name, school })) {
             error = "Begäran avvisades. Inga ändringar gjordes i formulärets data."
             return {
-                data,
+                ...data,
                 error
             }
         }
 
-        if (errors?.length > 0) {
-            return {
-                data: data,
-                errors: errors
-            }
-        }
+        if (errors?.length > 0)
+            return { ...data, errors };
 
-        const name = fd.get("name")?.toLowerCase();
-        const match = fd.get("match") === "on" ? true : false;
         const gn = group.name?.toLowerCase()
-        const collection = (gn === "support" ? groups.flatMap(g => collections[g.name.toLowerCase()]) : collections[gn])?.filter(Boolean);
+        const collection = (gn === "support"
+            ? groups.flatMap(g => collections[g.name.toLowerCase()])
+            : collections[gn])?.filter(Boolean);
 
         if (collection?.length > 0) {
             const result = (isClass)
-                ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === fd.get("school"))
+                ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)
                 : collection?.filter(x => match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name));
             handleDispatch("users", result, "RESULT");
 
-            return null;
+            return data;
         }
 
+        if(!isClass)
+            delete data?.school;
+
         // API parameters by chosen searching alternative
-        let options = isClass ? `students${fd.get("school")}/${name}` : `person/${name}/${group?.name}/${match}`;
+        let options = isClass
+            ? `students${fd.get("school")}/${name}`
+            : `person/${name}/${group?.name}/${match}`;
 
         const res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
         if (Array.isArray(res))
             handleDispatch("users", res, "RESULT");
+
+        return data;
     }
 
     function onReset() {
@@ -171,7 +173,12 @@ function Home() {
         dispatch({ type: "RESET" });
     }
 
-    const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
+    const [formState, formAction, pending] = useActionState(onSubmit, {
+        name: "",
+        match: false,
+        school: "",
+        errors: null
+    });
 
     return (
         <>
@@ -186,7 +193,7 @@ function Home() {
                     required={true}
                     shrink={true}
                     disabled={loading}
-                    defValue={formState?.school ?? ""}
+                    defValue={formState ? formState?.school : ""}
                     keyword="id"
                     placeholder="Välj skolnamn .."
                     ref={refAutocomplete}
@@ -198,7 +205,7 @@ function Home() {
                     label={isClass ? "Klassbeteckning" : "Namn"}
                     required
                     fullWidth
-                    value={formState?.name ?? ""}
+                    defaultValue={formState?.name ?? ""}
                     onChange={onChange}
                     className="search-wrapper w-100"
                     InputProps={{
@@ -239,8 +246,8 @@ function Home() {
                     }}
                     InputLabelProps={{ shrink: true }}
                     disabled={loading}
-                    placeholder={isClass 
-                        ? "Skriv exakt klassbeteckning här ..." 
+                    placeholder={isClass
+                        ? "Skriv exakt klassbeteckning här ..."
                         : (isMatch ? "Skriv exakt fullständigt namn eller anvädarnamn här ..." : "Sök ord här ...")
                     }
                     onKeyDown={(e) => {
@@ -310,7 +317,7 @@ function Home() {
                 </div>
 
             </div>
-            
+
             {/* List loading */}
             {!users && <ListLoading rows={5} pending={pending} />}
 

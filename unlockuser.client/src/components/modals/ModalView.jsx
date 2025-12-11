@@ -30,7 +30,8 @@ function ModalView({ children, label, content }) {
                 <HelpOutline />
             </IconButton>
 
-            <Dialog open={open}
+            <Dialog
+                open={open}
                 onClose={onClick}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
@@ -39,7 +40,9 @@ function ModalView({ children, label, content }) {
                 }}
                 className="modal-view"
             >
-                <DialogTitle id="alert-dialog-title" color="-moz-initial">
+                <DialogTitle 
+                id="alert-dialog-title" 
+                color="-moz-initial">
                     {label}
                 </DialogTitle>
                 <DialogContent sx={{ overflow: isArray && content?.length == 1 ? "visible" : "auto"}}>

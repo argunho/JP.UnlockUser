@@ -1,17 +1,17 @@
 function Table({ columns, rows, list }) {
 
     return (
-        <table className="preview-container w-100 d-column" id="list">
-            <thead className='preview-wrapper w-100'>
-                <tr className="d-row jc-start w-100">
-                    <th className="number d-row">#</th>
+        <table className="preview-container w-100" id="list">
+            <thead className='preview-wrapper columns w-100'>
+                <tr className="d-row w-100">
+                    <th className="number">#</th>
                     {columns.map((column) => (<th className="d-row jc-start w-100" key={column}>{column}</th>))}
                 </tr>
             </thead>
-            <tbody className="preview-wrapper w-100">
+            <tbody className="preview-wrapper rows w-100">
                 {list.map((item, ind) => (
-                    <tr key={ind} className="d-row jc-start w-100">
-                        <th className="number d-row">{ind + 1}</th>
+                    <tr key={ind} className="d-row w-100">
+                        <th className="number">{ind + 1}</th>
                         {rows.map((row) => {
                             return <td
                                 key={row}
