@@ -125,19 +125,19 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
 
         // Request
 
-        const saveFile = fd.get("file");
-        console.log(file)
         let formData = data;
-        if (saveFile) {
-            var file = PDFConverter(label, new Date().getDate());
+        if (fd.get("file")) {
+            var file = PDFConverter(label, new Date().getDate()?.toString());
+            console.log(file)
             formData = new FormData();
             formData.append("file", file, `${label}.pdf`)
             formData.append("data", JSON.stringify(data))
         }
 
         console.log(formData)
+        if (formData) return;
 
-        // await fetchData({ api: file ? "user/reset/save/passwords/" : "user/reset/passwords/", method: "post", data: formData });
+        await fetchData({ api: file ? "user/reset/save/passwords/" : "user/reset/passwords/", method: "post", data: formData });
 
         // onReset();
         // return null;

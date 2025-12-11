@@ -18,7 +18,7 @@ const initialState = {
     inputWord: null,
     limit: 8,
     preview: null,
-    pdfFile: null
+    pdfFile: false
 };
 
 // Action reducer
@@ -240,7 +240,7 @@ function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
                 list={preview}
                 label={label}
                 subLabel={subLabel}        
-                onSetFile={() => handleDispatch("pdfFile", true)}
+                onSetFile={(value) => handleDispatch("pdfFile", value)}
                 onSubmit={() => refSubmit.current?.click()}
                 onChange={() => refChange?.current?.click()}
                 onClose={() => dispatch({ type: "RESET" })}
@@ -248,7 +248,7 @@ function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
 
 
             {/* Pdf file */}
-            {pdfFile && <input type="file" name="file" className="none" defaultValue={true} />}
+            {pdfFile && <input name="file" className="none" defaultValue={true} />}
 
             {/* Hidden input */}
             {preview && <input type="hidden" name="users" className="none" defaultValue={JSON.stringify(preview)} />}

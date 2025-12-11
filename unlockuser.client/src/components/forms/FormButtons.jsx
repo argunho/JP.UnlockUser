@@ -21,6 +21,11 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
             onSubmit();
     }
 
+    function cancelHandle(){
+        setConfirm(false);
+        onCancel();
+    }
+
     let buttons = [
         {
             label: "Skicka?", visible: confirm, props: { className: "confirm-question" }
@@ -28,7 +33,7 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
         {
             label: "Nej",
             visible: confirm,
-            props: { variant: "outlined", className: "bg-white", onClick: () => confirmHandle(), color: "inherit" }
+            props: { variant: "outlined", className: "bg-white", onClick: () => cancelHandle(), color: "inherit" }
         },
         {
             label: "Ja",

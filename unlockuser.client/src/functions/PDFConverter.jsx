@@ -13,10 +13,12 @@ export function PDFConverter(name, subName, view) {
     doc.setFontSize(15);
     doc.text(subName, 40, 75);
 
-    const tableContent = document.getElementById("list");
+    const tableContent = document.getElementById("preview");
+
+    console.log(name, subName, tableContent)
 
     if (!tableContent) {
-        console.error("Table with id #list not found.");
+        console.error("Table with id #preview not found.");
         return;
     }
 
@@ -28,8 +30,8 @@ export function PDFConverter(name, subName, view) {
         columnStyles: { 2: { textColor: [208, 66, 66] } }
     });
 
-    if(view)
-     doc.save(name.replaceAll(regex, "") + ".pdf");
+    if (view)
+        doc.save(name.replaceAll(regex, "") + ".pdf");
     const output = doc.output('blob');
     return output;
 }

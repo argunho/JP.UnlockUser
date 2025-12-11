@@ -1,7 +1,7 @@
 function Table({ columns, rows, list }) {
 
     return (
-        <table className="preview-container w-100" id="list">
+        <table className="preview-container w-100" id="preview">
             <thead className='preview-wrapper columns w-100'>
                 <tr className="d-row w-100">
                     <th className="number">#</th>

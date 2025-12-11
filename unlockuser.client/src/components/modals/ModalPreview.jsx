@@ -20,11 +20,14 @@ function ModalPreview({ open = true, list, label, subLabel, onSetFile, onSubmit,
     // Confirm handle
     function confirmHandle(save) {
         setConfirm(true);
-        if(save)
-            onSetFile();
-        refSubmit.current.click();
+        onSetFile(save);
+        refSubmit.current?.click();
     }
 
+    function onCancel(){
+        setConfirm(false);
+        onSetFile(false)
+    }
 
     return (
         <>
@@ -36,7 +39,7 @@ function ModalPreview({ open = true, list, label, subLabel, onSetFile, onSubmit,
                 aria-describedby="alert-dialog-description"
                 draggable={false}
                 className='modal-wrapper print-page'
-                id="preview"
+                id="preview-modal"
                 sx={{
                     zIndex: 3000
                 }}
@@ -69,7 +72,7 @@ function ModalPreview({ open = true, list, label, subLabel, onSetFile, onSubmit,
                         swap={true}
                         confirmable={true}
                         onSubmit={onSubmit}
-                        onCancel={onClose}
+                        onCancel={onCancel}
                         ref={refSubmit}
                     >
                         {!confirm && <div className='d-row jc-between w-100'>
