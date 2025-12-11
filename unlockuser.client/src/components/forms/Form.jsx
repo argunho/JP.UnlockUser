@@ -95,7 +95,7 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
 
         data.username = users[0].name;
         data.group = group;
-console.log(data)
+        console.log(data)
         // Request
         // await fetchData({ api: "user/reset/password/", method: "post", data: data });
 
@@ -113,15 +113,29 @@ console.log(data)
             const res = comparePasswords(fd);
             data = res.data;
             error = res.error;
-        } 
+        }
 
         if (error)
             return { data, error };
 
+        delete data.password;
+
         data.users = users;
-console.log(data)
+
+        console.log(data)
         // Request
-        // await fetchData({ api: "user/reset/password/", method: "post", data: data });
+
+        const file = JSON.parse(fd.get("file"));
+        let formData = data;
+        if (file) {
+            formData = new FormData();
+            formData.append("file", file, `${label}.pdf`)
+            formData.append("data", JSON.stringify(data))
+        }
+
+        console.log(formData)
+
+        // await fetchData({ api: file ? "user/reset/save/passwords/" : "user/reset/passwords/", method: "post", data: formData });
 
         // onReset();
         // return null;
@@ -189,7 +203,7 @@ console.log(data)
                 <form key={isCleaned} className='user-view-form fade-in' action={formAction}>
 
                     {/* Error message */}
-                    {error && <Message res={{color: "error", msg: error }} />}
+                    {error && <Message res={{ color: "error", msg: error }} />}
 
                     {children}
 

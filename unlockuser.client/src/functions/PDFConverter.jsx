@@ -2,7 +2,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-export function PDFConverter(name, subName) {
+export function PDFConverter(name, subName, view) {
     const regex = /(<([^>]+)>)/ig;
 
     // const doc = new jsPDF('l', 'mm', [800, 801]);        
@@ -28,7 +28,8 @@ export function PDFConverter(name, subName) {
         columnStyles: { 2: { textColor: [208, 66, 66] } }
     });
 
-    // doc.save(name.replaceAll(regex, "") + ".pdf");
+    if(view)
+     doc.save(name.replaceAll(regex, "") + ".pdf");
     const output = doc.output('blob');
     return output;
 }

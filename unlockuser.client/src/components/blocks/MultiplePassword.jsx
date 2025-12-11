@@ -9,6 +9,9 @@ import PasswordCategories from '../lists/PasswordCategories';
 import { GeneratePasswordWithRandomWord, GenerateStrongPassword } from './PasswordGeneration';
 import ModalPreview from '../modals/ModalPreview';
 
+// Functions
+import { PDFConverter } from '../../functions/PDFConverter';
+
 
 const initialState = {
     samePassword: true,
@@ -17,7 +20,8 @@ const initialState = {
     passwordType: "strong",
     inputWord: null,
     limit: 8,
-    preview: null
+    preview: null,
+    pdfFile: null
 };
 
 // Action reducer
@@ -59,11 +63,12 @@ const password_digits = [
     { label: "Password0", value: 1, color: "success" }
 ]
 
-function MultiplePassword({ users, label, disabled, onSwitch }) {
+function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { samePassword, wordsList, inputWord, numbersCount, passwordType, limit, preview } = state;
+    const { samePassword, wordsList, inputWord, numbersCount, passwordType, limit, preview, pdfFile } = state;
 
-    const ref = useRef()
+    const refChange = useRef(null);
+    const refSubmit = useRef(null);
 
     function handleDispatch(name, value) {
         dispatch({ type: "PARAM", name: name, payload: value });
@@ -111,6 +116,12 @@ function MultiplePassword({ users, label, disabled, onSwitch }) {
         }
 
         handleDispatch("preview", preview);
+    }
+
+    // Save pdf file and reset passwords
+    function onSetFile() {
+        var file = PDFConverter(label, subLabel);
+        handleDispatch("pdfFile", file);
     }
 
     return (
@@ -225,7 +236,7 @@ function MultiplePassword({ users, label, disabled, onSwitch }) {
                         color="primary"
                         className="generate-password"
                         onClick={generatePasswords}
-                        ref={ref}
+                        ref={refChange}
                         disabled={disabled || (passwordType == "medium" && wordsList?.length === 0)
                             || (passwordType === "simple" && (!inputWord || inputWord?.length < 5))}>
                         Generera lösenord
@@ -235,14 +246,25 @@ function MultiplePassword({ users, label, disabled, onSwitch }) {
 
             {/* Preview the list of generated passwords */}
             {preview && <ModalPreview
-                data={preview}
+                list={preview}
                 label={label}
-                onChange={() => ref?.current?.click()}
+                subLabel={subLabel}
+                onSetFile={onSetFile}
+                onSubmit={() => refSubmit.current.click()}
+                onChange={() => refChange?.current?.click()}
                 onClose={() => dispatch({ type: "RESET" })}
             />}
 
+
+            {/* Pdf file */}
+            {pdfFile && <input name="file" className="none" defaultValue={JSON.stringify(pdfFile)} />}
+
             {/* Hidden input */}
-            {preview && <input type="hidden" className="none" value={JSON.stringify(preview)} />}
+            {preview && <input type="hidden" name="users" className="none" defaultValue={JSON.stringify(preview)} />}
+
+            
+                    {/* Hidden submit button */}
+                    <button type="submit" className="none" id="submit" ref={refSubmit} />
         </>
     )
 }

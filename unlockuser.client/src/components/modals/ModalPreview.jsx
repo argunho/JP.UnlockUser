@@ -3,36 +3,28 @@ import { useRef, useState } from 'react';
 
 // Installed
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
-import { Refresh, Print } from '@mui/icons-material';
+import { Refresh } from '@mui/icons-material';
 
 // Components
 import Table from '../lists/Table';
 import FormButtons from '../forms/FormButtons';
-import { PDFConverter } from '../../functions/PDFConverter';
 
 // Functions
-function ModalPreview({ open = true, data, label, subLabel, onChange, onClose }) {
+function ModalPreview({ open = true, list, label, subLabel, onSetFile, onSubmit, onChange, onClose }) {
 
     const [confirm, setConfirm] = useState(false);
-    const [savePdf, setSavePdf] = useState(false);
 
     const refPrint = useRef(null);
     const refSubmit = useRef(null);
 
     // Confirm handle
-    function confirmHandle() {
+    function confirmHandle(save) {
         setConfirm(true);
-        saveApply();
+        if(save)
+            onSetFile();
+        refSubmit.current.click();
     }
 
-    function close() {
-        setConfirm(false);
-    }
-
-    function saveApply() {
-        PDFConverter(label, subLabel);
-        // refSubmit.current?.click();
-    }
 
     return (
         <>
@@ -67,7 +59,7 @@ function ModalPreview({ open = true, data, label, subLabel, onChange, onClose })
                         name={`${label}<br/><small>${subLabel}</small>`}
                         columns={["Namn", "Användarnamn", "Lösenord"]}
                         rows={["name", "username", "password"]}
-                        list={data} />
+                        list={list} />
                 </DialogContent>
 
                 <DialogActions className="no-print buttons-wrapper">
@@ -76,27 +68,23 @@ function ModalPreview({ open = true, data, label, subLabel, onChange, onClose })
                         label="Verkställ"
                         swap={true}
                         confirmable={true}
+                        onSubmit={onSubmit}
                         onCancel={onClose}
                         ref={refSubmit}
                     >
                         {!confirm && <div className='d-row jc-between w-100'>
 
-                            <Button variant="contained" className="mobile-hidden"
+                            <Button
+                                variant="contained"
+                                className="mobile-hidden"
                                 color="info" onClick={onChange}>
                                 <Refresh />
                             </Button>
 
-                            <Button variant="text"
+                            <Button
                                 className='button-btn'
                                 color="primary"
-                                onClick={confirmHandle}>
-                                Spara & Verkställ
-                            </Button>
-
-                            <Button variant="text"
-                                className='button-btn'
-                                color="primary"
-                                onClick={confirmHandle}>
+                                onClick={() => confirmHandle(true)}>
                                 Spara & Verkställ
                             </Button>
 
@@ -106,7 +94,6 @@ function ModalPreview({ open = true, data, label, subLabel, onChange, onClose })
                 </DialogActions>
             </Dialog>
 
-            {savePdf && <input type="file" className="none" value={PDFConverter(label, subLabel)}/>}
         </>
     );
 }

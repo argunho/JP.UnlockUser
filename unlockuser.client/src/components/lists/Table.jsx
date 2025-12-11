@@ -9,7 +9,7 @@ function Table({ columns, rows, list }) {
                 </tr>
             </thead>
             <tbody className="preview-wrapper rows w-100">
-                {list.map((item, ind) => (
+                {list?.map((item, ind) => (
                     <tr key={ind} className="d-row w-100">
                         <td className="number">{ind + 1}</td>
                         {rows.map((row) => {
