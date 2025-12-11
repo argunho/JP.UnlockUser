@@ -3,37 +3,35 @@ import { useRef, useState } from 'react';
 
 // Installed
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
-import { Refresh } from '@mui/icons-material';
+import { Refresh, Print } from '@mui/icons-material';
 
 // Components
 import Table from '../lists/Table';
 import FormButtons from '../forms/FormButtons';
+import { PDFConverter } from '../../functions/PDFConverter';
 
 // Functions
-function ModalPreview({ open = true, data, label, inverseFunction, onChange, onClose }) {
+function ModalPreview({ open = true, data, label, subLabel, onChange, onClose }) {
 
     const [confirm, setConfirm] = useState(false);
     const [savePdf, setSavePdf] = useState(false);
 
     const refPrint = useRef(null);
+    const refSubmit = useRef(null);
 
     // Confirm handle
-    const confirmHandle = () => {
+    function confirmHandle() {
         setConfirm(true);
-        setSavePdf(true);
+        saveApply();
     }
 
-    // Close modal window
-    const clickHandle = (submit) => {
-        if (submit)
-            inverseFunction(savePdf);
-
-        close();
-    }
-
-    const close = () => {
+    function close() {
         setConfirm(false);
-        setSavePdf(false);
+    }
+
+    function saveApply() {
+        PDFConverter(label, subLabel);
+        // refSubmit.current?.click();
     }
 
     return (
@@ -46,7 +44,7 @@ function ModalPreview({ open = true, data, label, inverseFunction, onChange, onC
                 aria-describedby="alert-dialog-description"
                 draggable={false}
                 className='modal-wrapper print-page'
-                id="content"                
+                id="preview"
                 sx={{
                     zIndex: 3000
                 }}
@@ -66,7 +64,7 @@ function ModalPreview({ open = true, data, label, inverseFunction, onChange, onC
                 <DialogContent style={{ marginBottom: "25px", maxHeight: 400 }}>
                     {/* The table component is required to display the list of students and a list of generated passwords for them. */}
                     <Table
-                        name={label}
+                        name={`${label}<br/><small>${subLabel}</small>`}
                         columns={["Namn", "Användarnamn", "Lösenord"]}
                         rows={["name", "username", "password"]}
                         list={data} />
@@ -76,11 +74,10 @@ function ModalPreview({ open = true, data, label, inverseFunction, onChange, onC
 
                     <FormButtons
                         label="Verkställ"
-                        confirmable={true}
-                        confirmOnly={confirm}
                         swap={true}
-                        submit={() => clickHandle(confirm)}
+                        confirmable={true}
                         onCancel={onClose}
+                        ref={refSubmit}
                     >
                         {!confirm && <div className='d-row jc-between w-100'>
 
@@ -93,7 +90,15 @@ function ModalPreview({ open = true, data, label, inverseFunction, onChange, onC
                                 className='button-btn'
                                 color="primary"
                                 onClick={confirmHandle}>
-                                Spara & Verkställ</Button>
+                                Spara & Verkställ
+                            </Button>
+
+                            <Button variant="text"
+                                className='button-btn'
+                                color="primary"
+                                onClick={confirmHandle}>
+                                Spara & Verkställ
+                            </Button>
 
                         </div>}
                     </FormButtons>
@@ -101,6 +106,7 @@ function ModalPreview({ open = true, data, label, inverseFunction, onChange, onC
                 </DialogActions>
             </Dialog>
 
+            {savePdf && <input type="file" className="none" value={PDFConverter(label, subLabel)}/>}
         </>
     );
 }

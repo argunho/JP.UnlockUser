@@ -6,8 +6,7 @@ import { Button, CircularProgress } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
 
-function FormButtons({ children, label, disabled, swap, confirmable,
-    confirmOnly, loading, submit, onCancel }) {
+function FormButtons({ children, label, disabled, swap, confirmable, loading, submit, onCancel, ref }) {
 
     const [confirm, setConfirm] = useState(false);
     const [delay, setDelay] = useState(!confirmable);
@@ -15,10 +14,6 @@ function FormButtons({ children, label, disabled, swap, confirmable,
     useEffect(() => {
         if (loading) setConfirm(false);
     }, [loading])
-
-    useEffect(() => {
-        setConfirm(!!confirmOnly);
-    }, [confirmOnly])
 
     let buttons = [
         {
@@ -89,6 +84,9 @@ function FormButtons({ children, label, disabled, swap, confirmable,
                     return <Button key={ind} {...b.props}>{b.label}</Button>
                 })}
             </div>
+
+            {/* Hidden input */}
+            <input type="submit" className="none" ref={ref} />
         </div>
     )
 }

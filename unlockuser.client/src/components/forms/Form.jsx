@@ -95,12 +95,12 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
 
         data.username = users[0].name;
         data.group = group;
-
+console.log(data)
         // Request
-        await fetchData({ api: "user/reset/password/", method: "post", data: data });
+        // await fetchData({ api: "user/reset/password/", method: "post", data: data });
 
-        onReset();
-        return null;
+        // onReset();
+        // return null;
     }
 
     // Submit form => This is used when a password is being set for a school class.
@@ -119,12 +119,12 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
             return { data, error };
 
         data.users = users;
-
+console.log(data)
         // Request
-        await fetchData({ api: "user/reset/password/", method: "post", data: data });
+        // await fetchData({ api: "user/reset/password/", method: "post", data: data });
 
-        onReset();
-        return null;
+        // onReset();
+        // return null;
     }
 
     function comparePasswords(fd) {

@@ -238,9 +238,8 @@ function MultiplePassword({ users, label, disabled, onSwitch }) {
                 data={preview}
                 label={label}
                 onChange={() => ref?.current?.click()}
-                onClose={() => dispatch({ type: "RESET"})}
-                // inverseFunction={(save) => saveApply(save)}
-             />}
+                onClose={() => dispatch({ type: "RESET" })}
+            />}
 
             {/* Hidden input */}
             {preview && <input type="hidden" className="none" value={JSON.stringify(preview)} />}
