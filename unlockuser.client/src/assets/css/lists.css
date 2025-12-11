@@ -108,11 +108,10 @@ div[role="presentation"] li {
 }
 
 th.number,
-tr.number {
+td.number {
     min-width: 70px !important;
     text-align: center;
 }
-
 /*  endregion */
 
 /* #region Skeleton */

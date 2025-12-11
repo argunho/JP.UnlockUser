@@ -11,7 +11,7 @@ function Table({ columns, rows, list }) {
             <tbody className="preview-wrapper rows w-100">
                 {list.map((item, ind) => (
                     <tr key={ind} className="d-row w-100">
-                        <th className="number">{ind + 1}</th>
+                        <td className="number">{ind + 1}</td>
                         {rows.map((row) => {
                             return <td
                                 key={row}
