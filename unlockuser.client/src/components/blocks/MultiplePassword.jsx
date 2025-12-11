@@ -9,9 +9,6 @@ import PasswordCategories from '../lists/PasswordCategories';
 import { GeneratePasswordWithRandomWord, GenerateStrongPassword } from './PasswordGeneration';
 import ModalPreview from '../modals/ModalPreview';
 
-// Functions
-import { PDFConverter } from '../../functions/PDFConverter';
-
 
 const initialState = {
     samePassword: true,
@@ -116,12 +113,6 @@ function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
         }
 
         handleDispatch("preview", preview);
-    }
-
-    // Save pdf file and reset passwords
-    function onSetFile() {
-        var file = PDFConverter(label, subLabel);
-        handleDispatch("pdfFile", file);
     }
 
     return (
@@ -248,23 +239,22 @@ function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
             {preview && <ModalPreview
                 list={preview}
                 label={label}
-                subLabel={subLabel}
-                onSetFile={onSetFile}
-                onSubmit={() => refSubmit.current.click()}
+                subLabel={subLabel}        
+                onSetFile={() => handleDispatch("pdfFile", true)}
+                onSubmit={() => refSubmit.current?.click()}
                 onChange={() => refChange?.current?.click()}
                 onClose={() => dispatch({ type: "RESET" })}
             />}
 
 
             {/* Pdf file */}
-            {pdfFile && <input name="file" className="none" defaultValue={JSON.stringify(pdfFile)} />}
+            {pdfFile && <input type="file" name="file" className="none" defaultValue={true} />}
 
             {/* Hidden input */}
             {preview && <input type="hidden" name="users" className="none" defaultValue={JSON.stringify(preview)} />}
 
-            
-                    {/* Hidden submit button */}
-                    <button type="submit" className="none" id="submit" ref={refSubmit} />
+            {/* Hidden submit button */}
+            <button type="submit" className="none" id="submit" ref={refSubmit} />
         </>
     )
 }

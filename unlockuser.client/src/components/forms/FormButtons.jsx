@@ -48,7 +48,7 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
         {
             label: (loading ? <CircularProgress size={18} color="inherit" /> : (label ?? "Skicka")),
             visible: !confirm,
-            ref,
+            ref: ref,
             props: {
                 ... {
                     variant: "outlined", className: "submit-btn", color: loading ? "primary" : "inherit",
@@ -71,7 +71,7 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
             {/* Default buttons */}
             <div className={`d-row jc-end ${children ? "w-mc" : "w-100"}`}>
                 {buttons.filter(x => x.visible).map((b, ind) => {
-                    return <Button key={ind} {...b.props}>{b.label}</Button>
+                    return <Button key={ind} {...b.props} ref={b?.ref}>{b.label}</Button>
                 })}
             </div>
         </div>

@@ -14,6 +14,7 @@ import PasswordGeneration from '../blocks/PasswordGeneration';
 
 // Functions
 import { DecodedToken } from '../../functions/DecodedToken';
+import { PDFConverter } from '../../functions/PDFConverter';
 
 // Storage
 import { AuthContext } from '../../storage/AuthContext';
@@ -122,12 +123,13 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
 
         data.users = users;
 
-        console.log(data)
         // Request
 
-        const file = JSON.parse(fd.get("file"));
+        const saveFile = fd.get("file");
+        console.log(file)
         let formData = data;
-        if (file) {
+        if (saveFile) {
+            var file = PDFConverter(label, new Date().getDate());
             formData = new FormData();
             formData.append("file", file, `${label}.pdf`)
             formData.append("data", JSON.stringify(data))
