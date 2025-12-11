@@ -13,6 +13,7 @@ import FormButtons from '../forms/FormButtons';
 function ModalPreview({ open = true, list, label, subLabel, onSetFile, onSubmit, onChange, onClose }) {
 
     const [confirm, setConfirm] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const refPrint = useRef(null);
     const refSubmit = useRef(null);
@@ -26,7 +27,7 @@ function ModalPreview({ open = true, list, label, subLabel, onSetFile, onSubmit,
 
     function onCancel(){
         setConfirm(false);
-        onSetFile(false)
+        onSetFile(false);
     }
 
     return (

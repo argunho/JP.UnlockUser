@@ -1,4 +1,4 @@
-import { useReducer, useRef } from 'react';
+import { useReducer, useRef, useEffect } from 'react';
 
 // Installed
 import { FormControlLabel, Radio, FormLabel, RadioGroup, Button } from "@mui/material";
@@ -61,11 +61,17 @@ const password_digits = [
 ]
 
 function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
+
     const [state, dispatch] = useReducer(actionReducer, initialState);
     const { samePassword, wordsList, inputWord, numbersCount, passwordType, limit, preview, pdfFile } = state;
 
     const refChange = useRef(null);
     const refSubmit = useRef(null);
+
+    useEffect(() => {
+        if(disabled)
+            handleDispatch("preview", null);
+    }, [disabled])
 
     function handleDispatch(name, value) {
         dispatch({ type: "PARAM", name: name, payload: value });
@@ -245,7 +251,6 @@ function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
                 onChange={() => refChange?.current?.click()}
                 onClose={() => dispatch({ type: "RESET" })}
             />}
-
 
             {/* Pdf file */}
             {pdfFile && <input name="file" className="none" defaultValue={true} />}

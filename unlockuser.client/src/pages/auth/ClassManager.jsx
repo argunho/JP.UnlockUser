@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 
 // Installed
 import { ArrowDropDown, ArrowDropUp, Close } from '@mui/icons-material';
@@ -11,6 +11,9 @@ import Form from '../../components/forms/Form';
 import TabPanel from '../../components/blocks/TabPanel';
 import MultiplePassword from '../../components/blocks/MultiplePassword';
 
+// Storage
+import { FetchContext } from '../../storage/FetchContext';
+
 function ClassManager() {
 
     const [dropdown, setDropdown] = useState(false);
@@ -18,6 +21,7 @@ function ClassManager() {
     const [hidden, setHidden] = useState(false);
 
     const { collections, classId, school } = useOutletContext();
+    const { pending } = use(FetchContext);
 
     const navigate = useNavigate();
 
@@ -100,6 +104,7 @@ function ClassManager() {
                 <MultiplePassword
                     label={`${school} ${classId}`}
                     subLabel={`Lösenord för ${selected?.length} elever`}
+                    disabled={pending}
                     users={classMembers} onSwitch={(value) => setHidden(value)} />
             </Form>
         </>

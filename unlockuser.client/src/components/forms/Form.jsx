@@ -124,17 +124,14 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
         data.users = users;
 
         // Request
-
         let formData = data;
         if (fd.get("file")) {
             var file = PDFConverter(label, new Date().getDate()?.toString());
-            console.log(file)
             formData = new FormData();
             formData.append("file", file, `${label}.pdf`)
             formData.append("data", JSON.stringify(data))
         }
 
-        console.log(formData)
         if (formData) return;
 
         await fetchData({ api: file ? "user/reset/save/passwords/" : "user/reset/passwords/", method: "post", data: formData });
