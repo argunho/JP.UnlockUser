@@ -107,7 +107,7 @@ function Home() {
     function onChange(e) {
         const value = e.target.value;
         if ((!isChanged && value?.length < 2)
-            || (isChanged && value?.length > (isClass ? 1 : 2))
+            || (isChanged && value?.length > (isClass ? 0 : 2))
             || (isClass && !refAutocomplete?.current))
             return;
 

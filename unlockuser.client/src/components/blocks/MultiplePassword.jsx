@@ -68,7 +68,7 @@ function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
     const refSubmit = useRef(null);
 
     useEffect(() => {
-        if(disabled)
+        if (disabled)
             handleDispatch("preview", null);
     }, [disabled])
 
@@ -77,7 +77,8 @@ function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
     }
 
     function onChange(param, value) {
-        dispatch({ type: "RESET" })
+        if (["passwordType", "samePassword"].includes(param))
+            dispatch({ type: "RESET" })
         handleDispatch(param, value);
     }
 
@@ -105,8 +106,8 @@ function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
                     randomWord = randomItem?.name ?? randomItem;
                     if (!limit || ((limit - numbersCount) >= randomWord?.length))
                         break;
-                    password = GeneratePasswordWithRandomWord(randomWord, (limit ? limit : (randomWord?.length + numbersCount)), true);
                 }
+                password = GeneratePasswordWithRandomWord(randomWord, (limit ? limit : (randomWord?.length + numbersCount)), true);
             } else if (passwordType === "simple")
                 password = GeneratePasswordWithRandomWord(inputWord, (limit ? limit : (inputWord?.length + numbersCount)), true)
 
@@ -155,7 +156,7 @@ function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
                             <FormControlLabel
                                 key={index}
                                 {...radio}
-                                control={<Radio color={radio.color} />}
+                                control={<Radio checked={radio.value === passwordType} color={radio.color} />}
                                 onChange={() => onChange("passwordType", radio.value)} />
                         ))}
                     </RadioGroup>
@@ -244,7 +245,7 @@ function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
             {preview && <ModalPreview
                 list={preview}
                 label={label}
-                subLabel={subLabel}        
+                subLabel={subLabel}
                 onActionsChange={(value) => handleDispatch("actions", value)}
                 onSubmit={() => refSubmit.current?.click()}
                 onChange={() => refChange?.current?.click()}
