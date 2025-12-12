@@ -59,7 +59,7 @@ const password_digits = [
     { label: "Password0", value: 1, color: "success" }
 ]
 
-function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
+function MultiplePassword({ users, label, subLabel, pending, disabled, onSwitch }) {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
     const { samePassword, wordsList, inputWord, numbersCount, passwordType, limit, preview, actions } = state;
@@ -120,6 +120,11 @@ function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
 
         handleDispatch("preview", preview);
     }
+
+    console.log("pending => ", pending)
+    console.log("disabled => ", disabled)
+
+    if(disabled) return null;
 
     return (
         <>
@@ -246,6 +251,7 @@ function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
                 list={preview}
                 label={label}
                 subLabel={subLabel}
+                pending={pending}
                 onActionsChange={(value) => handleDispatch("actions", value)}
                 onSubmit={() => refSubmit.current?.click()}
                 onChange={() => refChange?.current?.click()}

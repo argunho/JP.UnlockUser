@@ -16,7 +16,7 @@ const checkboxes = [
 ]
 
 // Functions
-function ModalPreview({ open = true, list, label, subLabel, onSubmit, onActionsChange, onChange, onClose }) {
+function ModalPreview({ open = true, list, label, subLabel, pending, onSubmit, onActionsChange, onChange, onClose }) {
 
     const [actions, setActions] = useState([]);
     const refPrint = useRef(null);
@@ -88,6 +88,7 @@ function ModalPreview({ open = true, list, label, subLabel, onSubmit, onActionsC
                     <FormButtons
                         label="Verkställ"
                         swap={true}
+                        loading={pending}
                         confirmable={true}
                         onSubmit={onSubmit}
                         onCancel={onClose}

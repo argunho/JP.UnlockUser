@@ -1,4 +1,4 @@
-import { use, useReducer, useActionState } from 'react';
+import { use, useReducer, useActionState, Children, cloneElement } from 'react';
 
 // Installed
 import {
@@ -21,7 +21,6 @@ import { AuthContext } from '../../storage/AuthContext';
 import { FetchContext } from '../../storage/FetchContext';
 import { PasswordTips } from '../../models/HelpTexts';
 import { DownloadFile } from '../../functions/Functions';
-
 
 // Form inputs
 const fields = [
@@ -59,13 +58,13 @@ function actionReducer(state, action) {
 
 function Form({ children, label, labelFile, passwordLength, users, multiple, hidden }) {
 
+
     const { group } = use(AuthContext);
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
     const { showPassword, password, isCleaned, isChanged } = state;
 
     const { response, pending: load, fetchData, handleResponse } = use(FetchContext);
-
 
     const decodedToken = DecodedToken();
     const developer = decodedToken?.Roles?.indexOf("Developer") > -1;
@@ -179,7 +178,15 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
 
     const [formState, formAction, pending] = useActionState(multiple ? onSubmitMultiple : onSubmit, { error: null });
     const error = formState?.error;
-    const disabled = load || !!response || pending;
+    const disabled = load || response || pending;
+
+    
+    const modifiedChildren = children ? Children.map(children, child =>
+        cloneElement(child, { 
+            pending: load || pending,
+            disabled: response        
+        })
+    ) : null;
 
     return (
         <>
@@ -218,7 +225,7 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
                     {/* Error message */}
                     {error && <Message res={{ color: "error", msg: error }} />}
 
-                    {children}
+                    {modifiedChildren}
 
                     {/* Passwords inputs */}
                     {!hidden && fields?.map((field, i) => {
