@@ -9,7 +9,6 @@ import PasswordCategories from '../lists/PasswordCategories';
 import { GeneratePasswordWithRandomWord, GenerateStrongPassword } from './PasswordGeneration';
 import ModalPreview from '../modals/ModalPreview';
 
-
 const initialState = {
     samePassword: true,
     wordsList: [],

@@ -2,32 +2,23 @@
 import { useRef, useState } from 'react';
 
 // Installed
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button, FormControlLabel, Checkbox } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
 
 // Components
 import Table from '../lists/Table';
 import FormButtons from '../forms/FormButtons';
 
-// Functions
-function ModalPreview({ open = true, list, label, subLabel, onSetFile, onSubmit, onChange, onClose }) {
 
-    const [confirm, setConfirm] = useState(false);
+const checkboxes = [
+    { label: "Skicka listan till email", name: "email", value: "email", color: "success" },
+    { label: "Ladda ner listan", name: "download", value: "download", color: "primary" }
+]
+
+// Functions
+function ModalPreview({ open = true, list, label, subLabel, onSubmit, onChange, onClose }) {
 
     const refPrint = useRef(null);
-    const refSubmit = useRef(null);
-
-    // Confirm handle
-    function confirmHandle(save) {
-        setConfirm(true);
-        onSetFile(save);
-        refSubmit.current?.click();
-    }
-
-    function onCancel(){
-        setConfirm(false);
-        onSetFile(false);
-    }
 
     return (
         <>
@@ -65,33 +56,35 @@ function ModalPreview({ open = true, list, label, subLabel, onSetFile, onSubmit,
                         list={list} />
                 </DialogContent>
 
-                <DialogActions className="no-print buttons-wrapper">
+                <DialogActions className="no-print d-column buttons-wrapper">
+
+
+                    {/* Checkboxes */}
+                    <div className="d-row w-100 jc-end" style={{ margin: "10px 0" }}>
+                        {checkboxes.map((box) => {
+                            return <FormControlLabel
+                                key={box.value}
+                                {...box}
+                                control={<Checkbox />}
+                            />;
+                        })}
+
+                    </div>
 
                     <FormButtons
                         label="Verkställ"
                         swap={true}
                         confirmable={true}
                         onSubmit={onSubmit}
-                        onCancel={onCancel}
-                        ref={refSubmit}
+                        onCancel={onClose}
                     >
-                        {!confirm && <div className='d-row jc-between w-100'>
-
-                            <Button
-                                variant="contained"
-                                className="mobile-hidden"
-                                color="info" onClick={onChange}>
-                                <Refresh />
-                            </Button>
-
-                            <Button
-                                className='button-btn'
-                                color="primary"
-                                onClick={() => confirmHandle(true)}>
-                                Spara & Verkställ
-                            </Button>
-
-                        </div>}
+                        <Button
+                            variant="contained"
+                            className="mobile-hidden"
+                            color="info" 
+                            onClick={onChange}>
+                            <Refresh />
+                        </Button>
                     </FormButtons>
 
                 </DialogActions>

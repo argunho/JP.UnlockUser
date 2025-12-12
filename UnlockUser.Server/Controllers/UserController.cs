@@ -117,16 +117,16 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
             bool isFileEmpty = (file == null || file.Length == 0);
             UsersListViewModel? model = JsonSerializer.Deserialize<UsersListViewModel>(data);
-            var res = await SetMultiplePasswords(model);
+            var res = await SetMultiplePasswords(model!);
             if (string.IsNullOrEmpty(res))
             {
                 if (!isFileEmpty)
                 {
                     using var ms = new MemoryStream();
-                    file.CopyTo(ms);
+                    await file!.CopyToAsync(ms);
                     var bytes = ms.ToArray();
 
-                    return File(bytes, "application/pdf", file.FileName);
+                    return File(bytes, "application/pdf", file.FileName.Replace(" ", "_"));
                 }
 
                 return Ok(_helpService.Success("Lösenordsåterställningen lyckades!"));

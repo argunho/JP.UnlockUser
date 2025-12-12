@@ -33,7 +33,7 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
         {
             label: "Nej",
             visible: confirm,
-            props: { variant: "outlined", className: "bg-white", onClick: () => cancelHandle(), color: "inherit" }
+            props: { variant: "outlined", className: "bg-white", onClick: () => setConfirm(false), color: "inherit" }
         },
         {
             label: "Ja",
@@ -69,7 +69,7 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
 
 
     return (
-        <div className={`form-buttons d-row w-100 ${children ? "jc-between" : "jc-end"}`}>
+        <div className={`form-buttons d-row w-100 ${(children && !confirm) ? "jc-between" : "jc-end"}`}>
             {/* Children buttons */}
             {(!confirm && !!children) && children}
 

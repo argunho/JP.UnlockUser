@@ -20,6 +20,7 @@ import { PDFConverter } from '../../functions/PDFConverter';
 import { AuthContext } from '../../storage/AuthContext';
 import { FetchContext } from '../../storage/FetchContext';
 import { PasswordTips } from '../../models/HelpTexts';
+import { DownloadFile } from '../../functions/Functions';
 
 
 // Form inputs
@@ -56,7 +57,7 @@ function actionReducer(state, action) {
     }
 }
 
-function Form({ children, label, passwordLength, users, multiple, hidden }) {
+function Form({ children, label, labelFile, passwordLength, users, multiple, hidden }) {
 
     const { group } = use(AuthContext);
 
@@ -116,29 +117,35 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
             error = res.error;
         }
 
+        delete data.password;
+
+        const usersToManage = fd.get("users");
+
+        if (!usersToManage || JSON.parse(usersToManage)?.length === 0)
+            error = "Listan med användare för att sätta lösenord är tom.";
+
         if (error)
             return { data, error };
 
-        delete data.password;
-
-        data.users = users;
+        data.users = JSON.parse(usersToManage);
 
         // Request
         let formData = data;
-        let file = null;
-        if (fd.get("file")) {
-            file = PDFConverter(label, new Date().getDate()?.toString());
+        let includeFile = fd.get("file");
+        if (includeFile) {
+            const blobFile = PDFConverter(label, labelFile);
+            DownloadFile(blobFile, `${label} ${labelFile}.pdf`);
+            const file = new File([blobFile], `${label} ${labelFile}.pdf`, { type: "application/pdf" });
+            console.log(file)
             formData = new FormData();
-            formData.append("file", file, `${label}.pdf`)
+            formData.append("file", file)
             formData.append("data", JSON.stringify(data))
         }
 
-        if (formData) return;
+        await fetchData({ api: includeFile ? "user/reset/save/passwords" : "user/reset/passwords", method: "post", data: formData });
 
-        await fetchData({ api: file ? "user/reset/save/passwords" : "user/reset/passwords", method: "post", data: formData });
-
-        // onReset();
-        // return null;
+        onReset();
+        return null;
     }
 
     function comparePasswords(fd) {
@@ -247,7 +254,7 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
 
 
                     {/* Buttons */}
-                    <FormButtons
+                    {!hidden && <FormButtons
                         label={multiple ? "Granska" : "Verkställ"}
                         disabled={!isChanged}
                         confirmable={true}
@@ -263,7 +270,7 @@ function Form({ children, label, passwordLength, users, multiple, hidden }) {
                                 name="check"
                                 disabled={disabled} />}
                             label="Test" />}
-                    </FormButtons>
+                    </FormButtons>}
                 </form>
             </div>
         </>

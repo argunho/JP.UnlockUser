@@ -62,6 +62,8 @@ function ClassManager() {
     // }
 
     const classMembers = users.filter(x => !removed.includes(x.name));
+    const lgh = classMembers?.length;
+
     return (
         <>
             {/* Tab menu */}
@@ -96,7 +98,8 @@ function ClassManager() {
             </div>
 
             <Form
-                label={"Nya lösenord till " + classMembers?.length + " elev" + (classMembers?.length === 1 ? "er" : "")}
+                label={`Nya lösenord till ${lgh} elev${(lgh > 1 ? "er" : "")}.`}
+                labelFile={`${school} ${classId}`}
                 users={classMembers}
                 hidden={hidden}
                 multiple={true}

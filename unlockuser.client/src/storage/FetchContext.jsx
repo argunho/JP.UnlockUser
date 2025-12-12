@@ -83,7 +83,7 @@ function FetchContextProvider({ children }) {
 
         try {
             const config = {
-                ...TokenConfig(),
+                ...TokenConfig(data instanceof FormData),
                 signal: controllerRef.current.signal
             };
 
@@ -98,7 +98,7 @@ function FetchContextProvider({ children }) {
                 dispatch({ type: "CLEAR" });
                 return res;
             } else if (action === "none") {
-                if(warning) console.warn("Error/Warning => ", warning);
+                if (warning) console.warn("Error/Warning => ", warning);
                 dispatch({ type: "CLEAR" });
             } else if (!action && method === "delete")
                 action = "skip";

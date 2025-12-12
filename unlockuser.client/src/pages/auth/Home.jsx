@@ -107,7 +107,7 @@ function Home() {
     function onChange(e) {
         const value = e.target.value;
         if ((!isChanged && value?.length < 2)
-            || (isChanged && value?.length > 2)
+            || (isChanged && value?.length > (isClass ? 1 : 2))
             || (isClass && !refAutocomplete?.current))
             return;
 
@@ -151,7 +151,7 @@ function Home() {
             return data;
         }
 
-        if(!isClass)
+        if (!isClass)
             delete data?.school;
 
         // API parameters by chosen searching alternative
@@ -205,6 +205,8 @@ function Home() {
                     label={isClass ? "Klassbeteckning" : "Namn"}
                     required
                     fullWidth
+                    autocomplete="off"
+                    autosave="off"
                     defaultValue={formState?.name ?? ""}
                     onChange={onChange}
                     className="search-wrapper w-100"

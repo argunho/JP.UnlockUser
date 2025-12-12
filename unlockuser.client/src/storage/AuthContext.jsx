@@ -20,6 +20,7 @@ function AuthContextProvider({ children }) {
     const [serviceWorkInProgress, setServiceWorkInProgress] = useState(false);
 
     function authorize(token) {
+        sessionStorage.setItem("token", token);
         setToken(token);
     }
 

@@ -2,18 +2,16 @@
 import { useNavigate } from 'react-router-dom';
 
 // Components
-import ModalConfirm from './../../components/modals/ModalConfirm';
+import ModalMessage from './../../components/modals/ModalMessage';
 
 function ExpiredSession() {
     const navigate = useNavigate();
 
     return (
-        <ModalConfirm
-            open={true}
-            expired={true}
+        <ModalMessage
             msg="Sessionen har löpt ut"
             content="Var vänlig och logga in igen."
-            onConfirm={() => navigate("/session/logout")} />
+            onClose={() => navigate("/session/logout")} />
     )
 }
 
