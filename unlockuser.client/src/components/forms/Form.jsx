@@ -92,8 +92,6 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
 
     // Submit form => This is used when a password is being set for a user.
     async function onSubmit(previous, fd) {
-        console.log(fd.get("password"))
-        if(fd || !fd) return;
         const { data, error } = comparePasswords(fd);
 
         if (error)
@@ -102,11 +100,12 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
         data.username = users[0].name;
         data.group = group;
         console.log(data)
-        // Request
-        // await fetchData({ api: "user/reset/passwords", method: "post", data: data });
 
-        // onReset();
-        // return null;
+        // Request
+        await fetchData({ api: "user/reset/passwords", method: "post", data: data });
+
+        onReset();
+        return null;
     }
 
     // Submit form => This is used when a password is being set for a school class.
@@ -185,11 +184,11 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
     const error = formState?.error;
     const disabled = load || response || pending;
 
-    
+
     const modifiedChildren = children ? Children.map(children, child =>
-        cloneElement(child, { 
+        cloneElement(child, {
             pending: load || pending,
-            disabled: response        
+            disabled: response
         })
     ) : null;
 
@@ -213,7 +212,7 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
                     {!multiple && <PasswordGeneration
                         key={isCleaned}
                         passwordLength={passwordLength}
-                        disabled={load || !!response}
+                        disabled={disabled}
                         setGenerated={val => handleDispatch("isGenerated", val)}
                         regex={regex}
                         onChange={onChange} />}
@@ -222,13 +221,11 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
 
                 {/* Response message */}
                 {response && <Message res={response} cancel={() => response.success ? navigate("/") : handleResponse()} />}
-
+                {/* Error message */}
+                {error && <Message res={{ color: "error", msg: error }} />}
 
                 {/* Password form */}
-                <form key={isCleaned} className='user-view-form fade-in' action={formAction}>
-
-                    {/* Error message */}
-                    {error && <Message res={{ color: "error", msg: error }} />}
+                {!response && <form key={isCleaned} className='user-view-form fade-in' action={formAction}>
 
                     {modifiedChildren}
 
@@ -236,7 +233,7 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
                     {!hidden && fields?.map((field, i) => {
 
                         const value = formState?.[field.name] ?? password ?? "";
-console.log(value)
+                        console.log(value)
                         return <FormControl key={i} fullWidth>
                             <TextField
                                 key={value}
@@ -276,7 +273,7 @@ console.log(value)
                         label={multiple ? "Granska" : "Verkställ"}
                         disabled={!isChanged}
                         confirmable={true}
-                        loading={load && !response}
+                        loading={load || pending}
                         onCancel={onReset}
                     >
 
@@ -289,7 +286,7 @@ console.log(value)
                                 disabled={disabled} />}
                             label="Test" />}
                     </FormButtons>}
-                </form>
+                </form>}
             </div>
         </>
 

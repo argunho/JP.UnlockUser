@@ -28,11 +28,10 @@ input[type="password"]:disabled {
   margin: 10px 0;
   position: relative;
   transition: all 0.9s ease-in-out;
+  max-width: 950px;
 }
 
 .form-wrapper>* {
-  width: 96%;
-  max-width: 950px;
   margin: auto
 }
 

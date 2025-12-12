@@ -7,7 +7,6 @@ import { useOutletContext, useLoaderData, useNavigate } from 'react-router-dom';
 
 // Components
 import Form from '../../components/forms/Form';
-import Message from '../../components/blocks/Message';
 import TabPanel from '../../components/blocks/TabPanel';
 
 // Storage
@@ -18,7 +17,7 @@ function UserManager() {
 
     const { collections, group, id } = useOutletContext();
 
-    const { pending, response, fetchData, handleResponse } = use(FetchContext)
+    const { pending, fetchData } = use(FetchContext)
     const navigate = useNavigate();
 
     const loaderData = useLoaderData();
@@ -53,13 +52,11 @@ function UserManager() {
             </div>}
         </TabPanel>
 
-        {/* Response */}
-        {response && <Message res={response} cancel={() => handleResponse()} />}
-
         {/* Change password */}
         {(user && !user?.isLocked) && <Form
             label="Återställa lösenord"
             users={[user]}
+            locked={user?.isLocked}
             passwordLength={user?.passwordLength} />}
     </>
 
