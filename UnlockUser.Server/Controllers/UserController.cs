@@ -98,7 +98,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         {
             var res = await SetMultiplePasswords(model);
             if (string.IsNullOrEmpty(res))
-                return Ok(_helpService.Success("Lösenordsåterställningen lyckades!"));
+                return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
 
             return BadRequest(_helpService.Warning(res));
         }
@@ -129,7 +129,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 //    return File(bytes, "application/pdf", file.FileName.Replace(" ", "_"));
                 //}
 
-                return Ok(_helpService.Success("Lösenordsåterställningen lyckades!"));
+                return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
             }
 
 

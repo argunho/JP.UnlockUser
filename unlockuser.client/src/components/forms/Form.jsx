@@ -92,6 +92,8 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
 
     // Submit form => This is used when a password is being set for a user.
     async function onSubmit(previous, fd) {
+        console.log(fd.get("password"))
+        if(fd || !fd) return;
         const { data, error } = comparePasswords(fd);
 
         if (error)
@@ -157,8 +159,8 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
     }
 
     function comparePasswords(fd) {
-        const _password = fd.get("password").trim();
-        const _confirmPassword = fd.get("confirmPassword").trim();
+        const _password = fd.get("password")?.trim() ?? password;
+        const _confirmPassword = fd.get("confirmPassword")?.trim() ?? password;
 
         let data = {
             password: _password,
@@ -233,8 +235,8 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
                     {/* Passwords inputs */}
                     {!hidden && fields?.map((field, i) => {
 
-                        const value = formState[field.name] ?? password ?? "";
-
+                        const value = formState?.[field.name] ?? password ?? "";
+console.log(value)
                         return <FormControl key={i} fullWidth>
                             <TextField
                                 key={value}
