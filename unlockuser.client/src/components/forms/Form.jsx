@@ -131,18 +131,23 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
 
         // Request
         let formData = data;
-        let includeFile = fd.get("file");
-        if (includeFile) {
+        let actions = fd.get("actions") ? JSON.parse(fd.get("actions")) : null;
+        let api = "user/reset/passwords";
+        if (actions) {
             const blobFile = PDFConverter(label, labelFile);
-            DownloadFile(blobFile, `${label} ${labelFile}.pdf`);
-            const file = new File([blobFile], `${label} ${labelFile}.pdf`, { type: "application/pdf" });
-            console.log(file)
-            formData = new FormData();
-            formData.append("file", file)
-            formData.append("data", JSON.stringify(data))
-        }
+            if (actions.includes("email")) {
+                api = "user/reset/save/passwords";
+                const file = new File([blobFile], `${label} ${labelFile}.pdf`, { type: "application/pdf" });
+                formData = new FormData();
+                formData.append("file", file)
+                formData.append("data", JSON.stringify(data));
+            }
 
-        await fetchData({ api: includeFile ? "user/reset/save/passwords" : "user/reset/passwords", method: "post", data: formData });
+            const res = await fetchData({ api: api, method: "post", data: formData, action: "return" });
+            console.log(res, formData)
+            DownloadFile(blobFile, `${label} ${labelFile}.pdf`);
+        } else
+            await fetchData({ api: api, method: "post", data: formData });
 
         onReset();
         return null;
@@ -270,7 +275,7 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
                                 name="check"
                                 disabled={disabled} />}
                             label="Test" />}
-                    </FormButtons>
+                    </FormButtons>}
                 </form>
             </div>
         </>
