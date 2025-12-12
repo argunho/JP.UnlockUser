@@ -2,7 +2,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-export function PDFConverter(name, subName, view) {
+export function PDFConverter(name, subName, view = false) {
     const regex = /(<([^>]+)>)/ig;
 
     // const doc = new jsPDF('l', 'mm', [800, 801]);        
@@ -14,7 +14,6 @@ export function PDFConverter(name, subName, view) {
     doc.text(subName, 40, 75);
 
     const tableContent = document.getElementById("preview");
-
 
     if (!tableContent) {
         console.error("Table with id #preview not found.");

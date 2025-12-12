@@ -79,6 +79,7 @@ function ModalPreview({ open = true, list, label, subLabel, pending, onSubmit, o
                             return <FormControlLabel
                                 key={box.value}
                                 {...box}
+                                disabled={pending}
                                 onChange={onCheckboxChange}
                                 control={<Checkbox />}
                             />;

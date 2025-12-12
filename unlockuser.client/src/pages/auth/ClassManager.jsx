@@ -41,22 +41,6 @@ function ClassManager() {
         setRemoved(previous => [...previous, id]);
     }
 
-
-    // // Send email to current user with saved pdf document
-    // const sendEmailWithFile = async () => {
-    //     const inf = location.split("%");
-    //     const data = new FormData();
-    //     data.append('attachedFile', savedPdf);
-
-    //     await fetchData({ api: `user/mail/${inf[1]} ${inf[0]}`, method: "post", data: data });
-    //     handleDispatch("confirmSavePdf", false);
-    //     handleDispatch("savePdf", false);
-    // }
-
-    // const handleModalOpen = () => {
-    //     refModal.current?.click();
-    // }
-
     const classMembers = users.filter(x => !removed.includes(x.name));
     const lgh = classMembers?.length;
 
@@ -103,7 +87,8 @@ function ClassManager() {
                 <MultiplePassword
                     label={`${school} ${classId}`}
                     subLabel={`Lösenord för ${selected?.length} elever`}
-                    users={classMembers} onSwitch={(value) => setHidden(value)} />
+                    users={classMembers} 
+                    onSwitch={(value) => setHidden(value)} />
             </Form>
         </>
     )

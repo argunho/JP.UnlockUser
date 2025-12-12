@@ -62,14 +62,8 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
 
             if (_provider.MembershipCheck(user, "TEIS IT avdelning") || roles.IndexOf("Developer") > -1)
-            {
                 roles.Add("Support");
-                permissionGroups.Add(new GroupModel
-                {
-                    Name = "Support",
-                    Group = "Students, Employees"
-                });
-            }
+
 
             // Failed! Permission missed
             if (permissionGroups.Count == 0 && roles.Count == 0)

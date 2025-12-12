@@ -1,5 +1,5 @@
 
-import { use, useEffect } from 'react';
+import { use, useEffect, useState } from 'react';
 
 // Installed
 import { Button, CircularProgress } from '@mui/material';
@@ -15,6 +15,7 @@ import { FetchContext } from '../../storage/FetchContext';
 
 function UserManager() {
 
+    const [locked, setLocked] = useState(false);
     const { collections, group, id } = useOutletContext();
 
     const { pending, fetchData } = use(FetchContext)
@@ -28,19 +29,22 @@ function UserManager() {
         if (!user) {
             navigate(`/manage/${group}/user/${id}/load`, { replace: true });
         }
+
+        setLocked(user?.isLocked);
     }, [user]);
 
     // Unlock user
     async function unlockUser() {
         // Request
-        await fetchData({ api: "api/user/unlock/" + user?.name, method: "patch" });
+       const res = await fetchData({ api: "api/user/unlock/" + user?.name, method: "patch", action: "success" });
+       setLocked(res ? true : false);
     }
 
     return <>
         {/* Tab menu */}
         <TabPanel primary={user.primary ?? "Anvädarprofil"} secondary={user.secondary}>
             {/* If account is blocked */}
-            {user.isLocked && <div className="d-row">
+            {locked && <div className="d-row">
                 <span className="unlock-span locked-account">Kontot är låst</span>
                 <Button variant="contained"
                     color="error"
@@ -54,9 +58,10 @@ function UserManager() {
 
         {/* Change password */}
         {(user && !user?.isLocked) && <Form
+            key={locked?.toString()}
             label="Återställa lösenord"
             users={[user]}
-            locked={user?.isLocked}
+            locked={!locked}
             passwordLength={user?.passwordLength} />}
     </>
 

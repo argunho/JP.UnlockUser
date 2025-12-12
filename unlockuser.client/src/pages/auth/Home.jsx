@@ -59,7 +59,7 @@ function actionReducer(state, action) {
             };
         case "RESULT":
             return {
-                ...state, [action.name]: value, isChanged: false
+                ...state, [action.name]: value, isChanged: false, isCleaned: new Date().getMilliseconds()
             };
         case "RESET":
             return {
@@ -146,7 +146,10 @@ function Home() {
             const result = (isClass)
                 ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)
                 : collection?.filter(x => match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name));
-            handleDispatch("users", result, "RESULT");
+            if (result?.length > 0) {
+                handleDispatch("users", result, "RESULT");
+                return null;
+            }
 
             return data;
         }
@@ -160,8 +163,10 @@ function Home() {
             : `person/${name}/${group?.name}/${match}`;
 
         const res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
-        if (Array.isArray(res))
+        if (Array.isArray(res)) {
             handleDispatch("users", res, "RESULT");
+            return null;
+        }
 
         return data;
     }

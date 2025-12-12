@@ -5,23 +5,23 @@ import {
     Checkbox, FormControl, FormControlLabel, TextField, IconButton
 } from '@mui/material';
 import { Abc, Password } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 // Components
 import ModalView from '../modals/ModalView';
 import FormButtons from './FormButtons';
 import Message from './../blocks/Message';
 import PasswordGeneration from '../blocks/PasswordGeneration';
+import { PasswordTips } from '../../models/HelpTexts';
 
 // Functions
 import { DecodedToken } from '../../functions/DecodedToken';
 import { PDFConverter } from '../../functions/PDFConverter';
+import { DownloadFile } from '../../functions/Functions';
 
 // Storage
 import { AuthContext } from '../../storage/AuthContext';
 import { FetchContext } from '../../storage/FetchContext';
-import { PasswordTips } from '../../models/HelpTexts';
-import { DownloadFile } from '../../functions/Functions';
-import { useNavigate } from 'react-router-dom';
 
 // Form inputs
 const fields = [
@@ -57,7 +57,7 @@ function actionReducer(state, action) {
     }
 }
 
-function Form({ children, label, labelFile, passwordLength, users, multiple, hidden }) {
+function Form({ children, label, labelFile, passwordLength, locked, users, multiple, hidden }) {
 
 
     const { group } = use(AuthContext);
@@ -144,11 +144,12 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
                 formData = new FormData();
                 formData.append("file", file)
                 formData.append("data", JSON.stringify(data));
+                formData.append("label", labelFile);
             }
 
             const res = await fetchData({ api: api, method: "post", data: formData, action: "success" });
-            console.log(res, formData)
-            if (res)
+
+            if (res && actions.includes("download"))
                 DownloadFile(blobFile, `${label} ${labelFile}.pdf`);
         } else
             await fetchData({ api: api, method: "post", data: formData });
@@ -182,7 +183,7 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
 
     const [formState, formAction, pending] = useActionState(multiple ? onSubmitMultiple : onSubmit, { error: null });
     const error = formState?.error;
-    const disabled = load || response || pending;
+    const disabled = load || response || pending || locked;
 
 
     const modifiedChildren = children ? Children.map(children, child =>
@@ -269,8 +270,8 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
 
 
                     {/* Buttons */}
-                    {!hidden && <FormButtons
-                        label={multiple ? "Granska" : "Verkställ"}
+                    {(!hidden && !locked) && <FormButtons
+                        label="Verkställ"
                         disabled={!isChanged}
                         confirmable={true}
                         loading={load || pending}

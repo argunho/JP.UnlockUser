@@ -36,7 +36,7 @@ public class MailService
             if (attachedFile != null)
             {
                 _mail.Attachments.Add(new Attachment(attachedFile.OpenReadStream(), mailSubject + "."
-                        + attachedFile.ContentType.Substring(attachedFile.ContentType.IndexOf("/") + 1)));
+                     + attachedFile.ContentType.Substring(attachedFile.ContentType.IndexOf("/") + 1)));
             }
 
             SmtpClient _smtp = new()

@@ -86,7 +86,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         // Save/Update statistics
         await SaveUpdateStatitics("Unlocked", 1);
 
-        return new(new { success = true, unlocked = true, color = "success", msg = "Användaren har låsts upp!" });
+        return new(new { success = true, color = "success", msg = "Användaren har låsts upp!" });
     }
     #endregion
 
@@ -110,7 +110,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
 
     [HttpPost("reset/save/passwords")]
-    public async Task<IActionResult> SetPasswordsSavePdf([FromForm] IFormFile file, [FromForm] string data)
+    public async Task<IActionResult> SetPasswordsSavePdf([FromForm] IFormFile file, [FromForm] string data, [FromForm] string label)
     {
         try
         {
@@ -118,8 +118,9 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             bool isFileEmpty = (file == null || file.Length == 0);
             UsersListViewModel? model = JsonSerializer.Deserialize<UsersListViewModel>(data);
             var res = await SetMultiplePasswords(model!);
-            if (string.IsNullOrEmpty(res))
+            if (string.IsNullOrEmpty(res) && !isFileEmpty)
             {
+                // Return and download file
                 //if (!isFileEmpty)
                 //{
                 //    using var ms = new MemoryStream();
@@ -128,6 +129,13 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
                 //    return File(bytes, "application/pdf", file.FileName.Replace(" ", "_"));
                 //}
+
+                MailService ms = new(); // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
+
+                var claims = _help.GetClaims("email", "displayname") ?? [];
+                var success = ms.SendMail(claims["email"], file.FileName.Replace(".pdf", ""),
+                            $"Hej {claims["displayname"]}!<br/> Här bifogas PDF document filen med nya lösenord till elever från {label}.",
+                            claims["email"] ?? "", _session?.GetString("Password") ?? "", file);
 
                 return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
             }
@@ -139,34 +147,6 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         {
             return BadRequest(_helpService.Error($"{ctrl}: {nameof(SetPasswordsSavePdf)}", ex));
         }
-    }
-
-
-    [HttpPost("mail/{str}")] // Send email to current logged admin width pdf file
-    public JsonResult SendEmail(string str, IFormFile attachedFile)
-    {
-        try
-        {
-            MailService ms = new(); // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
-
-            var claims = _help.GetClaims("email", "displayname") ?? [];
-
-            var success = ms.SendMail(claims["email"], "Lista över nya lösenord till " + str + " elever",
-                        $"Hej {claims["displayname"]}!<br/> Här bifogas PDF document filen med nya lösenord till elever från klass {str}.",
-                        claims["email"] ?? "", _session?.GetString("Password") ?? "", attachedFile);
-
-            if (!success)
-            {
-                return _help.Error("UsersController: SendEmail",
-                    $"Det gick inte att skicka e-post med pdf dokument till e-postadress {claims["email"]}. {MailService._message}");
-            }
-        }
-        catch (Exception ex)
-        {
-            return _help.Error("UserController: SendEmail", ex.Message);
-        }
-
-        return new(new { result = true });
     }
     #endregion
 
