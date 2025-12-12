@@ -120,14 +120,14 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             var res = await SetMultiplePasswords(model!);
             if (string.IsNullOrEmpty(res))
             {
-                if (!isFileEmpty)
-                {
-                    using var ms = new MemoryStream();
-                    await file!.CopyToAsync(ms);
-                    var bytes = ms.ToArray();
+                //if (!isFileEmpty)
+                //{
+                //    using var ms = new MemoryStream();
+                //    await file!.CopyToAsync(ms);
+                //    var bytes = ms.ToArray();
 
-                    return File(bytes, "application/pdf", file.FileName.Replace(" ", "_"));
-                }
+                //    return File(bytes, "application/pdf", file.FileName.Replace(" ", "_"));
+                //}
 
                 return Ok(_helpService.Success("Lösenordsåterställningen lyckades!"));
             }

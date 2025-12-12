@@ -17,7 +17,7 @@ const initialState = {
     inputWord: null,
     limit: 8,
     preview: null,
-    pdfFile: false
+    actions: []
 };
 
 // Action reducer
@@ -62,7 +62,7 @@ const password_digits = [
 function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { samePassword, wordsList, inputWord, numbersCount, passwordType, limit, preview, pdfFile } = state;
+    const { samePassword, wordsList, inputWord, numbersCount, passwordType, limit, preview, actions } = state;
 
     const refChange = useRef(null);
     const refSubmit = useRef(null);
@@ -245,14 +245,14 @@ function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
                 list={preview}
                 label={label}
                 subLabel={subLabel}        
-                onSetFile={(value) => handleDispatch("pdfFile", value)}
+                onActionsChange={(value) => handleDispatch("actions", value)}
                 onSubmit={() => refSubmit.current?.click()}
                 onChange={() => refChange?.current?.click()}
                 onClose={() => dispatch({ type: "RESET" })}
             />}
 
-            {/* Pdf file */}
-            {pdfFile && <input name="file" className="none" defaultValue={true} />}
+            {/* Checkbox choices (ave file, send email) */}
+            {actions?.length > 0 && <input name="actions" className="none" defaultValue={JSON.stringify(actions)} />}
 
             {/* Hidden input */}
             {preview && <input type="hidden" name="users" className="none" defaultValue={JSON.stringify(preview)} />}

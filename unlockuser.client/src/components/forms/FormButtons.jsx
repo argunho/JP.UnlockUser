@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Children, cloneElement } from "react";
 
 // Installed
 import { Button, CircularProgress } from "@mui/material";
@@ -9,6 +9,10 @@ import { Close } from "@mui/icons-material";
 function FormButtons({ children, label, disabled, swap, confirmable, loading, onSubmit, onCancel, ref }) {
 
     const [confirm, setConfirm] = useState(false);
+
+    const modifiedChildren = children ? Children.map(children, child => 
+        cloneElement(child, { disabled: disabled })
+    ) : null;
 
     useEffect(() => {
         if (loading) setConfirm(false);
@@ -71,7 +75,7 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
     return (
         <div className={`form-buttons d-row w-100 ${(children && !confirm) ? "jc-between" : "jc-end"}`}>
             {/* Children buttons */}
-            {(!confirm && !!children) && children}
+            {(!confirm && !!children) && modifiedChildren}
 
             {/* Default buttons */}
             <div className={`d-row jc-end ${children ? "w-mc" : "w-100"}`}>

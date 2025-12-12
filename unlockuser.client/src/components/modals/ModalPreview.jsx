@@ -16,9 +16,22 @@ const checkboxes = [
 ]
 
 // Functions
-function ModalPreview({ open = true, list, label, subLabel, onSubmit, onChange, onClose }) {
+function ModalPreview({ open = true, list, label, subLabel, onSubmit, onActionsChange, onChange, onClose }) {
 
+    const [actions, setActions] = useState([]);
     const refPrint = useRef(null);
+
+    function onCheckboxChange(e){
+        const value = e.target.value;
+        let res = actions ?? [];
+        if(actions.includes(value))
+            res = actions.filter(x => x != value);
+        else
+            res.push(value);
+
+        setActions(res);
+        onActionsChange(res);
+    }
 
     return (
         <>
@@ -65,10 +78,10 @@ function ModalPreview({ open = true, list, label, subLabel, onSubmit, onChange, 
                             return <FormControlLabel
                                 key={box.value}
                                 {...box}
+                                onChange={onChange}
                                 control={<Checkbox />}
                             />;
                         })}
-
                     </div>
 
                     <FormButtons
@@ -82,7 +95,7 @@ function ModalPreview({ open = true, list, label, subLabel, onSubmit, onChange, 
                             variant="contained"
                             className="mobile-hidden"
                             color="info" 
-                            onClick={onChange}>
+                            onClick={onCheckboxChange}>
                             <Refresh />
                         </Button>
                     </FormButtons>

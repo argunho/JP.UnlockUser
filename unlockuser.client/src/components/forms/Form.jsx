@@ -270,7 +270,7 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
                                 name="check"
                                 disabled={disabled} />}
                             label="Test" />}
-                    </FormButtons>}
+                    </FormButtons>
                 </form>
             </div>
         </>
