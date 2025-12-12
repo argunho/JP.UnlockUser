@@ -21,6 +21,7 @@ import { AuthContext } from '../../storage/AuthContext';
 import { FetchContext } from '../../storage/FetchContext';
 import { PasswordTips } from '../../models/HelpTexts';
 import { DownloadFile } from '../../functions/Functions';
+import { useNavigate } from 'react-router-dom';
 
 // Form inputs
 const fields = [
@@ -68,6 +69,8 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
 
     const decodedToken = DecodedToken();
     const developer = decodedToken?.Roles?.indexOf("Developer") > -1;
+
+    const navigate = useNavigate();
 
     // Regex to validate password 
     const regex = passwordLength === 12
@@ -216,7 +219,7 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
                 </div>
 
                 {/* Response message */}
-                {!!response && <Message res={response} cancel={() => handleResponse()} />}
+                {response && <Message res={response} cancel={() => response.success ? navigate("/") : handleResponse()} />}
 
 
                 {/* Password form */}
