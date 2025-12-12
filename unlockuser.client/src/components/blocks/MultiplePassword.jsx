@@ -252,7 +252,7 @@ function MultiplePassword({ users, label, subLabel, disabled, onSwitch }) {
             />}
 
             {/* Checkbox choices (ave file, send email) */}
-            {actions?.length > 0 && <input name="actions" className="none" defaultValue={JSON.stringify(actions)} />}
+            {actions?.length > 0 && <input type="hidden" name="actions" className="none" defaultValue={JSON.stringify(actions)} />}
 
             {/* Hidden input */}
             {preview && <input type="hidden" name="users" className="none" defaultValue={JSON.stringify(preview)} />}

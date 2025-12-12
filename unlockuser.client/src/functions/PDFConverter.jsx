@@ -15,7 +15,6 @@ export function PDFConverter(name, subName, view) {
 
     const tableContent = document.getElementById("preview");
 
-    console.log(name, subName, tableContent)
 
     if (!tableContent) {
         console.error("Table with id #preview not found.");

@@ -23,6 +23,7 @@ function ModalPreview({ open = true, list, label, subLabel, onSubmit, onActionsC
 
     function onCheckboxChange(e){
         const value = e.target.value;
+
         let res = actions ?? [];
         if(actions.includes(value))
             res = actions.filter(x => x != value);
@@ -78,7 +79,7 @@ function ModalPreview({ open = true, list, label, subLabel, onSubmit, onActionsC
                             return <FormControlLabel
                                 key={box.value}
                                 {...box}
-                                onChange={onChange}
+                                onChange={onCheckboxChange}
                                 control={<Checkbox />}
                             />;
                         })}
@@ -95,7 +96,7 @@ function ModalPreview({ open = true, list, label, subLabel, onSubmit, onActionsC
                             variant="contained"
                             className="mobile-hidden"
                             color="info" 
-                            onClick={onCheckboxChange}>
+                            onClick={onChange}>
                             <Refresh />
                         </Button>
                     </FormButtons>

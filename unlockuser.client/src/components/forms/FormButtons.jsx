@@ -11,7 +11,7 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
     const [confirm, setConfirm] = useState(false);
 
     const modifiedChildren = children ? Children.map(children, child => 
-        cloneElement(child, { disabled: disabled })
+        cloneElement(child, { disabled: loading })
     ) : null;
 
     useEffect(() => {

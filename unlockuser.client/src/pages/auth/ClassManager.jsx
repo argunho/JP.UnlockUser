@@ -81,7 +81,7 @@ function ClassManager() {
             <div className={`selected-list dropdown-container ${dropdown ? "open" : ""}`}>
 
                 <p className="w-100 dropdown-label">
-                    Klicka på användare att radera från listan
+                    Klicka på användare för att radera användaren från listan
                 </p>
 
                 {/* List of students */}

@@ -13,6 +13,7 @@ import { TokenConfig } from '../services/TokenConfig';
 axios.defaults.baseURL = window.location.origin;
 
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const FetchContext = createContext();
 
 const initialState = {
@@ -111,6 +112,9 @@ function FetchContextProvider({ children }) {
             } else {
                 dispatch({ type: action !== "complete" ? 'SUCCESS' : "COMPLETE", payload: null });
             }
+
+            if(action === "success")
+                return (res?.statusCode === 200 || res?.color === "success");
 
         } catch (error) {
             if (axios.isCancel(error)) {

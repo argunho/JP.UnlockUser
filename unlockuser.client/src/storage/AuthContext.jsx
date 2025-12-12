@@ -1,21 +1,21 @@
 
 import { createContext, useState } from "react";
 
-/* eslint-disable no-unused-vars */
+
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext({
     isAuthorized: false,
     workInProgress: false,
     workStatus: false,
     authorize: () => {},
     logout: () => {},
-    updateServiceWorkStatus: (value, hide = false) => { },
+    updateServiceWorkStatus: () => { },
     cleanSession: () => { }
 })
 
 function AuthContextProvider({ children }) {
 
     const [authToken, setToken] = useState(localStorage.getItem("token") || sessionStorage.getItem("token"));
-    const [openMenu, setOpenMenu] = useState(false);
     const [serviceWorkStatus, setServiceWorkStatus] = useState(false);
     const [serviceWorkInProgress, setServiceWorkInProgress] = useState(false);
 

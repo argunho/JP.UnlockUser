@@ -143,9 +143,10 @@ function Form({ children, label, labelFile, passwordLength, users, multiple, hid
                 formData.append("data", JSON.stringify(data));
             }
 
-            const res = await fetchData({ api: api, method: "post", data: formData, action: "return" });
+            const res = await fetchData({ api: api, method: "post", data: formData, action: "success" });
             console.log(res, formData)
-            DownloadFile(blobFile, `${label} ${labelFile}.pdf`);
+            if (res)
+                DownloadFile(blobFile, `${label} ${labelFile}.pdf`);
         } else
             await fetchData({ api: api, method: "post", data: formData });
 
