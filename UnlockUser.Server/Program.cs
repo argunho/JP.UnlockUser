@@ -23,7 +23,7 @@ ConfigurationManager configuration = builder.Configuration;
 builder.Services.AddSingleton<IActiveDirectory, ADService>();
 builder.Services.AddSingleton<IHelp, HelpService>();
 builder.Services.AddSingleton<ILocalFileService, LocalFileService>();
-builder.Services.AddSingleton<ILocalService, LocalService>();
+builder.Services.AddSingleton<ILocalUserService, LocalUserService>();
 builder.Services.AddSingleton<ILocalMailService, MailService>();
 
 #region Help package library

@@ -9,12 +9,12 @@ namespace UnlockUser.Server.Controllers;
 [ApiController]
 [Authorize]
 public class DataController(IHelpService helpService, IActiveDirectory provider, ICredentialsService credentials,
-                                ILocalService localService, IConfiguration config) : ControllerBase
+                                ILocalUserService localService, IConfiguration config) : ControllerBase
 {
     private readonly IHelpService _helpService = helpService;
     private readonly IActiveDirectory _provider = provider;
     private readonly ICredentialsService _credentials = credentials;
-    private readonly ILocalService _localService = localService;
+    private readonly ILocalUserService _localService = localService;
     private readonly IConfiguration _config = config;
 
     private readonly string ctrl = nameof(DataController);
@@ -23,7 +23,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     [HttpGet("dashboard")]
     public async Task<JsonResult> GetGroupUsers()
     {
-        Dictionary<string, List<User>> data = [];
+        Dictionary<string, List<UserViewModel>> data = [];
         var claims = _credentials.GetClaims(["username", "access", "groups"], Request);
 
         List<GroupModel> claimGroups = JsonConvert.DeserializeObject<List<GroupModel>>(claims!["groups"]) ?? [];

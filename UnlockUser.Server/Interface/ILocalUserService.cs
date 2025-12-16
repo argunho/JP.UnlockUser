@@ -1,6 +1,6 @@
 ﻿namespace UnlockUser.Server.Interface;
 
-public interface ILocalService
+public interface ILocalUserService
 {
     User? GetUserFromFile(string username, string groupName);
     List<Manager> GetUsersManagers(string username, string groupName);

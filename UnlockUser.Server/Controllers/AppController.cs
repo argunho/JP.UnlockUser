@@ -14,7 +14,7 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
 
     #region GET
     [HttpGet("groups")]
-    public List<string> GetGrous()
+    public List<string?> GetGrous()
     {
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
         if (groups.Count > 0)
@@ -23,7 +23,9 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
         return [];
     }
 
+    [NonAction]
     [HttpGet("authorized/{param}")]
+    [Obsolete("Depricated")]
     public JsonResult? GetAuthorizedEmployees(string param)
     {
         var groupEmployees = HelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
@@ -113,10 +115,3 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
     }
     #endregion
 }
-
-#region Unsused
-//string classToGet = $"UnlockUser.Server.Models.School";
-//Type classType = Type.GetType(classToGet);
-//Type listType = typeof(List<>).MakeGenericType(new[] {classType });
-//object list = Activator.CreateInstance(listType);
-#endregion

@@ -10,6 +10,7 @@ import { IsLocalhost } from "../functions/Functions";
 import { AuthContext } from './AuthContext';
 
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const DashboardContext = createContext({
     collections: null,
     loading: false,

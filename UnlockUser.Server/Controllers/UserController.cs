@@ -6,7 +6,7 @@ using System.DirectoryServices;
 using System.Globalization;
 using System.Net;
 using System.Text;
-using System.Text.Json;
+using UnlockUser.Server.FormModels;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -14,7 +14,7 @@ namespace UnlockUser.Server.Controllers;
 [ApiController]
 [Authorize]
 public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IWebHostEnvironment env,
-    IHelp help, IHelpService helpService, IConfiguration config, ILocalService localService, ICredentialsService credinalService, ILocalMailService localMailService) : ControllerBase
+    IHelp help, IHelpService helpService, IConfiguration config, ILocalUserService localService, ICredentialsService credinalService, ILocalMailService localMailService) : ControllerBase
 {
 
     private readonly IActiveDirectory _provider = provider;
@@ -24,12 +24,11 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     private readonly IHelp _help = help;
     private readonly IHelpService _helpService = helpService;
     private readonly IWebHostEnvironment _env = env;
-    private readonly ILocalService _localService = localService;
+    private readonly ILocalUserService _localService = localService;
     private readonly ICredentialsService _credentialsService = credinalService;
     private readonly ILocalMailService _localMailService = localMailService;
 
     private readonly string ctrl = nameof(UserController);
-
 
     #region GET
     // Get user information by username
@@ -97,7 +96,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
     #region POST
     [HttpPost("reset/passwords")] // Reset class students passwords
-    public async Task<IActionResult> SetPaswords([FromForm] UsersListViewModel model)
+    public async Task<IActionResult> SetPaswords([FromForm] UsersListFormModel model)
     {
         try
         {
@@ -120,7 +119,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         {
 
             bool isFileEmpty = (file == null || file.Length == 0);
-            UsersListViewModel? model = System.Text.Json.JsonSerializer.Deserialize<UsersListViewModel>(data);
+            UsersListFormModel? model = System.Text.Json.JsonSerializer.Deserialize<UsersListFormModel>(data);
             var res = await SetMultiplePasswords(model!);
             if (string.IsNullOrEmpty(res) && !isFileEmpty)
             {
@@ -163,7 +162,6 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         Password = _helpService.DecodeFromBase64(_session.GetString("HashedCredential")!)?.Replace(_config["JwtSettings:Key"]!, "")
     };
 
-
     // Return information
     public Data GetLogData(string group, string office, string department)
     {
@@ -199,7 +197,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     // Set multiple passwords
-    public async Task<string?> SetMultiplePasswords(UsersListViewModel model)
+    public async Task<string?> SetMultiplePasswords(UsersListFormModel model)
     {
         // Check model is valid or not and return warning is true or false
         if (model.Users.Count == 0)
@@ -223,7 +221,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         //return null;
         if (!roles.Contains("Support", StringComparer.OrdinalIgnoreCase))
         {
-            var users = new List<UserViewModel>();
+            var users = new List<UserFormModel>();
             var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permission"])!;
             if (model.Users.Count > 0 && model.GroupName!.Equals("Students", StringComparison.OrdinalIgnoreCase))
             {

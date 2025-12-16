@@ -1,15 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace UnlockUser.Server.ViewModels;
 
-namespace UnlockUser.Server.ViewModels;
-
-public class UserViewModel
+public class UserViewModel : User
 {
-    public string? Name { set; get; }
-    public string? Username { get; set; }
+    public int PasswordLength { get; set; } = 8;
 
-    [DataType(DataType.Password)]
-    public string? Password { get; set; }
-
-    public  string? GroupName { get; set; }
+    public string? Primary => DisplayName;
+    public string? Secondary => $"{Name},\t{Email} | <span class=\"secondary-span\">{Office + (Office != Department ? (" " + Department) : "")}</span>";
 }
-

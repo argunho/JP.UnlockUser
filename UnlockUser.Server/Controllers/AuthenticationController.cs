@@ -9,7 +9,7 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class AuthenticationController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache, 
-    IHelpService help, ICredentialsService credentials) : ControllerBase
+    IHelpService help, ICredentialsService credentials, ILocalUserService localService) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
@@ -17,6 +17,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
     private readonly IDistributedCache _distributedCache = distributedCache;
     private readonly IHelpService _help = help;
     private readonly ICredentialsService _credentials = credentials;
+    private readonly ILocalUserService _localService = localService;
 
 
     private readonly string ctrl = nameof(AuthenticationController);
@@ -51,17 +52,17 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             _session?.Remove("LoginBlockTime");
 
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
-            var user = _provider.FindUserByExtensionProperty(model!.Username!);
-            var userGroups = _provider.GetUserGroups(user);
+            var authorizedUser = _provider.FindUserByExtensionProperty(model!.Username!);
+            var userGroups = _provider.GetUserGroups(authorizedUser);
             permissionGroups?.RemoveAll(x => !userGroups.Contains(x.PermissionGroup!));
             permissionGroups ??= [];
             List<string> roles = [];
 
-            if (_provider.MembershipCheck(user, "Azure-Utvecklare Test"))
+            if (_provider.MembershipCheck(authorizedUser, "Azure-Utvecklare Test"))
                 roles.Add("Developer");
 
 
-            if (_provider.MembershipCheck(user, "TEIS IT avdelning") || roles.Contains("Developer", StringComparer.OrdinalIgnoreCase))
+            if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning") || roles.Contains("Developer", StringComparer.OrdinalIgnoreCase))
                 roles.Add("Support");
 
             // Failed! Permission missed
@@ -74,19 +75,19 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
                 Group = s.Group
             }).ToList();
 
+            //var userDataFromFile = _localService.GetUserFromFile(authorizedUser.Name!);
             var permissions = new PermissionsViewModel();
 
 
             List<Claim> claims = [];
-            claims.Add(new(ClaimTypes.Name, user?.Name));
-            claims.Add(new("Email", user.EmailAddress));
-            claims.Add(new("DisplayName", user.DisplayName));
-            claims.Add(new("Username", user.Name));
-            claims.Add(new("Manager", user.Manager));
+            claims.Add(new("Email", authorizedUser.EmailAddress));
+            claims.Add(new("DisplayName", authorizedUser.DisplayName));
+            claims.Add(new("Username", authorizedUser.Name));
+            claims.Add(new("Manager", authorizedUser.Manager));
             claims.Add(new("Permissions", JsonConvert.SerializeObject(permissions)));
-            claims.Add(new("Office", user.Office));
-            claims.Add(new("Department", user.Department));
-            claims.Add(new("Division", user.Division));
+            claims.Add(new("Office", authorizedUser.Office));
+            claims.Add(new("Department", authorizedUser.Department));
+            claims.Add(new("Division", authorizedUser.Division));
             claims.Add(new("PasswordManageGroups", JsonConvert.SerializeObject(passwordManageGroups)));
             claims.Add(new("Roles", string.Join(",", roles)));
 

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
+using UnlockUser.Server.FormModels;
 using UnlockUser.Server.Models;
 
 namespace UnlockUser.Server.IServices;
@@ -355,7 +356,7 @@ public class ADService(ILocalFileService localService) : IActiveDirectory // Hel
     }
 
     // Method to reset user password
-    public void ResetPassword(UserViewModel model, CredentialsViewModel credentials)
+    public void ResetPassword(UserFormModel model, CredentialsViewModel credentials)
     {
         using var context = PContexAccessCheck(credentials!);
         using AuthenticablePrincipal user = UserPrincipal.FindByIdentity(context, model.Username)!;

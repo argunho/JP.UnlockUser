@@ -1,8 +1,8 @@
-﻿namespace UnlockUser.Server.ViewModels;
+﻿namespace UnlockUser.Server.FormModels;
 
-public class UsersListViewModel
+public class UsersListFormModel
 {
-    public List<UserViewModel> Users { get; set; } = [];
+    public List<UserFormModel> Users { get; set; } = [];
     public bool Check { get; set; }
     public string? GroupName { get; set; }
     public string? Office  { get; set; }

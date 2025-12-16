@@ -9,11 +9,11 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class SearchController(IActiveDirectory provider, IHelp help, ILocalService localService, IHelpService helpService, ICredentialsService credentialsService) : ControllerBase
+public class SearchController(IActiveDirectory provider, IHelp help, ILocalUserService localService, IHelpService helpService, ICredentialsService credentialsService) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider;
     private readonly IHelp _help = help;
-    private readonly ILocalService _localService = localService;
+    private readonly ILocalUserService _localService = localService;
     private readonly IHelpService _helpService = helpService;
     private ICredentialsService _credentialsService = credentialsService;
 

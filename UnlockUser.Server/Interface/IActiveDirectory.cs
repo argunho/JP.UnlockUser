@@ -1,5 +1,6 @@
 ﻿using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
+using UnlockUser.Server.FormModels;
 
 
 namespace UnlockUser.Server.Interface;
@@ -22,7 +23,7 @@ public interface IActiveDirectory
     List<Manager> GetUserManagers(User user);
 
     PrincipalContext GetContext();
-    void ResetPassword(UserViewModel model, CredentialsViewModel credentials);
+    void ResetPassword(UserFormModel model, CredentialsViewModel credentials);
     string UnlockUser(string username, CredentialsViewModel credentials); 
     Task<string> RenewUsersJsonList(IConfiguration config);
 }
