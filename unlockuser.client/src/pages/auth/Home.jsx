@@ -142,33 +142,26 @@ function Home() {
             ? groups.flatMap(g => collections[g.name.toLowerCase()])
             : collections[gn])?.filter(Boolean);
 
+        let res = null;
         if (collection?.length > 0) {
-            const result = (isClass)
+            res = (isClass)
                 ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)
                 : collection?.filter(x => match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name));
-            if (result?.length > 0) {
-                handleDispatch("users", result, "RESULT");
-                return null;
-            }
+        } else {
+            if (!isClass)
+                delete data?.school;
 
-            return data;
+            // API parameters by chosen searching alternative
+            let options = isClass
+                ? `students${fd.get("school")}/${name}`
+                : `person/${name}/${group?.name}/${match}`;
+
+            res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
         }
 
-        if (!isClass)
-            delete data?.school;
-
-        // API parameters by chosen searching alternative
-        let options = isClass
-            ? `students${fd.get("school")}/${name}`
-            : `person/${name}/${group?.name}/${match}`;
-
-        const res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
-        if (Array.isArray(res)) {
-            handleDispatch("users", res, "RESULT");
-            return null;
-        }
-
-        return data;
+        console.log(res)
+        handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
+        return Array.isArray(res) ? null : data;
     }
 
     function onReset() {
@@ -184,6 +177,8 @@ function Home() {
         school: "",
         errors: null
     });
+
+    console.log(users)
 
     return (
         <>

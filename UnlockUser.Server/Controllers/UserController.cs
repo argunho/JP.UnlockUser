@@ -132,7 +132,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 MailService ms = new(); // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
 
                 var claims = _help.GetClaims("email", "displayname") ?? [];
-                var success = ms.SendMail(claims["email"], file.FileName.Replace(".pdf", ""),
+                var success = ms.SendMail(claims["email"], file!.FileName.Replace(".pdf", ""),
                             $"Hej {claims["displayname"]}!<br/> Här bifogas PDF document filen med nya lösenord till elever från {label}.",
                             claims["email"] ?? "", _session?.GetString("Password") ?? "", file);
 
