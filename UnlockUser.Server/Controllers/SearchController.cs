@@ -9,18 +9,17 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class SearchController(IActiveDirectory provider, IHelp help, ILocalService localService, IHelpService helpService, ICredentialsService credentialsService) : ControllerBase
+public class SearchController(IActiveDirectory provider, IHelp help, IHelpService helpService, ICredentialsService credentialsService) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider;
     private readonly IHelp _help = help;
-    private readonly ILocalService _localService = localService;
     private readonly IHelpService _helpService = helpService;
     private ICredentialsService _credentialsService = credentialsService;
 
     #region GET
     // Search one user
     [HttpGet("person/{name}/{group}/{match:bool}")]
-    public JsonResult FindUser(string name, string group, bool match = false)
+    public IActionResult FindUser(string name, string group, bool match = false)
     {
         var usersToView = new List<User>();
         var support = group == "Support";
@@ -52,21 +51,21 @@ public class SearchController(IActiveDirectory provider, IHelp help, ILocalServi
 
             // If result got no results
             if (usersToView.Count == 0)
-                return _help.Warning("Inga användarkonto hittades.");
+                return Ok(_help.Warning("Inga användarkonto hittades."));
 
 
-            return new(new { users = usersToView.OrderBy(x => x.Name) });
+            return Ok(new { users = usersToView.OrderBy(x => x.Name) });
 
         }
         catch (Exception ex)
         {
-            return _help.Error("SearchController: FindUser", ex.Message);
+            return BadRequest(_help.Error("SearchController: FindUser", ex.Message));
         }
     }
 
     // Search class students by class and school name
     [HttpGet("students/{school}/{class}")]
-    public JsonResult FindClassMembers(string school, string @class)
+    public IActionResult FindClassMembers(string school, string @class)
     {
         try
         {
@@ -81,13 +80,13 @@ public class SearchController(IActiveDirectory provider, IHelp help, ILocalServi
             users = Filter(users, "Students");
 
             if (users.Count > 0)
-                return new JsonResult(new { users = users.Distinct().OrderBy(x => x.Department).ThenBy(x => x.Name) });
+                return Ok(new { users = users.Distinct().OrderBy(x => x.Department).ThenBy(x => x.Name) });
 
-            return _help.Warning("Inga användarkonto hittades. Var vänlig kontrollera klass- och skolnamn.");
+            return BadRequest(_help.Warning("Inga användarkonto hittades. Var vänlig kontrollera klass- och skolnamn."));
         }
         catch (Exception ex)
         {
-            return _help.Error("SearchController:  FindClassMembers", ex.Message);
+            return BadRequest(_help.Error("SearchController:  FindClassMembers", ex.Message));
         }
 
     }
