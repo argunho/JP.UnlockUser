@@ -84,10 +84,10 @@ public class ADService(ILocalFileService localService) : IActiveDirectory // Hel
         res.SizeLimit = 0;
 
         bool isEmployeeGroup = string.Equals(group.Group, "Employees", StringComparison.OrdinalIgnoreCase);
- 
+
         foreach (SearchResult? result in res.FindAll().OfType<SearchResult>())
         {
-            var props = result.Properties;  
+            var props = result.Properties;
             var user = GetUserParams(props);
             if (isEmployeeGroup)
             {
@@ -118,12 +118,12 @@ public class ADService(ILocalFileService localService) : IActiveDirectory // Hel
             }
             else
                 usersToManage = [.. users.Where(x => alternativeParams!.Contains(x.Office!, StringComparer.OrdinalIgnoreCase))];
-        } else
+        }
+        else
             usersToManage = users;
 
         return usersToManage;
     }
-
 
     // Get memebrs from security group
     public List<string> GetSecurityGroupMembers(string? groupName)
@@ -355,24 +355,12 @@ public class ADService(ILocalFileService localService) : IActiveDirectory // Hel
     }
 
     // Method to reset user password
-    public string ResetPassword(UserViewModel model)
+    public void ResetPassword(UserViewModel model)
     {
-        try
-        {
-            using var context = PContexAccessCheck(model.Credentials);
-            using AuthenticablePrincipal user = UserPrincipal.FindByIdentity(context, model.Username);
-            if (user == null)
-                return $"Användaren {model.Username} hittades inte"; // Canceled operation. User {model.Username} not found
-
-            user.SetPassword(model.Password);
-
-            user.Dispose();
-            return string.Empty;
-        }
-        catch (Exception ex)
-        {
-            return "Fel: " + ex?.InnerException?.Message ?? ex.Message + "\n";
-        }
+        using var context = PContexAccessCheck(model.Credentials!);
+        using AuthenticablePrincipal user = UserPrincipal.FindByIdentity(context, model.Username)!;
+        user.SetPassword(model.Password);
+        user.Dispose();
     }
 
     // Method to unlock user

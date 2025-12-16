@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Diagnostics;
 using System.DirectoryServices;
 using System.Globalization;
@@ -12,8 +13,8 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IWebHostEnvironment env, 
-    IHelp help, IHelpService helpService, IConfiguration config, ILocalService localService) : ControllerBase
+public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IWebHostEnvironment env,
+    IHelp help, IHelpService helpService, IConfiguration config, ILocalService localService, ICredentialsService credinalService, ILocalMailService localMailService) : ControllerBase
 {
 
     private readonly IActiveDirectory _provider = provider;
@@ -24,6 +25,8 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     private readonly IHelpService _helpService = helpService;
     private readonly IWebHostEnvironment _env = env;
     private readonly ILocalService _localService = localService;
+    private readonly ICredentialsService _credentialsService = credinalService;
+    private readonly ILocalMailService _localMailService = localMailService;
 
     private readonly string ctrl = nameof(UserController);
 
@@ -31,38 +34,45 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     #region GET
     // Get user information by username
     [HttpGet("{group}/{name}")]
-    public JsonResult GetUser(string group, string name)
+    public IActionResult GetUser(string group, string name)
     {
+        User? user = null; ;
         try
         {
             var groupName = group == "Studenter" ? "Students" : "Employees";
-            DirectorySearcher members = _provider.GetMembers(groupName);
+            DirectorySearcher? members = _provider.GetMembers(groupName);
+
             members.Filter = $"(&(objectClass=User)(|(cn={name})(sAMAccountname={name})))";
 
-            var claims = _help.GetClaims("roles", "username");
+            var claims = _credentialsService.GetClaims(["roles", "permission"], Request);
 
             if (members.FindOne() != null)
             {
-                var user = (_provider.GetUsers(members, group)).FirstOrDefault();
+                user = (_provider.GetUsers(members, group)).FirstOrDefault();
+                if ((user == null))
+                {
+                    return NotFound(_help.NotFound("Användaren"));
+                }
+                else if (!claims!["roles"].Contains("Suppport", StringComparison.OrdinalIgnoreCase)
+                        && (_localService.Filter([user], groupName, claims!["permission"])?.Count == 0))
+                {
+                    return NotFound(_help.Warning($"Du saknar behörigheter att ändra lösenord till {user.DisplayName}!"));
+                }
 
                 if (_provider.MembershipCheck(_provider.FindUserByExtensionProperty(name), "Password Twelve Characters"))
                     user!.PasswordLength = 12;
-
-                user = (_localService.FilteredListOfUsers([user], group, claims!["roles"], claims["username"]))?.FirstOrDefault();
-                if (user != null)
-                    return new(new { user });
             }
         }
         catch (Exception ex)
         {
-            return _help.Error("UserController: GetUser", ex.Message);
+            return BadRequest(_help.Error("UserController: GetUser", ex.Message));
         }
 
-        return _help.NotFound("Användaren");
+        return Ok(new { user });
     }
 
     [HttpGet("unlock/{name}")] // Unlock user
-    public async Task<JsonResult> UnlockUser(string name)
+    public async Task<IActionResult> UnlockUser(string name)
     {
         try
         {
@@ -77,13 +87,13 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            return _help.Error("UserController: UnlockUser", ex.Message);
+            return BadRequest(_help.Error("UserController: UnlockUser", ex.Message));
         }
 
         // Save/Update statistics
         await SaveUpdateStatitics("Unlocked", 1);
 
-        return new(new { success = true, color = "success", msg = "Användaren har låsts upp!" });
+        return Ok(new { success = true, color = "success", msg = "Användaren har låsts upp!" });
     }
     #endregion
 
@@ -179,7 +189,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             {
                 Office = claims["office"],
                 Department = claims?["department"] ?? null,
-                ManagedUserOffice = office, 
+                ManagedUserOffice = office,
                 ManagedUserDepartment = department,
                 Group = group,
                 ComputerName = pcName,
@@ -201,12 +211,12 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         if (model.Users.Count == 0)
             return "Användare för lösenordsåterställning har inte specificerats."; // Password reset user not specified
 
-        string message = string.Empty;
+        StringBuilder? message = null;
 
         Data sessionUserData = GetLogData(model.GroupName!, model.Office!, model.Department!);
         string? sessionOffice = sessionUserData.Office?.ToLower();
 
-        var claims = _help.GetClaims("groups", "roles", "username");
+        var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permission"], Request);
         var groups = claims?["groups"].Split(",") ?? [];
         var roles = claims?["roles"].Split(",") ?? [];
 
@@ -217,44 +227,51 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         List<string?>? permissionGroups = [.. groupsList!.Select(s => s.PermissionGroup)];
 
         //return null;
-        if (!roles.Contains("Support"))
+        if (!roles.Contains("Support", StringComparer.OrdinalIgnoreCase))
         {
-            var modelUser = model.Users[0];
-            var username = modelUser.Username;
-            var user = _provider.FindUserByExtensionProperty(username!);
+            var users = new List<UserViewModel>();
+            var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permission"])!;
+            if (model.Users.Count > 0 && model.GroupName!.Equals("Students", StringComparison.OrdinalIgnoreCase))
+            {
+                if (permissions.Offices.Contains(model.Office, StringComparer.OrdinalIgnoreCase))
+                    users = model.Users;
+            }
+            else
+            {
+                var user = _provider.FindUserByExtensionProperty(model.Users[0].Username!);
+                if (user != null && permissions.Managers.Contains(user.Manager))
+                    users = model.Users;
+            }
 
-            // Get all user groups to check users membership in permission groups
-            var userGroups = _provider.GetUserGroups(user);
-            var forbidden = userGroups.Exists(x => permissionGroups.Contains(x));
-            var filteredList = _localService.FilteredListOfUsers([new User { Name = user.Name!, Title = user.Title }], modelUser.GroupName,
-                        claims!["roles"], claims["username"]);
-
-            if (user == null || filteredList?.Count == 0 || forbidden)
-                return $"Du saknar behörigheter att ändra lösenord till {username}!"; // Warning!
+            if (users.Count == 0)
+                return $"Du saknar behörigheter att ändra lösenord till {(model.Users.Count > 0 ? $"{model.Department} {model.Office}" : model.Users[0].Username)}";
         }
 
 
         // Set password to class students
         foreach (var user in model.Users)
         {
-            message += _provider.ResetPassword(UpdatedUser(user));
-            if (_env.IsProduction())
-                sessionUserData.Users.Add(user?.Username ?? "");
+            try
+            {
+                _provider.ResetPassword(UpdatedUser(user));
+                if (_env.IsProduction())
+                    sessionUserData.Users.Add(user?.Username ?? "");
+            }
+            catch (Exception ex)
+            {
+                message?.Append($"Fel vid försök ändra lösenord till {user.Username}: {ex.Message}");
+            }
         }
 
-        if (!model.Check && _env.IsProduction())
-            SaveHistoryLogFile(sessionUserData);
-
-        if (!string.IsNullOrEmpty(_help.Message))
-            return message;
-
         // Save/Update statistics
-        if (!model.Check)
+        if (!model.Check && _env.IsProduction())
+        {
+            SaveHistoryLogFile(sessionUserData);
             await SaveUpdateStatitics("PasswordsChange", model.Users.Count);
+        }
 
         if (message?.Length > 0)
-            return message;
-
+            return message.ToString();
 
         return null; //Success! Password reset was successful!
     }

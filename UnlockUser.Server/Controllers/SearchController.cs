@@ -9,10 +9,11 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class SearchController(IActiveDirectory provider, IHelp help, IHelpService helpService, ICredentialsService credentialsService) : ControllerBase
+public class SearchController(IActiveDirectory provider, IHelp help, ILocalService localService, IHelpService helpService, ICredentialsService credentialsService) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider;
     private readonly IHelp _help = help;
+    private readonly ILocalService _localService = localService;
     private readonly IHelpService _helpService = helpService;
     private ICredentialsService _credentialsService = credentialsService;
 
@@ -43,7 +44,7 @@ public class SearchController(IActiveDirectory provider, IHelp help, IHelpServic
 
                 var usersToManage = _provider.GetUsers(result!, group).ToList();
                 if (!support)
-                    usersToManage = Filter(usersToManage, group);
+                    usersToManage = _localService.Filter(usersToManage, group, _credentialsService.GetClaim("permission", Request));
 
                 if (usersToManage.Count != 0)
                     usersToView.AddRange(usersToManage);
@@ -77,7 +78,7 @@ public class SearchController(IActiveDirectory provider, IHelp help, IHelpServic
 
             result.Filter = $"(&(objectClass=User)((physicalDeliveryOfficeName={@class})(department={school})))";
 
-            users = Filter(users, "Students");
+            users = _localService.Filter(users, "Students", _credentialsService.GetClaim("permission", Request));
 
             if (users.Count > 0)
                 return Ok(new { users = users.Distinct().OrderBy(x => x.Department).ThenBy(x => x.Name) });

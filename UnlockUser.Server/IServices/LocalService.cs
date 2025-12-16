@@ -1,4 +1,5 @@
 ﻿
+using Newtonsoft.Json;
 using UnlockUser.Server.Interface;
 using UnlockUser.Server.Models;
 
@@ -23,34 +24,21 @@ public class LocalService(ILocalFileService localFileService, IActiveDirectory p
         return user?.Managers.Where(x => !x.Disabled).ToList() ?? [];
     }
 
-
-    // Filter of searched users
-    public List<User> FilteredListOfUsers(List<User> users, string? groupName = null, string? roles = null, string? username = null)
+    // Usersr filter
+    public List<User> Filter(List<User> users, string? groupName, string? claimPermission)
     {
-        // If user is not a member from support group, filter users result
-        List<GroupUsersViewModel> groups = HelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
-        List<User>? employees = groups.FirstOrDefault(x => x.Group!.Name == groupName)?.Employees;
-        User? sessionUser = employees?.FirstOrDefault(x => x.Name == username);
-        List<User> usersToView = [];
+        if(string.IsNullOrEmpty(groupName) || string.IsNullOrEmpty(claimPermission)) return users;
 
-        if (sessionUser?.Managers.Count > 0 && groupName != "Studenter" && groupName != "Students")
+        var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claimPermission!)!;
+
+        if (!groupName.Equals("Students", StringComparison.OrdinalIgnoreCase))
         {
+            users = [.. users.Where(x => permissions.Managers.Contains(x.Manager, StringComparer.OrdinalIgnoreCase))];
             foreach (var user in users)
-            {
-                var managers = _provider.GetUserManagers(user)?.Select(s => s.Username)?.ToList() ?? [];
-                var sessionUserManagers = sessionUser.Managers.Where(x => !x.Disabled).Select(s => s.Username).ToList() ?? [];
-                if (managers.Count > 0)
-                {
-                    var matched = sessionUserManagers.Intersect(managers);
-                    if (matched.Any())
-                        usersToView.Add(user);
-                }
-            }
+                user.Managers = _provider.GetUserManagers(user);
         }
-        else if (groupName == "Studenter" || groupName == "Students")
-            users = [.. users.Where(x => sessionUser!.Offices.Contains(x.Office!))];
-
-        users = usersToView;
+        else
+            users = [.. users.Where(x => permissions.Offices.Contains(x.Office, StringComparer.OrdinalIgnoreCase))];
 
         return users;
     }

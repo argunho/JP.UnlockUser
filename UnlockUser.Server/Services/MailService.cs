@@ -4,7 +4,7 @@ using System.Net.Mail;
 
 namespace UnlockUser.Server.Services;
 
-public class MailService
+public class MailService : ILocalMailService
 {
 
     // Template params

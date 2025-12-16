@@ -22,7 +22,7 @@ public interface IActiveDirectory
     List<Manager> GetUserManagers(User user);
 
     PrincipalContext GetContext();
-    string ResetPassword(UserViewModel model);
+    void ResetPassword(UserViewModel model);
     string UnlockUser(UserViewModel model); 
     Task<string> RenewUsersJsonList(IConfiguration config);
 }
