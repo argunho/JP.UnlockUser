@@ -1,11 +1,13 @@
 ﻿
+using UnlockUser.Server.Interface;
 using UnlockUser.Server.Models;
 
 namespace UnlockUser.Server.IServices;
 
-public class LocalService(ILocalFileService localFileService) : ILocalService
+public class LocalService(ILocalFileService localFileService, IActiveDirectory provider) : ILocalService
 {
     private readonly ILocalFileService _localFileService = localFileService;
+    private readonly IActiveDirectory _provider = provider;
 
     public User? GetUserFromFile(string username, string groupName)
     {
@@ -19,5 +21,45 @@ public class LocalService(ILocalFileService localFileService) : ILocalService
     {
         var user = GetUserFromFile(username, groupName);
         return user?.Managers.Where(x => !x.Disabled).ToList() ?? [];
+    }
+
+    // Filter
+    public List<User> FilteredListOfUsers(List<User> users, bool support,
+            string? groupName = null, string? roles = null, string? username = null)
+    {
+            // If user is not a member from support group, filter users result
+            if (!roles!.Contains("Support", StringComparison.CurrentCulture))
+            {
+                List<GroupUsersViewModel> groups = HelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
+                List<User>? employees = groups.FirstOrDefault(x => x.Group!.Name == groupName)?.Employees;
+                User? sessionUser = employees?.FirstOrDefault(x => x.Name == username);
+                List<User> usersToView = [];
+
+                if (sessionUser?.Managers.Count > 0 && groupName != "Studenter" && groupName != "Students")
+                {
+                    foreach (var user in users)
+                    {
+                        var managers = _provider.GetUserManagers(user)?.Select(s => s.Username)?.ToList() ?? [];
+                        var sessionUserManagers = sessionUser.Managers.Where(x => !x.Disabled).Select(s => s.Username).ToList() ?? [];
+                        if (managers.Count > 0)
+                        {
+                            var matched = sessionUserManagers.Intersect(managers);
+                            if (matched.Any())
+                                usersToView.Add(user);
+                        }
+                    }
+                }
+                else if (groupName == "Studenter" || groupName == "Students")
+                    users = [.. users.Where(x => sessionUser!.Offices.Contains(x.Office!))];
+
+                users = usersToView;
+            }
+            else if (groupName != "Students")
+            {
+                foreach (var user in users)
+                    user.Managers = _provider.GetUserManagers(user);
+            }
+
+        return users;
     }
 }

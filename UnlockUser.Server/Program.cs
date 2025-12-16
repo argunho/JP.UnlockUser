@@ -83,7 +83,7 @@ builder.Services.AddSession(options =>
 });
 
 // Add services to the container.
-builder.Services.AddControllers().AddControllersAsServices();
+builder.Services.AddControllers();   //.AddControllersAsServices();
 
 // Services
 builder.Services.AddHostedService<TaskScheduleService>();

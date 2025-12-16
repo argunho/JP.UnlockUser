@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.DirectoryServices;
 using System.Globalization;
 using System.Net;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 
@@ -13,7 +12,8 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IWebHostEnvironment env, IHelp help, IHelpService helpService, IConfiguration config, SearchController search) : ControllerBase
+public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IWebHostEnvironment env, 
+    IHelp help, IHelpService helpService, IConfiguration config, ILocalService localService) : ControllerBase
 {
 
     private readonly IActiveDirectory _provider = provider;
@@ -23,7 +23,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     private readonly IHelp _help = help;
     private readonly IHelpService _helpService = helpService;
     private readonly IWebHostEnvironment _env = env;
-    private readonly SearchController _search = search;
+    private readonly ILocalService _localService = localService;
 
     private readonly string ctrl = nameof(UserController);
 
@@ -46,12 +46,12 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 var user = (_provider.GetUsers(members, group)).FirstOrDefault();
 
                 if (_provider.MembershipCheck(_provider.FindUserByExtensionProperty(name), "Password Twelve Characters"))
-                    user.PasswordLength = 12;
+                    user!.PasswordLength = 12;
 
-                _session.SetString("ManagedOffice", user.Office);
-                _session.SetString("ManagedDepartment", user.Department);
+                _session.SetString("ManagedOffice", user.Office!);
+                _session.SetString("ManagedDepartment", user.Department!);
 
-                user = (_search.FilteredListOfUsers([user], false, group, claims["roles"], claims["username"]))?.FirstOrDefault();
+                user = (_localService.FilteredListOfUsers([user], false, group, claims!["roles"], claims["username"]))?.FirstOrDefault();
                 if (user != null)
                     return new(new { user });
             }
@@ -216,49 +216,39 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         if (groupsList?.Select(s => s.Name).Intersect(groups).Count() == 0)
             return "Behörigheter saknas!"; // Warning!
 
-        List<string> stoppedToEdit = [];
         List<string?>? permissionGroups = [.. groupsList!.Select(s => s.PermissionGroup)];
 
-        return null;
+        //return null;
         if (!roles.Contains("Support"))
         {
-            //Loop each username
-            foreach (var userModel in model.Users)
-            {
-                var username = userModel.Username;
-                var user = _provider.FindUserByExtensionProperty(username);
+            var modelUser = model.Users[0];
+            var username = modelUser.Username;
+            var user = _provider.FindUserByExtensionProperty(username!);
 
-                // Get all user groups to check users membership in permission groups
-                var userGroups = _provider.GetUserGroups(user);
-                var forbidden = userGroups.Exists(x => permissionGroups.Contains(x));
-                var filteredList = _search.FilteredListOfUsers([new User { Name = user.Name, Title = user.Title }], false,
-                            userModel.GroupName, claims["roles"], claims["username"]);
+            // Get all user groups to check users membership in permission groups
+            var userGroups = _provider.GetUserGroups(user);
+            var forbidden = userGroups.Exists(x => permissionGroups.Contains(x));
+            var filteredList = _search.FilteredListOfUsers([new User { Name = user.Name, Title = user.Title }], false,
+                        modelUser.GroupName, claims!["roles"], claims["username"]);
 
-                if (user == null || filteredList?.Count == 0 || forbidden)
-                {
-                    stoppedToEdit.Add(username);
-                    continue;
-                }
-            }
-
-            model.Users.RemoveAll(x => stoppedToEdit.Contains(x.Username));
+            if (user == null || filteredList?.Count == 0 || forbidden)
+                return $"Du saknar behörigheter att ändra lösenord till {username}!"; // Warning!
         }
+
 
         // Set password to class students
-        if (model.Users.Count > 0)
+        foreach (var user in model.Users)
         {
-            foreach (var user in model.Users)
-            {
-                message += _provider.ResetPassword(UpdatedUser(user));
+            message += _provider.ResetPassword(UpdatedUser(user));
+            if (_env.IsProduction())
                 sessionUserData.Users.Add(user?.Username ?? "");
-            }
-
-            if (!model.Check && _env.IsProduction())
-                SaveHistoryLogFile(sessionUserData);
-
-            if (!string.IsNullOrEmpty(_help.Message))
-                return message;
         }
+
+        if (!model.Check && _env.IsProduction())
+            SaveHistoryLogFile(sessionUserData);
+
+        if (!string.IsNullOrEmpty(_help.Message))
+            return message;
 
         // Save/Update statistics
         if (!model.Check)
@@ -266,10 +256,6 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
         if (message?.Length > 0)
             return message;
-        else if (stoppedToEdit?.Count > 0 && model.Users.Count == 0)
-            return $"Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!"; // Warning!
-        else if (stoppedToEdit?.Count > 0)
-            return $"Lösenordsåterställningen lyckades men inte till alla! Du saknar behörigheter att ändra lösenord till {string.Join(",", stoppedToEdit)}!";
 
 
         return null; //Success! Password reset was successful!
