@@ -126,7 +126,6 @@ function Home() {
         let errors = [];
         let error = null;
 
-
         if (_.isEqual({ name: "", school: "" }, { name, school })) {
             error = "Begäran avvisades. Inga ändringar gjordes i formulärets data."
             return {
@@ -148,9 +147,6 @@ function Home() {
                 ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)
                 : collection?.filter(x => match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name));
         } else {
-            if (!isClass)
-                delete data?.school;
-
             // API parameters by chosen searching alternative
             let options = isClass
                 ? `students${fd.get("school")}/${name}`
@@ -159,7 +155,6 @@ function Home() {
             res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
         }
 
-        console.log(res)
         handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
         return Array.isArray(res) ? null : data;
     }
@@ -177,8 +172,6 @@ function Home() {
         school: "",
         errors: null
     });
-
-    console.log(users)
 
     return (
         <>

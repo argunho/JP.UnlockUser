@@ -23,7 +23,8 @@ public class LocalService(ILocalFileService localFileService, IActiveDirectory p
         return user?.Managers.Where(x => !x.Disabled).ToList() ?? [];
     }
 
-    // Filter
+
+    // Filter of searched users
     public List<User> FilteredListOfUsers(List<User> users, bool support,
             string? groupName = null, string? roles = null, string? username = null)
     {

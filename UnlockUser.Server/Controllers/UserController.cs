@@ -48,9 +48,6 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 if (_provider.MembershipCheck(_provider.FindUserByExtensionProperty(name), "Password Twelve Characters"))
                     user!.PasswordLength = 12;
 
-                _session.SetString("ManagedOffice", user.Office!);
-                _session.SetString("ManagedDepartment", user.Department!);
-
                 user = (_localService.FilteredListOfUsers([user], false, group, claims!["roles"], claims["username"]))?.FirstOrDefault();
                 if (user != null)
                     return new(new { user });
@@ -132,9 +129,10 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 MailService ms = new(); // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
 
                 var claims = _help.GetClaims("email", "displayname") ?? [];
+                var pass = _helpService.DecodeFromBase64("HashedCredential").Replace(_config["JwtSettings:Key"]!, "") ?? "";
                 var success = ms.SendMail(claims["email"], file!.FileName.Replace(".pdf", ""),
                             $"Hej {claims["displayname"]}!<br/> Här bifogas PDF document filen med nya lösenord till elever från {label}.",
-                            claims["email"] ?? "", _session?.GetString("Password") ?? "", file);
+                            claims["email"], pass, file);
 
                 return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
             }
@@ -153,17 +151,17 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     // Return extension of User
     public UserViewModel UpdatedUser([FromBody] UserViewModel user)
     {
-        user.Credentials = new UserCredentials
+        user.Credentials = new UserCredentialsViewModel
         {
             Username = _help.GetClaim("Username"),
-            Password = _session.GetString("Password")
+            Password = _helpService.DecodeFromBase64(_session.GetString("HashedCredential")!)?.Replace(_config["JwtSettings:Key"]!, "")
         };
 
         return user;
     }
 
     // Return information
-    public Data GetLogData()
+    public Data GetLogData(string group, string office, string department)
     {
         var ip = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
 
@@ -181,9 +179,9 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             {
                 Office = claims["office"],
                 Department = claims?["department"] ?? null,
-                ManagedUserOffice = _session.GetString("ManagedOffice"),
-                ManagedUserDepartment = _session.GetString("ManagedDepartment"),
-                Group = _session.GetString("GroupName"),
+                ManagedUserOffice = office, 
+                ManagedUserDepartment = department,
+                Group = group,
                 ComputerName = pcName,
                 IpAddress = _contextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString()
             };
@@ -205,7 +203,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
         string message = string.Empty;
 
-        Data sessionUserData = GetLogData();
+        Data sessionUserData = GetLogData(model.GroupName!, model.Office!, model.Department!);
         string? sessionOffice = sessionUserData.Office?.ToLower();
 
         var claims = _help.GetClaims("groups", "roles", "username");
@@ -228,7 +226,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             // Get all user groups to check users membership in permission groups
             var userGroups = _provider.GetUserGroups(user);
             var forbidden = userGroups.Exists(x => permissionGroups.Contains(x));
-            var filteredList = _search.FilteredListOfUsers([new User { Name = user.Name, Title = user.Title }], false,
+            var filteredList = _localService.FilteredListOfUsers([new User { Name = user.Name!, Title = user.Title }], false,
                         modelUser.GroupName, claims!["roles"], claims["username"]);
 
             if (user == null || filteredList?.Count == 0 || forbidden)

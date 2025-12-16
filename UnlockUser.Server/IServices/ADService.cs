@@ -402,7 +402,7 @@ public class ADService(ILocalFileService localService) : IActiveDirectory // Hel
 
     #region Helpers
     // Context to build a connection with credentials to local host
-    public PrincipalContext PContexAccessCheck(UserCredentials model)
+    public PrincipalContext PContexAccessCheck(UserCredentialsViewModel model)
         => new(ContextType.Domain, domain, defaultOU, model.Username, model.Password);
 
     public DirectorySearcher? UpdatedProparties(DirectorySearcher? result)

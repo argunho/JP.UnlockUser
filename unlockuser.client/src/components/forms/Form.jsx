@@ -59,7 +59,7 @@ function actionReducer(state, action) {
 
 function Form({ children, label, labelFile, passwordLength, locked, users, multiple, hidden }) {
 
-
+console.log(users[0])
     const { group } = use(AuthContext);
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
@@ -99,8 +99,7 @@ function Form({ children, label, labelFile, passwordLength, locked, users, multi
 
         data.username = users[0].name;
         data.group = group;
-        console.log(data)
-
+        
         // Request
         await fetchData({ api: "user/reset/passwords", method: "post", data: data });
 
@@ -169,6 +168,7 @@ function Form({ children, label, labelFile, passwordLength, locked, users, multi
 
         if (fd.get("check") === "on")
             data.check = true;
+        
 
         let error = null;
         if (_password.length < passwordLength)
@@ -177,6 +177,8 @@ function Form({ children, label, labelFile, passwordLength, locked, users, multi
             error = "Lösenorden matchar inte. Kontrollera och försök igen.";
         else if (!regex.test(password))
             error = "Lösenordet följer inte det angivna formatet. Var god kontrollera kraven.";
+
+        data.group = group;
 
         return { data, error };
     }

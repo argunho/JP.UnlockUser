@@ -8,7 +8,7 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class SearchController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, 
+public class SearchController(IActiveDirectory provider, IHttpContextAccessor contextAccessor,
         IHelp help, ILocalService localService, IHelpService helpService) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
@@ -34,7 +34,7 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
             {
                 DirectorySearcher result = _provider.GetMembers(groupName);
 
-                if(result != null)
+                if (result != null)
                 {
                     if (match)
                         result.Filter = $"(&(objectClass=User)(|(cn=*{name}*)(|(displayName=*{name}*)(|(givenName=*{name}*))(|(upn=*{name.ToLower()}*))(sn=*{name}*))))";
@@ -46,21 +46,19 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
 
                 users.AddRange(_localService.FilteredListOfUsers(user, support, group, claims!["roles"], claims["username"]));
             }
+
+            // If result got no results
+            if (users.Count == 0)
+                return _help.Warning("Inga användarkonto hittades.");
+
+ 
+            return new(new { users = users.OrderBy(x => x.Name) });
+
         }
         catch (Exception ex)
         {
             return _help.Error("SearchController: FindUser", ex.Message);
         }
-
-        // If the result got a successful result
-        if (users.Count > 0)
-        {
-            _session?.SetString("GroupName", group);
-            return new(new { users = users.OrderBy(x => x.Name) });
-        }
-
-        // If result got no results
-        return _help.Warning("Inga användarkonto hittades.");
     }
 
     // Search class students by class and school name
@@ -72,10 +70,6 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
             List<User> users = []; // Empty list of users
             var context = _provider.GetContext(); // Get active derictory context
             var claims = _help.GetClaims("roles", "username");
-
-            _session?.SetString("ManagedOffice", office);
-            _session?.SetString("ManagedDepartment", department);
-            _session?.SetString("GroupName", "Studenter");
 
             DirectorySearcher result = _provider.GetMembers("Students");
 

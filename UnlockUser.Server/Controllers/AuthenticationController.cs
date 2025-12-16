@@ -61,7 +61,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
                 roles.Add("Developer");
 
 
-            if (_provider.MembershipCheck(user, "TEIS IT avdelning") || roles.IndexOf("Developer") > -1)
+            if (_provider.MembershipCheck(user, "TEIS IT avdelning") || roles.Contains("Developer", StringComparer.OrdinalIgnoreCase))
                 roles.Add("Support");
 
             // Failed! Permission missed
@@ -74,12 +74,15 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
                 Group = s.Group
             }).ToList();
 
+
+
             List<Claim> claims = [];
             claims.Add(new(ClaimTypes.Name, user?.Name));
             claims.Add(new("Email", user.EmailAddress));
             claims.Add(new("DisplayName", user.DisplayName));
             claims.Add(new("Username", user.Name));
             claims.Add(new("Manager", user.Manager));
+            //claims.Add(new("Permissions", ager));
             claims.Add(new("Office", user.Office));
             claims.Add(new("Department", user.Department));
             claims.Add(new("Division", user.Division));
@@ -89,7 +92,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             if (roles.IndexOf("Support") > -1)
                 claims.Add(new("Access", "access"));
 
-            _session?.SetString("Password", model.Password);
+            _session?.SetString("HashedCredential", _help.EncodeToBase64($"{model.Password}{_config["JwtSettings:Key"]}"));
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
             return new(_credentials.GenerateJwtToken(
@@ -112,12 +115,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
         try
         {
             var _session = HttpContext.Session;
-            _session.Remove("Username");
-            _session.Remove("FullName");
-            _session.Remove("Email");
-            _session.Remove("Password");
-            _session.Remove("GroupToManage");
-            _session.Remove("PasswordResetGroup");
+            _session.Remove("HashedCredential");
             _session.Remove("LoginAttempt");
             _session.Remove("LoginBlockTime");
 
