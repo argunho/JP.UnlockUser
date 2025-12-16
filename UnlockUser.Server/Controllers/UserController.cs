@@ -133,12 +133,11 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
                 //    return File(bytes, "application/pdf", file.FileName.Replace(" ", "_"));
                 //}
-
-                MailService ms = new(); // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
-
+               
+                // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
                 var claims = _help.GetClaims("email", "displayname") ?? [];
                 var pass = _helpService.DecodeFromBase64("HashedCredential").Replace(_config["JwtSettings:Key"]!, "") ?? "";
-                var success = ms.SendMail(claims["email"], file!.FileName.Replace(".pdf", ""),
+                var success = _localMailService.SendMail(claims["email"], file!.FileName.Replace(".pdf", ""),
                             $"Hej {claims["displayname"]}!<br/> Här bifogas PDF document filen med nya lösenord till elever från {label}.",
                             claims["email"], pass, file);
 
