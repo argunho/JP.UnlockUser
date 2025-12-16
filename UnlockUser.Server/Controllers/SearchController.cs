@@ -1,28 +1,28 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Data;
 using System.DirectoryServices;
-using System.Security.Claims;
 
 namespace UnlockUser.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class SearchController(IActiveDirectory provider, IHttpContextAccessor contextAccessor,
-        IHelp help, ILocalService localService, IHelpService helpService) : ControllerBase
+public class SearchController(IActiveDirectory provider, IHelp help, ILocalService localService, IHelpService helpService, ICredentialsService credentialsService) : ControllerBase
 {
-    private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
-    private readonly ISession? _session = contextAccessor?.HttpContext?.Session;
+    private readonly IActiveDirectory _provider = provider;
     private readonly IHelp _help = help;
     private readonly ILocalService _localService = localService;
     private readonly IHelpService _helpService = helpService;
+    private ICredentialsService _credentialsService = credentialsService;
 
     #region GET
     // Search one user
     [HttpGet("person/{name}/{group}/{match:bool}")]
     public JsonResult FindUser(string name, string group, bool match = false)
     {
-        var users = new List<User>();
+        var usersToView = new List<User>();
         var support = group == "Support";
 
         try
@@ -42,17 +42,20 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
                         result.Filter = $"(&(objectClass=User)(|(cn={name})(|(displayName={name})(|(givenName={name}))(sn={name}))))";
                 }
 
-                var user = _provider.GetUsers(result, group);
+                var usersToManage = _provider.GetUsers(result!, group).ToList();
+                if (!support)
+                    usersToManage = Filter(usersToManage, group);
 
-                users.AddRange(_localService.FilteredListOfUsers(user, support, group, claims!["roles"], claims["username"]));
+                if (usersToManage.Count != 0)
+                    usersToView.AddRange(usersToManage);
             }
 
             // If result got no results
-            if (users.Count == 0)
+            if (usersToView.Count == 0)
                 return _help.Warning("Inga användarkonto hittades.");
 
- 
-            return new(new { users = users.OrderBy(x => x.Name) });
+
+            return new(new { users = usersToView.OrderBy(x => x.Name) });
 
         }
         catch (Exception ex)
@@ -62,8 +65,8 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
     }
 
     // Search class students by class and school name
-    [HttpGet("students/{department}/{office}")]
-    public JsonResult FindClassMembers(string department, string office)
+    [HttpGet("students/{school}/{class}")]
+    public JsonResult FindClassMembers(string school, string @class)
     {
         try
         {
@@ -73,8 +76,9 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
 
             DirectorySearcher result = _provider.GetMembers("Students");
 
-            result.Filter = $"(&(objectClass=User)((physicalDeliveryOfficeName={office})(department={department})))";
-            users = _localService.FilteredListOfUsers(_provider.GetUsers(result, ""), false, "Studenter", claims!["roles"], claims["username"]);
+            result.Filter = $"(&(objectClass=User)((physicalDeliveryOfficeName={@class})(department={school})))";
+
+            users = Filter(users, "Students");
 
             if (users.Count > 0)
                 return new JsonResult(new { users = users.Distinct().OrderBy(x => x.Department).ThenBy(x => x.Name) });
@@ -86,6 +90,25 @@ public class SearchController(IActiveDirectory provider, IHttpContextAccessor co
             return _help.Error("SearchController:  FindClassMembers", ex.Message);
         }
 
+    }
+    #endregion
+
+    #region Helpers
+    public List<User> Filter(List<User> users, string groupName)
+    {
+        var claimPermission = _credentialsService.GetClaim("permission", Request);
+        var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claimPermission!)!;
+
+        if (!groupName.Equals("Students", StringComparison.OrdinalIgnoreCase))
+        {
+            users = [.. users.Where(x => permissions.Managers.Contains(x.Manager, StringComparer.OrdinalIgnoreCase))];
+            foreach (var user in users)
+                user.Managers = _provider.GetUserManagers(user);
+        }
+        else
+            users = [.. users.Where(x => permissions.Offices.Contains(x.Office, StringComparer.OrdinalIgnoreCase))];
+
+        return users;
     }
     #endregion
 }

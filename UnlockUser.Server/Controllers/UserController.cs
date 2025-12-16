@@ -48,7 +48,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 if (_provider.MembershipCheck(_provider.FindUserByExtensionProperty(name), "Password Twelve Characters"))
                     user!.PasswordLength = 12;
 
-                user = (_localService.FilteredListOfUsers([user], false, group, claims!["roles"], claims["username"]))?.FirstOrDefault();
+                user = (_localService.FilteredListOfUsers([user], group, claims!["roles"], claims["username"]))?.FirstOrDefault();
                 if (user != null)
                     return new(new { user });
             }
@@ -226,8 +226,8 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             // Get all user groups to check users membership in permission groups
             var userGroups = _provider.GetUserGroups(user);
             var forbidden = userGroups.Exists(x => permissionGroups.Contains(x));
-            var filteredList = _localService.FilteredListOfUsers([new User { Name = user.Name!, Title = user.Title }], false,
-                        modelUser.GroupName, claims!["roles"], claims["username"]);
+            var filteredList = _localService.FilteredListOfUsers([new User { Name = user.Name!, Title = user.Title }], modelUser.GroupName,
+                        claims!["roles"], claims["username"]);
 
             if (user == null || filteredList?.Count == 0 || forbidden)
                 return $"Du saknar behörigheter att ändra lösenord till {username}!"; // Warning!

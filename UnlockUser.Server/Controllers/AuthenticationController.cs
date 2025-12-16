@@ -68,12 +68,13 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             if (permissionGroups.Count == 0 && roles.Count == 0)
                 return new(_help.Warning("Åtkomst nekad! Behörighet saknas."));
           
-            var permissions = permissionGroups.OrderBy(x => x.Name).Select(s => new GroupModel
+            var passwordManageGroups = permissionGroups.OrderBy(x => x.Name).Select(s => new GroupModel
             {
                 Name = s.Name,
                 Group = s.Group
             }).ToList();
 
+            var permissions = new PermissionsViewModel();
 
 
             List<Claim> claims = [];
@@ -82,11 +83,11 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             claims.Add(new("DisplayName", user.DisplayName));
             claims.Add(new("Username", user.Name));
             claims.Add(new("Manager", user.Manager));
-            //claims.Add(new("Permissions", ager));
+            claims.Add(new("Permissions", JsonConvert.SerializeObject(permissions)));
             claims.Add(new("Office", user.Office));
             claims.Add(new("Department", user.Department));
             claims.Add(new("Division", user.Division));
-            claims.Add(new("Groups", JsonConvert.SerializeObject(permissions)));
+            claims.Add(new("PasswordManageGroups", JsonConvert.SerializeObject(passwordManageGroups)));
             claims.Add(new("Roles", string.Join(",", roles)));
 
             if (roles.IndexOf("Support") > -1)
