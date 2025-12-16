@@ -11,7 +11,5 @@ public class UserViewModel
     public string? Password { get; set; }
 
     public  string? GroupName { get; set; }
-
-    public UserCredentialsViewModel? Credentials { get; set; }
 }
 

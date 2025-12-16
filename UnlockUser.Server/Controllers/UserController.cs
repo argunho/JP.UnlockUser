@@ -71,17 +71,15 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         return Ok(new { user });
     }
 
-    [HttpGet("unlock/{name}")] // Unlock user
-    public async Task<IActionResult> UnlockUser(string name)
+    [HttpGet("unlock/{username}")] // Unlock user
+    public async Task<IActionResult> UnlockUser(string username)
     {
         try
         {
-            var model = new UserViewModel
-            {
-                Username = name
-            };
 
-            var message = _provider.UnlockUser(UpdatedUser(model));
+            var credentials = CurrentUSerCredentials();
+
+            var message = _provider.UnlockUser(username, credentials);
             if (message.Length > 0)
                 return _help.Warning(message);
         }
@@ -122,7 +120,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         {
 
             bool isFileEmpty = (file == null || file.Length == 0);
-            UsersListViewModel? model = JsonSerializer.Deserialize<UsersListViewModel>(data);
+            UsersListViewModel? model = System.Text.Json.JsonSerializer.Deserialize<UsersListViewModel>(data);
             var res = await SetMultiplePasswords(model!);
             if (string.IsNullOrEmpty(res) && !isFileEmpty)
             {
@@ -159,16 +157,13 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
     #region Helpers
     // Return extension of User
-    public UserViewModel UpdatedUser([FromBody] UserViewModel user)
+    public CredentialsViewModel CurrentUSerCredentials()
+    => new()
     {
-        user.Credentials = new UserCredentialsViewModel
-        {
-            Username = _help.GetClaim("Username"),
-            Password = _helpService.DecodeFromBase64(_session.GetString("HashedCredential")!)?.Replace(_config["JwtSettings:Key"]!, "")
-        };
+        Username = _credentialsService.GetClaim("Username", Request),
+        Password = _helpService.DecodeFromBase64(_session.GetString("HashedCredential")!)?.Replace(_config["JwtSettings:Key"]!, "")
+    };
 
-        return user;
-    }
 
     // Return information
     public Data GetLogData(string group, string office, string department)
@@ -247,13 +242,13 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 return $"Du saknar behörigheter att ändra lösenord till {(model.Users.Count > 0 ? $"{model.Department} {model.Office}" : model.Users[0].Username)}";
         }
 
-
+        var credenitsla = CurrentUSerCredentials();
         // Set password to class students
         foreach (var user in model.Users)
         {
             try
             {
-                _provider.ResetPassword(UpdatedUser(user));
+                _provider.ResetPassword(user, credenitsla);
                 if (_env.IsProduction())
                     sessionUserData.Users.Add(user?.Username ?? "");
             }
@@ -275,7 +270,6 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
         return null; //Success! Password reset was successful!
     }
-
 
     // Save update statistik
     public async Task SaveUpdateStatitics([FromBody] string param, int count)

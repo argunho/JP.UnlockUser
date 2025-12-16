@@ -355,28 +355,28 @@ public class ADService(ILocalFileService localService) : IActiveDirectory // Hel
     }
 
     // Method to reset user password
-    public void ResetPassword(UserViewModel model)
+    public void ResetPassword(UserViewModel model, CredentialsViewModel credentials)
     {
-        using var context = PContexAccessCheck(model.Credentials!);
+        using var context = PContexAccessCheck(credentials!);
         using AuthenticablePrincipal user = UserPrincipal.FindByIdentity(context, model.Username)!;
         user.SetPassword(model.Password);
         user.Dispose();
     }
 
     // Method to unlock user
-    public string UnlockUser(UserViewModel model)
+    public string UnlockUser(string username, CredentialsViewModel credentials)
     {
-        using var context = PContexAccessCheck(model.Credentials);
-        using AuthenticablePrincipal user = UserPrincipal.FindByIdentity(context, model.Username);
+        using var context = PContexAccessCheck(credentials);
+        using AuthenticablePrincipal user = UserPrincipal.FindByIdentity(context, username);
         if (user == null)
-            return $"Användaren {model.Username} hittades inte."; // User not found
+            return $"Användaren {username} hittades inte."; // User not found
 
         try
         {
             if (user.IsAccountLockedOut())
                 user.UnlockAccount();
             else
-                return $"Användarkontot {model.Username} är redan aktiv.";// The process is cancelled! The user's account is not locked!
+                return $"Användarkontot {username} är redan aktiv.";// The process is cancelled! The user's account is not locked!
 
             user.Save();
             return string.Empty;
@@ -390,7 +390,7 @@ public class ADService(ILocalFileService localService) : IActiveDirectory // Hel
 
     #region Helpers
     // Context to build a connection with credentials to local host
-    public PrincipalContext PContexAccessCheck(UserCredentialsViewModel model)
+    public PrincipalContext PContexAccessCheck(CredentialsViewModel model)
         => new(ContextType.Domain, domain, defaultOU, model.Username, model.Password);
 
     public DirectorySearcher? UpdatedProparties(DirectorySearcher? result)
