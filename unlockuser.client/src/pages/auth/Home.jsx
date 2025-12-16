@@ -84,6 +84,7 @@ function Home() {
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
+    const gn = group?.name?.toLowerCase() ?? groupName;
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
@@ -137,7 +138,6 @@ function Home() {
         if (errors?.length > 0)
             return { ...data, errors };
 
-        const gn = group.name?.toLowerCase()
         const collection = (gn === "support"
             ? groups.flatMap(g => collections[g.name.toLowerCase()])
             : collections[gn])?.filter(Boolean);
@@ -264,7 +264,7 @@ function Home() {
                 />
 
                 {/* Choose group */}
-                {groups?.length > 1 && <DropdownMenu
+                {(groups?.length > 1 && gn !== "support") && <DropdownMenu
                     label="Hanteras"
                     list={groups}
                     value={group ? group?.name : ""}
@@ -273,7 +273,7 @@ function Home() {
             </form>
 
             {/* Radio buttons to choice one of search alternatives */}
-            {group?.name === "Studenter" && <FormControl className="actions-wrapper d-row ai-end w-100">
+            {(gn === "studenter" && gn !== "support") && <FormControl className="actions-wrapper d-row ai-end w-100">
                 <RadioGroup
                     row
                     name="row-radio-buttons-group">
@@ -320,9 +320,8 @@ function Home() {
                     {/* Modal  window with help texts */}
                     <ModalView
                         label="Förklaring av sökparametrar"
-                        content={group?.name === "Studenter" ? AllTips : Tips} />
+                        content={gn === "studenter" ? AllTips : Tips} />
                 </div>
-
             </div>
 
             {/* List loading */}
@@ -332,7 +331,7 @@ function Home() {
             {users?.length > 0 && <ListsView
                 list={users}
                 grouped="office"
-                group={group?.name?.toLowerCase()}
+                group={gn}
                 multiple={isClass}
             />}
 

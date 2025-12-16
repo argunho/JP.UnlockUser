@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, memo } from 'react';
 
 
 // Installed
-import { LiveHelp, Logout, Menu, Close, History,FactCheck, SettingsApplications, School, WorkHistory, ErrorOutline, BarChart, Home } from '@mui/icons-material';
+import { LiveHelp, Logout, Menu, Close, History, FactCheck, SettingsApplications, School, WorkHistory, ErrorOutline, BarChart, Home } from '@mui/icons-material';
 import { Button, IconButton } from '@mui/material';
 import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 
@@ -39,6 +39,7 @@ const Header = memo(function Header({ disabled }) {
     const refMenu = useRef();
     const { groups: groupsString, displayName, access } = DecodedClaims();
     const groups = JSON.parse(groupsString).map(x => x.Name);
+    
 
     useEffect(() => {
         let clickHandler = (event) => {
@@ -77,12 +78,17 @@ const Header = memo(function Header({ disabled }) {
                         <div className="hml-wrapper">
                             <span>{displayName}</span>
                             <span className="d-row">
+                                {access && <Button component={NavLink} 
+                                        disabled={disabled}
+                                        className="header-link"
+                                        to="/search/support"
+                                    >Support</Button>}
                                 {groups.map((name, ind) => {
-                                    return <Button 
-                                        key={ind} 
+                                    return <Button
+                                        key={ind}
                                         component={NavLink}
                                         disabled={disabled}
-                                        className="header-link" 
+                                        className="header-link"
                                         to={`/search/${name?.toLowerCase()}`}>
                                         {name}
                                     </Button>;
@@ -92,28 +98,21 @@ const Header = memo(function Header({ disabled }) {
                     </div>
 
                     {/* Navigation button */}
-                    <Button 
-                        variant='outlined' 
-                        size="large" 
-                        className={`nav-btn ${open && 'nav-btn-active'}`} 
+                    <Button
+                        variant='outlined'
+                        size="large"
+                        className={`nav-btn ${open && 'nav-btn-active'}`}
                         disabled={disabled}
                         onClick={() => setOpen((open) => !open)}>
                         {open ? <Close /> : <Menu />}
                     </Button>
 
                     {/* Hidden menu */}
-                    {access && <HiddenMenu open={open} links={links} onClose={() => setOpen(false)} />}
+                    <HiddenMenu
+                        open={open}
+                        links={!access ? links : links.filter(x => !x.access && !x?.hidden)}
+                        onClose={() => setOpen(false)} />
 
-                    {/* Navigation hidden menu */}
-                    {!access && <div key={loc} className={`nav-wrapper${open ? ' visible' : ""}`} ref={refMenu}>
-
-                        {/* Loop links */}
-                        {links.filter(x => !x.access && !x?.hidden).map((link, ind) => {
-                            return <NavLink key={ind} className={({ isActive }) => `d-row w-100 jc-start${isActive ? " active" : ""}`} to={link.url}>
-                                {link.icon} {link.label}
-                            </NavLink>
-                        })}
-                    </div>}
                 </div>
             </section>
         </header >

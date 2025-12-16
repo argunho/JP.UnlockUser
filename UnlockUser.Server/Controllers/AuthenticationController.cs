@@ -64,7 +64,6 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             if (_provider.MembershipCheck(user, "TEIS IT avdelning") || roles.IndexOf("Developer") > -1)
                 roles.Add("Support");
 
-
             // Failed! Permission missed
             if (permissionGroups.Count == 0 && roles.Count == 0)
                 return new(_help.Warning("Åtkomst nekad! Behörighet saknas."));

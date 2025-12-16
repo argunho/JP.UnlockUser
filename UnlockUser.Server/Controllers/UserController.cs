@@ -108,7 +108,6 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
     }
 
-
     [HttpPost("reset/save/passwords")]
     public async Task<IActionResult> SetPasswordsSavePdf([FromForm] IFormFile file, [FromForm] string data, [FromForm] string label)
     {
@@ -200,7 +199,6 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     // Set multiple passwords
     public async Task<string?> SetMultiplePasswords(UsersListViewModel model)
     {
-        return null;
         // Check model is valid or not and return warning is true or false
         if (model.Users.Count == 0)
             return "Användare för lösenordsåterställning har inte specificerats."; // Password reset user not specified
@@ -221,6 +219,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         List<string> stoppedToEdit = [];
         List<string?>? permissionGroups = [.. groupsList!.Select(s => s.PermissionGroup)];
 
+        return null;
         if (!roles.Contains("Support"))
         {
             //Loop each username

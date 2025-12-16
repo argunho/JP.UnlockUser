@@ -30,7 +30,9 @@ function ListsView({ list, grouped, group, multiple }) {
     if ((multiple && selected.length === 0) || (!multiple && !user))
       return;
 
-    if (user && !multiple)
+    if(group === "support")
+      navigate(`/view/${group}/user/` + (user?.name ? user?.name : selected[0]));
+    else if (user && !multiple)
       navigate(`/manage/${group}/user/` + (user?.name ? user?.name : selected[0]));
     else
       navigate(`/manage/${group}/school/${list[0].office}/class/${list[0].department}`, { state: { selected } })
@@ -64,7 +66,7 @@ function ListsView({ list, grouped, group, multiple }) {
           {/* Loop of list */}
           {items.map((item, index) => {
             const checked = selected?.includes(item?.name);
-
+            console.log(item)
             return <ListItemButton key={index} component="li" className="loop-li" onClick={() => onClick(item)}>
 
               {item?.isLocked && <ListItemSecondaryAction>
