@@ -11,12 +11,7 @@ public class User
     public string? Division { get; set; }
     public string? Title { get; set; }
     public bool IsLocked { get; set; }
-    public List<string>? PasswordManageGroups { get; set; }
+    public List<string>? PasswordManageGroups { get; set; } = [];
     public List<string> Offices { get; set; } = [];
     public List<Manager> Managers { get; set; } = [];
-
-    public int PasswordLength { get; set; } = 8;
-
-    public string? Primary => DisplayName;
-    public string? Secondary =>  $"{Name},\t{Email} | <span class=\"secondary-span\">{Office + (Office != Department ? (" " + Department) : "")}</span>";
 }

@@ -49,7 +49,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                         alternativeParams = [.. user!.Managers.Select(s => s.Username!.ToString())];
                 }
                 
-                var users = _provider.GetUsersByGroupName(group, alternativeParams);
+                var users = (_provider.GetUsersByGroupName(group, alternativeParams))?.Select(s => new UserViewModel(s)).ToList();
                 if (!isStudents)
                     _ = users.ConvertAll(x => x.PasswordLength = 12).ToList();
 

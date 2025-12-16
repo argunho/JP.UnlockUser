@@ -24,6 +24,8 @@ public interface IActiveDirectory
 
     PrincipalContext GetContext();
     void ResetPassword(UserFormModel model, CredentialsViewModel credentials);
-    string UnlockUser(string username, CredentialsViewModel credentials); 
-    Task<string> RenewUsersJsonList(IConfiguration config);
+    string UnlockUser(string username, CredentialsViewModel credentials);
+    DirectorySearcher? UpdatedProparties(DirectorySearcher? result);
+    User? GetUserParams(ResultPropertyCollection? props);
+    bool CheckManager(string jobTitle);
 }

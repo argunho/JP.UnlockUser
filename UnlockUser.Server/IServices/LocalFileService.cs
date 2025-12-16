@@ -59,7 +59,6 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
 
         return plainText;
     }
-
     public byte[] EncryptStringToBytes(string plainText)
     {        // Check arguments.
         if (plainText == null || plainText.Length <= 0)
@@ -92,6 +91,42 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
 
         // Return the encrypted bytes from the memory stream.
         return encrypted;
+    }
+    public async Task<string?> SaveUpdateFile<T>(List<T> list, string fileName) where T : class
+    {
+        string? error = String.Empty;
+        try
+        {
+            var directory = @"wwwroot/files/";
+            var help = new HelpService();
+            help.CheckDirectory(directory);
+
+            var path = Path.Combine(directory, $"{fileName}.txt");
+            if (File.Exists(path))
+                File.Delete(path);
+
+            if (list.Count == 0)
+                return null;
+
+            await Task.Delay(1000);
+
+            // Encrypt file
+            var encryptedValue = JsonConvert.SerializeObject(list, Formatting.None);
+
+            // Encrypt the string to an array of bytes.
+            byte[] encrypted = EncryptStringToBytes(encryptedValue);
+            string exryotedText = Convert.ToBase64String(encrypted);
+            File.WriteAllText(path, exryotedText, Encoding.UTF8);
+
+            //await using FileStream lockStream = new(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"{nameof(SaveUpdateFile)} => Error: ${ex.Message}");
+            error = ex.Message;
+        }
+
+        return error;
     }
 
 
