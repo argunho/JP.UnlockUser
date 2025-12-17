@@ -185,7 +185,6 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
                         continue;
                     }
                 }
-
                 break;
             }
             catch (Exception ex)

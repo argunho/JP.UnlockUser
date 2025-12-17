@@ -23,7 +23,7 @@ public class LocalUserService(ILocalFileService localFileService,
 
         foreach (var group in groups!)
         {
-            List<string>? membersUsernames = _provider.GetSecurityGroupMembers(group.PermissionGroup);
+            List<string>? membersUsernames = [.. (_provider.GetSecurityGroupMembers(group.PermissionGroup)).Where(x => x.Length > 6)];
 
             foreach (var username in membersUsernames)
             {
@@ -107,14 +107,17 @@ public class LocalUserService(ILocalFileService localFileService,
                 managers.Add(user);
         }
 
-        await _localFileService.SaveUpdateFile(managers.Select(s => new Manager
+        var managersToSave = managers.Select(s => new Manager
         {
             Username = s.Name,
             DisplayName = s.DisplayName,
             Division = s.Division,
+            ManagerName = s.Manager?.Substring(2, s.Manager.IndexOf(',')),
             Disabled = false,
             Default = false
-        }).ToList(), "managers");
+        }).ToList();
+
+        await _localFileService.SaveUpdateFile(managersToSave, "managers");
         #endregion
     }
 
