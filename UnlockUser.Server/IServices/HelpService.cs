@@ -4,23 +4,15 @@ using System.Text.RegularExpressions;
 
 namespace UnlockUser.Server.IServices;
 
-public partial class HelpService : IHelp
+public partial class HelpService(IHttpContextAccessor httpContext) : IHelp
 {
-    public string Message { get; set; } = "";
-    private static byte[] secureKeyInBytes = Encoding.UTF8.GetBytes("unlockuser_2024key_alvestakommun"); // Length 36 chars
-    private static byte[] secureKeyIV = Encoding.UTF8.GetBytes("unlock_user_2024"); // Length 16 chars
-    private readonly IHttpContextAccessor _httpContext;
 
-    public HelpService()
-    {
-        _httpContext = new HttpContextAccessor();
-    }
+    private readonly IHttpContextAccessor _httpContext = httpContext;
 
     // Check local host
     public bool CheckLocalHost()
     {
-        IHttpContextAccessor _httpContext = new HttpContextAccessor();
-        string url = _httpContext.HttpContext.Request.Host.Value.ToString();
+        string url = _httpContext.HttpContext!.Request.Host.Value!.ToString();
         var regex = Regex();
         return url.IndexOf("localhost") > -1 || url.IndexOf("[::1]") > -1 || regex.IsMatch(url);
     }
