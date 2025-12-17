@@ -1,5 +1,4 @@
-﻿
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.DirectoryServices;
 
 namespace UnlockUser.Server.IServices;
@@ -25,8 +24,9 @@ public class LocalUserService(ILocalFileService localFileService,
         {
             List<string>? membersUsernames = [.. (_provider.GetSecurityGroupMembers(group.PermissionGroup)).Where(x => x.Length > 6)];
 
-            foreach (var username in membersUsernames)
+            for (int i = 0; i < membersUsernames?.Count; i++)
             {
+                string username = membersUsernames[i];
                 User? employee = employees.FirstOrDefault(x => x.Name == username);
                 PermissionsViewModel? permissions = employee != null ? employee.Permissions : new();
 
@@ -86,7 +86,7 @@ public class LocalUserService(ILocalFileService localFileService,
             }
         }
 
-        await _localFileService.SaveUpdateFile([.. employees.Distinct().ToList().OrderBy(o => o.DisplayName)], "employees");
+        await _localFileService.SaveUpdateFile([.. employees.OrderBy(o => o.DisplayName)], "employees");
         #endregion
 
         #region Get managers
@@ -107,12 +107,12 @@ public class LocalUserService(ILocalFileService localFileService,
                 managers.Add(user);
         }
 
-        var managersToSave = managers.Select(s => new Manager
+        var managersToSave = managers.Where(x => string.IsNullOrEmpty(x.Manager)).Select(s => new Manager
         {
             Username = s.Name,
             DisplayName = s.DisplayName,
             Division = s.Division,
-            ManagerName = s.Manager?.Substring(2, s.Manager.IndexOf(',')),
+            ManagerName = !string.IsNullOrEmpty(s.Manager) ? s.Manager.Trim()?.Substring(3, s.Manager.IndexOf(',') - 2) : "",
             Disabled = false,
             Default = false
         }).ToList();

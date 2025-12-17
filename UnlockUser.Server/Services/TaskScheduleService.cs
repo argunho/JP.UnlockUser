@@ -3,7 +3,7 @@
 namespace UnlockUser.Server.Services;
 
 public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskScheduleService> logger, ILocalUserService localUserService, 
-    ILocalFileService localFileService, IConfiguration config) : IHostedService, IDisposable
+    ILocalFileService localFileService) : IHostedService, IDisposable
 {
     private int _execution = 0;
     private Timer _timer;
