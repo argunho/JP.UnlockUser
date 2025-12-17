@@ -36,6 +36,7 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
                 var updated = Convert.ToDateTime(appConfig.LastUpdatedDate);
 
                 // Update employees in txt file
+                
                 if (updated.Day != currentDate.Day && currentHour >= 8 && currentHour < 18)
                 {
                     await _localUserService.RenewUsersJsonList();

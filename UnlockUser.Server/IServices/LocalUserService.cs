@@ -34,6 +34,8 @@ public class LocalUserService(ILocalFileService localFileService,
 
                 if (employee != null)
                     continue;
+                else
+                    employee ??= new();
 
                 var cachedUser = currentCahchedList?.FirstOrDefault(x => x.Name == username);
                 var userPermissions = cachedUser?.Permissions;
@@ -67,7 +69,7 @@ public class LocalUserService(ILocalFileService localFileService,
                 employee.Manager = user.Manager;
 
                 // Check all school staff
-                if (group.Group != "Students")
+                if (group.Group == "Students")
                 {
                     foreach (var school in schools)
                     {
@@ -76,8 +78,8 @@ public class LocalUserService(ILocalFileService localFileService,
                             permissions.Offices.Add(school.Name!);
                     }
                 }
-                else
-                    employee.Managers = _provider.GetUserManagers(employee);
+
+                employee.Managers = _provider.GetUserManagers(employee);
 
                 employee.Permissions = permissions;
                 employees.Add(employee);
