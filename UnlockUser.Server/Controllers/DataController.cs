@@ -33,21 +33,24 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         {
             List<GroupModel> groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
+            var cachedEmployees = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
             foreach (var group in groups)
             {
                 List<string>? alternativeParams = [];
                 bool isStudents = string.Equals(group.Group, "Students", StringComparison.OrdinalIgnoreCase);
+
+                var usersByGroup = cachedEmployees.Where(x => x.Permissions!.PasswordManageGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase));
 
                 if (string.IsNullOrEmpty(claims["access"]))
                 {
                     if (!sessionUserGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase))
                         continue;
 
-                    var user = _localUserService.GetUserFromFile(claims["username"]!, group.Name!);
+                    var user = usersByGroup.FirstOrDefault(x => x.Name == claims["username"]);
                     if (isStudents)
                         alternativeParams = user?.Permissions!.Offices;
                     else
-                        alternativeParams = [.. user!.Managers.Select(s => s.Username!.ToString())];
+                        alternativeParams =  user?.Permissions!.Managers;
                 }
                 
                 var users = (_provider.GetUsersByGroupName(group, alternativeParams))?.Select(s => new UserViewModel(s)).ToList();
