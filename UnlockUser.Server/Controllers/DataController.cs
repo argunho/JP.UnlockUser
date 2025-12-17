@@ -45,7 +45,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
 
                     var user = _localUserService.GetUserFromFile(claims["username"]!, group.Name!);
                     if (isStudents)
-                        alternativeParams = user?.Offices;
+                        alternativeParams = user?.Permissions!.Offices;
                     else
                         alternativeParams = [.. user!.Managers.Select(s => s.Username!.ToString())];
                 }

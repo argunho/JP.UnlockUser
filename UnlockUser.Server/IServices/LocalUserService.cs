@@ -4,7 +4,7 @@ using System.DirectoryServices;
 
 namespace UnlockUser.Server.IServices;
 
-public class LocalUserService(ILocalFileService localFileService, 
+public class LocalUserService(ILocalFileService localFileService,
     IActiveDirectory provider, IConfiguration config) : ILocalUserService
 {
     private readonly ILocalFileService _localFileService = localFileService;
@@ -16,70 +16,75 @@ public class LocalUserService(ILocalFileService localFileService,
     public async Task RenewUsersJsonList()
     {
         #region Get employees        
-        var groupEmployees = new List<GroupUsersViewModel>();
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
-        var currentList = _localFileService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
+        var currentCahchedList = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
         var schools = _localFileService.GetListFromFile<School>("schools");
+        List<User> employees = [];
 
         foreach (var group in groups!)
         {
-            List<string>? members = _provider.GetSecurityGroupMembers(group.PermissionGroup);
-            List<User> employees = [];
-            var cListByGroup = currentList.FirstOrDefault(x => x.Group?.Name == group.Name)?.Employees;
-            foreach (var member in members)
+            List<string>? membersUsernames = _provider.GetSecurityGroupMembers(group.PermissionGroup);
+
+            foreach (var username in membersUsernames)
             {
-                UserPrincipalExtension user = _provider.FindUserByUsername(member);
-                if (user != null && (user.Equals(default(UserPrincipalExtension)) || user?.SamAccountName.Length < 6))
+                User? employee = employees.FirstOrDefault(x => x.Name == username);
+                PermissionsViewModel? permissions = employee != null ? employee.Permissions : new();
+
+                permissions!.PasswordManageGroups.Add(group.Name!);
+
+                if (employee != null)
                     continue;
 
-                // Get member office name
-                var existingUser = cListByGroup?.FirstOrDefault(x => x.Name == user?.SamAccountName);
-                var userOffices = existingUser?.Offices != null
-                 ? [.. existingUser.Offices]
-                 : new List<string>();
+                var cachedUser = currentCahchedList?.FirstOrDefault(x => x.Name == username);
+                var userPermissions = cachedUser?.Permissions;
 
-                if (!string.IsNullOrWhiteSpace(user!.Office) && !userOffices.Contains(user.Office))
-                    userOffices.Add(user.Office);
+                // Get user
+                UserPrincipalExtension? user = _provider.FindUserByUsername(username);
+                if (user == null || user.SamAccountName.Length < 6)
+                    continue;
+
+                if (cachedUser != null && string.Equals(cachedUser.Manager, user.Manager, StringComparison.OrdinalIgnoreCase))
+                {
+                    permissions!.Managers = userPermissions!.Managers;
+                    permissions.Offices = userPermissions!.Offices;
+                }
+                else
+                {
+                    permissions.Managers.Add(user.Manager);
+                    permissions.Offices.Add(user.Office);
+                }
+
+                if (!string.IsNullOrWhiteSpace(user!.Office) && !permissions.Offices.Contains(user!.Office, StringComparer.OrdinalIgnoreCase))
+                    permissions.Offices.Add(user.Office);
+
+                employee!.Name = user.SamAccountName;
+                employee.DisplayName = user.DisplayName;
+                employee.Email = user.EmailAddress;
+                employee.Office = user.Office;
+                employee.Title = user.Title;
+                employee.Department = user.Department;
+                employee.Division = user.Division;
+                employee.Manager = user.Manager;
 
                 // Check all school staff
                 if (group.Group != "Students")
                 {
                     foreach (var school in schools)
                     {
-                        if (user.Office.Contains(school.Name!, StringComparison.OrdinalIgnoreCase) && userOffices.IndexOf(school.Name!) == -1)
-                            userOffices.Add(school.Name!);
+                        if (user!.Office.Contains(school.Name!, StringComparison.OrdinalIgnoreCase)
+                            && !permissions.Offices.Contains(school.Name!, StringComparer.OrdinalIgnoreCase))
+                            permissions.Offices.Add(school.Name!);
                     }
                 }
+                else
+                    employee.Managers = _provider.GetUserManagers(employee);
 
-                var employee = new User
-                {
-                    Name = user.SamAccountName,
-                    DisplayName = user.DisplayName,
-                    Email = user.EmailAddress,
-                    Office = user.Office,
-                    Title = user.Title,
-                    Department = user.Department,
-                    Division = user.Division,
-                    Manager = user.Manager,
-                    Offices = userOffices
-                };
-
-                // If the existing user is null, convert it to the new user
-                existingUser ??= new User { Title = user.Title, Manager = user.Manager };
-
-                if (group.Group != "Students")
-                    employee.Managers = _provider.GetUserManagers(existingUser);
+                employee.Permissions = permissions;
                 employees.Add(employee);
             }
-
-            groupEmployees.Add(new GroupUsersViewModel
-            {
-                Group = group,
-                Employees = [.. employees.Distinct().ToList().OrderBy(o => o.DisplayName)]
-            });
         }
 
-        await _localFileService.SaveUpdateFile(groupEmployees, "employees");
+        await _localFileService.SaveUpdateFile([.. employees.Distinct().ToList().OrderBy(o => o.DisplayName)], "employees");
         #endregion
 
         #region Get managers

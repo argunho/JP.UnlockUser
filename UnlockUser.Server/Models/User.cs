@@ -11,7 +11,6 @@ public class User
     public string? Division { get; set; }
     public string? Title { get; set; }
     public bool IsLocked { get; set; }
-    public List<string>? PasswordManageGroups { get; set; } = [];
-    public List<string> Offices { get; set; } = [];
     public List<Manager> Managers { get; set; } = [];
+    public PermissionsViewModel? Permissions { get; set; }
 }

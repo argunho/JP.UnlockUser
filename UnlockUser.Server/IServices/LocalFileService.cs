@@ -8,6 +8,7 @@ namespace UnlockUser.Server.IServices;
 public class LocalFileService(IConfiguration config) : ILocalFileService
 {
     private readonly IConfiguration _config = config;
+    
     public List<T> GetListFromFile<T>(string fileName) where T : class
     {
         try
@@ -28,6 +29,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
             return [];
         }
     }
+    
     public string DecryptStringFromBytes(byte[] cypherText)
     {
         // Check arguments.
@@ -58,6 +60,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
 
         return plainText;
     }
+    
     public byte[] EncryptStringToBytes(string plainText)
     {        // Check arguments.
         if (plainText == null || plainText.Length <= 0)
@@ -91,6 +94,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
         // Return the encrypted bytes from the memory stream.
         return encrypted;
     }
+    
     public async Task<string?> SaveUpdateFile<T>(List<T> list, string fileName) where T : class
     {
         string? error = String.Empty;
@@ -150,6 +154,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
             Debug.WriteLine(ex.Message);
         }
     }
+   
     public List<T> GetJsonFile<T>(string fileName)
     {
         var path = Path.Combine(@"wwwroot/json/", $"{fileName}.json");
