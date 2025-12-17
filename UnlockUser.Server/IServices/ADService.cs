@@ -150,89 +150,51 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
     // Get all employee's managers
     public List<Manager> GetUserManagers(User user)
     {
-
         DirectorySearcher? search = new(GetContext().Name);
         string? userManager = user.Manager;
-        bool hasManager = !string.IsNullOrEmpty(userManager);
-        try
-        {
-            //  Check all user bosses if they exist
-            if (user.Managers.Count > 0)
-            {
-                for (int i = 0; i < user.Managers.Count; i++)
-                {
-                    var manager = user.Managers[i];
-                    var checkedManager = FindUserByUsername(manager.Username!);
-                    if (checkedManager == null || !CheckManager(checkedManager.Title))
-                        user.Managers.RemoveAt(i);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
+        if (string.IsNullOrEmpty(userManager))
+            return [];
 
-
-        int index = 0;
         List<Manager> managers = [];
-        while (hasManager && user.Title != "Kommunchef")
+        while (managers?.Count < 3 && user.Title != "Kommunchef")
         {
             try
             {
                 search.Filter = String.Format("distinguishedName={0}", userManager);
                 search = UpdatedProparties(search);
-                var properties = search?.FindOne()?.Properties;
+                ResultPropertyCollection? properties = search.FindOne().Properties;
 
                 if (properties != null)
                 {
                     User? manager = GetUserParams(properties);
-                    hasManager = (manager != null);
-
-                    if (hasManager && managers.Exists(m => m.DisplayName == manager.DisplayName && m.Username == manager.Name))
+                    if (manager == null)
                         break;
-                    else if (hasManager && manager?.Manager != userManager)
+                    else if (managers.Exists(m => m.DisplayName == manager.DisplayName && m.Username == manager.Name))
+                        break;
+                    else if (!string.IsNullOrEmpty(manager.Manager) && manager?.Manager != userManager)
                     {
-                        var existing = user.Managers?.ToList().FirstOrDefault(x => x.Username!.Equals(manager?.Name, StringComparison.OrdinalIgnoreCase)
-                                        || x.Username.Contains(manager?.Name!, StringComparison.OrdinalIgnoreCase));
-
-
                         managers.Add(new Manager
                         {
                             Username = manager!.Name,
                             DisplayName = manager.DisplayName,
                             Division = manager.Division,
-                            Default = true,
-                            Disabled = index != 0 && (existing == null || existing.Disabled)
+                            Default = true
                         });
 
-                        index++;
-
-                        if (hasManager = !string.IsNullOrEmpty(manager.Manager) && manager.Title != "Kommunchef")
-                            userManager = manager.Manager;
+                        userManager = manager.Manager;
+                        continue;
                     }
-                    else
-                        break;
                 }
-                else
-                {
-                    hasManager = false;
-                }
+
+                break;
             }
             catch (Exception ex)
             {
-                hasManager = false;
                 Debug.WriteLine(ex.Message);
             }
         }
 
-        if (user.Managers?.Count > 0)
-        {
-            user.Managers.RemoveAll(x => managers.Select(s => x.Username).ToList().Contains(x.Username));
-            managers.AddRange(user.Managers);
-        }
-
-        return managers.Distinct().ToList() ?? [];
+        return managers ?? [];
     }
     #endregion
 
@@ -300,7 +262,7 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
     public User? GetUserParams(ResultPropertyCollection? props)
     {
         var isLocked = false;
-        if (props != null)
+        if (props == null)
             return null;
 
         if (props.Contains("lockoutTime") && int.TryParse(props["lockoutTime"]?[0]?.ToString(), out int number))

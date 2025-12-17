@@ -12,7 +12,7 @@ public class LocalUserService(ILocalFileService localFileService,
     private readonly IConfiguration _config = config;
 
 
-    // A function to API request Active Directory and refresh the json list of employees who have permission to change a user password.
+    // A function to API request Active Directory and save/refresh the list of employees who have permission to change a user password.
     public async Task RenewUsersJsonList()
     {
         #region Get employees        
