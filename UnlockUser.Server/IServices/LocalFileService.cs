@@ -8,7 +8,6 @@ namespace UnlockUser.Server.IServices;
 public class LocalFileService(IConfiguration config) : ILocalFileService
 {
     private readonly IConfiguration _config = config;
-
     public List<T> GetListFromFile<T>(string fileName) where T : class
     {
         try
@@ -128,7 +127,42 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
 
         return error;
     }
+    // Update configuration json
+    public void UpdateConfigFile(string config, string? parameter, string? value, string? obj = null)
+    {
+        try
+        {
+            var configJsonFile = File.ReadAllText($"{config}.json");
+            dynamic? configJson = JsonConvert.DeserializeObject(configJsonFile);
 
+            if (configJson != null)
+            {
+                if (obj != null)
+                    configJson[obj][parameter] = value;
+                else
+                    configJson[parameter] = value;
+
+                var configJsonToUpdate = JsonConvert.SerializeObject(configJson);
+                File.WriteAllText($"{config}.json", configJsonToUpdate);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+        }
+    }
+    public List<T> GetJsonFile<T>(string fileName)
+    {
+        var path = Path.Combine(@"wwwroot/json/", $"{fileName}.json");
+        using StreamReader reader = new(path);
+        return JsonConvert.DeserializeObject<List<T>>(reader.ReadToEnd()) ?? [];
+
+
+        // Save json file
+        //await using FileStream stream = File.Create(path);
+        //await System.Text.Json.JsonSerializer.SerializeAsync(stream, list);
+        //stream.Close();
+    }
 
     #region Help methods
     private static (byte[], byte[]) GetKeys()

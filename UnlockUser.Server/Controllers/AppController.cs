@@ -6,11 +6,15 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize(Roles = "Developer,Manager,Support")]
-public class AppController(IConfiguration config, IActiveDirectory provider, IHelp help) : ControllerBase
+public class AppController(IConfiguration config, ILocalUserService localUserService,
+    IHelpService help, ILocalFileService localFileService) : ControllerBase
 {
     private readonly IConfiguration _config = config;
-    private readonly IActiveDirectory _provider = provider;
-    private readonly IHelp _help = help;
+    private readonly ILocalUserService _localUserService = localUserService;
+    private readonly IHelpService _help = help;
+    private readonly ILocalFileService _localFileService = localFileService;
+
+    private readonly string ctrl = nameof(AppController);
 
     #region GET
     [HttpGet("groups")]
@@ -26,11 +30,11 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
     [NonAction]
     [HttpGet("authorized/{param}")]
     [Obsolete("Depricated")]
-    public JsonResult? GetAuthorizedEmployees(string param)
+    public IActionResult? GetAuthorizedEmployees(string param)
     {
-        var groupEmployees = HelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
+        var groupEmployees = _localFileService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
         if (groupEmployees.Count == 0)
-            return _help.Warning($"Filen {param} hittades inte. Klicka på Uppdatera listan knappen");
+            return NotFound(_help.Warning($"Filen {param} hittades inte. Klicka på Uppdatera listan knappen"));
 
         var employees = groupEmployees.First(x => x.Group?.Name == param)?.Employees ?? [];
 
@@ -38,7 +42,7 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
         List<ListViewModel> selections;
         if (param == "Studenter")
         {
-            var res = HelpService.GetListFromFile<School>("schools");
+            var res = _localFileService.GetListFromFile<School>("schools");
             selections = [.. res.OrderBy(x => x.Place).ThenBy(x => x.Name).Select(s => new ListViewModel
             {
                 Primary = s.Name,
@@ -47,7 +51,7 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
         }
         else
         {
-            var res = HelpService.GetListFromFile<Manager>("managers");
+            var res = _localFileService.GetListFromFile<Manager>("managers");
             selections = [.. res.OrderBy(x => x.Division).ThenBy(x => x.DisplayName).Select(s => new ListViewModel
             {
                 Id = s.Username,
@@ -75,43 +79,50 @@ public class AppController(IConfiguration config, IActiveDirectory provider, IHe
 
         var config = AppConfiguration.Load();
 
-        return new (new { employees = viewList, selections, updated = config.LastUpdatedDate });
+        return Ok(new { employees = viewList, selections, updated = config.LastUpdatedDate });
     }
 
     [HttpGet("renew/jsons")]
-    public async Task<JsonResult> RenewEmployeesList()
+    public async Task<IActionResult> RenewEmployeesList()
     {
-        string res = await _provider.RenewUsersJsonList(_config);
-        HelpService.UpdateConfigFile("appconfig", "LastUpdatedDate", DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
-        return new(string.IsNullOrEmpty(res) ? null : res);
+        try
+        {
+            await _localUserService.RenewUsersJsonList();
+            _localFileService.UpdateConfigFile("appconfig", "LastUpdatedDate", DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(_help.Error($"{ctrl}: {nameof(RenewEmployeesList)}", ex));
+        }
     }
     #endregion
 
     #region PUT
     [HttpPut("employee/{group}")]
-    public async Task<JsonResult> PutUpdateEmployeeSchool(string group, User model)
+    public async Task<IActionResult> PutUpdateEmployeeSchool(string group, User model)
     {
         try
         {
-            var groupEmployees = HelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
+            var groupEmployees = _localFileService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
             var employees = groupEmployees.FirstOrDefault(x => x.Group?.Name == group)?.Employees ?? [];
             var employee = employees.FirstOrDefault(x => x.Name == model.Name);
             if (employee == null)
-                return _help.NotFound("Anställd");
+                return NotFound(_help.NotFound("Anställd"));
 
             if (group == "Studenter")
                 employee.Offices = model.Offices;
             else
                 employee.Managers = model.Managers;
 
-            await HelpService.SaveUpdateFile(groupEmployees, "employees");
+            await _localFileService.SaveUpdateFile(groupEmployees, "employees");
         }
         catch (Exception ex)
         {
-            return _help.Error("AppController: PutUpdateEmployeeSchool", ex.Message);
+            return BadRequest(_help.Error($"{ctrl}: {nameof(PutUpdateEmployeeSchool)}", ex));
         }
 
-        return new(null);
+        return Ok();
     }
     #endregion
 }

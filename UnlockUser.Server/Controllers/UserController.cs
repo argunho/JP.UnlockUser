@@ -14,7 +14,8 @@ namespace UnlockUser.Server.Controllers;
 [ApiController]
 [Authorize]
 public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IWebHostEnvironment env,
-    IHelp help, IHelpService helpService, IConfiguration config, ILocalUserService localService, ICredentialsService credinalService, ILocalMailService localMailService) : ControllerBase
+    IHelp help, IHelpService helpService, IConfiguration config, ILocalUserService localService, 
+    ICredentialsService credinalService, ILocalMailService localMailService, ILocalFileService localFileService) : ControllerBase
 {
 
     private readonly IActiveDirectory _provider = provider;
@@ -27,6 +28,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     private readonly ILocalUserService _localService = localService;
     private readonly ICredentialsService _credentialsService = credinalService;
     private readonly ILocalMailService _localMailService = localMailService;
+    private readonly ILocalFileService _localFileService = localFileService;
 
     private readonly string ctrl = nameof(UserController);
 
@@ -35,7 +37,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     [HttpGet("{group}/{name}")]
     public IActionResult GetUser(string group, string name)
     {
-        User? user = null; ;
+        UserViewModel? user = null; ;
         try
         {
             var groupName = group == "Studenter" ? "Students" : "Employees";
@@ -47,7 +49,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
             if (members.FindOne() != null)
             {
-                user = (_provider.GetUsers(members, group)).FirstOrDefault();
+                user = new UserViewModel((_provider.GetUsers(members, group)).FirstOrDefault()!);
                 if ((user == null))
                 {
                     return NotFound(_help.NotFound("Användaren"));
@@ -278,7 +280,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
             var passChange = (param == "PasswordsChange");
 
-            var statistics = HelpService.GetListFromFile<Statistics>("statistics");
+            var statistics = _localFileService.GetListFromFile<Statistics>("statistics");
             var yearStatistics = statistics.FirstOrDefault(x => x.Year == year);
 
             var newData = new Months
@@ -310,7 +312,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 });
             }
 
-            await HelpService.SaveUpdateFile(statistics, "statistics");
+            await _localFileService.SaveUpdateFile(statistics, "statistics");
 
         }
         catch (Exception ex)

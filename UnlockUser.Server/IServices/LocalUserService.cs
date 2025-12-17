@@ -1,26 +1,25 @@
 ﻿
 using Newtonsoft.Json;
-using System.Diagnostics;
 using System.DirectoryServices;
-using UnlockUser.Server.Interface;
-using UnlockUser.Server.Models;
 
 namespace UnlockUser.Server.IServices;
 
-public class LocalUserService(ILocalFileService localFileService, IActiveDirectory provider) : ILocalUserService
+public class LocalUserService(ILocalFileService localFileService, 
+    IActiveDirectory provider, IConfiguration config) : ILocalUserService
 {
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IActiveDirectory _provider = provider;
+    private readonly IConfiguration _config = config;
 
 
     // A function to API request Active Directory and refresh the json list of employees who have permission to change a user password.
-    public async Task RenewUsersJsonList(IConfiguration config)
+    public async Task RenewUsersJsonList()
     {
         #region Get employees        
         var groupEmployees = new List<GroupUsersViewModel>();
-        var groups = config.GetSection("Groups").Get<List<GroupModel>>();
-        var currentList = HelpService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
-        var schools = HelpService.GetListFromFile<School>("schools");
+        var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
+        var currentList = _localFileService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
+        var schools = _localFileService.GetListFromFile<School>("schools");
 
         foreach (var group in groups!)
         {
@@ -39,7 +38,7 @@ public class LocalUserService(ILocalFileService localFileService, IActiveDirecto
                  ? [.. existingUser.Offices]
                  : new List<string>();
 
-                if (!string.IsNullOrWhiteSpace(user.Office) && !userOffices.Contains(user.Office))
+                if (!string.IsNullOrWhiteSpace(user!.Office) && !userOffices.Contains(user.Office))
                     userOffices.Add(user.Office);
 
                 // Check all school staff
@@ -47,8 +46,8 @@ public class LocalUserService(ILocalFileService localFileService, IActiveDirecto
                 {
                     foreach (var school in schools)
                     {
-                        if (user.Office.Contains(school.Name) && userOffices.IndexOf(school.Name) == -1)
-                            userOffices.Add(school.Name);
+                        if (user.Office.Contains(school.Name!, StringComparison.OrdinalIgnoreCase) && userOffices.IndexOf(school.Name!) == -1)
+                            userOffices.Add(school.Name!);
                     }
                 }
 
@@ -85,18 +84,18 @@ public class LocalUserService(ILocalFileService localFileService, IActiveDirecto
 
         #region Get managers
         List<User> managers = [];
-        DirectorySearcher? search = new(_provider.GetContext().Name)
+        DirectorySearcher search = new(_provider.GetContext().Name)
         {
             Filter = "(title=*)",
             PageSize = 1000
         };
 
         search = _provider.UpdatedProparties(search);
-        List<SearchResult>? list = search.FindAll()?.OfType<SearchResult>().ToList();
+        List<SearchResult>? list = [.. search.FindAll().OfType<SearchResult>()];
 
         foreach (SearchResult res in list)
         {
-            var user = _provider.GetUserParams(res.Properties);
+            var user = new UserViewModel(_provider.GetUserParams(res.Properties)!);
             if (user.Title != null && _provider.CheckManager(user.Title))
                 managers.Add(user);
         }

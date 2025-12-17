@@ -8,13 +8,14 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class DataController(IHelpService helpService, IActiveDirectory provider, ICredentialsService credentials,
-                                ILocalUserService localService, IConfiguration config) : ControllerBase
+public class DataController(IHelpService helpService, IActiveDirectory provider, ICredentialsService credentials, ILocalFileService localFileService,
+                                ILocalUserService localUserService, IConfiguration config) : ControllerBase
 {
     private readonly IHelpService _helpService = helpService;
     private readonly IActiveDirectory _provider = provider;
     private readonly ICredentialsService _credentials = credentials;
-    private readonly ILocalUserService _localService = localService;
+    private readonly ILocalFileService _localFileService = localFileService;
+    private readonly ILocalUserService _localUserService = localUserService;
     private readonly IConfiguration _config = config;
 
     private readonly string ctrl = nameof(DataController);
@@ -42,7 +43,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                     if (!sessionUserGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase))
                         continue;
 
-                    var user = _localService.GetUserFromFile(claims["username"]!, group.Name!);
+                    var user = _localUserService.GetUserFromFile(claims["username"]!, group.Name!);
                     if (isStudents)
                         alternativeParams = user?.Offices;
                     else
@@ -51,9 +52,9 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 
                 var users = (_provider.GetUsersByGroupName(group, alternativeParams))?.Select(s => new UserViewModel(s)).ToList();
                 if (!isStudents)
-                    _ = users.ConvertAll(x => x.PasswordLength = 12).ToList();
+                    _ = users!.ConvertAll(x => x.PasswordLength = 12).ToList();
 
-                data.Add(group.Name?.ToLower()!, users);
+                data.Add(group.Name?.ToLower()!, users!);
             }
         }
         catch (Exception ex)
@@ -69,7 +70,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     [HttpGet("schools")]
     public List<ListViewModel>? GetSchools()
     {
-        var list = HelpService.GetListFromFile<School>("schools").Select(s => new ListViewModel
+        var list = _localFileService.GetListFromFile<School>("schools").Select(s => new ListViewModel
         {
             Id = s.Name,
             Primary = s.Name,
@@ -142,7 +143,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            List<Statistics> data = HelpService.GetListFromFile<Statistics>("statistics");
+            List<Statistics> data = _localFileService.GetListFromFile<Statistics>("statistics");
             List<ListViewModel> list = [.. data?.OrderBy(x => x.Year).Select(s => new ListViewModel {
                 Primary = s.Year.ToString(),
                 Secondary = $"Byten lösenord: {s.Months.Sum(s => s.PasswordsChange)}, Upplåst konto: {s.Months.Sum(s => s.Unlocked)}",
@@ -179,13 +180,13 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            var schools = HelpService.GetListFromFile<School>("schools");
+            var schools = _localFileService.GetListFromFile<School>("schools");
             if (schools.Count == 0)
-                schools = HelpService.GetJsonFile<School>("schools");
+                schools = _localFileService.GetJsonFile<School>("schools");
             schools.Add(school);
             await Task.Delay(1000);
 
-            await HelpService.SaveUpdateFile(schools, "schools");
+            await _localFileService.SaveUpdateFile(schools, "schools");
 
             return Ok(GetSchools());
         }
@@ -203,10 +204,10 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            var schools = HelpService.GetListFromFile<School>("schools");
+            var schools = _localFileService.GetListFromFile<School>("schools");
             schools.RemoveAll(x => x.Name == name);
             await Task.Delay(1000);
-            await HelpService.SaveUpdateFile(schools, "schools");
+            await _localFileService.SaveUpdateFile(schools, "schools");
         }
         catch (Exception ex)
         {
