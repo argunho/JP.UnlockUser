@@ -8,10 +8,11 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/Log")]
 [Route("api/Logs")]
 [Authorize(Roles = "DevTeam")]
-public class LogController(IHelpService help, IFileService fileService) : ControllerBase
+public class LogController(IHelpService helpService, IFileService fileService) : ControllerBase
 {
-    private readonly IHelpService _help = help ?? throw new ArgumentNullException(nameof(help));
+    private readonly IHelpService _helpService = helpService ?? throw new ArgumentNullException(nameof(helpService));
     private readonly IFileService _fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
+
     private readonly string ctrl = nameof(LogController);
 
     #region GET
@@ -27,7 +28,7 @@ public class LogController(IHelpService help, IFileService fileService) : Contro
         }
         catch (Exception ex)
         {
-            await _help.Error($"{ctrl}: {nameof(Get)}", ex);
+            await _helpService.Error($"{ctrl}: {nameof(Get)}", ex);
         }
 
         return logs;
@@ -46,13 +47,13 @@ public class LogController(IHelpService help, IFileService fileService) : Contro
                 await _fileService.SaveJsonFile(logs!, "logs", @"wwwroot/json");
             }
             else
-                return new(_help.NotFound("Log"));
+                return new(_helpService.NotFound("Log"));
 
             return new(log);
         }
         catch (Exception ex)
         {
-            return new(new { res = await _help.Error($"{ctrl}: {nameof(GetById)}", ex) });
+            return new(new { res = await _helpService.Error($"{ctrl}: {nameof(GetById)}", ex) });
         }
     }
     #endregion
@@ -66,7 +67,7 @@ public class LogController(IHelpService help, IFileService fileService) : Contro
             var logs = await GetLogs();
             Log? log = logs.FirstOrDefault(x => x.Id == id);
             if (log == null)
-                return new(_help.NotFound("Log"));
+                return new(_helpService.NotFound("Log"));
 
             logs.Remove(log);
             await _fileService.SaveJsonFile(logs!, "logs", @"wwwroot/json");
@@ -83,7 +84,7 @@ public class LogController(IHelpService help, IFileService fileService) : Contro
     public async Task<JsonResult> DeleteMultiple(string? ids)
     {
         if (string.IsNullOrEmpty(ids))
-            return new(_help.Warning());
+            return new(_helpService.Warning());
 
         try
         {

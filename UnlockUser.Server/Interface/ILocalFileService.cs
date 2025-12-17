@@ -8,4 +8,5 @@ public interface ILocalFileService
     Task<string?> SaveUpdateFile<T>(List<T> list, string fileName) where T : class;
     void UpdateConfigFile(string config, string? parameter, string? value, string? obj = null);
     List<T> GetJsonFile<T>(string fileName);
+    void SaveLogFile(List<string> contentList, string pathName);
 }

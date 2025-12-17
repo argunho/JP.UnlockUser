@@ -14,21 +14,20 @@ namespace UnlockUser.Server.Controllers;
 [ApiController]
 [Authorize]
 public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IWebHostEnvironment env,
-    IHelp help, IHelpService helpService, IConfiguration config, ILocalUserService localService, 
-    ICredentialsService credinalService, ILocalMailService localMailService, ILocalFileService localFileService) : ControllerBase
+    ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localService, 
+    ICredentialsService credinalService, ILocalMailService localMailService) : ControllerBase
 {
 
     private readonly IActiveDirectory _provider = provider;
     private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
     private readonly ISession _session = contextAccessor.HttpContext!.Session;
     private readonly IConfiguration _config = config;
-    private readonly IHelp _help = help;
     private readonly IHelpService _helpService = helpService;
+    private readonly ILocalFileService _localFileService = localFileService;
     private readonly IWebHostEnvironment _env = env;
     private readonly ILocalUserService _localService = localService;
     private readonly ICredentialsService _credentialsService = credinalService;
     private readonly ILocalMailService _localMailService = localMailService;
-    private readonly ILocalFileService _localFileService = localFileService;
 
     private readonly string ctrl = nameof(UserController);
 
@@ -52,12 +51,12 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 user = new UserViewModel((_provider.GetUsers(members, group)).FirstOrDefault()!);
                 if ((user == null))
                 {
-                    return NotFound(_help.NotFound("Användaren"));
+                    return NotFound(_helpService.NotFound("Användaren"));
                 }
                 else if (!claims!["roles"].Contains("Suppport", StringComparison.OrdinalIgnoreCase)
                         && (_localService.Filter([user], groupName, claims!["permission"])?.Count == 0))
                 {
-                    return NotFound(_help.Warning($"Du saknar behörigheter att ändra lösenord till {user.DisplayName}!"));
+                    return Ok(_helpService.Warning($"Du saknar behörigheter att ändra lösenord till {user.DisplayName}!"));
                 }
 
                 if (_provider.MembershipCheck(_provider.FindUserByExtensionProperty(name), "Password Twelve Characters"))
@@ -66,7 +65,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            return BadRequest(_help.Error("UserController: GetUser", ex.Message));
+            return BadRequest(_helpService.Error($"{ctrl}: {nameof(GetUser)}", ex));
         }
 
         return Ok(new { user });
@@ -82,11 +81,11 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
             var message = _provider.UnlockUser(username, credentials);
             if (message.Length > 0)
-                return _help.Warning(message);
+                return Ok(_helpService.Warning(message));
         }
         catch (Exception ex)
         {
-            return BadRequest(_help.Error("UserController: UnlockUser", ex.Message));
+            return BadRequest(_helpService.Error($"{ctrl}: {nameof(UnlockUser)}", ex));
         }
 
         // Save/Update statistics
@@ -98,7 +97,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
     #region POST
     [HttpPost("reset/passwords")] // Reset class students passwords
-    public async Task<IActionResult> SetPaswords([FromForm] UsersListFormModel model)
+    public async Task<IActionResult> SetPasswords([FromForm] UsersListFormModel model)
     {
         try
         {
@@ -110,7 +109,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            return BadRequest(_help.Error("UsersController: SetPassword", ex.Message));
+            return BadRequest(_helpService.Error($"{ctrl}: {nameof(SetPasswords)}", ex));
         }
     }
 
@@ -136,7 +135,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 //}
                
                 // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
-                var claims = _help.GetClaims("email", "displayname") ?? [];
+                var claims = _credentialsService.GetClaims(["email", "displayname"], Request) ?? [];
                 var pass = _helpService.DecodeFromBase64("HashedCredential").Replace(_config["JwtSettings:Key"]!, "") ?? "";
                 var success = _localMailService.SendMail(claims["email"], file!.FileName.Replace(".pdf", ""),
                             $"Hej {claims["displayname"]}!<br/> Här bifogas PDF document filen med nya lösenord till elever från {label}.",
@@ -175,7 +174,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         string pcName = compName.First();
         //string computerName = (Environment.MachineName ?? System.Net.Dns.GetHostName() ?? Environment.GetEnvironmentVariable("COMPUTERNAME"));
 
-        var claims = _help.GetClaims("office", "department") ?? [];
+        var claims = _credentialsService.GetClaims(["office", "department"], Request) ?? [];
         var data = new Data();
         try
         {
@@ -317,7 +316,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            _help.SaveLogFile(["Save statistics", $"Fel: {ex.Message}"], "errors");
+            _localFileService.SaveLogFile(["Save statistics", $"Fel: {ex.Message}"], "errors");
         }
     }
 
@@ -326,13 +325,13 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     {
         try
         {
-            var user = _provider.FindUserByExtensionProperty(_help.GetClaim("Username") ?? "");
+            var user = _provider.FindUserByExtensionProperty(_credentialsService.GetClaim("username", Request) ?? "");
             var groupName = model?.Group?.ToLower();
             string fileName = (groupName ?? "") + "_";
 
             if (groupName != "studenter")
             {
-                var managedUser = _provider.FindUserByExtensionProperty(model.Users[0]);
+                var managedUser = _provider.FindUserByExtensionProperty(model!.Users[0]);
                 if (managedUser != null)
                 {
                     model.Office = user.Office;
@@ -372,11 +371,11 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 contentList.Add($"\t-{model?.Group}: {model?.Users[0]}");
             }
 
-            _help.SaveLogFile(contentList, "history");
+            _localFileService.SaveLogFile(contentList, "history");
         }
         catch (Exception ex)
         {
-            _help.SaveLogFile(["SaveLogFile", $"Fel: {ex.Message}"], "errors");
+            _localFileService.SaveLogFile(["SaveLogFile", $"Fel: {ex.Message}"], "errors");
         }
     }
     #endregion

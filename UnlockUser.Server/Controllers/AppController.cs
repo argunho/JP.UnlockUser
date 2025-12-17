@@ -7,11 +7,11 @@ namespace UnlockUser.Server.Controllers;
 [ApiController]
 [Authorize(Roles = "Developer,Manager,Support")]
 public class AppController(IConfiguration config, ILocalUserService localUserService,
-    IHelpService help, ILocalFileService localFileService) : ControllerBase
+    IHelpService helpService, ILocalFileService localFileService) : ControllerBase
 {
     private readonly IConfiguration _config = config;
     private readonly ILocalUserService _localUserService = localUserService;
-    private readonly IHelpService _help = help;
+    private readonly IHelpService _helpService = helpService;
     private readonly ILocalFileService _localFileService = localFileService;
 
     private readonly string ctrl = nameof(AppController);
@@ -34,7 +34,7 @@ public class AppController(IConfiguration config, ILocalUserService localUserSer
     {
         var groupEmployees = _localFileService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
         if (groupEmployees.Count == 0)
-            return NotFound(_help.Warning($"Filen {param} hittades inte. Klicka på Uppdatera listan knappen"));
+            return NotFound(_helpService.Warning($"Filen {param} hittades inte. Klicka på Uppdatera listan knappen"));
 
         var employees = groupEmployees.First(x => x.Group?.Name == param)?.Employees ?? [];
 
@@ -93,7 +93,7 @@ public class AppController(IConfiguration config, ILocalUserService localUserSer
         }
         catch (Exception ex)
         {
-            return BadRequest(_help.Error($"{ctrl}: {nameof(RenewEmployeesList)}", ex));
+            return BadRequest(_helpService.Error($"{ctrl}: {nameof(RenewEmployeesList)}", ex));
         }
     }
     #endregion
@@ -108,7 +108,7 @@ public class AppController(IConfiguration config, ILocalUserService localUserSer
             var employees = groupEmployees.FirstOrDefault(x => x.Group?.Name == group)?.Employees ?? [];
             var employee = employees.FirstOrDefault(x => x.Name == model.Name);
             if (employee == null)
-                return NotFound(_help.NotFound("Anställd"));
+                return NotFound(_helpService.NotFound("Anställd"));
 
             if (group == "Studenter")
                 employee.Offices = model.Offices;
@@ -119,7 +119,7 @@ public class AppController(IConfiguration config, ILocalUserService localUserSer
         }
         catch (Exception ex)
         {
-            return BadRequest(_help.Error($"{ctrl}: {nameof(PutUpdateEmployeeSchool)}", ex));
+            return BadRequest(_helpService.Error($"{ctrl}: {nameof(PutUpdateEmployeeSchool)}", ex));
         }
 
         return Ok();

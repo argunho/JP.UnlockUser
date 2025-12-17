@@ -97,8 +97,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
         try
         {
             var directory = @"wwwroot/files/";
-            var help = new HelpService();
-            help.CheckDirectory(directory);
+            CheckDirectory(directory);
 
             var path = Path.Combine(directory, $"{fileName}.txt");
             if (File.Exists(path))
@@ -164,6 +163,27 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
         //stream.Close();
     }
 
+    // Save history logfile
+    public void SaveLogFile(List<string> contentList, string pathName)
+    {
+        var directory = $@"wwwroot\logfiles\{pathName}";
+        if (CheckDirectory(directory))
+        {
+            contentList.Add("\n\n Datum: " + DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
+
+            // Write the string array to a new file named ".txt".
+            var fileName = string.Concat(Guid.NewGuid().ToString().AsSpan(10), "_", DateTime.Now.ToString("yyyyMMddHHmmss"));
+            var path = Path.Combine(directory, $"{fileName}.txt");
+
+            //using StreamWriter outputFile = new(pathName, true);
+            using StreamWriter stream = File.CreateText(path);
+            foreach (var contentLine in contentList)
+                stream.WriteLine(contentLine);
+
+            stream.Close();
+        }
+    }
+
     #region Help methods
     private static (byte[], byte[]) GetKeys()
     {
@@ -171,6 +191,23 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
         var secureKeyIV = Encoding.UTF8.GetBytes("unlock_user_2024"); // Length 16 chars
 
         return (secureKeyInBytes, secureKeyIV);
+    }
+
+    // Check directory path exists or not
+    public bool CheckDirectory(string path)
+    {
+        try
+        {
+            if (!Directory.Exists(path)) // Check directory          
+                Directory.CreateDirectory(path); //Create directory if it doesn't exist
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+            return false;
+        }
+
+        return true;
     }
     #endregion
 }

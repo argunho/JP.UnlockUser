@@ -9,13 +9,15 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class SearchController(IActiveDirectory provider, IHelp help, ILocalUserService localService, IHelpService helpService, ICredentialsService credentialsService) : ControllerBase
+public class SearchController(IActiveDirectory provider, ILocalUserService localService, 
+    IHelpService helpService, ICredentialsService credentialsService) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider;
-    private readonly IHelp _help = help;
     private readonly ILocalUserService _localService = localService;
     private readonly IHelpService _helpService = helpService;
     private ICredentialsService _credentialsService = credentialsService;
+
+    private readonly string ctrl = nameof(SearchController);
 
     #region GET
     // Search one user
@@ -28,7 +30,7 @@ public class SearchController(IActiveDirectory provider, IHelp help, ILocalUserS
         try
         {
             List<string> groupNames = support ? ["Students", "Employees"] : [(group == "Studenter" ? "Students" : "Employees")];
-            var claims = _help.GetClaims("roles", "username");
+            var claims = _credentialsService.GetClaims(["roles", "username"], Request);
 
             foreach (string groupName in groupNames)
             {
@@ -52,7 +54,7 @@ public class SearchController(IActiveDirectory provider, IHelp help, ILocalUserS
 
             // If result got no results
             if (usersToView.Count == 0)
-                return Ok(_help.Warning("Inga användarkonto hittades."));
+                return Ok(_helpService.Warning("Inga användarkonto hittades."));
 
 
             return Ok(new { users = usersToView.OrderBy(x => x.Name) });
@@ -60,7 +62,7 @@ public class SearchController(IActiveDirectory provider, IHelp help, ILocalUserS
         }
         catch (Exception ex)
         {
-            return BadRequest(_help.Error("SearchController: FindUser", ex.Message));
+            return BadRequest(_helpService.Error($"{ctrl}: {nameof(FindUser)}", ex));
         }
     }
 
@@ -72,7 +74,7 @@ public class SearchController(IActiveDirectory provider, IHelp help, ILocalUserS
         {
             List<User> users = []; // Empty list of users
             var context = _provider.GetContext(); // Get active derictory context
-            var claims = _help.GetClaims("roles", "username");
+            var claims = _credentialsService.GetClaims(["roles", "username"], Request);
 
             DirectorySearcher result = _provider.GetMembers("Students");
 
@@ -83,11 +85,11 @@ public class SearchController(IActiveDirectory provider, IHelp help, ILocalUserS
             if (users.Count > 0)
                 return Ok(new { users = users.Distinct().OrderBy(x => x.Department).ThenBy(x => x.Name) });
 
-            return BadRequest(_help.Warning("Inga användarkonto hittades. Var vänlig kontrollera klass- och skolnamn."));
+            return BadRequest(_helpService.Warning("Inga användarkonto hittades. Var vänlig kontrollera klass- och skolnamn."));
         }
         catch (Exception ex)
         {
-            return BadRequest(_help.Error("SearchController:  FindClassMembers", ex.Message));
+            return BadRequest(_helpService.Error($"{ctrl}:  {nameof(FindClassMembers)}", ex));
         }
 
     }

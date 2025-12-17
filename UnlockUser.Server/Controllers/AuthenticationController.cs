@@ -9,13 +9,13 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class AuthenticationController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache, 
-    IHelpService help, ICredentialsService credentials, ILocalUserService localService) : ControllerBase
+    IHelpService helpService, ICredentialsService credentials, ILocalUserService localService) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
     private readonly ISession? _session = contextAccessor?.HttpContext?.Session;
     private readonly IDistributedCache _distributedCache = distributedCache;
-    private readonly IHelpService _help = help;
+    private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentials = credentials;
     private readonly ILocalUserService _localService = localService;
 
@@ -28,7 +28,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
     {
         // Forms filled out incorrectly
         if (!ModelState.IsValid)
-            return new(_help.Warning());
+            return new(_helpService.Warning());
 
         try
         {
@@ -45,7 +45,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             {
                 // If the user tried to put in a wrong password, save this like +1 a wrong attempt and the max is 4 attempts
                 _session?.SetInt32("LoginAttempt", loginAttempt += 1);
-                return new(_help.Warning($"Felaktig användarnamn eller lösenord. {4 - loginAttempt} försök kvar."));
+                return new(_helpService.Warning($"Felaktig användarnamn eller lösenord. {4 - loginAttempt} försök kvar."));
             }
 
             _session?.Remove("LoginAttempt");
@@ -67,7 +67,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
             // Failed! Permission missed
             if (permissionGroups.Count == 0 && roles.Count == 0)
-                return new(_help.Warning("Åtkomst nekad! Behörighet saknas."));
+                return new(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
           
             var passwordManageGroups = permissionGroups.OrderBy(x => x.Name).Select(s => new GroupModel
             {
@@ -94,7 +94,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             if (roles.IndexOf("Support") > -1)
                 claims.Add(new("Access", "access"));
 
-            _session?.SetString("HashedCredential", _help.EncodeToBase64($"{model.Password}{_config["JwtSettings:Key"]}"));
+            _session?.SetString("HashedCredential", _helpService.EncodeToBase64($"{model.Password}{_config["JwtSettings:Key"]}"));
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
             return new(_credentials.GenerateJwtToken(
@@ -105,7 +105,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
         }
         catch (Exception ex)
         {
-            return new(await _help.Error($"{ctrl}: {nameof(PostLogin)}", ex));
+            return new(await _helpService.Error($"{ctrl}: {nameof(PostLogin)}", ex));
         }
     }
     #endregion
@@ -123,7 +123,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
             var authHeader = HttpContext.Request.Headers.Authorization.ToString();
             if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-                return new(_help.Warning("Token saknas"));
+                return new(_helpService.Warning("Token saknas"));
 
             var token = authHeader.Replace("Bearer ", "").Trim();
 
@@ -135,7 +135,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
         }
         catch (Exception ex)
         {
-            return new(_help.Error($"{ctrl} {nameof(Logout)}", ex));
+            return new(_helpService.Error($"{ctrl} {nameof(Logout)}", ex));
         }
 
         return new(true);
