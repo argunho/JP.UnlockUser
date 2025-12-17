@@ -15,7 +15,7 @@ public class DevelopeModeController(ILocalUserService localService) : Controller
     [AllowAnonymous]
     public IActionResult GetEmployees([FromQuery] string username, [FromQuery] string groupName)
     {
-        var user = _localUserService.GetUserFromFile(username, groupName);
+        var user = _localUserService.GetUserFromFile(username);
         return Ok(user);
     }
     #endregion

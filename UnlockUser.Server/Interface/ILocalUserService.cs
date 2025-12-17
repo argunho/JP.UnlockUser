@@ -3,7 +3,7 @@
 public interface ILocalUserService
 {
     Task RenewUsersJsonList();
-    User? GetUserFromFile(string username, string groupName);
+    User? GetUserFromFile(string username);
     List<Manager> GetUsersManagers(string username, string groupName);
-    List<User> Filter(List<User> users, string? groupName, string? claimPermission);
+    List<User> Filter(List<User> users, string? groupName, string? username);
 }

@@ -14,7 +14,7 @@ namespace UnlockUser.Server.Controllers;
 [ApiController]
 [Authorize]
 public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IWebHostEnvironment env,
-    ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localService, 
+    ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localService,
     ICredentialsService credinalService, ILocalMailService localMailService) : ControllerBase
 {
 
@@ -71,27 +71,21 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         return Ok(new { user });
     }
 
-    [HttpGet("unlock/{username}")] // Unlock user
-    public async Task<IActionResult> UnlockUser(string username)
+    [HttpGet("cached/{username}")]
+    public IActionResult GetCachedUser(string username)
     {
         try
         {
+            var user = _localService.GetUserFromFile(username);
+            if (user != null)
+                return Ok(new UserViewModel(user));
 
-            var credentials = CurrentUSerCredentials();
-
-            var message = _provider.UnlockUser(username, credentials);
-            if (message.Length > 0)
-                return Ok(_helpService.Warning(message));
+            return NotFound(_helpService.NotFound("Användaren"));
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error($"{ctrl}: {nameof(UnlockUser)}", ex));
+            return BadRequest(_helpService.Error($"{ctrl}: {nameof(GetCachedUser)}", ex));
         }
-
-        // Save/Update statistics
-        await SaveUpdateStatitics("Unlocked", 1);
-
-        return Ok(new { success = true, color = "success", msg = "Användaren har låsts upp!" });
     }
     #endregion
 
@@ -133,7 +127,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
                 //    return File(bytes, "application/pdf", file.FileName.Replace(" ", "_"));
                 //}
-               
+
                 // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
                 var claims = _credentialsService.GetClaims(["email", "displayname"], Request) ?? [];
                 var pass = _helpService.DecodeFromBase64("HashedCredential").Replace(_config["JwtSettings:Key"]!, "") ?? "";
@@ -154,12 +148,35 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
     #endregion
 
+    #region PUT
+    [HttpPut("unlock/{username}")] // Unlock user
+    public async Task<IActionResult> UnlockUser(string username)
+    {
+        try
+        {
+            var credentials = CurrentUSerCredentials();
+            var message = _provider.UnlockUser(username, credentials);
+            if (message.Length > 0)
+                return Ok(_helpService.Warning(message));
+
+            // Save/Update statistics
+            await SaveUpdateStatitics("Unlocked", 1);
+
+            return Ok(new { success = true, color = "success", msg = "Användaren har låsts upp!" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(_helpService.Error($"{ctrl}: {nameof(UnlockUser)}", ex));
+        }
+    }
+    #endregion
+
     #region Helpers
     // Return extension of User
     public CredentialsViewModel CurrentUSerCredentials()
     => new()
     {
-        Username = _credentialsService.GetClaim("Username", Request),
+        Username = _credentialsService.GetClaim("username", Request),
         Password = _helpService.DecodeFromBase64(_session.GetString("HashedCredential")!)?.Replace(_config["JwtSettings:Key"]!, "")
     };
 

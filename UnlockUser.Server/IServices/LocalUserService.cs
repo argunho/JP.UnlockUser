@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.DirectoryServices;
+using UnlockUser.Server.Interface;
 
 namespace UnlockUser.Server.IServices;
 
@@ -121,26 +122,26 @@ public class LocalUserService(ILocalFileService localFileService,
         #endregion
     }
 
-    public User? GetUserFromFile(string username, string groupName)
+    public User? GetUserFromFile(string username)
     {
-        List<GroupUsersViewModel> groups = _localFileService.GetListFromFile<GroupUsersViewModel>("employees") ?? [];
-        List<User>? employees = groups.FirstOrDefault(x => x.Group!.Name == groupName)?.Employees;
-        User? user = employees?.FirstOrDefault(x => x.Name == username);
+        List<UserViewModel> employees = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
+        UserViewModel? user = employees?.FirstOrDefault(x => x.Name == username);
         return user;
     }
 
     public List<Manager> GetUsersManagers(string username, string groupName)
     {
-        var user = GetUserFromFile(username, groupName);
+        var user = GetUserFromFile(username);
         return user?.Managers.Where(x => !x.Disabled).ToList() ?? [];
     }
 
     // Usersr filter
-    public List<User> Filter(List<User> users, string? groupName, string? claimPermission)
+    public List<User> Filter(List<User> users, string? groupName, string? username)
     {
-        if (string.IsNullOrEmpty(groupName) || string.IsNullOrEmpty(claimPermission)) return users;
+        if (string.IsNullOrEmpty(groupName) || string.IsNullOrEmpty(username)) return users;
 
-        var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claimPermission!)!;
+        var userCahcedData = GetUserFromFile(username);
+        var permissions = userCahcedData?.Permissions ?? new();
 
         if (!groupName.Equals("Students", StringComparison.OrdinalIgnoreCase))
         {

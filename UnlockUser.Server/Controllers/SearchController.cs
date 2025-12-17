@@ -9,11 +9,11 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class SearchController(IActiveDirectory provider, ILocalUserService localService, 
+public class SearchController(IActiveDirectory provider, ILocalUserService localUserService, 
     IHelpService helpService, ICredentialsService credentialsService) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider;
-    private readonly ILocalUserService _localService = localService;
+    private readonly ILocalUserService _localUserService = localUserService;
     private readonly IHelpService _helpService = helpService;
     private ICredentialsService _credentialsService = credentialsService;
 
@@ -46,7 +46,10 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
 
                 var usersToManage = _provider.GetUsers(result!, group).ToList();
                 if (!support)
-                    usersToManage = _localService.Filter(usersToManage, group, _credentialsService.GetClaim("permission", Request));
+                {
+                    usersToManage = _localUserService.Filter(usersToManage, group, claims!["username"]);
+                }
+
 
                 if (usersToManage.Count != 0)
                     usersToView.AddRange(usersToManage);
@@ -80,7 +83,7 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
 
             result.Filter = $"(&(objectClass=User)((physicalDeliveryOfficeName={@class})(department={school})))";
 
-            users = _localService.Filter(users, "Students", _credentialsService.GetClaim("permission", Request));
+            users = _localUserService.Filter(users, "Students", claims!["username"]);
 
             if (users.Count > 0)
                 return Ok(new { users = users.Distinct().OrderBy(x => x.Department).ThenBy(x => x.Name) });
@@ -92,25 +95,6 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
             return BadRequest(_helpService.Error($"{ctrl}:  {nameof(FindClassMembers)}", ex));
         }
 
-    }
-    #endregion
-
-    #region Helpers
-    public List<User> Filter(List<User> users, string groupName)
-    {
-        var claimPermission = _credentialsService.GetClaim("permission", Request);
-        var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claimPermission!)!;
-
-        if (!groupName.Equals("Students", StringComparison.OrdinalIgnoreCase))
-        {
-            users = [.. users.Where(x => permissions.Managers.Contains(x.Manager, StringComparer.OrdinalIgnoreCase))];
-            foreach (var user in users)
-                user.Managers = _provider.GetUserManagers(user);
-        }
-        else
-            users = [.. users.Where(x => permissions.Offices.Contains(x.Office, StringComparer.OrdinalIgnoreCase))];
-
-        return users;
     }
     #endregion
 }
