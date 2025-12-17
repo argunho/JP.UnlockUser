@@ -143,4 +143,7 @@ public class LocalUserService(ILocalFileService localFileService,
 
         return users;
     }
+
+    #region Help methods
+    #endregion
 }

@@ -248,6 +248,7 @@ public class ADService(ILocalFileService localService) : IActiveDirectory // Hel
     // Context to build a connection to local host
     public PrincipalContext GetContext() => new(ContextType.Domain, domain, defaultOU);
 
+
     // Method to reset user password
     public void ResetPassword(UserFormModel model, CredentialsViewModel credentials)
     {
@@ -289,19 +290,18 @@ public class ADService(ILocalFileService localService) : IActiveDirectory // Hel
 
     public DirectorySearcher? UpdatedProparties(DirectorySearcher? result)
     {
-        if (result != null)
-        {
-            result?.PropertiesToLoad.Add("cn");
-            result?.PropertiesToLoad.Add("displayName");
-            result?.PropertiesToLoad.Add("userPrincipalName");
-            result?.PropertiesToLoad.Add("physicalDeliveryOfficeName");
-            result?.PropertiesToLoad.Add("division");
-            result?.PropertiesToLoad.Add("manager");
-            result?.PropertiesToLoad.Add("department");
-            result?.PropertiesToLoad.Add("title");
-            result?.PropertiesToLoad.Add("lockoutTime");
-        }
+        if (result == null)
+            return result;
 
+        result?.PropertiesToLoad.Add("cn");
+        result?.PropertiesToLoad.Add("displayName");
+        result?.PropertiesToLoad.Add("userPrincipalName");
+        result?.PropertiesToLoad.Add("physicalDeliveryOfficeName");
+        result?.PropertiesToLoad.Add("division");
+        result?.PropertiesToLoad.Add("manager");
+        result?.PropertiesToLoad.Add("department");
+        result?.PropertiesToLoad.Add("title");
+        result?.PropertiesToLoad.Add("lockoutTime");
         return result;
     }
 
@@ -309,25 +309,23 @@ public class ADService(ILocalFileService localService) : IActiveDirectory // Hel
     {
         var isLocked = false;
         if (props != null)
+            return null;
+
+        if (props.Contains("lockoutTime") && int.TryParse(props["lockoutTime"]?[0]?.ToString(), out int number))
+            isLocked = number >= 1;
+
+        return new User
         {
-            if (props.Contains("lockoutTime") && int.TryParse(props["lockoutTime"]?[0]?.ToString(), out int number))
-                isLocked = number >= 1;
-
-            return new User
-            {
-                Name = props["cn"][0].ToString(),
-                DisplayName = props.Contains("displayName") ? props["displayName"][0]?.ToString() : "",
-                Email = props.Contains("userPrincipalName") ? props["userPrincipalName"][0]?.ToString() : "",
-                Manager = props.Contains("manager") ? props["manager"][0]?.ToString() : "",
-                Office = props.Contains("physicalDeliveryOfficeName") ? props["physicalDeliveryOfficeName"][0]?.ToString() : "",
-                Division = props.Contains("division") ? props["division"][0]?.ToString() : "",
-                Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
-                Title = props.Contains("title") ? props["title"][0]?.ToString() : "",
-                IsLocked = isLocked
-            };
-        }
-
-        return null;
+            Name = props["cn"][0].ToString(),
+            DisplayName = props.Contains("displayName") ? props["displayName"][0]?.ToString() : "",
+            Email = props.Contains("userPrincipalName") ? props["userPrincipalName"][0]?.ToString() : "",
+            Manager = props.Contains("manager") ? props["manager"][0]?.ToString() : "",
+            Office = props.Contains("physicalDeliveryOfficeName") ? props["physicalDeliveryOfficeName"][0]?.ToString() : "",
+            Division = props.Contains("division") ? props["division"][0]?.ToString() : "",
+            Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
+            Title = props.Contains("title") ? props["title"][0]?.ToString() : "",
+            IsLocked = isLocked
+        };
     }
 
     public bool CheckManager(string jobTitle) =>
