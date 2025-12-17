@@ -6,24 +6,16 @@ using UnlockUser.Server.Models;
 
 namespace UnlockUser.Server.IServices;
 
-public class ADService(ILocalFileService localService) : IActiveDirectory // Help class inherit an interface and this class is a provider to use interface methods into another controller
+public class ADService : IActiveDirectory // Help class inherit an interface and this class is a provider to use interface methods into another controller
 {
-    private readonly ILocalFileService _localService = localService;
     private readonly string domain = "alvesta";
     private readonly string defaultOU = "DC=alvesta,DC=local";
 
     #region Find user   
-    // Method to get a user from Active Dericotry
-    public UserPrincipal FindUserByName(string name)
-        => UserPrincipal.FindByIdentity(GetContext(), name);
-
     // Method to get a user with extension parameters from Active Dericotry
-    public UserPrincipalExtension FindUserByExtensionProperty(string name)
+    public UserPrincipalExtension FindUserByUsername(string name)
         => UserPrincipalExtension.FindByIdentity(GetContext(), name);
 
-    // Method to get a group by name
-    public GroupPrincipal FindGroupName(string name)
-        => GroupPrincipal.FindByIdentity(GetContext(), name);
     #endregion
 
     #region Validation
@@ -170,7 +162,7 @@ public class ADService(ILocalFileService localService) : IActiveDirectory // Hel
                 for (int i = 0; i < user.Managers.Count; i++)
                 {
                     var manager = user.Managers[i];
-                    var checkedManager = FindUserByExtensionProperty(manager.Username!);
+                    var checkedManager = FindUserByUsername(manager.Username!);
                     if (checkedManager == null || !CheckManager(checkedManager.Title))
                         user.Managers.RemoveAt(i);
                 }
@@ -330,5 +322,12 @@ public class ADService(ILocalFileService localService) : IActiveDirectory // Hel
 
     public bool CheckManager(string jobTitle) =>
         jobTitle.Contains("chef", StringComparison.CurrentCultureIgnoreCase) || jobTitle.ToLower().Contains("rektor", StringComparison.CurrentCultureIgnoreCase);
+    #endregion
+
+    #region Not in use
+    // Method to get a group by name
+    [Obsolete("Not in use")]
+    public GroupPrincipal FindGroupName(string name)
+        => GroupPrincipal.FindByIdentity(GetContext(), name);
     #endregion
 }

@@ -7,9 +7,7 @@ namespace UnlockUser.Server.Interface;
 
 public interface IActiveDirectory
 {
-    UserPrincipal FindUserByName(string name);
-    UserPrincipalExtension FindUserByExtensionProperty(string name);
-    GroupPrincipal FindGroupName(string name);
+    UserPrincipalExtension FindUserByUsername(string name);
 
     bool AccessValidation(string? name, string? password);
     bool MembershipCheck(UserPrincipalExtension user, string? groupName);

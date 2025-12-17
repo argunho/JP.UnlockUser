@@ -59,7 +59,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                     return Ok(_helpService.Warning($"Du saknar behörigheter att ändra lösenord till {user.DisplayName}!"));
                 }
 
-                if (_provider.MembershipCheck(_provider.FindUserByExtensionProperty(name), "Password Twelve Characters"))
+                if (_provider.MembershipCheck(_provider.FindUserByUsername(name), "Password Twelve Characters"))
                     user!.PasswordLength = 12;
             }
         }
@@ -231,7 +231,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             }
             else
             {
-                var user = _provider.FindUserByExtensionProperty(model.Users[0].Username!);
+                var user = _provider.FindUserByUsername(model.Users[0].Username!);
                 if (user != null && permissions.Managers.Contains(user.Manager))
                     users = model.Users;
             }
@@ -325,13 +325,13 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     {
         try
         {
-            var user = _provider.FindUserByExtensionProperty(_credentialsService.GetClaim("username", Request) ?? "");
+            var user = _provider.FindUserByUsername(_credentialsService.GetClaim("username", Request) ?? "");
             var groupName = model?.Group?.ToLower();
             string fileName = (groupName ?? "") + "_";
 
             if (groupName != "studenter")
             {
-                var managedUser = _provider.FindUserByExtensionProperty(model!.Users[0]);
+                var managedUser = _provider.FindUserByUsername(model!.Users[0]);
                 if (managedUser != null)
                 {
                     model.Office = user.Office;

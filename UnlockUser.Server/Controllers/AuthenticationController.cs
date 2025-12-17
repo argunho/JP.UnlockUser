@@ -52,7 +52,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             _session?.Remove("LoginBlockTime");
 
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
-            var authorizedUser = _provider.FindUserByExtensionProperty(model!.Username!);
+            var authorizedUser = _provider.FindUserByUsername(model!.Username!);
             var userGroups = _provider.GetUserGroups(authorizedUser);
             permissionGroups?.RemoveAll(x => !userGroups.Contains(x.PermissionGroup!));
             permissionGroups ??= [];

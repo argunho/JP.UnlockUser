@@ -28,7 +28,7 @@ public class LocalUserService(ILocalFileService localFileService,
             var cListByGroup = currentList.FirstOrDefault(x => x.Group?.Name == group.Name)?.Employees;
             foreach (var member in members)
             {
-                UserPrincipalExtension user = _provider.FindUserByExtensionProperty(member);
+                UserPrincipalExtension user = _provider.FindUserByUsername(member);
                 if (user != null && (user.Equals(default(UserPrincipalExtension)) || user?.SamAccountName.Length < 6))
                     continue;
 
