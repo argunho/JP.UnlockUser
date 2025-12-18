@@ -17,7 +17,7 @@ function Overview() {
 
     const { id, collections } = useOutletContext();
 
-    const groups = Claim("groups");
+    const groups = Claim("groups").split(",");
     const user = groups.flatMap(g => collections[g.name.toLowerCase()]).find(x => x.name === id);
 
     return <>
