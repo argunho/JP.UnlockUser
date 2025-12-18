@@ -57,6 +57,8 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 if (!isStudents)
                     _ = users!.ConvertAll(x => x.PasswordLength = 12).ToList();
 
+                _ = users!.ConvertAll(x => x.Group = group.Name);
+
                 data.Add(group.Name?.ToLower()!, users!);
             }
         }

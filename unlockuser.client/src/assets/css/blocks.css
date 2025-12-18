@@ -152,6 +152,12 @@ button.reset-button {
   cursor: pointer;
 }
 
+.secondary-span.view {
+  margin-left: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
 .list-link .typography-email-span {
   background-color: transparent !important;
   padding: 0 !important;

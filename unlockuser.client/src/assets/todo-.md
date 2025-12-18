@@ -9,4 +9,5 @@
 ## Permissions
 
 1. Show all sub managers
+2. Forbind change password to other admin
 
