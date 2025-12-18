@@ -37,8 +37,8 @@ const Header = memo(function Header({ disabled }) {
     const navigate = useNavigate();
     const loc = useLocation();
     const refMenu = useRef();
-    const { groups: groupsString, displayName, access } = DecodedClaims();
-    const groups = JSON.parse(groupsString).map(x => x.Name);
+    const { permissions, displayName, access } = DecodedClaims();
+    const groups = JSON.parse(permissions).map(x => x.Name);
     
 
     useEffect(() => {
