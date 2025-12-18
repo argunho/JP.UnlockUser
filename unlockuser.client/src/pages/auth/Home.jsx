@@ -147,7 +147,8 @@ function Home() {
         if (collection?.length > 0) {
             res = (isClass)
                 ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)
-                : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)) && !x?.passwordManageGroups);
+                : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)) 
+                                            && (gn === "support" ? x : !x?.passwordManageGroups));
         } else {
             // API parameters by chosen searching alternative
             let options = isClass

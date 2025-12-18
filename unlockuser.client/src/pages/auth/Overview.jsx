@@ -2,7 +2,7 @@ import { useEffect, useState, use, useRef } from 'react';
 
 // Installed
 import { useOutletContext, useNavigate } from 'react-router-dom';
-import { IconButton, FormControl, TextField, InputAdornment } from '@mui/material';
+import { IconButton, FormControl, TextField, InputAdornment, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import { ChevronRight, Policy, Edit, SearchSharp, SearchOffSharp } from '@mui/icons-material';
 
 // Components
@@ -13,11 +13,10 @@ import { DecodedClaims } from './../../functions/DecodedToken';
 
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
+import Message from '../../components/blocks/Message';
 
 
 function Overview() {
-
-    const [control, setControl] = useState(false);
 
     const { id, collections } = useOutletContext();
 
@@ -55,44 +54,61 @@ function Overview() {
                     onClick={() => navigate(`/manage/${user?.group?.toLowerCase()}/user/${user?.name}`)}>
                     <Edit />
                 </IconButton>}
-
-                {/* If the viewed user has administrator privileges.. */}
-                {user?.passwordManageGroups && <IconButton onClick={() => setControl((control) => !control)}>
-                    <Policy />
-                </IconButton>}
             </div>
         </TabPanel>
-        <div className="d-row wrap">
-            <section className="d-column w-100">
-                I am section
+
+        <div className="d-row jc-start w-100">
+
+            {/* User profile info */}
+            <section className="d-column ai-start w-100 view">
+                <h3>Användarnamn</h3>
+                <span> - {user?.name}</span>
+                <h3>Email</h3>
+                <span> - {user?.email}</span>
+                <h3>{user?.passwordLength > 8 ? "Arbetspalts" : "Plats"}</h3>
+                <span> - {user?.office} {(user?.office != user?.department) ? user.department : ""}</span>
+                {user?.passwordLength > 8 && <>
+                    <h3>Förvaltning</h3>
+                    <span> - {user?.division}</span>
+                </>}
             </section>
 
-            {control && <section className="d-column swing-in-right-bck" style={{ width: "300px" }}>
-                <FormControl>
-                    <TextField 
-                        inputRef={ref}
-                        InputProps={{
-                            endAdornment: <InputAdornment position="end">
-                                {/* Reset form - button */}
-                                <IconButton
-                                    color="error"
-                                    type="reset"
-                                    // disabled={!isChanged}
-                                    edge="end">
-                                    <SearchOffSharp />
-                                </IconButton>
 
-                                {/* Submit form - button */}
-                                <IconButton
-                                    // color={isChanged ? "primary" : "inherit"}
-                                    onClick={onSubmit}
-                                    edge="end">
-                                    <SearchSharp />
-                                </IconButton>
-                            </InputAdornment>
-                        }} />
-                </FormControl>
+            {user?.passwordManageGroups && <section className="d-column ai-start search w-100 swing-in-right-bck">
+                <TextField
+                    fullWidth
+                    inputRef={ref}
+                    className="w-100"
+                    placeholder="Sök med anvädarnamn/email ..."
+                    InputProps={{
+                        endAdornment: <InputAdornment position="end">
+                            {/* Reset form - button */}
+                            <IconButton
+                                color="error"
+                                type="reset"
+                                className="search-reset"
+                                // disabled={!isChanged}
+                                edge="end">
+                                <SearchOffSharp />
+                            </IconButton>
+
+                            {/* Submit form - button */}
+                            <IconButton
+                                // color={isChanged ? "primary" : "inherit"}
+                                onClick={onSubmit}
+                                sx={{ marginRight: "5px" }}
+                                edge="end">
+                                <SearchSharp />
+                            </IconButton>
+                        </InputAdornment>
+                    }} />
+
+                <Message res={{
+                    color: "info",
+                    msg: `Sök efter en anställd eller student här för att kontrollera om <span style="color: red">${user?.displayName}</span> har rätt att ändra lösenordet för den valda personen.`
+                }} />
             </section>}
+
         </div>
     </>
 }
