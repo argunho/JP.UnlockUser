@@ -78,7 +78,8 @@ function Home() {
     const [state, dispatch] = useReducer(actionReducer, initialState);
     const { isClass, isMatch, isChanged, isCleaned, users, group } = state;
 
-    const groups = Claim("groups");
+    const groups = Claim("groups")?.split(",");
+    const permissionGroups = Claim("permissions");
 
     const { collections, sessionData, schools, group: groupName } = useOutletContext();
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
@@ -96,7 +97,7 @@ function Home() {
     }, []);
 
     useEffect(() => {
-        const currentGroup = groupName ? groups.find(x => x.name.toLowerCase() == groupName) : groups[0];
+        const currentGroup = groupName ? permissionGroups.find(x => x.name.toLowerCase() == groupName) : permissionGroups[0];
         handleDispatch("group", currentGroup, "START");
         onReset();
     }, [groupName])
@@ -138,7 +139,7 @@ function Home() {
             return { ...data, errors };
 
         const collection = (gn === "support"
-            ? groups.flatMap(g => collections[g.name.toLowerCase()])
+            ? groups.flatMap(g => collections[g.toLowerCase()])
             : collections[gn])?.filter(Boolean);
 
         let res = null;
@@ -252,12 +253,12 @@ function Home() {
                 />
 
                 {/* Choose group */}
-                {(groups?.length > 1 && gn !== "support") && <DropdownMenu
+                {(permissionGroups?.length > 1 && gn !== "support") && <DropdownMenu
                     label="Hanteras"
-                    list={groups}
+                    list={permissionGroups}
                     value={group ? group?.name : ""}
                     link="/search/"
-                    disabled={groups?.length === 1} />}
+                    disabled={permissionGroups?.length === 1} />}
             </form>
 
             {/* Radio buttons to choice one of search alternatives */}
