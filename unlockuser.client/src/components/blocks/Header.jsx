@@ -110,7 +110,7 @@ const Header = memo(function Header({ disabled }) {
                     {/* Hidden menu */}
                     <HiddenMenu
                         open={open}
-                        links={!access ? links : links.filter(x => !x.access && !x?.hidden)}
+                        links={access ? links : links.filter(x => !x.access && !x?.hidden)}
                         onClose={() => setOpen(false)} />
 
                 </div>

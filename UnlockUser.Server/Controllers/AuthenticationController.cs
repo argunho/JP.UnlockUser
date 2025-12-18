@@ -51,20 +51,21 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             _session?.Remove("LoginBlockTime");
 
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
+            var groups = string.Join(",", permissionGroups!.Select(x => x.Name));
             var authorizedUser = _provider.FindUserByUsername(model!.Username!);
             if (authorizedUser == null)
                 return NotFound(_helpService.NotFound("Användaren"));
 
-            var userGroups = _provider.GetUserGroups(authorizedUser);
-            permissionGroups?.RemoveAll(x => !userGroups.Contains(x.PermissionGroup!));
-            permissionGroups ??= [];
             List<string> roles = [];
-
             if (_provider.MembershipCheck(authorizedUser, "Azure-Utvecklare Test"))
                 roles.Add("Developer");
 
             if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning") || roles.Contains("Developer", StringComparer.OrdinalIgnoreCase))
                 roles.Add("Support");
+
+            var userGroups = _provider.GetUserGroups(authorizedUser);
+            permissionGroups?.RemoveAll(x => !userGroups.Contains(x.PermissionGroup!));
+            permissionGroups ??= [];
 
             // Failed! Permission missed
             if (permissionGroups.Count == 0 && roles.Count == 0)
@@ -83,7 +84,8 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             claims.Add(new("Manager", authorizedUser.Manager));
             claims.Add(new("Office", authorizedUser.Office));
             claims.Add(new("Department", authorizedUser.Department));
-            claims.Add(new("Groups", JsonConvert.SerializeObject(passwordManageGroups)));
+            claims.Add(new("Groups", groups));
+            claims.Add(new("Permissions", JsonConvert.SerializeObject(passwordManageGroups)));
             claims.Add(new("Roles", string.Join(",", roles)));
 
             if (roles.IndexOf("Support") > -1)

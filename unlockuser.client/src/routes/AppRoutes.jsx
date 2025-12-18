@@ -6,6 +6,7 @@ import AppLayout from '../layouts/AppLayout';
 import SessionLayout from './../layouts/SessionLayout';
 import ListLayout from '../layouts/ListLayout';
 import UsersLayout from '../layouts/UsersLayout';
+import MainLayout from './../layouts/MainLayout';
 
 // Pages
 import Employees from "../pages/auth/Employees";
@@ -17,6 +18,7 @@ import Home from "../pages/auth/Home";
 import ListView from "../pages/auth/ListView";
 import Logout, { signout } from "../pages/auth/Logout";
 import ExpiredSession from '../pages/auth/ExpiredSession';
+import Overview from './../pages/auth/Overview';
 
 import Contacts from "../pages/Contacts";
 import NotFound from "../pages/NotFound";
@@ -98,6 +100,20 @@ const AppRoutes = () => [
         element: <ClassManager />,
         errorElement: <ErrorView />
       },
+    ]
+  },
+  {
+    path: "/view",
+    element: <FetchContextProvider>
+      <MainLayout />¨
+    </FetchContextProvider>,
+    errorElement: <NotFound isAuthorized={true} />,
+    children: [
+      {
+        path: 'user/:id',
+        element: <Overview />,
+        errorElement: <ErrorView />
+      }
     ]
   },
   {

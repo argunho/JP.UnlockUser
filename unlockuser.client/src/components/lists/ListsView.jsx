@@ -31,7 +31,7 @@ function ListsView({ list, grouped, group, multiple }) {
       return;
 
     if(group === "support")
-      navigate(`/view/${group}/user/` + (user?.name ? user?.name : selected[0]));
+      navigate(`/view/user/` + (user?.name ? user?.name : selected[0]));
     else if (user && !multiple)
       navigate(`/manage/${group}/user/` + (user?.name ? user?.name : selected[0]));
     else

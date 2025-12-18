@@ -25,9 +25,9 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     public async Task<JsonResult> GetGroupUsers()
     {
         Dictionary<string, List<UserViewModel>> data = [];
-        var claims = _credentials.GetClaims(["username", "access", "groups"], Request);
+        var claims = _credentials.GetClaims(["username", "access", "permissions"], Request);
 
-        List<GroupModel> claimGroups = JsonConvert.DeserializeObject<List<GroupModel>>(claims!["groups"]) ?? [];
+        List<GroupModel> claimGroups = JsonConvert.DeserializeObject<List<GroupModel>>(claims!["permissions"]) ?? [];
         List<string?> sessionUserGroups = [.. claimGroups?.Select(s => s.Name)!];
         try
         {

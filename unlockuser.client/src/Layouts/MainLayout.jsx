@@ -1,27 +1,40 @@
+import{ useRef, useEffect } from 'react';
+
 // Installed
-import { Outlet, useNavigation, useLoaderData, useParams, use } from 'react-router-dom';
+import { Outlet, useNavigation, useParams, use } from 'react-router-dom';
 
 // Components
 import LinearLoading from './../components/LinearLoading';
+import Header from '../components/blocks/Header';
 
 // Storage
 import { DashboardContext } from '../storage/DashboardContext';
 
 
 function MainLayout() {
-  const navigation = useNavigation();
-  const { group, id } = useParams();
-
   const dashboardData = use(DashboardContext);
+
+  const refContainer = useRef();
+  const navigation = useNavigation();
+  const params = useParams();
+
   const loads = dashboardData?.loading;
-  const schools = useLoaderData();
+
+  useEffect(() => {
+    refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
+  }, [])
 
   return (
     <>
-        {!loads && <Outlet context={{ loading: navigation.state === "loading", dashboardData, schools, group, id }} />}
+      <Header disabled={loads} />
+
+      <div className="container d-column jc-start fade-in" ref={refContainer}>
+
+        {!loads && <Outlet context={{ loading: navigation.state === "loading", ...dashboardData, ...params }} />}
 
         {/* Loading */}
         {loads && <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain" />}
+      </div>
     </>
 
   )
