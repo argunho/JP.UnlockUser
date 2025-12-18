@@ -186,6 +186,10 @@ section.view {
   box-shadow: var(--box-shadow);
 }
 
+section.view h3 {
+  margin-bottom: 5px !important;
+}
+
 section.search {
     max-width: 450px; 
     height: 100%;

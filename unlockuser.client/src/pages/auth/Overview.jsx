@@ -7,16 +7,45 @@ import { ChevronRight, Policy, Edit, SearchSharp, SearchOffSharp } from '@mui/ic
 
 // Components
 import TabPanel from '../../components/blocks/TabPanel';
+import Message from '../../components/blocks/Message';
 
 // Functions
 import { DecodedClaims } from './../../functions/DecodedToken';
 
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
-import Message from '../../components/blocks/Message';
+
+const messages = {
+    info: {
+        color: "info",
+        msg: `Sök efter en anställd eller student här för att kontrollera om <span style="color: red">{name}</span> har rätt att ändra lösenordet för den valda personen.`
+    },
+    success: {
+        color: "success",
+        msg: "Behörighet för lösenordsändring är tillgänglig."
+    },
+    secondary: {
+        color: "secondary",
+        msg: "Administratörer får inte ändra lösenord för andra administratörer."
+    },
+    warning: {
+        color: "warning",
+        msg: "{name} saknar behörigheter att ändra lösenord till den valda personen."
+    },
+    error: {
+        color: "error",
+        msg: "{name} tillhör inte gruppen för lösenordshantering."
+    },
+    none: {
+        color: "default",
+        msg: "den vald personen hittades inte."
+    }
+}
 
 
 function Overview() {
+
+    const [message, setMessage] = useState(messages?.info);
 
     const { id, collections } = useOutletContext();
 
@@ -36,7 +65,8 @@ function Overview() {
     }, [])
 
     function onSubmit() {
-
+        const value = ref.current.value;
+        console.log(value)
     }
 
     return <>
@@ -103,10 +133,9 @@ function Overview() {
                         </InputAdornment>
                     }} />
 
-                <Message res={{
-                    color: "info",
-                    msg: `Sök efter en anställd eller student här för att kontrollera om <span style="color: red">${user?.displayName}</span> har rätt att ändra lösenordet för den valda personen.`
-                }} />
+
+                <Message res={{...message, msg: message?.msg?.replace(/\{name\}/g, user.displayName)}} />
+
             </section>}
 
         </div>
