@@ -39,7 +39,7 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
                 
                 if (updated.Date != currentDate.Date && currentHour >= 8 && currentHour < 18)
                 {
-                    await _localUserService.RenewUsersJsonList();
+                    await _localUserService.RenewUsersCachedList();
                     _localFileService.UpdateConfigFile("appconfig", "LastUpdatedDate", currentDate.ToString("yyyy.MM.dd HH:mm:ss"));
                 }
             });

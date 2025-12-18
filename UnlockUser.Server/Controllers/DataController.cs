@@ -58,8 +58,8 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 {
                     var userByGroup = usersByGroup[i];
                     var user = users?.FirstOrDefault(x => x.Name == userByGroup.Name);
-                    if(user != null)
-                        user.PasswordManageGroups = userByGroup.PasswordManageGroups;
+                    if (user != null)
+                        user.PasswordManageGroups = string.Join(",", userByGroup.Permissions!.PasswordManageGroups);
                 }
 
                 if (!isStudents)

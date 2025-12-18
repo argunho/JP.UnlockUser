@@ -32,7 +32,7 @@ public class AppController(IConfiguration config, ILocalUserService localUserSer
     {
         try
         {
-            await _localUserService.RenewUsersJsonList();
+            await _localUserService.RenewUsersCachedList();
             _localFileService.UpdateConfigFile("appconfig", "LastUpdatedDate", DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
             return Ok();
         }

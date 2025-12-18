@@ -13,7 +13,7 @@ public class LocalUserService(ILocalFileService localFileService,
 
 
     // A function to API request Active Directory and save/refresh the list of employees who have permission to change a user password.
-    public async Task RenewUsersJsonList()
+    public async Task RenewUsersCachedList()
     {
         #region Get employees        
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
