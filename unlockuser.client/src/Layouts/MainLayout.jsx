@@ -36,7 +36,6 @@ function MainLayout() {
         {loads && <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain" />}
       </div>
     </>
-
   )
 }
 
