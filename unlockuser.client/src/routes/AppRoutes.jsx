@@ -113,6 +113,11 @@ const AppRoutes = () => [
         path: 'user/:id',
         element: <Overview />,
         errorElement: <ErrorView />
+      },
+      {
+        path: 'my/permissions',
+        element: <Overview />,
+        errorElement: <ErrorView />
       }
     ]
   },

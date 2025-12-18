@@ -39,7 +39,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 List<string>? alternativeParams = [];
                 bool isStudents = string.Equals(group.Group, "Students", StringComparison.OrdinalIgnoreCase);
 
-                var usersByGroup = cachedEmployees.Where(x => x.Permissions!.PasswordManageGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase));
+                var usersByGroup = cachedEmployees.Where(x => x.Permissions!.PasswordManageGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase)).ToList();
 
                 if (string.IsNullOrEmpty(claims["access"]))
                 {
@@ -54,6 +54,14 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 }
                 
                 var users = (_provider.GetUsersByGroupName(group, alternativeParams))?.Select(s => new UserViewModel(s)).ToList();
+                for(int i = 0;i < usersByGroup.Count; i++)
+                {
+                    var userByGroup = usersByGroup[i];
+                    var user = users?.FirstOrDefault(x => x.Name == userByGroup.Name);
+                    if(user != null)
+                        user.PasswordManageGroups = userByGroup.PasswordManageGroups;
+                }
+
                 if (!isStudents)
                     _ = users!.ConvertAll(x => x.PasswordLength = 12).ToList();
 

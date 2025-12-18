@@ -11,3 +11,7 @@
 1. Show all sub managers
 2. Forbind change password to other admin
 
+## To fix
+
+1. Logout
+

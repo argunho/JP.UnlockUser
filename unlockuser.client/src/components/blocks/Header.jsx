@@ -19,7 +19,7 @@ import '../../assets/css/header.css';
 
 const links = [
     { label: "Hem", url: "/search", icon: <Home />, access: false, hidden: false },
-    { label: "Mina behörigheter", url: "/permissions", icon: <FactCheck />, access: false, hidden: false },
+    { label: "Mina behörigheter", url: "/view/my/permissions", icon: <FactCheck />, access: false, hidden: false },
     { label: "Skolor", url: "/schools", icon: <School />, access: true, hidden: false },
     { label: "Behöriga användare", url: "/employees", icon: <SettingsApplications />, access: true, hidden: false },
     { label: "Session historia", url: "/session/history", icon: <History />, access: false, hidden: false },

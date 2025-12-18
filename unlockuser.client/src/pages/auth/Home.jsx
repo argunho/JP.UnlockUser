@@ -7,7 +7,7 @@ import {
     Button, FormControl, FormControlLabel, Tooltip, IconButton,
     Radio, RadioGroup, TextField, Checkbox, InputAdornment
 } from '@mui/material';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, NavLink } from 'react-router-dom';
 
 // Components
 import ModalView from '../../components/modals/ModalView';
@@ -72,6 +72,7 @@ function actionReducer(state, action) {
 
 // Css
 import './../../assets/css/home.css';
+
 
 function Home() {
 
@@ -146,7 +147,7 @@ function Home() {
         if (collection?.length > 0) {
             res = (isClass)
                 ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)
-                : collection?.filter(x => match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name));
+                : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)) && !x?.passwordManageGroups);
         } else {
             // API parameters by chosen searching alternative
             let options = isClass
@@ -199,8 +200,8 @@ function Home() {
                     label={isClass ? "Klassbeteckning" : "Namn"}
                     required
                     fullWidth
-                    autocomplete="off"
-                    autosave="off"
+                    autoComplete="off"
+                    autoSave="off"
                     defaultValue={formState?.name ?? ""}
                     onChange={onChange}
                     className="search-wrapper w-100"
@@ -306,6 +307,10 @@ function Home() {
                         </IconButton>
                     </Tooltip>}
 
+                    {users?.length == 0 && <Button component={NavLink} color="secondary" to="/view/my/permissions">
+                        Kontrollera mina behörigheter
+                    </Button>}
+
                     {/* Modal  window with help texts */}
                     <ModalView
                         label="Förklaring av sökparametrar"
@@ -328,9 +333,10 @@ function Home() {
             {/* Message if result is null */}
             {users?.length == 0 && <Message res={{
                 color: "warning", msg: "Inget data hittades. \n\nMöjliga orsaker:" +
-                    "\n• Personen/Class saknas i databasen." +
                     "\n• Sökparametrarna kan vara felstavade." +
-                    "\n• Du saknar behörighet att hantera personens/classens konto."
+                    "\n• Personen/Class saknas i databasen." +
+                    "\n• Du saknar behörighet att hantera personens/classens konto." +
+                    "\n• Du försöker ändra lösenordet för ett administratörskonto. Av säkerhetsskäl får administratörer inte ändra lösenord för andra administratörer."
             }} cancel={onReset} />}
         </>
     )
