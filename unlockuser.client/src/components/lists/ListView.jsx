@@ -1,15 +1,20 @@
 // Installed
-import { List, ListItem, ListItemText } from '@mui/material';
+import { List, ListItem, ListItemText, ListItemAvatar, Avatar } from '@mui/material';
 
-function ListView({ list }) {
+function ListView({ list, avatar }) {
 
     return (
         <List className="">
             {list.map((item, index) => {
                 return <ListItem key={index}>
-                    <ListItemText 
-                        primary={item?.primary} 
-                        secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }}></span>}/>
+                    {avatar && <ListItemAvatar>
+                        <Avatar>
+                            {avatar}
+                        </Avatar>
+                    </ListItemAvatar>}
+                    <ListItemText
+                        primary={item?.primary}
+                        secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }}></span>} />
                 </ListItem>
             })}
         </List>
