@@ -81,7 +81,6 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         }
     }
 
-
     // Get schools list
     [HttpGet("schools")]
     public IActionResult GetSchools()
@@ -97,7 +96,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     }
 
     // Get all txt files
-    [HttpGet("logfiles/{param}")]
+    [HttpGet("logs/{param}")]
     public JsonResult GetTextFiles(string param)
     {
         try

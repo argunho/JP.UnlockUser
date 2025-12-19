@@ -135,9 +135,10 @@ const AppRoutes = () => [
     errorElement: <NotFound isAuthorized={true} />,
     children: [
       {
-        path: 'logs/:param',
+        path: 'logs/:id',
         element: <LogFiles />,
-        errorElement: <ErrorView />
+        errorElement: <ErrorView />,
+        loader: loaderById("data/logs")
       },
       {
         path: 'statistics',
@@ -147,7 +148,6 @@ const AppRoutes = () => [
       },
       {
         path: 'schools',
-        // element: <ListsView api="data/schools" />,
         element: <Catalog label="Skolor" id="id" fields={{ name: "", place: "" }} labels={["Namn", "Plats"]} />,
         errorElement: <ErrorView />,
         loader: loader("data/schools")

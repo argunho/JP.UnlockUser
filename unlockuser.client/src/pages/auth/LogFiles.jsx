@@ -6,6 +6,7 @@ import { Close, FileOpen, Upload } from '@mui/icons-material';
 import { Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import moment from "moment";
 import fileDownload from 'js-file-download';
+import { useLoaderData, useOutletContext } from 'react-router-dom';
 
 // Components
 import Message from '../../components/blocks/Message';
@@ -18,41 +19,19 @@ import { ErrorHandle } from '../../functions/ErrorHandle';
 
 // Services
 import { ApiRequest } from '../../services/ApiRequest';
-import { useParams } from 'react-router-dom';
 
-function LogFiles({ loc }) {
+function LogFiles() {
 
-    const [list, setList] = useState([]);
-    const [initList, setInitList] = useState([])
-    const [loading, setLoading] = useState(true);
     const [viewFile, setFileView] = useState(null);
-    const [label, setLabel] = useState("Logfiler");
+    const [value, setSearchValue] = useState(null)
 
-    const { param } = useParams();
+    const { list } = useLoaderData();
+    const { loading, id } = useOutletContext();
 
     useEffect(() => {
-        const pageLabel = param === "history" ? "Detaljerad historia" : "Loggfiler"
-        setLabel(pageLabel);
-        setList([]);
-        if (list.length === 0) {
-            async function getLogFiles() {
-                await ApiRequest(`data/logfiles/${param}`).then(res => {
-                    if (res.data !== null)
-                        setList(res.data);
-                    setLoading(false);
-                    setInitList(res.data);
-                }, error => console.error(error))
-            }
-            getLogFiles();
-        }
+        document.title = `UnlockUser | Logfiler`;
+    }, [])
 
-        document.title = `UnlockUser | ${pageLabel}`;
-    }, [loc])
-
-    const valueChangeHandler = (value) => {
-        let list = initList.filter(x => x?.toLowerCase().includes(value?.toLowerCase().replace(" ", "_").replace(/[:-]/g, "")));
-        setList(value?.length === 0 ? initList : list);
-    }
 
     const handleFile = async (file, download = false) => {
         // const fileDownload = require('js-file-download');
@@ -72,20 +51,20 @@ function LogFiles({ loc }) {
         <div className='interior-div'>
 
             {/* Search filter */}
-            <SearchFilter label="logfil" onChange={valueChangeHandler} onReset={() => setList(initList)} />
+            <SearchFilter label="Logfil" onChange={(value) => setSearchValue(value)} onReset={() => setSearchValue(null)} />
 
             {/* Result info box */}
             <ListItem className='search-result'>
                 {/* Result info */}
                 <ListItemText
-                    primary={label}
+                    primary={id === "history" ? "Detaljerad historia" : "Loggfiler"}
                     secondary={loading ? "Data hämtning pågå ..." : `Antal: ${list?.length}`} />
             </ListItem>
 
             {/* Loop of list */}
             {(list?.length > 0 && !viewFile) &&
                 <List sx={{ width: '100%' }}>
-                    {list.map((s, index) => (
+                    {list.filter(x => x?.toLowerCase().includes(value?.toLowerCase().replace(" ", "_").replace(/[:-]/g, "")))?.map((s, index) => (
                         /* List object */
                         <ListItem key={index} className="list-link link-files" onClick={() => handleFile(s)}
                             secondaryAction={<IconButton onClick={() => handleFile(s, true)} color="primary"><Upload /></IconButton>}>
