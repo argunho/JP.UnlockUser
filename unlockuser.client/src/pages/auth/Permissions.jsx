@@ -10,7 +10,7 @@ import ListView from '../../components/lists/ListView';
 
 function Permissions() {
 
-    const { groups, schools, managers } = useLoaderData()
+    const { schools, managers } = useLoaderData()
 
     return (
         <>
@@ -18,12 +18,12 @@ function Permissions() {
             <TabPanel primary="Mina behörigheter" />
 
             <div className="form-wrapper w-100">
-                {schools && <>
+                {schools?.length > 0 && <>
                     <Typography mt={2} variant="h5">Studenter</Typography>
                     <ListView list={schools} avatar={<School />} />
                 </>}
 
-                {managers && <>
+                {managers?.length > 0 && <>
                     <Typography mt={3} variant="h5">Personal</Typography>
                     <ListView list={managers} avatar={<MapsHomeWork />} />
                 </>}
