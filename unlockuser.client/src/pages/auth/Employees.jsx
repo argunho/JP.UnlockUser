@@ -68,7 +68,7 @@ function Employees() {
 
 
     async function renewList() {
-        await fetchData({ api: "app/renew/jsons" });
+        await fetchData({ api: "employees/renew/cached/data", method: "post" });
         sessionStorage.setItem("updated", "true");
     }
 
@@ -144,7 +144,7 @@ function Employees() {
         })
         delete obj.includedList;
 
-        await fetchData({ api: `app/employee/${group}`, method: "put", data: obj })
+        await fetchData({ api: `employees/group/${group}`, method: "put", data: obj })
         closeModal();
     }
 

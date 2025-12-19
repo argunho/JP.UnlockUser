@@ -160,7 +160,7 @@ const AppRoutes = () => [
       <UsersLayout />¨
     </FetchContextProvider>,
     errorElement: <NotFound isAuthorized={true} />,
-    loader: loader("app/groups"),
+    loader: loader("employees/groups"),
     children: [
       {
         index: true,

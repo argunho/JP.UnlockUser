@@ -134,6 +134,17 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
     }
 
+    [HttpGet("groups")]
+    [Authorize(Roles = "Developer,Manager,Support")]
+    public List<string?> GetGrous()
+    {
+        var groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
+        if (groups.Count > 0)
+            return [.. groups.Select(x => x.Name)];
+
+        return [];
+    }
+
     [HttpGet("permissions")]
     public async Task<IActionResult> GetPermissions()
     {
@@ -223,6 +234,22 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             return BadRequest(_helpService.Error($"{ctrl}: {nameof(SetPasswordsSavePdf)}", ex));
         }
     }
+
+    [HttpPost("renew/cached/data")]
+    [Authorize(Roles = "Developer,Manager,Support")]
+    public async Task<IActionResult> RenewEmployeesList()
+    {
+        try
+        {
+            await _localService.RenewUsersCachedList();
+            _localFileService.UpdateConfigFile("appconfig", "LastUpdatedDate", DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(_helpService.Error($"{ctrl}: {nameof(RenewEmployeesList)}", ex));
+        }
+    }
     #endregion
 
     #region PUT
@@ -245,6 +272,32 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         {
             return BadRequest(_helpService.Error($"{ctrl}: {nameof(UnlockUser)}", ex));
         }
+    }
+
+    [HttpPut("group/{group}")]
+    [Authorize(Roles = "Developer,Manager,Support")]
+    public async Task<IActionResult> PutUpdateEmployeeSchool(string group, User model)
+    {
+        try
+        {
+            var employees = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
+            var employee = employees.FirstOrDefault(x => x.Name == model.Name);
+            if (employee == null)
+                return NotFound(_helpService.NotFound("Anställd"));
+
+            if (group == "Studenter")
+                employee.Permissions!.Offices = model.Permissions!.Offices;
+            else
+                employee.Permissions!.Managers = model.Permissions!.Managers;
+
+            await _localFileService.SaveUpdateFile(employees, "employees");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(_helpService.Error($"{ctrl}: {nameof(PutUpdateEmployeeSchool)}", ex));
+        }
+
+        return Ok();
     }
     #endregion
 

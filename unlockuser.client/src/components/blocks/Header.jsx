@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, memo } from 'react';
 
 
 // Installed
-import { LiveHelp, Logout, Menu, Close, History, FactCheck, SettingsApplications, School, WorkHistory, ErrorOutline, BarChart, Home } from '@mui/icons-material';
+import { LiveHelp, Logout, Menu, Close, FactCheck, SettingsApplications, School, WorkHistory, ErrorOutline, BarChart, Home } from '@mui/icons-material';
 import { Button, IconButton } from '@mui/material';
 import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 
@@ -21,7 +21,7 @@ const links = [
     { label: "Hem", url: "/search", icon: <Home />, access: false, hidden: false },
     { label: "Mina behörigheter", url: "/view/my/permissions", icon: <FactCheck />, access: false, hidden: false },
     { label: "Skolor", url: "/catalog/schools", icon: <School />, access: true, hidden: false },
-    { label: "Behöriga användare", url: "/catalog/employees", icon: <SettingsApplications />, access: true, hidden: false },
+    { label: "Behöriga användare", url: "/employees", icon: <SettingsApplications />, access: true, hidden: false },
     { label: "Detaljerad historia", url: "/catalog/logs/history", icon: <WorkHistory />, access: true, hidden: false },
     { label: "Statistik", url: "/catalog/statistics", icon: <BarChart />, access: true, hidden: false },
     { label: "Loggfiler", url: "/catalog/logs/errors", icon: <ErrorOutline />, access: true, hidden: false },

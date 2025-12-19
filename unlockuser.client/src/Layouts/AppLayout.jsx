@@ -18,7 +18,7 @@ function AppLayout() {
   const navigation = useNavigation();
   const params = useParams();
 
-  const loads = dashboardData?.loading;
+  const loads = dashboardData?.loading || navigation.state === "loading";
   const schools = useLoaderData();
 
   useEffect(() => {
@@ -31,7 +31,7 @@ function AppLayout() {
 
       <div className="container d-column jc-start fade-in" ref={refContainer}>
 
-        {!loads && <Outlet context={{ loading: navigation.state === "loading", ...dashboardData, ...params, schools }} />}
+        {!loads && <Outlet context={{ loading: loads, ...dashboardData, ...params, schools }} />}
 
         {/* Loading */}
         {loads && <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain" />}
