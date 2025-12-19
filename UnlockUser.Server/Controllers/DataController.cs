@@ -101,7 +101,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            var logs = Directory.GetFiles(@"wwwroot/logfiles/" + param, "*.txt", SearchOption.AllDirectories).ToList();
+            var logs = Directory.GetFiles(@"wwwroot/loggfiles/" + param, "*.txt", SearchOption.AllDirectories).ToList();
 
             // Remove old files
             if (logs != null && logs?.Count > 0)
@@ -124,9 +124,9 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             }
 
             logs = logs?.OrderByDescending(x => System.IO.File.GetLastWriteTime(x).Ticks)?
-                            .Select(x => x.Replace("\\", "/")[(x.LastIndexOf("/") + 1)..].Replace(".txt", "")).ToList() ?? null;
+                            .Select(x => x.Replace("\\", "/")[(x.LastIndexOf('/') + 1)..].Replace(".txt", "")).ToList() ?? null;
 
-            return new(logs);
+            return new(new { list = logs });
         }
         catch (Exception ex)
         {

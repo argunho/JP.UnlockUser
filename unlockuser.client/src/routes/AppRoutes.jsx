@@ -136,13 +136,13 @@ const AppRoutes = () => [
     children: [
       {
         path: 'logs/:id',
-        element: <LogFiles />,
+        element: <Catalog  label="Log filer"/>,
         errorElement: <ErrorView />,
         loader: loaderById("data/logs")
       },
       {
         path: 'statistics',
-        element: <Catalog label="Statistik" api="data/statistics" fullWidth={true} />,
+        element: <Catalog label="Statistik" fullWidth={true} />,
         errorElement: <ErrorView />,
         loader: loader("data/statistics")
       },

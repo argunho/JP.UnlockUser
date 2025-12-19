@@ -96,7 +96,7 @@ function LogFiles() {
             {loading && <Loading msg="söker efter loggfiler." />}
 
             {/* Message if result is null */}
-            {(list.length === 0 && !loading) &&
+            {(list?.length === 0 && !loading) &&
                 <Message res={{ color: "info", msg: "Här finns inga loggfiler" }} />}
         </div>
     )
