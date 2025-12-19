@@ -15,7 +15,7 @@ import LogFiles from "../pages/auth/LogFiles";
 import UserManager from "../pages/auth/UserManager";
 import Members from "../pages/auth/Members";
 import Home from "../pages/auth/Home";
-import ListView from "../pages/auth/ListView";
+import Catalog from "../pages/auth/Catalog";
 import Logout, { signout } from "../pages/auth/Logout";
 import ExpiredSession from '../pages/auth/ExpiredSession';
 import Overview from './../pages/auth/Overview';
@@ -26,7 +26,7 @@ import NotFound from "../pages/NotFound";
 import ErrorView from '../pages/ErrorView';
 
 // Function
-import { SessionData } from './../functions/Functions'; 
+import { SessionData } from './../functions/Functions';
 
 // Services
 import { loader, loaderByApiParam, loaderById, loaderByParams } from '../services/LoadFunctions';
@@ -131,7 +131,7 @@ const AppRoutes = () => [
     ]
   },
   {
-    path: "/list",
+    path: "/catalog",
     element: <FetchContextProvider>
       <ListLayout />¨
     </FetchContextProvider>,
@@ -144,18 +144,20 @@ const AppRoutes = () => [
       },
       {
         path: 'session/history',
-        element: <ListView includedList={SessionData("sessionWork")} label="Session historia" fullWidth={true} />,
+        element: <Catalog includedList={SessionData("sessionWork")} label="Session historia" fullWidth={true} />,
         errorElement: <ErrorView />
       },
       {
         path: 'statistics',
-        element: <ListView label="Statistik" api="data/statistics" fullWidth={true} />,
+        element: <Catalog label="Statistik" api="data/statistics" fullWidth={true} />,
         errorElement: <ErrorView />
       },
       {
         path: 'schools',
-        element: <ListView label="Skolor" api="data/schools" id="id" fields={{ name: "", place: "" }} labels={["Namn", "Plats"]} />,
-        errorElement: <ErrorView />
+        // element: <ListsView api="data/schools" />,
+        element: <Catalog label="Skolor" id="id" fields={{ name: "", place: "" }} labels={["Namn", "Plats"]} />,
+        errorElement: <ErrorView />,
+        loader: loader("data/schools")
       },
     ]
   },

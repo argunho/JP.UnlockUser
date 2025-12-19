@@ -84,7 +84,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
 
     // Get schools list
     [HttpGet("schools")]
-    public List<ListViewModel>? GetSchools()
+    public IActionResult GetSchools()
     {
         var list = _localFileService.GetListFromFile<School>("schools").Select(s => new ListViewModel
         {
@@ -93,7 +93,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             Secondary = s.Place
         }).ToList();
 
-        return list;
+        return Ok(new { list });
     }
 
     // Get all txt files
