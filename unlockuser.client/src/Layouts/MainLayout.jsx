@@ -14,21 +14,17 @@ import { DashboardContext } from '../storage/DashboardContext';
 function MainLayout() {
   const dashboardData = use(DashboardContext);
 
-  const refContainer = useRef();
   const navigation = useNavigation();
   const params = useParams();
 
   const loads = dashboardData?.loading || navigation.state === "loading";
 
-  useEffect(() => {
-    refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
-  }, [])
 
   return (
     <>
       <Header disabled={loads} />
 
-      <div className="container d-column jc-start fade-in" ref={refContainer}>
+      <div className="container d-column jc-start fade-in">
 
         {!loads && <Outlet context={{ loading: loads, ...dashboardData, ...params }} />}
 

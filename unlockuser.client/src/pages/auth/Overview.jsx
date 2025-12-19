@@ -103,6 +103,11 @@ function Overview() {
             setMessage(messages.success)
     }
 
+    function onReset(){
+        setMessage(messages.info);
+        setChecked(null);
+    }
+
     // If user not found
     if (!loading && !user)
         return <Message res={response ?? messages.none} cancel={() => navigate(-1)} />;
@@ -157,7 +162,7 @@ function Overview() {
                                 color="error"
                                 type="reset"
                                 className="search-reset"
-                                onClick={() => setMessage(messages.info)}
+                                onClick={onReset}
                             >
                                 <SearchOffSharp />
                             </IconButton>
