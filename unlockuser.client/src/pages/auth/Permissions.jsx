@@ -17,14 +17,17 @@ function Permissions() {
             {/* Tab menu */}
             <TabPanel primary="Mina behörigheter" />
 
-            {groups.map((group) => {
-                const isSchool = (group.toLowerCase() === "studenter");
-                return <div key={group} className="d-row jc-start w-100">
-                    <Typography component="h4">{group}</Typography>
+            <div className="form-wrapper w-100">
+                {schools && <>
+                    <Typography mt={2} variant="h5">Studenter</Typography>
+                    <ListView list={schools} avatar={<School />} />
+                </>}
 
-                    <ListView list={isSchool ? schools : managers} avatar={isSchool ? <School /> : <MapsHomeWork />} />
-                </div>
-            })}
+                {managers && <>
+                    <Typography mt={3} variant="h5">Personal</Typography>
+                    <ListView list={managers} avatar={<MapsHomeWork />} />
+                </>}
+            </div>
         </>
     )
 }
