@@ -34,7 +34,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
             var cachedEmployees = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
-            bool accessGroup = string.IsNullOrEmpty(claims["access"]);
+            bool accessGroup = !string.IsNullOrEmpty(claims["access"]);
 
             var sessionUserPermissions = cachedEmployees.FirstOrDefault(x => x.Name == claims["username"])?.Permissions;
             foreach (var group in passwordManageGroups)

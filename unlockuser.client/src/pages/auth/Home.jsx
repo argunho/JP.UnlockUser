@@ -142,7 +142,7 @@ function Home() {
         const collection = (gn === "support"
             ? groups.flatMap(g => collections[g.toLowerCase()])
             : collections[gn])?.filter(Boolean);
-
+console.log(collection)
         let res = null;
         if (collection?.length > 0) {
             res = (isClass)
