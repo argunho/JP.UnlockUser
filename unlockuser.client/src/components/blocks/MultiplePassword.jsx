@@ -121,9 +121,6 @@ function MultiplePassword({ users, label, subLabel, pending, disabled, onSwitch 
         handleDispatch("preview", preview);
     }
 
-    console.log("pending => ", pending)
-    console.log("disabled => ", disabled)
-
     if(disabled) return null;
 
     return (

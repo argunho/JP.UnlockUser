@@ -34,7 +34,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     #region GET
     // Get user information by username
     [HttpGet("{group}/{name}")]
-    public IActionResult GetUser(string group, string name)
+    public IActionResult GetUserForPasswordManage(string group, string name)
     {
         UserViewModel? user = null; ;
         try
@@ -65,13 +65,14 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error($"{ctrl}: {nameof(GetUser)}", ex));
+            return BadRequest(_helpService.Error($"{ctrl}: {nameof(GetUserForPasswordManage)}", ex));
         }
 
         return Ok(new { user });
     }
 
     [HttpGet("cached/{username}")]
+    [Authorize(Roles = "Support, Developer")]
     public IActionResult GetCachedUser(string username)
     {
         try
@@ -87,11 +88,55 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             return BadRequest(_helpService.Error($"{ctrl}: {nameof(GetCachedUser)}", ex));
         }
     }
+
+    [HttpGet("by/{username}")]
+    [Authorize(Roles = "Support, Developer")]
+    public IActionResult GetUserByUsername(string username)
+    {
+        try
+        {
+            var user = _provider.FindUserByUsername(username);
+            if (user == null)
+                return NotFound(_helpService.NotFound("Användaren"));
+
+            var cachedUser = _localService.GetUserFromFile(username);
+            var modifiedUser = new UserViewModel(new User
+            {
+                Name = user.SamAccountName,
+                DisplayName = user.DisplayName,
+                Title = user.Title,
+                Email = user.EmailAddress,
+                Office = user.Office,
+                Department = user.Department,
+                Division = user.Division,
+                Manager = user.Manager,
+                IsLocked = user.AccountLockoutTime != null,
+                Permissions = cachedUser != null ? cachedUser?.Permissions : null
+            });
+
+            if (user.DistinguishedName!.Contains("OU=Employees", StringComparison.OrdinalIgnoreCase))
+            {
+                var userByGroups = _provider.GetSecurityGroupMembers("Ciceron-Assistentanvändare");
+                if (userByGroups != null && userByGroups.FirstOrDefault(x => x == user.SamAccountName) != null)
+                    modifiedUser.Group = "Politeker";
+                else
+                    modifiedUser.Group = "Personal";
+            }
+            else
+                modifiedUser.Group = "Stundeter";
+
+                return Ok(modifiedUser);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(_helpService.Error($"{ctrl}: {nameof(GetCachedUser)}", ex));
+        }
+    }
     #endregion
 
     #region POST
     [HttpPost("reset/passwords")] // Reset class students passwords
-    public async Task<IActionResult> SetPasswords([FromForm] UsersListFormModel model)
+    public async Task<IActionResult> SetPasswords(string username, [FromForm] UsersListFormModel model)
     {
         try
         {

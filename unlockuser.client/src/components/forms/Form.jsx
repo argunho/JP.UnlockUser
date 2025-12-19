@@ -58,8 +58,6 @@ function actionReducer(state, action) {
 }
 
 function Form({ children, label, labelFile, passwordLength, locked, users, multiple, hidden }) {
-
-console.log(users[0])
     const { group } = use(AuthContext);
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
@@ -236,7 +234,7 @@ console.log(users[0])
                     {!hidden && fields?.map((field, i) => {
 
                         const value = formState?.[field.name] ?? password ?? "";
-                        console.log(value)
+
                         return <FormControl key={i} fullWidth>
                             <TextField
                                 key={value}

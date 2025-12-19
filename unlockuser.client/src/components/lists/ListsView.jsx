@@ -66,7 +66,7 @@ function ListsView({ list, grouped, group, multiple }) {
           {/* Loop of list */}
           {items.map((item, index) => {
             const checked = selected?.includes(item?.name);
-            console.log(item)
+
             return <ListItemButton key={index} component="li" className="loop-li" onClick={() => onClick(item)}>
 
               {item?.isLocked && <ListItemSecondaryAction>

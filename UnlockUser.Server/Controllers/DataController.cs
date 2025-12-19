@@ -8,14 +8,13 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class DataController(IHelpService helpService, IActiveDirectory provider, ICredentialsService credentials, ILocalFileService localFileService,
-                                ILocalUserService localUserService, IConfiguration config) : ControllerBase
+public class DataController(IHelpService helpService, IActiveDirectory provider, ICredentialsService credentials,
+                                ILocalFileService localFileService, IConfiguration config) : ControllerBase
 {
     private readonly IHelpService _helpService = helpService;
     private readonly IActiveDirectory _provider = provider;
     private readonly ICredentialsService _credentials = credentials;
     private readonly ILocalFileService _localFileService = localFileService;
-    private readonly ILocalUserService _localUserService = localUserService;
     private readonly IConfiguration _config = config;
 
     private readonly string ctrl = nameof(DataController);
@@ -24,58 +23,62 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     [HttpGet("dashboard")]
     public async Task<JsonResult> GetGroupUsers()
     {
-        Dictionary<string, List<UserViewModel>> data = [];
-        var claims = _credentials.GetClaims(["username", "access", "permissions"], Request);
-
-        List<GroupModel> claimGroups = JsonConvert.DeserializeObject<List<GroupModel>>(claims!["permissions"]) ?? [];
-        List<string?> sessionUserGroups = [.. claimGroups?.Select(s => s.Name)!];
         try
         {
-            List<GroupModel> groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
+            Dictionary<string, List<UserViewModel>> data = [];
+            var claims = _credentials.GetClaims(["username", "access", "permissions"], Request);
+
+            List<GroupModel> claimGroups = JsonConvert.DeserializeObject<List<GroupModel>>(claims!["permissions"]) ?? [];
+            List<string?> sessionUserGroups = [.. claimGroups?.Select(s => s.Name)!];
+
+            List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
             var cachedEmployees = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
-            foreach (var group in groups)
+            bool accessGroup = string.IsNullOrEmpty(claims["access"]);
+
+            var sessionUserPermissions = cachedEmployees.FirstOrDefault(x => x.Name == claims["username"])?.Permissions;
+            foreach (var group in passwordManageGroups)
             {
+                if (!accessGroup && !sessionUserGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase))
+                    continue;
+
                 List<string>? alternativeParams = [];
                 bool isStudents = string.Equals(group.Group, "Students", StringComparison.OrdinalIgnoreCase);
 
-                var usersByGroup = cachedEmployees.Where(x => x.Permissions!.PasswordManageGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase)).ToList();
-
-                if (string.IsNullOrEmpty(claims["access"]))
+                if (!accessGroup)
                 {
-                    if (!sessionUserGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase))
-                        continue;
-
-                    var user = usersByGroup.FirstOrDefault(x => x.Name == claims["username"]);
                     if (isStudents)
-                        alternativeParams = user?.Permissions!.Offices;
+                        alternativeParams = sessionUserPermissions!.Offices;
                     else
-                        alternativeParams =  user?.Permissions!.Managers;
+                        alternativeParams = sessionUserPermissions!.Managers;
                 }
-                
+
                 var users = (_provider.GetUsersByGroupName(group, alternativeParams))?.Select(s => new UserViewModel(s)).ToList();
-                for(int i = 0;i < usersByGroup.Count; i++)
+                var usersByGroup = cachedEmployees.Where(x => x.Permissions!.PasswordManageGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase)).ToList();
+                for (int i = 0; i < usersByGroup.Count; i++)
                 {
                     var userByGroup = usersByGroup[i];
                     var user = users?.FirstOrDefault(x => x.Name == userByGroup.Name);
-                    if (user != null)
-                        user.PasswordManageGroups = string.Join(",", userByGroup.Permissions!.PasswordManageGroups);
+                    if (user == null)
+                        continue;
+
+                    user.Permissions = userByGroup.Permissions;
                 }
+
+                _ = users!.ConvertAll(x => x.Group = group.Name);
 
                 if (!isStudents)
                     _ = users!.ConvertAll(x => x.PasswordLength = 12).ToList();
 
-                _ = users!.ConvertAll(x => x.Group = group.Name);
-
                 data.Add(group.Name?.ToLower()!, users!);
             }
+
+            return new(data);
         }
         catch (Exception ex)
         {
             return new(await _helpService.Error($"{ctrl}: {nameof(GetGroupUsers)}", ex));
         }
-
-        return new(data);
     }
 
 

@@ -37,14 +37,15 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
 
     #region Get groups
     // Check user's membership in a specific group in which members have access  to change student password 
-    public List<string>? GetUserGroups(UserPrincipalExtension user)
+    public List<string>? GetUserGroups(UserPrincipalExtension? user)
     {
         if (user == null) // User does not exist.
-            return null;
+            return [];
 
-        List<Principal> groups = user.GetAuthorizationGroups().ToList();
+        List<Principal> groups = [.. user.GetAuthorizationGroups()];
+        groups ??= [];
 
-        return groups?.Select(s => s.Name).ToList();
+        return [.. groups.Select(s => s.Name)];
     }
     #endregion
 
@@ -200,7 +201,6 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
     #region Actions
     // Context to build a connection to local host
     public PrincipalContext GetContext() => new(ContextType.Domain, domain, defaultOU);
-
 
     // Method to reset user password
     public void ResetPassword(UserFormModel model, CredentialsViewModel credentials)

@@ -1,7 +1,7 @@
 import { useEffect, useState, use, useRef } from 'react';
 
 // Installed
-import { useOutletContext, useNavigate } from 'react-router-dom';
+import { useOutletContext, useNavigate, useLoaderData } from 'react-router-dom';
 import { IconButton, FormControl, TextField, InputAdornment, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import { ChevronRight, Policy, Edit, SearchSharp, SearchOffSharp } from '@mui/icons-material';
 
@@ -24,8 +24,8 @@ const messages = {
         color: "success",
         msg: "Behörighet för lösenordsändring är tillgänglig."
     },
-    secondary: {
-        color: "secondary",
+    forbid: {
+        color: "warning",
         msg: "Administratörer får inte ändra lösenord för andra administratörer."
     },
     warning: {
@@ -33,15 +33,15 @@ const messages = {
         msg: "{name} saknar behörigheter att ändra lösenord till den valda personen."
     },
     error: {
-        color: "error",
+        color: "warning",
         msg: "{name} tillhör inte gruppen för lösenordshantering."
     },
     none: {
-        color: "default",
+        color: "warning",
         msg: "Den valda personen hittades inte."
     },
     same: {
-        color: "default",
+        color: "warning",
         msg: "Den valda personen och {name}, samma personen."
     }
 }
@@ -51,16 +51,16 @@ function Overview() {
 
     const [message, setMessage] = useState(messages?.info);
 
-    const { id, collections } = useOutletContext();
+    const reqUser = useLoaderData();
+    const { id, collections, loading } = useOutletContext();
 
     const { permissions, groups, access } = DecodedClaims();
-    const { fetchData, resData, response } = use(FetchContext)
+    const { fetchData, response } = use(FetchContext)
 
-    const collection =  groups.split(",").flatMap(g => collections[g.toLowerCase()])
-    const user = collection.find(x => x.name === id);
+    const collection = collections ? groups.split(",").flatMap(g => collections[g.toLowerCase()]) : [];
+    const user = collection ? collection.find(x => x.name === id) : reqUser;
     const accessToPasswordManage = JSON.parse(permissions)?.find(x => x.Name === user.group) != null;
 
-    console.log(user, JSON.parse(permissions))
     const navigate = useNavigate();
     const ref = useRef(null);
 
@@ -68,23 +68,37 @@ function Overview() {
         if (!access)
             navigate(-1);
     }, [])
-console.log(user)
-    function onSubmit() {
+
+    async function onSubmit() {
         const value = ref.current.value;
-        var userToCheck = collection.find(x => x.name === value || x.email === value);
-        if(!user)
+        if (!value || value.length == 0)
+            return;
+        console.log(value.slice(5))
+        console.log(Number(value.slice(5)))
+        console.log(parseInt("we234"))
+        console.log(Number("we234"))
+
+        var userToCheck = collection?.length > 0
+            ? collection.find(x => x.name === value || x.email === value)
+            : await fetchData({ api: `user/by/${value}`, method: "get", action: "return" });
+
+        if (!userToCheck)
             setMessage(messages.none)
-        if(user === userToCheck)
+        else if (user?.name === userToCheck?.name)
             setMessage(messages.same);
-        else if(userToCheck?.passwordManageGroups?.trim()?.length > 0)
-            setMessage(messages.secondary);
-        else if(!user.permissions?.groups?.includes(userToCheck?.group))
-            setMessage(messages.error)
-        else if(userToCheck?.group !== "Studenter" ? !user.permissions?.managers?.includes(userToCheck.manager) : !user.permissions?.offices?.includes(userToCheck.office))
-         setMessage(messages.warning)
+        else if (userToCheck?.permissions?.passwordManageGroups?.length > 0)
+            setMessage(messages.forbid);
+        else if (!user.permissions?.groups?.includes(userToCheck?.group))
+            setMessage(messages.error);
+        else if (userToCheck?.group !== "Studenter" ? !user.permissions?.managers?.includes(userToCheck.manager) : !user.permissions?.offices?.includes(userToCheck.office))
+            setMessage(messages.warning);
         else
             setMessage(messages.success)
     }
+
+    // If user not found
+    if(!loading && !user)
+        return <Message res={response ?? messages.none} cancel={() => navigate(-1)} />;
 
     return <>
         {/* Tab menu */}
@@ -120,13 +134,14 @@ console.log(user)
                 </>}
             </section>
 
-
+            {/* IIf the user is a member of any password management group. */}
             {user?.passwordManageGroups && <section className="d-column ai-start search w-100 swing-in-right-bck">
                 <TextField
                     fullWidth
+                    key={message.msg}
                     inputRef={ref}
                     className="w-100"
-                    placeholder="Sök med anvädarnamn/email ..."
+                    placeholder={collection?.length > 0 ? "Sök med anvädarnamn/email ..." : "Sök med användarnamn"}
                     InputProps={{
                         endAdornment: <InputAdornment position="end">
                             {/* Reset form - button */}
@@ -134,24 +149,30 @@ console.log(user)
                                 color="error"
                                 type="reset"
                                 className="search-reset"
-                                // disabled={!isChanged}
-                                edge="end">
+                                onClick={() => setMessage(messages.info)}
+                            >
                                 <SearchOffSharp />
                             </IconButton>
 
                             {/* Submit form - button */}
                             <IconButton
-                                // color={isChanged ? "primary" : "inherit"}
                                 onClick={onSubmit}
-                                sx={{ marginRight: "5px" }}
-                                edge="end">
+                                sx={{ marginRight: "5px" }} >
                                 <SearchSharp />
                             </IconButton>
                         </InputAdornment>
-                    }} />
+                    }}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter')
+                            onSubmit();
+                    }}
+                />
 
 
-                <Message res={{...message, msg: message?.msg?.replace(/\{name\}/g, user.displayName)}} />
+                {/* Response from server */}
+                {response && <Message res={response} cancel={() => navigate(-1)} />}
+                {/* Local response */}
+                {!response && <Message res={{ ...message, msg: message?.msg?.replace(/\{name\}/g, user.displayName) }} />}
 
             </section>}
 

@@ -115,6 +115,12 @@ const AppRoutes = () => [
         errorElement: <ErrorView />
       },
       {
+        path: 'user/by/:id',
+        element: <Overview />,
+        errorElement: <ErrorView />,
+        loader: loaderById("user/by")
+      },
+      {
         path: 'my/permissions',
         element: <Overview />,
         errorElement: <ErrorView />
