@@ -10,7 +10,7 @@ import { Avatar, Button, List, ListItem, ListItemAvatar, ListItemText, Tooltip, 
 // Services
 import { AuthContext } from '../../storage/AuthContext';
 
-function Info({ children, user, name, displayName, subTitle, result, disabled, updateSession, handleOutsideClick }) {
+function Info({ children, user, name, displayName, subTitle, result, disabled, handleOutsideClick }) {
 
     const navigate = useNavigate(null);
     const authContext = useContext(AuthContext);
@@ -25,8 +25,7 @@ function Info({ children, user, name, displayName, subTitle, result, disabled, u
         if (disabled) return;
 
         if (!isDisabled && refGetMembers?.current && refGetMembers?.current.contains(e?.target)) {
-            if (result)
-                updateSession();
+
             navigate(`/members/${user.office}/${user.department}`);
             return;
         }

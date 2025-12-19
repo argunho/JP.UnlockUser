@@ -25,9 +25,6 @@ import Contacts from "../pages/Contacts";
 import NotFound from "../pages/NotFound";
 import ErrorView from '../pages/ErrorView';
 
-// Function
-import { SessionData } from './../functions/Functions';
-
 // Services
 import { loader, loaderByApiParam, loaderById, loaderByParams } from '../services/LoadFunctions';
 
@@ -143,14 +140,10 @@ const AppRoutes = () => [
         errorElement: <ErrorView />
       },
       {
-        path: 'session/history',
-        element: <Catalog includedList={SessionData("sessionWork")} label="Session historia" fullWidth={true} />,
-        errorElement: <ErrorView />
-      },
-      {
         path: 'statistics',
         element: <Catalog label="Statistik" api="data/statistics" fullWidth={true} />,
-        errorElement: <ErrorView />
+        errorElement: <ErrorView />,
+        loader: loader("data/statistics")
       },
       {
         path: 'schools',

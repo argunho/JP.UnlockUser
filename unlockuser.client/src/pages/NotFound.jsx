@@ -28,13 +28,7 @@ function NotFound({ isAuthorized }) {
 
     useEffect(() => {
         document.title = "UnlockUser | Notfound";
-
-        if (isAuthorized) return;
-        const path = window.location.pathname;
-
-        if (id)
-            sessionStorage.setItem("redirect", path);
-    }, [isAuthorized, id])
+    }, [])
 
 
     function navigateTo(value) {
