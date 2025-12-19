@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.DirectoryServices;
 using System.Globalization;
@@ -125,7 +126,38 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             else
                 modifiedUser.Group = "Stundeter";
 
-                return Ok(modifiedUser);
+            return Ok(modifiedUser);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(_helpService.Error($"{ctrl}: {nameof(GetCachedUser)}", ex));
+        }
+    }
+
+    [HttpGet("permissions")]
+    public async Task<IActionResult> GetPermissions()
+    {
+        try
+        {
+            var username = _credentialsService.GetClaim("username", Request);
+            var user = _localService.GetUserFromFile(username!);
+            if (user == null)
+                return NotFound(_helpService.NotFound("Användaren"));
+
+            var schools = _localFileService.GetListFromFile<School>("schools")?
+                         .Where(x => (bool)(user.Permissions?.Offices.Contains(x.Name, StringComparer.OrdinalIgnoreCase))!)
+                         .Select(s => new ListViewModel
+                         {
+                             Id = s.Name,
+                             Primary = s.Name,
+                             Secondary = s.Place
+                         }).ToList();
+
+            var managersNames = user.Permissions?.Managers.ConvertAll(x => x.Trim()?[3..x.IndexOf(',')]);
+            var managers = _localFileService.GetListFromFile<Manager>("managers")
+                                .Where(x => managersNames!.Contains(x.Username, StringComparer.OrdinalIgnoreCase)).ToList();
+
+            return Ok(new { schools, managers });
         }
         catch (Exception ex)
         {

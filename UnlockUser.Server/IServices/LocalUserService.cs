@@ -113,7 +113,7 @@ public class LocalUserService(ILocalFileService localFileService,
             Username = s.Name,
             DisplayName = s.DisplayName,
             Division = s.Division,
-            ManagerName = !string.IsNullOrEmpty(s.Manager) ? s.Manager.Trim()?.Substring(3, s.Manager.IndexOf(',') - 3) : "",
+            ManagerName = !string.IsNullOrEmpty(s.Manager) ? s.Manager.Trim()?[3..s.Manager.IndexOf(',')] : "",
             Disabled = false,
             Default = false
         }).ToList();

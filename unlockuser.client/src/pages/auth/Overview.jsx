@@ -2,8 +2,8 @@ import { useEffect, useState, use, useRef } from 'react';
 
 // Installed
 import { useOutletContext, useNavigate, useLoaderData } from 'react-router-dom';
-import { IconButton, FormControl, TextField, InputAdornment, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
-import { ChevronRight, Policy, Edit, SearchSharp, SearchOffSharp } from '@mui/icons-material';
+import { IconButton, TextField, InputAdornment } from '@mui/material';
+import { Edit, SearchSharp, SearchOffSharp } from '@mui/icons-material';
 
 // Components
 import TabPanel from '../../components/blocks/TabPanel';
@@ -14,11 +14,12 @@ import { DecodedClaims } from './../../functions/DecodedToken';
 
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
+import { Button } from '@mui/material';
 
 const messages = {
     info: {
         color: "info",
-        msg: `Sök efter en anställd eller student här för att kontrollera om <span style="color: red">{name}</span> har rätt att ändra lösenordet för den valda personen.`
+        msg: `Sök efter en anställd eller student här för att kontrollera om {name} har rätt att ändra lösenordet för den valda personen.`
     },
     success: {
         color: "success",
@@ -59,9 +60,9 @@ function Overview() {
 
     const collection = collections ? groups.split(",").flatMap(g => collections[g.toLowerCase()]) : [];
     const user = collection ? collection.find(x => x.name === id) : reqUser;
-    console.log(user)
-    const accessToPasswordManage = JSON.parse(permissions).find(x => x.Name === user.group) != null;
 
+    const accessToPasswordManage = JSON.parse(permissions).find(x => x.Name === user.group) != null;
+    const pmGroups = user?.permissions?.passwordManageGroups;
     const navigate = useNavigate();
     const ref = useRef(null);
 
@@ -74,22 +75,24 @@ function Overview() {
         const value = ref.current.value;
         if (!value || value.length == 0)
             return;
-        console.log(value.slice(5))
-        console.log(Number(value.slice(5)))
-        console.log(parseInt("we234"))
-        console.log(Number("we234"))
+        else if(!parseInt(value.slice(0, 6)))
+            return;
+        console.log(value)
+
 
         var userToCheck = collection?.length > 0
             ? collection.find(x => x.name === value || x.email === value)
             : await fetchData({ api: `user/by/${value}`, method: "get", action: "return" });
 
+    console.log(user, pmGroups, userToCheck?.group)
+        console.log(userToCheck)
         if (!userToCheck)
             setMessage(messages.none)
         else if (user?.name === userToCheck?.name)
             setMessage(messages.same);
         else if (userToCheck?.permissions?.passwordManageGroups?.length > 0)
             setMessage(messages.forbid);
-        else if (!user.permissions?.groups?.includes(userToCheck?.group))
+        else if (!pmGroups?.includes(userToCheck?.group))
             setMessage(messages.error);
         else if (userToCheck?.group !== "Studenter" ? !user.permissions?.managers?.includes(userToCheck.manager) : !user.permissions?.offices?.includes(userToCheck.office))
             setMessage(messages.warning);
@@ -111,7 +114,7 @@ function Overview() {
                 {user?.isLocked && <span className="unlock-span locked-account">Kontot är låst</span>}
 
                 {/* If the current user has permission to set or reset the password for the viewed user.. */}
-                {accessToPasswordManage && <IconButton
+                {accessToPasswordManage?.length > 0 && <IconButton
                     sx={{ marginRight: "20px" }}
                     onClick={() => navigate(`/manage/${user?.group?.toLowerCase()}/user/${user?.name}`)}>
                     <Edit />
@@ -133,10 +136,11 @@ function Overview() {
                     <h3>Förvaltning</h3>
                     <span> - {user?.division}</span>
                 </>}
+                {pmGroups && <Button variant="outlined" onCLick={() => navigate("/")} sx={{ marginTop: "30px"}}>Behörigheter</Button>}
             </section>
 
             {/* IIf the user is a member of any password management group. */}
-            {user?.passwordManageGroups && <section className="d-column ai-start search w-100 swing-in-right-bck">
+            {pmGroups?.length > 0 && <section className="d-column ai-start search w-100 swing-in-right-bck">
                 <TextField
                     fullWidth
                     key={message.msg}
@@ -173,7 +177,7 @@ function Overview() {
                 {/* Response from server */}
                 {response && <Message res={response} cancel={() => navigate(-1)} />}
                 {/* Local response */}
-                {!response && <Message res={{ ...message, msg: message?.msg?.replace(/\{name\}/g, user.displayName) }} />}
+                {!response && <Message res={{ ...message, msg: message?.msg?.replace(/\{name\}/g, `<span style="color: red">${user.displayName}</span>`) }} />}
 
             </section>}
 

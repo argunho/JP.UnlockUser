@@ -18,7 +18,7 @@ function MainLayout() {
   const navigation = useNavigation();
   const params = useParams();
 
-  const loads = dashboardData?.loading;
+  const loads = dashboardData?.loading || navigation.state === "loading";
 
   useEffect(() => {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
@@ -30,7 +30,7 @@ function MainLayout() {
 
       <div className="container d-column jc-start fade-in" ref={refContainer}>
 
-        {!loads && <Outlet context={{ loading: navigation.state === "loading", ...dashboardData, ...params }} />}
+        {!loads && <Outlet context={{ loading: loads, ...dashboardData, ...params }} />}
 
         {/* Loading */}
         {loads && <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain" />}

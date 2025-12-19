@@ -19,6 +19,7 @@ import ListView from "../pages/auth/ListView";
 import Logout, { signout } from "../pages/auth/Logout";
 import ExpiredSession from '../pages/auth/ExpiredSession';
 import Overview from './../pages/auth/Overview';
+import Permissions from '../pages/auth/permissions';
 
 import Contacts from "../pages/Contacts";
 import NotFound from "../pages/NotFound";
@@ -122,8 +123,9 @@ const AppRoutes = () => [
       },
       {
         path: 'my/permissions',
-        element: <Overview />,
-        errorElement: <ErrorView />
+        element: <Permissions />,
+        errorElement: <ErrorView />,
+        loader: loader("user/permissions")
       }
     ]
   },
