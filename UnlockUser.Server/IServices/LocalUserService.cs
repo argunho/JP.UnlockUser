@@ -112,6 +112,8 @@ public class LocalUserService(ILocalFileService localFileService,
         {
             Username = s.Name,
             DisplayName = s.DisplayName,
+            Office = s.Office,
+            Department = s.Department,
             Division = s.Division,
             ManagerName = !string.IsNullOrEmpty(s.Manager) ? s.Manager.Trim()?[3..s.Manager.IndexOf(',')] : "",
             Disabled = false,

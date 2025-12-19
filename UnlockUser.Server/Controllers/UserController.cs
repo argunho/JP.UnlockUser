@@ -145,17 +145,17 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 return NotFound(_helpService.NotFound("Användaren"));
 
             var schools = _localFileService.GetListFromFile<School>("schools")?
-                         .Where(x => (bool)(user.Permissions?.Offices.Contains(x.Name, StringComparer.OrdinalIgnoreCase))!)
-                         .Select(s => new ListViewModel
-                         {
-                             Id = s.Name,
-                             Primary = s.Name,
-                             Secondary = s.Place
-                         }).ToList();
+                         .Where(x => (bool)(user.Permissions?.Offices.Contains(x.Name, StringComparer.OrdinalIgnoreCase))!).ToList();
 
             var managersNames = user.Permissions?.Managers.ConvertAll(x => x.Trim()?[3..x.IndexOf(',')]);
             var managers = _localFileService.GetListFromFile<Manager>("managers")
-                                .Where(x => managersNames!.Contains(x.Username, StringComparer.OrdinalIgnoreCase)).ToList();
+                                .Where(x => managersNames!.Contains(x.Username, StringComparer.OrdinalIgnoreCase))
+                         .Select(s => new ListViewModel
+                         {
+                             Id = s.Username,
+                             Primary = s.Office,
+                             Secondary = s.Department
+                         }).ToList();
 
             return Ok(new { schools, managers });
         }
@@ -168,7 +168,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
     #region POST
     [HttpPost("reset/passwords")] // Reset class students passwords
-    public async Task<IActionResult> SetPasswords(string username, [FromForm] UsersListFormModel model)
+    public async Task<IActionResult> SetPasswords([FromForm] UsersListFormModel model)
     {
         try
         {
@@ -258,7 +258,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     };
 
     // Return information
-    public Data GetLogData(string group, string office, string department)
+    private Data GetLogData([FromBody] string group, [FromBody] string office, [FromBody] string department)
     {
         var ip = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
 
@@ -292,7 +292,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     // Set multiple passwords
-    public async Task<string?> SetMultiplePasswords(UsersListFormModel model)
+    private async Task<string?> SetMultiplePasswords([FromBody] UsersListFormModel model)
     {
         // Check model is valid or not and return warning is true or false
         if (model.Users.Count == 0)
@@ -364,7 +364,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     // Save update statistik
-    public async Task SaveUpdateStatitics([FromBody] string param, int count)
+    private async Task SaveUpdateStatitics([FromBody] string param, int count)
     {
         try
         {
@@ -415,7 +415,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     // Save log file
-    public void SaveHistoryLogFile([FromBody] Data model)
+    private void SaveHistoryLogFile([FromBody] Data model)
     {
         try
         {
