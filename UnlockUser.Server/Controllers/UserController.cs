@@ -154,10 +154,10 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                          {
                              Id = s.Username,
                              Primary = s.Office,
-                             Secondary = s.Department
+                             Secondary = s.Department == s.Office ? s.Division : s.Department
                          }).ToList();
 
-            return Ok(new { schools, managers });
+            return Ok(new { groups = user.Permissions?.PasswordManageGroups, schools, managers });
         }
         catch (Exception ex)
         {

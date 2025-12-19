@@ -1,6 +1,7 @@
 // Installed
 import { useLoaderData } from 'react-router-dom';
 import { School, MapsHomeWork } from '@mui/icons-material';
+import { Typography } from '@mui/material';
 
 // Components
 import TabPanel from './../../components/blocks/TabPanel';
@@ -9,19 +10,21 @@ import ListView from '../../components/lists/ListView';
 
 function Permissions() {
 
-    const { schools, managers } = useLoaderData()
+    const { groups, schools, managers } = useLoaderData()
 
     return (
         <>
             {/* Tab menu */}
             <TabPanel primary="Mina behörigheter" />
 
-            {/* Students */}
-            {schools && <ListView list={schools} avatar={<School />} />}
+            {groups.map((group) => {
+                const isSchool = (group.toLowerCase() === "studenter");
+                return <div key={group} className="d-row jc-start w-100">
+                    <Typography component="h4">{group}</Typography>
 
-            {/* Employees */}
-            {managers && <ListView list={managers} avatar={<MapsHomeWork />} />}
-
+                    <ListView list={isSchool ? schools : managers} avatar={isSchool ? <School /> : <MapsHomeWork />} />
+                </div>
+            })}
         </>
     )
 }

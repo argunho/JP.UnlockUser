@@ -4,7 +4,7 @@ import { List, ListItem, ListItemText, ListItemAvatar, Avatar } from '@mui/mater
 function ListView({ list, avatar }) {
 
     return (
-        <List className="">
+        <List className="w-100">
             {list.map((item, index) => {
                 return <ListItem key={index}>
                     {avatar && <ListItemAvatar>
