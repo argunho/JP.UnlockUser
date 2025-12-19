@@ -68,9 +68,13 @@ function Overview() {
     const ref = useRef(null);
 
     useEffect(() => {
+        if(loading) return;
+
         if (!access)
             navigate(-1);
-    }, [])
+        else if(!user && !reqUser)
+            navigate(`view/user/by/${id}`);
+    }, [loading])
 
     async function onSubmit() {
         const value = ref.current.value;
@@ -78,8 +82,6 @@ function Overview() {
             return;
         else if (!collection && !parseInt(value.slice(0, 6)))
             return;
-        console.log(value)
-
 
         var userToCheck = collection?.length > 0
             ? collection.find(x => x.name === value || x.email === value)
@@ -87,8 +89,6 @@ function Overview() {
 
         setChecked(userToCheck);
 
-        console.log(user, pmGroups, userToCheck?.group)
-        console.log(userToCheck)
         if (!userToCheck)
             setMessage(messages.none)
         else if (user?.name === userToCheck?.name)

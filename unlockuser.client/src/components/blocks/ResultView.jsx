@@ -56,7 +56,9 @@ function ResultView({ list, isClass, disabled, group, loading, onReset, resultBl
         }
 
         // Navigation
-        navigate(selectedList?.length > 1 ? `/manage/${group}/class/${list[0].office}/${list[0].department}` : `/manage/${group}/user/` + (user?.name ? user?.name : selectedList[0]));
+        navigate(selectedList?.length > 1 
+            ? `/manage/${group}/class/${list[0].office}/${list[0].department}` 
+            : `/manage/${group}/user/` + (user?.name ? user?.name : selectedList[0]));
     }
 
     // To select one by one user from the class students' list
