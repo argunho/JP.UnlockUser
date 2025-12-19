@@ -40,6 +40,7 @@ import '../assets/css/blocks.css';
 import '../assets/css/modals.css';
 import '../assets/css/lists.css';
 import '../assets/css/manage.css';
+import '../assets/css/message.css';
 
 const AppRoutes = () => [
   {

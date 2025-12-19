@@ -2,7 +2,7 @@ import { useEffect, useState, use, useRef } from 'react';
 
 // Installed
 import { useOutletContext, useNavigate, useLoaderData } from 'react-router-dom';
-import { IconButton, TextField, InputAdornment } from '@mui/material';
+import { IconButton, TextField, InputAdornment, Alert } from '@mui/material';
 import { Edit, SearchSharp, SearchOffSharp } from '@mui/icons-material';
 
 // Components
@@ -51,6 +51,7 @@ const messages = {
 function Overview() {
 
     const [message, setMessage] = useState(messages?.info);
+    const [checked, setChecked] = useState(null);
 
     const reqUser = useLoaderData();
     const { id, collections, loading } = useOutletContext();
@@ -75,7 +76,7 @@ function Overview() {
         const value = ref.current.value;
         if (!value || value.length == 0)
             return;
-        else if(!parseInt(value.slice(0, 6)))
+        else if (!collection && !parseInt(value.slice(0, 6)))
             return;
         console.log(value)
 
@@ -84,7 +85,9 @@ function Overview() {
             ? collection.find(x => x.name === value || x.email === value)
             : await fetchData({ api: `user/by/${value}`, method: "get", action: "return" });
 
-    console.log(user, pmGroups, userToCheck?.group)
+        setChecked(userToCheck);
+
+        console.log(user, pmGroups, userToCheck?.group)
         console.log(userToCheck)
         if (!userToCheck)
             setMessage(messages.none)
@@ -101,7 +104,7 @@ function Overview() {
     }
 
     // If user not found
-    if(!loading && !user)
+    if (!loading && !user)
         return <Message res={response ?? messages.none} cancel={() => navigate(-1)} />;
 
     return <>
@@ -136,7 +139,7 @@ function Overview() {
                     <h3>Förvaltning</h3>
                     <span> - {user?.division}</span>
                 </>}
-                {pmGroups && <Button variant="outlined" onCLick={() => navigate("/")} sx={{ marginTop: "30px"}}>Behörigheter</Button>}
+                {pmGroups && <Button variant="outlined" onCLick={() => navigate("/")} sx={{ marginTop: "30px" }}>Behörigheter</Button>}
             </section>
 
             {/* IIf the user is a member of any password management group. */}
@@ -173,15 +176,32 @@ function Overview() {
                     }}
                 />
 
+                {/* Checked user info */}
+
 
                 {/* Response from server */}
                 {response && <Message res={response} cancel={() => navigate(-1)} />}
-                {/* Local response */}
-                {!response && <Message res={{ ...message, msg: message?.msg?.replace(/\{name\}/g, `<span style="color: red">${user.displayName}</span>`) }} />}
 
+                {/* Local response */}
+                {!response && <Alert className="d-column ai-start message-wrapper" icon={false} color={message.color}>
+                    {/* Message */}
+                    <Message res={{ ...message, msg: message?.msg?.replace(/\{name\}/g, `<span style="color: red">${user.displayName}</span>`) }} />
+
+                    {/* User info */}
+                    {checked && <div className="d-row jc-between w-100 view">
+                        <div className="d-column ai-start">
+                            <h3>Gruppnamn</h3>
+                            <span> - {checked?.group}</span>
+                        </div>
+                        <div className="d-column ai-start">
+                            <h3>Arebtesplats</h3>
+                            <span> - {checked?.office}</span>
+                        </div>
+                    </div>}
+                </Alert>}
             </section>}
 
-        </div>
+        </div >
     </>
 }
 
