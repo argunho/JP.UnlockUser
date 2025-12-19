@@ -38,7 +38,11 @@ const messages = {
     },
     none: {
         color: "default",
-        msg: "den vald personen hittades inte."
+        msg: "Den valda personen hittades inte."
+    },
+    same: {
+        color: "default",
+        msg: "Den valda personen och {name}, samma personen."
     }
 }
 
@@ -52,7 +56,8 @@ function Overview() {
     const { permissions, groups, access } = DecodedClaims();
     const { fetchData, resData, response } = use(FetchContext)
 
-    const user = groups.split(",").flatMap(g => collections[g.toLowerCase()]).find(x => x.name === id);
+    const collection =  groups.split(",").flatMap(g => collections[g.toLowerCase()])
+    const user = collection.find(x => x.name === id);
     const accessToPasswordManage = JSON.parse(permissions)?.find(x => x.Name === user.group) != null;
 
     console.log(user, JSON.parse(permissions))
@@ -63,10 +68,22 @@ function Overview() {
         if (!access)
             navigate(-1);
     }, [])
-
+console.log(user)
     function onSubmit() {
         const value = ref.current.value;
-        console.log(value)
+        var userToCheck = collection.find(x => x.name === value || x.email === value);
+        if(!user)
+            setMessage(messages.none)
+        if(user === userToCheck)
+            setMessage(messages.same);
+        else if(userToCheck?.passwordManageGroups?.trim()?.length > 0)
+            setMessage(messages.secondary);
+        else if(!user.permissions?.groups?.includes(userToCheck?.group))
+            setMessage(messages.error)
+        else if(userToCheck?.group !== "Studenter" ? !user.permissions?.managers?.includes(userToCheck.manager) : !user.permissions?.offices?.includes(userToCheck.office))
+         setMessage(messages.warning)
+        else
+            setMessage(messages.success)
     }
 
     return <>
