@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.DirectoryServices;
 using System.Globalization;
@@ -29,8 +28,6 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     private readonly ILocalUserService _localService = localService;
     private readonly ICredentialsService _credentialsService = credinalService;
     private readonly ILocalMailService _localMailService = localMailService;
-
-    private readonly string ctrl = nameof(UserController);
 
     #region GET
     // Get user information by username
@@ -66,7 +63,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error($"{ctrl}: {nameof(GetUserForPasswordManage)}", ex));
+            return BadRequest(_helpService.Error(ex));
         }
 
         return Ok(new { user });
@@ -86,7 +83,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error($"{ctrl}: {nameof(GetCachedUser)}", ex));
+            return BadRequest(_helpService.Error(ex));
         }
     }
 
@@ -130,7 +127,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error($"{ctrl}: {nameof(GetCachedUser)}", ex));
+            return BadRequest(_helpService.Error(ex));
         }
     }
 
@@ -172,7 +169,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error($"{ctrl}: {nameof(GetCachedUser)}", ex));
+            return BadRequest(_helpService.Error(ex));
         }
     }
     #endregion
@@ -191,7 +188,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error($"{ctrl}: {nameof(SetPasswords)}", ex));
+            return BadRequest(_helpService.Error(ex));
         }
     }
 
@@ -231,7 +228,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error($"{ctrl}: {nameof(SetPasswordsSavePdf)}", ex));
+            return BadRequest(_helpService.Error(ex));
         }
     }
 
@@ -247,7 +244,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error($"{ctrl}: {nameof(RenewEmployeesList)}", ex));
+            return BadRequest(_helpService.Error(ex));
         }
     }
     #endregion
@@ -270,7 +267,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error($"{ctrl}: {nameof(UnlockUser)}", ex));
+            return BadRequest(_helpService.Error(ex));
         }
     }
 
@@ -294,7 +291,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error($"{ctrl}: {nameof(PutUpdateEmployeeSchool)}", ex));
+            return BadRequest(_helpService.Error(ex));
         }
 
         return Ok();

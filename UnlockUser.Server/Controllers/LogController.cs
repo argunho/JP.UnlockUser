@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Diagnostics;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -13,8 +12,6 @@ public class LogController(IHelpService helpService, IFileService fileService) :
 {
     private readonly IHelpService _helpService = helpService ?? throw new ArgumentNullException(nameof(helpService));
     private readonly IFileService _fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
-
-    private readonly string ctrl = nameof(LogController);
 
     #region GET
     [HttpGet]
@@ -29,7 +26,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         }
         catch (Exception ex)
         {
-            await _helpService.Error($"{ctrl}: {nameof(Get)}", ex);
+            await _helpService.Error(ex);
         }
 
         return logs;
@@ -55,7 +52,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(GetById)}", ex));;
+            return BadRequest(await _helpService.Error(ex));;
         }
     }
     #endregion
@@ -78,7 +75,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(Delete)}", ex));;
+            return BadRequest(await _helpService.Error(ex));;
         }
     }
 
@@ -99,7 +96,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(DeleteMultiple)}", ex));;
+            return BadRequest(await _helpService.Error(ex));;
         }
     }
     #endregion

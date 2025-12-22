@@ -17,8 +17,6 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IConfiguration _config = config;
 
-    private readonly string ctrl = nameof(DataController);
-
     #region GET
     [HttpGet("dashboard")]
     public async Task<IActionResult> GetGroupUsers()
@@ -77,7 +75,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         }
         catch (Exception ex)
         {
-            return Ok(await _helpService.Error($"{ctrl}: {nameof(GetGroupUsers)}", ex));;
+            return Ok(await _helpService.Error(ex));;
         }
     }
 
@@ -130,7 +128,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(GetTextFiles)}", ex));;
+            return BadRequest(await _helpService.Error(ex));;
         }
     }
 
@@ -146,7 +144,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(ReadTextFile)}", ex));;
+            return BadRequest(await _helpService.Error(ex));;
         }
     }
 
@@ -181,7 +179,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(GetStatistics)}", ex));;
+            return BadRequest(await _helpService.Error(ex));;
         }
     }
     #endregion
@@ -204,7 +202,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(PostSchool)}", ex));;
+            return BadRequest(await _helpService.Error(ex));;
         }
     }
     #endregion
@@ -224,7 +222,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         catch (Exception ex)
         {
 
-            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(DeleteSchool)}", ex));;
+            return BadRequest(await _helpService.Error(ex));;
         }
     }
     #endregion

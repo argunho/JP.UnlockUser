@@ -17,8 +17,6 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
     private readonly IHelpService _helpService = helpService;
     private ICredentialsService _credentialsService = credentialsService;
 
-    private readonly string ctrl = nameof(SearchController);
-
     #region GET
     // Search one user
     [HttpGet("person/{name}/{group}/{match:bool}")]
@@ -65,7 +63,7 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error($"{ctrl}: {nameof(FindUser)}", ex));
+            return BadRequest(_helpService.Error(ex));
         }
     }
 
@@ -92,7 +90,7 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error($"{ctrl}:  {nameof(FindClassMembers)}", ex));
+            return BadRequest(_helpService.Error(ex));
         }
 
     }

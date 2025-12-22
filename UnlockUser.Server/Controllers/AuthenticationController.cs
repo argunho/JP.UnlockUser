@@ -9,7 +9,7 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class AuthenticationController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache,
-    IHelpService helpService, ICredentialsService credentials, ILocalUserService localUserService) : ControllerBase
+    IHelpService helpService, ICredentialsService credentials) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
@@ -17,9 +17,6 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
     private readonly IDistributedCache _distributedCache = distributedCache;
     private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentials = credentials;
-    private readonly ILocalUserService _localUserService = localUserService;
-
-    private readonly string ctrl = nameof(AuthenticationController);
 
     #region POST   
     [HttpPost]
@@ -102,7 +99,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(PostLogin)}", ex));
+            return BadRequest(await _helpService.Error(ex));
         }
     }
     #endregion
@@ -132,7 +129,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error($"{ctrl} {nameof(Logout)}", ex));
+            return BadRequest(_helpService.Error(ex));
         }
 
         return Ok();
