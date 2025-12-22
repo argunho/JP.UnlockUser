@@ -185,7 +185,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     #endregion
 
     #region POST
-    [HttpPost("schools")]
+    [HttpPost("school")]
     public async Task<IActionResult> PostSchool(School school)
     {
         try
@@ -208,7 +208,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     #endregion
 
     #region DELETE
-    [HttpDelete("schools/{name}")]
+    [HttpDelete("school/{name}")]
     public async Task<IActionResult> DeleteSchool(string name)
     {
         try

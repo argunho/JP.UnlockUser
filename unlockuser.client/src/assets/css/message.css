@@ -9,6 +9,10 @@
     padding: 15px 20px !important;
 }
 
+.collapse .message-box {
+    margin: 0 auto !important
+}
+
 .message-box>div>* {
     margin: 0;
     font-weight: 600;

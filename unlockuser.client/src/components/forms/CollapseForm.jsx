@@ -4,27 +4,32 @@ import { use, useActionState, useRef } from 'react'
 // Installed
 import { Collapse, TextField, Button, CircularProgress } from '@mui/material';
 
+// Components 
+import Message from '../blocks/Message';
 
 // Storage
 import { FetchContext } from './../../storage/FetchContext';
-import Message from '../blocks/Message';
 
 const fields = {
     school: [
-        { label: "Skola", name: "school" },
+        { label: "Skola", name: "name" },
         { label: "Ort", name: "place" }
     ]
 }
 
 /* eslint-disable no-unused-vars */
-function CollapseForm({ open = true, fieldsName, api = "", id = null }) {
+function CollapseForm({ open = true, fieldsName, api, id }) {
 
-    const { fetchData, response, pending: loading, handleResponse } = use(FetchContext);
+    const { fetchData, pending: loading, success } = use(FetchContext);
     const refMessage = useRef(null);
+    // const { revalidate } = useRevalidator()
 
-    async function onSubmit({ previous, fd }) {
+
+    async function onSubmit(previous, fd) {
+        console.log(api)
         let data = {};
         let errors = [];
+
         fd.forEach((value, key) => {
             if (value.length < 3)
                 errors.push(key);
@@ -42,18 +47,13 @@ function CollapseForm({ open = true, fieldsName, api = "", id = null }) {
         await fetchData({ api: api, method: "post", data: data });
     }
 
-    function onReset() {
-        handleResponse(null);
-    }
-
     const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
     const errors = formState?.errors || {};
-    console.log(formState)
+
     return (
         <Collapse in={open} className='d-row w-100' timeout="auto" unmountOnExit>
 
             {/* Response, Error message */}
-            {response && <Message res={response} onCancel={() => handleResponse(null)} />}
             {errors?.length > 0 && <Message res={{color: "error", message: "Fel i formuläret, kontrollera ifyllda fält"}} ref={refMessage} />}
 
             {/* Form */}
@@ -66,7 +66,7 @@ function CollapseForm({ open = true, fieldsName, api = "", id = null }) {
                         required={x?.required !== undefined ? x.required : true}
                         defaultValue={formState?.data?.[x.name] || ""}
                         disabled={loading || pending}
-                        error={formState?.errors[x.name]} />
+                        error={formState?.errors?.[x.name]} />
                 })}
                 <Button variant="outlined" type="submit" className="form-button" disabled={loading}>
                     {loading ? <CircularProgress size={20} color="error" /> : "Spara"}

@@ -4,7 +4,7 @@ import _ from "lodash";
 // Installed
 import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
 import { ArrowDropDown, ArrowDropUp, CalendarMonth, Delete } from "@mui/icons-material";
-import { useLoaderData, useNavigate } from 'react-router-dom';
+import { useLoaderData, useNavigate, useRevalidator, useOutletContext } from 'react-router-dom';
 
 // Components
 import TabPanel from './../../components/blocks/TabPanel';
@@ -22,20 +22,24 @@ function Catalog({ label, fields, api, fullWidth }) {
     const [open, setOpen] = useState(false);
     const [confirmId, setConfirmId] = useState(null);
     const [collapsedItemIndex, setCollapsedItemIndex] = useState(null);
+    const { loading } = useOutletContext();
 
-
-    // const { list, count } = useLoaderData();
     const list = useLoaderData();
     const viewCount = 0;//count ?? 0;
-    const { fetchData, response, pending: loading, handleResponse } = use(FetchContext);
-    console.log(list)
+    const { fetchData, response, pending, success, handleResponse } = use(FetchContext);
+
     const navigate = useNavigate();
+    const { revalidate } = useRevalidator()
 
     useEffect(() => {
         setOpen(false);
         setCollapsedItemIndex(null);
     }, [])
 
+   useEffect(() => {
+        if(success)
+            revalidate();
+    }, [success])
 
     function handleDropdown(index) {
         setCollapsedItemIndex(index === collapsedItemIndex ? null : index);
@@ -44,6 +48,7 @@ function Catalog({ label, fields, api, fullWidth }) {
 
     async function removeConfirmedItem() {
         setOpen(false);
+        setConfirmId(null);
         await fetchData({ api: `${api}/${confirmId}`, method: "delete" });
     }
 
@@ -59,17 +64,21 @@ function Catalog({ label, fields, api, fullWidth }) {
                 </div>
             </TabPanel>
 
-            {/* Confirm */}
-            {!!confirmId && <ConfirmButtons
-                question="Radera?"
-                onConfirm={removeConfirmedItem}
-                onCancel={() => setConfirmId(null)} />}
-
             {/* Confirm/Form block */}
-            {!!fields && <CollapseForm open={open} fieldsName={fields}  api={api} />}
+            {!!fields && <CollapseForm open={open} fieldsName={fields} api={api} />}
 
-            {/* Response */}
-            {!!response && <Message res={response} cancel={() => handleResponse()} />}
+            {/* COnfirm message and response */}
+            <Collapse className="collapse" in={confirmId || response}>
+                {/* Confirm */}
+                {!!confirmId && <ConfirmButtons
+                    question="Radera?"
+                    onConfirm={removeConfirmedItem}
+                    onCancel={() => setConfirmId(null)} />}
+
+                {/* Response */}
+                {!!response && <Message res={response} cancel={() => handleResponse()} />}
+            </Collapse>
+
 
             <List className="d-row list-container" component="div">
                 {/* Loop of result list */}
@@ -83,8 +92,8 @@ function Catalog({ label, fields, api, fullWidth }) {
                                     {item?.includedList?.length > 0 && <IconButton onClick={() => handleDropdown(index)}>
                                         {collapsedItemIndex === index ? <ArrowDropUp /> : <ArrowDropDown />}
                                     </IconButton>}
-                                    {<IconButton onClick={() => setConfirmId(item?.id)} color="error" disabled={!!confirmId || open}>
-                                        {_.isEqual(confirmId, item) ? <CircularProgress size={20} /> : <Delete />}
+                                    {<IconButton onClick={() => setConfirmId(item?.id)} color="error" disabled={!!confirmId || open || loading || pending}>
+                                        {(_.isEqual(confirmId, item) && pending) ? <CircularProgress size={20} /> : <Delete />}
                                     </IconButton>}
                                 </div>
                             }>
