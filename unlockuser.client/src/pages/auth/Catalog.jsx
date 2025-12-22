@@ -1,5 +1,4 @@
 import { useEffect, useState, use } from "react";
-import _ from "lodash";
 
 // Installed
 import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
@@ -26,7 +25,7 @@ function Catalog({ label, fields, api, fullWidth }) {
 
     const list = useLoaderData();
     const viewCount = 0;//count ?? 0;
-    const { fetchData, response, pending, success, handleResponse } = use(FetchContext);
+    const { fetchData, response, pending, handleResponse } = use(FetchContext);
 
     const navigate = useNavigate();
     const { revalidate } = useRevalidator()
@@ -36,20 +35,16 @@ function Catalog({ label, fields, api, fullWidth }) {
         setCollapsedItemIndex(null);
     }, [])
 
-   useEffect(() => {
-        if(success)
-            revalidate();
-    }, [success])
-
     function handleDropdown(index) {
         setCollapsedItemIndex(index === collapsedItemIndex ? null : index);
     }
 
-
     async function removeConfirmedItem() {
-        setOpen(false);
+        const success = await fetchData({ api: `${api}/${confirmId}`, method: "delete", action: "success" });
+        console.log(success)
+        if (success)
+            revalidate();
         setConfirmId(null);
-        await fetchData({ api: `${api}/${confirmId}`, method: "delete" });
     }
 
     return (
@@ -79,7 +74,6 @@ function Catalog({ label, fields, api, fullWidth }) {
                 {!!response && <Message res={response} cancel={() => handleResponse()} />}
             </Collapse>
 
-
             <List className="d-row list-container" component="div">
                 {/* Loop of result list */}
                 {(list?.length > 0 && !loading) && list?.map((item, index) => {
@@ -92,13 +86,15 @@ function Catalog({ label, fields, api, fullWidth }) {
                                     {item?.includedList?.length > 0 && <IconButton onClick={() => handleDropdown(index)}>
                                         {collapsedItemIndex === index ? <ArrowDropUp /> : <ArrowDropDown />}
                                     </IconButton>}
-                                    {<IconButton onClick={() => setConfirmId(item?.id)} color="error" disabled={!!confirmId || open || loading || pending}>
-                                        {(_.isEqual(confirmId, item) && pending) ? <CircularProgress size={20} /> : <Delete />}
+                                    {<IconButton onClick={() => setConfirmId(item?.id)} color="error" disabled={confirmId || open || loading || pending}>
+                                        {(confirmId == item?.id && pending) ? <CircularProgress size={20} /> : <Delete />}
                                     </IconButton>}
                                 </div>
                             }>
                             <ListItemIcon>{index + 1}</ListItemIcon>
-                            <ListItemText className="li-div" primary={<span dangerouslySetInnerHTML={{ __html: item?.primary }} />} secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }} />} {...props} />
+                            <ListItemText className="li-div"
+                                primary={<span dangerouslySetInnerHTML={{ __html: item?.primary }} />}
+                                secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }} />} {...props} />
                         </ListItem>
 
                         {/* If the item has an included list */}
@@ -117,8 +113,7 @@ function Catalog({ label, fields, api, fullWidth }) {
                                 </List>
                             </Collapse>}
                     </div>
-                })
-                }
+                })}
             </List>
         </>
     )

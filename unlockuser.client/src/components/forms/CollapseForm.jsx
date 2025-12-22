@@ -3,6 +3,7 @@ import { use, useActionState, useRef } from 'react'
 
 // Installed
 import { Collapse, TextField, Button, CircularProgress } from '@mui/material';
+import { useRevalidator } from 'react-router-dom';
 
 // Components 
 import Message from '../blocks/Message';
@@ -20,13 +21,12 @@ const fields = {
 /* eslint-disable no-unused-vars */
 function CollapseForm({ open = true, fieldsName, api, id }) {
 
-    const { fetchData, pending: loading, success } = use(FetchContext);
+    const { fetchData, pending: process, success } = use(FetchContext);
     const refMessage = useRef(null);
-    // const { revalidate } = useRevalidator()
-
+    const { revalidate } = useRevalidator()
 
     async function onSubmit(previous, fd) {
-        console.log(api)
+
         let data = {};
         let errors = [];
 
@@ -44,7 +44,9 @@ function CollapseForm({ open = true, fieldsName, api, id }) {
             };
         }
 
-        await fetchData({ api: api, method: "post", data: data });
+        const success = await fetchData({ api: api, method: "post", data: data, action: "success" });
+        if(success)
+            revalidate();
     }
 
     const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
@@ -65,11 +67,11 @@ function CollapseForm({ open = true, fieldsName, api, id }) {
                         label={x.label}
                         required={x?.required !== undefined ? x.required : true}
                         defaultValue={formState?.data?.[x.name] || ""}
-                        disabled={loading || pending}
+                        disabled={process || pending}
                         error={formState?.errors?.[x.name]} />
                 })}
-                <Button variant="outlined" type="submit" className="form-button" disabled={loading}>
-                    {loading ? <CircularProgress size={20} color="error" /> : "Spara"}
+                <Button variant="outlined" type="submit" className="form-button" disabled={process}>
+                    {(process || pending) ? <CircularProgress size={20} /> : "Spara"}
                 </Button>
             </form>
         </Collapse>
