@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace UnlockUser.Server.Controllers;
@@ -35,7 +36,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
     }
 
     [HttpGet("by/{id}")]
-    public async Task<JsonResult?> GetById(string id)
+    public async Task<IActionResult?> GetById(string id)
     {
         try
         {
@@ -44,67 +45,80 @@ public class LogController(IHelpService helpService, IFileService fileService) :
             if (!log.Equals(new Log()))
             {
                 log.Opened = true;
-                await _fileService.SaveJsonFile(logs!, "logs", @"wwwroot/json");
+                string logsJson = System.Text.Json.JsonSerializer.Serialize(logs);
+                await _fileService.SaveFile(logsJson!, "logs", @"wwwroot/json");
             }
             else
-                return new(_helpService.NotFound("Log"));
+                return NotFound(_helpService.NotFound("Log"));
 
-            return new(log);
+            return Ok(log);
         }
         catch (Exception ex)
         {
-            return new(new { res = await _helpService.Error($"{ctrl}: {nameof(GetById)}", ex) });
+            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(GetById)}", ex));;
         }
     }
     #endregion
 
     #region DELETE
     [HttpDelete("{id}")]
-    public async Task<JsonResult> Delete(string id)
+    public async Task<IActionResult> Delete(string id)
     {
         try
         {
             var logs = await GetLogs();
             Log? log = logs.FirstOrDefault(x => x.Id == id);
             if (log == null)
-                return new(_helpService.NotFound("Log"));
+                return NotFound(_helpService.NotFound("Log"));
 
             logs.Remove(log);
-            await _fileService.SaveJsonFile(logs!, "logs", @"wwwroot/json");
+            string logsJson = System.Text.Json.JsonSerializer.Serialize(logs);
+            await _fileService.SaveFile(logsJson!, "logs", @"wwwroot/json");
+            return Ok();
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.Message);
+            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(Delete)}", ex));;
         }
-
-        return new(null);
     }
 
     [HttpDelete("multiple/{ids}")]
-    public async Task<JsonResult> DeleteMultiple(string? ids)
+    public async Task<IActionResult> DeleteMultiple(string? ids)
     {
-        if (string.IsNullOrEmpty(ids))
-            return new(_helpService.Warning());
-
         try
         {
+            if (string.IsNullOrEmpty(ids))
+                return NotFound(_helpService.Warning());
+
             List<string>? idsToRemove = [.. ids.Split(",")];
             for (int i = 0; i < idsToRemove?.Count; i++)
             {
                 await Delete(idsToRemove[i]);
             }
+            return Ok();
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.Message);
+            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(DeleteMultiple)}", ex));;
         }
-
-        return new(null);
     }
     #endregion
 
     #region Help methods
     public async Task<List<Log>> GetLogs()
-     => await _fileService.GetJsonFile<Log>("logs", @"wwwroot/json") ?? [];
+    {
+        List<Log> logs = [];
+        var logFiles = Directory.GetFiles(@"wwwroot/logs", "*.txt", SearchOption.AllDirectories).ToList();
+        if (logFiles.Count == 0)
+            return logs;
+
+        for (int i = 0; i < logFiles.Count; i++)
+        {
+            var log = JsonConvert.DeserializeObject<Log>(await System.IO.File.ReadAllTextAsync(logFiles[i]));
+            logs.Add(log);
+        }
+
+        return logs;
+    }
     #endregion
 }

@@ -102,7 +102,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(PostLogin)}", ex));
+            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(PostLogin)}", ex, "txt"await _helpService.Errorawait _helpService.Error));
         }
     }
     #endregion

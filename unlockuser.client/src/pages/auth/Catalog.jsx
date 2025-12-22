@@ -30,7 +30,7 @@ function Catalog({ label, fields, api, fullWidth, id, labels }) {
     const { list, count } = useLoaderData();
     const viewCount = count ?? 0;
     const { fetchData, response, pending: loading, handleResponse } = use(FetchContext);
-
+console.log(list)
     const navigate = useNavigate();
 
     useEffect(() => {

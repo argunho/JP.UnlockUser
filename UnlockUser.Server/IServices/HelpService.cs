@@ -17,7 +17,6 @@ public partial class HelpService(IHttpContextAccessor httpContext) : IHelp
         return url.IndexOf("localhost") > -1 || url.IndexOf("[::1]") > -1 || regex.IsMatch(url);
     }
 
-
     public Dictionary<string, string>? GetClaims(params string[] str)
     {
         try

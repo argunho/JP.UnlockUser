@@ -21,7 +21,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
 
     #region GET
     [HttpGet("dashboard")]
-    public async Task<JsonResult> GetGroupUsers()
+    public async Task<IActionResult> GetGroupUsers()
     {
         try
         {
@@ -73,11 +73,11 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 data.Add(group.Name?.ToLower()!, users!);
             }
 
-            return new(data);
+            return Ok(data);
         }
         catch (Exception ex)
         {
-            return new(await _helpService.Error($"{ctrl}: {nameof(GetGroupUsers)}", ex));
+            return Ok(await _helpService.Error($"{ctrl}: {nameof(GetGroupUsers)}", ex));;
         }
     }
 
@@ -96,12 +96,12 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     }
 
     // Get all txt files
-    [HttpGet("logs/{param}")]
-    public JsonResult GetTextFiles(string param)
+    [HttpGet("logs/history")]
+    public async Task<IActionResult> GetTextFiles()
     {
         try
         {
-            var logs = Directory.GetFiles(@"wwwroot/loggfiles/" + param, "*.txt", SearchOption.AllDirectories).ToList();
+            var logs = Directory.GetFiles(@"wwwroot/logs/history", "*.txt", SearchOption.AllDirectories).ToList();
 
             // Remove old files
             if (logs != null && logs?.Count > 0)
@@ -126,20 +126,19 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             logs = logs?.OrderByDescending(x => System.IO.File.GetLastWriteTime(x).Ticks)?
                             .Select(x => x.Replace("\\", "/")[(x.LastIndexOf('/') + 1)..].Replace(".txt", "")).ToList() ?? null;
 
-            return new(new { list = logs });
+            return Ok(new { list = logs });
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"{nameof(GetTextFiles)} Fel: {ex.Message}");
-            return new(null);
+            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(GetTextFiles)}", ex));;
         }
     }
 
     // Get file to download
     [HttpGet("read/file/{directory}/{id}")]
-    public ActionResult ReadTextFile(string directory, string id)
+    public async Task<IActionResult> ReadTextFile(string directory, string id)
     {
-        var path = Path.Combine($@"wwwroot/logfiles/{directory}", $"{id}.txt");
+        var path = Path.Combine($@"wwwroot/logs/{directory}", $"{id}.txt");
         try
         {
             var content = System.IO.File.ReadAllText(path);
@@ -147,14 +146,13 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.Message);
-            return BadRequest(ex.Message);
+            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(ReadTextFile)}", ex));;
         }
     }
 
     // Get statistics
     [HttpGet("statistics")]
-    public JsonResult GetStatistics()
+    public async Task<IActionResult> GetStatistics()
     {
         try
         {
@@ -166,7 +164,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                     Primary = s.Name,
                     Secondary = $"Byten lösenord: {s.PasswordsChange}, Upplåst konto: {s.Unlocked}"
                 })]
-            })];
+            })!];
 
             int passwordChange = 0;
             int unlockedAccount = 0;
@@ -183,8 +181,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.Message);
-            return new JsonResult(null);
+            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(GetStatistics)}", ex));;
         }
     }
     #endregion
@@ -207,8 +204,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Post school error: {ex.Message}");
-            return BadRequest();
+            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(PostSchool)}", ex));;
         }
     }
     #endregion
@@ -223,16 +219,13 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             schools.RemoveAll(x => x.Name == name);
             await Task.Delay(1000);
             await _localFileService.SaveUpdateFile(schools, "schools");
+        return Ok();
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Post school error: {ex.Message}");
-            return Ok($"Något har gått snett: Fel: {ex.Message}");
-        }
 
-        return Ok();
+            return BadRequest(await _helpService.Error($"{ctrl}: {nameof(DeleteSchool)}", ex));;
+        }
     }
     #endregion
-
-
 }

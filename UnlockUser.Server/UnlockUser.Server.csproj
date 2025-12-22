@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="JobRelatedHelpLibrary" Version="1.0.3" />
+    <PackageReference Include="JobRelatedHelpLibrary" Version="1.0.41" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
       <Version>9.0.11</Version>
@@ -31,6 +31,10 @@
 
   <ItemGroup>
     <None Include="wwwroot\alvestakommun.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\logs\history\" />
   </ItemGroup>
 
 </Project>

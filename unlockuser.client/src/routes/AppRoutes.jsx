@@ -11,7 +11,6 @@ import MainLayout from './../layouts/MainLayout';
 // Pages
 import Employees from "../pages/auth/Employees";
 import ClassManager from "../pages/auth/ClassManager";
-import LogFiles from "../pages/auth/LogFiles";
 import UserManager from "../pages/auth/UserManager";
 import Members from "../pages/auth/Members";
 import Home from "../pages/auth/Home";
@@ -135,10 +134,16 @@ const AppRoutes = () => [
     errorElement: <NotFound isAuthorized={true} />,
     children: [
       {
-        path: 'logs/:id',
+        path: 'logs/errors',
         element: <Catalog  label="Log filer"/>,
         errorElement: <ErrorView />,
-        loader: loaderById("data/logs")
+        loader: loader("logs")
+      },
+      {
+        path: 'logs/history',
+        element: <Catalog  label="Log filer"/>,
+        errorElement: <ErrorView />,
+        loader: loader("/data/logs/history")
       },
       {
         path: 'statistics',

@@ -1,4 +1,4 @@
-### Todo
+# Todo
 
 ## Home/Search/Support
 
@@ -9,7 +9,7 @@
 ## Permissions
 
 1. Show all sub managers
-2. Forbind change password to other admin
+2. Forbid change password to other admin
 
 ## To fix
 

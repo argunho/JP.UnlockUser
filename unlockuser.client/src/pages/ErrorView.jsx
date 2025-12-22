@@ -33,7 +33,7 @@ function ErrorView() {
 
             <div className="error-msg-wrapper">
                 <p className='error-title'>
-                    Något har got snett
+                    Något gick fel
                 </p>
                 <span className='error-title'>
                     {error?.message}

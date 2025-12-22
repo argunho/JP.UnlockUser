@@ -13,7 +13,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
     {
         try
         {
-            var path = Path.Combine(@"wwwroot/files/", $"{fileName}.txt");
+            var path = Path.Combine(@"wwwroot/catalogs/", $"{fileName}.txt");
             if (!File.Exists(path))
                 return [];
             var res = File.ReadAllText(path);
@@ -100,7 +100,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
         string? error = String.Empty;
         try
         {
-            var directory = @"wwwroot/files/";
+            var directory = @"wwwroot/catalogs/";
             CheckDirectory(directory);
 
             var path = Path.Combine(directory, $"{fileName}.txt");
@@ -171,7 +171,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
     // Save history logfile
     public void SaveLogFile(List<string> contentList, string pathName)
     {
-        var directory = $@"wwwroot\logfiles\{pathName}";
+        var directory = $@"wwwroot\logs\{pathName}";
         if (CheckDirectory(directory))
         {
             contentList.Add("\n\n Datum: " + DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
