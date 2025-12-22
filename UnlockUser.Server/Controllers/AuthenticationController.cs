@@ -58,9 +58,9 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
             List<string> roles = [];
             if (_provider.MembershipCheck(authorizedUser, "Azure-Utvecklare Test"))
-                roles.Add("Developer");
+                roles.Add("DevelopeTeam");
 
-            if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning") || roles.Contains("Developer", StringComparer.OrdinalIgnoreCase))
+            if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning") || roles.Contains("DevelopeTeam", StringComparer.OrdinalIgnoreCase))
                 roles.Add("Support");
 
             var userGroups = _provider.GetUserGroups(authorizedUser);

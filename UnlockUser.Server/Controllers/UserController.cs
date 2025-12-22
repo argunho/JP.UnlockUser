@@ -73,7 +73,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     [HttpGet("cached/{username}")]
-    [Authorize(Roles = "Support, Developer")]
+    [Authorize(Roles = "Support, DevelopeTeam")]
     public IActionResult GetCachedUser(string username)
     {
         try
@@ -91,7 +91,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     [HttpGet("by/{username}")]
-    [Authorize(Roles = "Support, Developer")]
+    [Authorize(Roles = "Support, DevelopeTeam")]
     public IActionResult GetUserByUsername(string username)
     {
         try
@@ -135,7 +135,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     [HttpGet("groups")]
-    [Authorize(Roles = "Developer,Manager,Support")]
+    [Authorize(Roles = "DevelopeTeam,Manager,Support")]
     public List<string?> GetGrous()
     {
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
@@ -236,7 +236,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     [HttpPost("renew/cached/data")]
-    [Authorize(Roles = "Developer,Manager,Support")]
+    [Authorize(Roles = "DevelopeTeam,Manager,Support")]
     public async Task<IActionResult> RenewEmployeesList()
     {
         try
@@ -275,7 +275,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     [HttpPut("group/{group}")]
-    [Authorize(Roles = "Developer,Manager,Support")]
+    [Authorize(Roles = "DevelopeTeam,Manager,Support")]
     public async Task<IActionResult> PutUpdateEmployeeSchool(string group, User model)
     {
         try

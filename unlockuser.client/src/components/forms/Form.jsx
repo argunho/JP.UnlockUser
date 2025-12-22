@@ -66,7 +66,7 @@ function Form({ children, label, labelFile, passwordLength, locked, users, multi
     const { response, pending: load, fetchData, handleResponse } = use(FetchContext);
 
     const decodedToken = DecodedToken();
-    const developer = decodedToken?.Roles?.indexOf("Developer") > -1;
+    const developer = decodedToken?.Roles?.indexOf("DevelopeTeam") > -1;
 
     const navigate = useNavigate();
 

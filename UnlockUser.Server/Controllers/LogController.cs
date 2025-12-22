@@ -8,7 +8,7 @@ namespace UnlockUser.Server.Controllers;
 [ApiController]
 [Route("api/Log")]
 [Route("api/Logs")]
-[Authorize(Roles = "DevTeam")]
+[Authorize(Roles = "DevelopeTeam")]
 public class LogController(IHelpService helpService, IFileService fileService) : ControllerBase
 {
     private readonly IHelpService _helpService = helpService ?? throw new ArgumentNullException(nameof(helpService));
