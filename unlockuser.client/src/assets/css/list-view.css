@@ -57,6 +57,15 @@ li.list-item {
     margin: 4px 3px !important;
 }
 
+.li-div span:first-child {
+    white-space: nowrap !important;
+    display: block !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 18px !important;
+    width: 95% !important;
+}
+
 div.last,
 li.last {
     margin: 4px 9px !important;
@@ -70,7 +79,7 @@ li.list-item:hover {
 div.list-item:not(.dropdown):hover,
 li.list-item:hover  {
     cursor: pointer !important;
-    background-color: #6363632a !important;
+    background-color: var(--color-light-gray) !important;
 }
 
 div.dropdown li,

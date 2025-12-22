@@ -87,7 +87,7 @@ function Home() {
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
     const gn = group?.name?.toLowerCase() ?? groupName;
-
+console.log(schools)
     useEffect(() => {
         document.title = "UnlockUser | Sök";
         if (response)

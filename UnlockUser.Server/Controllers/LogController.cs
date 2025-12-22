@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -15,7 +15,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
 
     #region GET
     [HttpGet]
-    public async Task<List<Log>> Get()
+    public async Task<IActionResult> Get()
     {
         List<Log> logs = [];
         try
@@ -29,7 +29,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
             await _helpService.Error(ex);
         }
 
-        return logs;
+        return Ok(logs);
     }
 
     [HttpGet("by/{id}")]
@@ -52,7 +52,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error(ex));;
+            return BadRequest(await _helpService.Error(ex)); ;
         }
     }
     #endregion
@@ -75,7 +75,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error(ex));;
+            return BadRequest(await _helpService.Error(ex)); ;
         }
     }
 
@@ -96,7 +96,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error(ex));;
+            return BadRequest(await _helpService.Error(ex)); ;
         }
     }
     #endregion
@@ -109,9 +109,13 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         if (logFiles.Count == 0)
             return logs;
 
-        for (int i = 0; i < logFiles.Count; i++)
+        foreach(var file in logFiles)
         {
-            var log = JsonConvert.DeserializeObject<Log>(await System.IO.File.ReadAllTextAsync(logFiles[i]));
+            var json = await System.IO.File.ReadAllTextAsync(file);
+            if (string.IsNullOrEmpty(json))
+                continue;
+
+            var log = JsonSerializer.Deserialize<Log>(json);
             logs.Add(log);
         }
 

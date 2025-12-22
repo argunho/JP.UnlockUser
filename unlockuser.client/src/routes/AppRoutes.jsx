@@ -37,6 +37,7 @@ import '../assets/css/modals.css';
 import '../assets/css/lists.css';
 import '../assets/css/manage.css';
 import '../assets/css/message.css';
+import LogFiles from '../pages/auth/LogFiles';
 
 const AppRoutes = () => [
   {
@@ -135,13 +136,13 @@ const AppRoutes = () => [
     children: [
       {
         path: 'logs/errors',
-        element: <Catalog  label="Log filer"/>,
+        element: <Catalog label="Log filer"/>,
         errorElement: <ErrorView />,
         loader: loader("logs")
       },
       {
         path: 'logs/history',
-        element: <Catalog  label="Log filer"/>,
+        element: <LogFiles  label="Historik filer"/>,
         errorElement: <ErrorView />,
         loader: loader("/data/logs/history")
       },
@@ -153,7 +154,7 @@ const AppRoutes = () => [
       },
       {
         path: 'schools',
-        element: <Catalog label="Skolor" id="id" fields={{ name: "", place: "" }} labels={["Namn", "Plats"]} />,
+        element: <Catalog label="Skolor" id="id" fields="school" />,
         errorElement: <ErrorView />,
         loader: loader("data/schools")
       },

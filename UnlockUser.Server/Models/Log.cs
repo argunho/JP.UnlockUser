@@ -11,8 +11,8 @@ public class Log
 
     [JsonRequired]
     public string? Description { get; set; }
-    public DateTime Date { get; set; } = DateTime.Now;
+    public string? Date { get; set; }
 
-    public string? Primary => $"{Source}<br/><span class='secondary{(Opened ? " open" : "")}'>{Description}</span>";
-    public string Secondary => $"<br/>Registrerad: {Date:g}";
+    public string? Primary => Description;
+    public string Secondary => $"Registrerad: {Date}";
 }

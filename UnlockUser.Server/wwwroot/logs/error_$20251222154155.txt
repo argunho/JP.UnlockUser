@@ -1,0 +1,1 @@
+﻿{"Id":"eac2e720-6387-41a6-bb52-37a6860cb029","Source":"System.Text.Json","Type":"Error","Description":"Error: The JSON value could not be converted to System.DateTime. Path: $.Date | LineNumber: 0 | BytePositionInLine: 351.\n\nPath to file: Controllers\\LogController.cs\n\nLine number: 122\n\nMethod: MoveNext\n","Opened":false,"Date":"2025.12.22 15:41:55"}

@@ -83,14 +83,14 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     [HttpGet("schools")]
     public IActionResult GetSchools()
     {
-        var list = _localFileService.GetListFromFile<School>("schools").Select(s => new ListViewModel
+        var schools = _localFileService.GetListFromFile<School>("schools").Select(s => new ListViewModel
         {
             Id = s.Name,
             Primary = s.Name,
             Secondary = s.Place
-        }).ToList();
+        }).ToList() ?? [];
 
-        return Ok(new { list });
+        return Ok(schools);
     }
 
     // Get all txt files
@@ -124,7 +124,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             logs = logs?.OrderByDescending(x => System.IO.File.GetLastWriteTime(x).Ticks)?
                             .Select(x => x.Replace("\\", "/")[(x.LastIndexOf('/') + 1)..].Replace(".txt", "")).ToList() ?? null;
 
-            return Ok(new { list = logs });
+            return Ok(logs);
         }
         catch (Exception ex)
         {
