@@ -43,10 +43,12 @@ function DashboardProvider({ children }) {
     async function fetchCollections() {
         const res = await ApiRequest("data/dashboard", "get");
 
-        if(IsLocalhost)
-            sessionStorage.setItem("collections", JSON.stringify(res));
+        const dataToStore = res?.groups ? {...res.data, ...{ groups: res?.groups }} : res;
 
-        setCollections(res);
+        if(IsLocalhost)
+            sessionStorage.setItem("collections", JSON.stringify(dataToStore));
+
+        setCollections(dataToStore);
         setLoading(false);
     }
 

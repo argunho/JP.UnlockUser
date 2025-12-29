@@ -4,8 +4,8 @@ import { Navigate } from 'react-router-dom';
 // Layouts
 import AppLayout from '../layouts/AppLayout';
 import SessionLayout from './../layouts/SessionLayout';
-import UsersLayout from '../layouts/UsersLayout';
 import MainLayout from './../layouts/MainLayout';
+import UsersLayout from './../layouts/UsersLayout';
 
 // Pages
 import Employees from "../pages/auth/Employees";
@@ -147,24 +147,28 @@ const AppRoutes = () => [
         ]
       },
       {
-        path: "/employees",
-        element: <FetchContextProvider>
-          <UsersLayout />¨
-        </FetchContextProvider>,
+        path: "/moderators",
+        element: <UsersLayout />,
         errorElement: <NotFound isAuthorized={true} />,
-        loader: loader("employees/groups"),
+        loader: loader("user/moderators"),
+        shouldRevalidate: () => false,
         children: [
           {
             index: true,
-            element: <Employees />,
+            element: <Navigate to="/moderators/personal" replace/>,
             errorElement: <ErrorView />
           },
           {
-            path: ":id",
+            path: ":group",
             element: <Employees />,
-            errorElement: <ErrorView />,
-            loader: loaderById("employees")
+            errorElement: <ErrorView />
           },
+          // {
+          //   path: ":id",
+          //   element: <Employees />,
+          //   errorElement: <ErrorView />,
+          //   loader: loaderById("user")
+          // },
           {
             path: ':office/:department',
             element: <Members />,

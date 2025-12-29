@@ -1,24 +1,16 @@
 // Installed
-import { Outlet, useNavigation, useParams, useLoaderData } from 'react-router-dom';
-
-// Components
-import LinearLoading from '../components/blocks/LinearLoading';
+import { Outlet, useNavigation, useOutletContext, useLoaderData } from 'react-router-dom';
 
 function UsersLayout() {
     const navigation = useNavigation();
-    const params = useParams();
 
-    const groups = useLoaderData();
-    const loads = navigation.state === "loading";
-
+    const context = useOutletContext();
+    const moderators = useLoaderData();
+    context.loading = navigation.state === "loading";
 
     return (
-        <div className="d-column jc-start fade-in w-100">
-
-            {!loads && <Outlet context={{ loading: loads, ...params, groups }} />}
-
-            {/* Loading */}
-            {loads && <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain" />}
+        <div className="d-column jc-start w-100">
+            <Outlet context={{ ...context, employees: moderators }} />
         </div>
     )
 }

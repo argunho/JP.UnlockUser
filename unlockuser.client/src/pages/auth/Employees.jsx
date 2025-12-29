@@ -27,7 +27,6 @@ import '../../assets/css/list-view.css';
 
 function Employees() {
 
-    const [group, setGroup] = useState();
     const [userData, setUserData] = useState();
     const [clean, setClean] = useState(false);
     const [updating, setUpdating] = useState(false);
@@ -35,15 +34,18 @@ function Employees() {
     const [open, setOpen] = useState(false);
     const [searchWord, setSearchWord] = useState("");
 
-    const { loading: buffering, groups, id: groupName } = useOutletContext();
+    const { loading: buffering, collections, group, moderators } = useOutletContext();
     const { response, pending, fetchData, handleResponse } = use(FetchContext);
     const loading = buffering || pending;
+    const groups = collections["groups"];
 
     const navigate = useNavigate()
-    const { employees, selections, updated } = useLoaderData() ?? {};
+    const { selections, updated } = useLoaderData() ?? {};
     const items = selections ?? [];
 
-    const list = searchWord ? employees?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord)) : employees ?? [];
+    const moderatorsByGroup = moderators.filter(x => x.permissions?.groups?.includes(group));
+
+    const list = searchWord ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord)) : moderatorsByGroup ?? [];
     const { content: pagination, page, perPage } = usePagination(
         {
             length: list.length,
@@ -55,10 +57,10 @@ function Employees() {
     useEffect(() => {
         document.title = "UnlockUser | Anställda";
 
-        if (!groupName)
-            navigate(`/employees/${groups[0]?.toLowerCase()}`, { replace: true });
-        else
-            setGroup(groupName.charAt(0).toUpperCase() + groupName.slice(1));
+        // if (!groupName)
+        //     navigate(`/employees/${groups[0]?.toLowerCase()}`, { replace: true });
+        // else
+            // setGroup(groupName.charAt(0).toUpperCase() + groupName.slice(1));
     }, [])
 
     useEffect(() => {
@@ -68,7 +70,7 @@ function Employees() {
 
 
     async function renewList() {
-        await fetchData({ api: "employees/renew/cached/data", method: "post" });
+        await fetchData({ api: "user/renew/cached/data", method: "post" });
         sessionStorage.setItem("updated", "true");
     }
 
@@ -119,7 +121,7 @@ function Employees() {
     }
 
     function switchGroup(e) {
-        setGroup(e.target.value);
+        // setGroup(e.target.value);
         navigate(`/employees/${e.target.value?.toLowerCase()}`, { replace: true });
     }
 

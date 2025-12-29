@@ -69,6 +69,15 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         return Ok(new { user });
     }
 
+    // Get stored  employees who have permission to manage employee passwords nby group name
+    [HttpGet("moderators")]
+    public async Task<IActionResult> GetUsersByGroupName()
+    {
+        // Saved employees who have permission to manage employee passwords
+        var moderators = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
+        return Ok(moderators);
+    }
+
     [HttpGet("cached/{username}")]
     [Authorize(Roles = "Support, DevelopeTeam")]
     public IActionResult GetCachedUser(string username)

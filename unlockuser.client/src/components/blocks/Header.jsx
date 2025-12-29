@@ -21,7 +21,7 @@ const links = [
     { label: "Hem", url: "/search", icon: <Home />, access: false, hidden: false },
     { label: "Mina behörigheter", url: "/view/my/permissions", icon: <FactCheck />, access: false, hidden: false },
     { label: "Skolor", url: "/catalog/schools", icon: <School />, access: true, hidden: false },
-    { label: "Behöriga användare", url: "/employees", icon: <SettingsApplications />, access: true, hidden: false },
+    { label: "Behöriga användare", url: "/moderators", icon: <SettingsApplications />, access: true, hidden: false },
     { label: "Detaljerad historia", url: "/catalog/logs/history", icon: <WorkHistory />, access: true, hidden: false },
     { label: "Statistik", url: "/catalog/statistics", icon: <BarChart />, access: true, hidden: false },
     { label: "Loggfiler", url: "/catalog/logs/errors", icon: <ErrorOutline />, access: true, hidden: false },

@@ -44,17 +44,6 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             // Currentsession user permissions
             var sessionUserPermissions = savedEmployees.FirstOrDefault(x => x.Name == claims["username"])?.Permissions;
 
-            // Filter the list of saved employees according to the current password management group
-            Dictionary<string, List<UserViewModel>> usersByGroup = [];
-            // Lopp of all employees groups
-            foreach (var group in passwordManageGroups)
-            {
-                usersByGroup.Add(
-                    group.Name!,
-                    [.. savedEmployees.Where(x => x.Permissions!.PasswordManageGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase))]
-                );
-            }
-
             // Lopp of all employees groups
             foreach (var group in passwordManageGroups)
             {
@@ -80,8 +69,12 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 // All users who are members of the current password management group
                 var users = (_provider.GetUsersByGroupName(group, alternativeParams)).ToList();
 
+
+                // Filter the list of saved employees according to the current password management group
+                List<UserViewModel> usersByGroup = [.. savedEmployees.Where(x => x.Permissions!.PasswordManageGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase))];
+
                 // Update permissions in all users of the current password management group based on the filtered saved users
-                foreach (var userByGroup in usersByGroup[group.Name!])
+                foreach (var userByGroup in usersByGroup)
                 {
                     var user = users?.FirstOrDefault(x => x.Name == userByGroup.Name);
                     if (user == null)
@@ -99,6 +92,9 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
 
                 data.Add(group.Name?.ToLower()!, usersViewModel!);
             }
+
+            if(accessGroup)
+                return Ok(new { data, groups = passwordManageGroups.Select(s => s.Name).ToList() });
 
             return Ok(data);
         }
