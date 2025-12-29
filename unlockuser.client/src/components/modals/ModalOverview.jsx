@@ -5,7 +5,7 @@ import {
     Button, Dialog, DialogActions, DialogContent, List, ListItem, ListItemText, IconButton, CircularProgress
 } from '@mui/material';
 import {
-    Cancel, Close, CheckBoxRounded, CheckBoxOutlineBlankOutlined, Dvr
+     Close, CheckBoxRounded, CheckBoxOutlineBlankOutlined, Dvr
 } from '@mui/icons-material';
 
 // Components
