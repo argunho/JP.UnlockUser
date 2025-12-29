@@ -59,7 +59,7 @@ const Header = memo(function Header({ disabled }) {
 
     return (
         <header className='header-container w-100 d-column'>
-            <section className='header-wrapper wrapper wh-100 d-row jc-start' id="logotype">
+            <section className='header-wrapper d-row jc-start w-100' id="logotype">
                 <Logotype />
             </section>
 

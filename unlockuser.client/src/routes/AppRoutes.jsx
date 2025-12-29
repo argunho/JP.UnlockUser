@@ -4,7 +4,6 @@ import { Navigate } from 'react-router-dom';
 // Layouts
 import AppLayout from '../layouts/AppLayout';
 import SessionLayout from './../layouts/SessionLayout';
-import ListLayout from '../layouts/ListLayout';
 import UsersLayout from '../layouts/UsersLayout';
 import MainLayout from './../layouts/MainLayout';
 
@@ -71,118 +70,108 @@ const AppRoutes = () => [
       {
         path: 'contact',
         element: <Contacts isAuthorized={true} />
-      }
-    ]
-  },
-  {
-    path: "/manage/:group",
-    element: <FetchContextProvider>
-      <AppLayout />
-    </FetchContextProvider>,
-    errorElement: <NotFound isAuthorized={true} />,
-    children: [
-      {
-        path: "user/:id",
-        element: <UserManager />,
-        errorElement: <ErrorView />
       },
       {
-        path: "user/:id/load",
-        element: <UserManager />,
-        errorElement: <ErrorView />,
-        loader: loaderByParams("user", ["group", "id"]),
-        shouldRevalidate: () => false
+        path: "manage/:group",
+        children: [
+          {
+            path: "user/:id",
+            element: <UserManager />,
+            errorElement: <ErrorView />
+          },
+          {
+            path: "user/:id/load",
+            element: <UserManager />,
+            errorElement: <ErrorView />,
+            loader: loaderByParams("user", ["group", "id"]),
+            shouldRevalidate: () => false
+          },
+          {
+            path: "school/:school/class/:classId",
+            element: <ClassManager />,
+            errorElement: <ErrorView />
+          }
+        ]
       },
       {
-        path: "school/:school/class/:classId",
-        element: <ClassManager />,
-        errorElement: <ErrorView />
-      },
-    ]
-  },
-  {
-    path: "/view",
-    element: <FetchContextProvider>
-      <MainLayout />¨
-    </FetchContextProvider>,
-    errorElement: <NotFound isAuthorized={true} />,
-    children: [
-      {
-        path: 'user/:id',
-        element: <Overview />,
-        errorElement: <ErrorView />
-      },
-      {
-        path: 'user/by/:id',
-        element: <Overview />,
-        errorElement: <ErrorView />,
-        loader: loaderById("user/by")
-      },
-      {
-        path: 'my/permissions',
-        element: <Permissions />,
-        errorElement: <ErrorView />,
-        loader: loader("user/permissions")
-      }
-    ]
-  },
-  {
-    path: "/catalog",
-    element: <FetchContextProvider>
-      <ListLayout />¨
-    </FetchContextProvider>,
-    errorElement: <NotFound isAuthorized={true} />,
-    children: [
-      {
-        path: 'logs/errors',
-        element: <Catalog label="Loggfiler"/>,
-        errorElement: <ErrorView />,
-        loader: loader("logs")
+        path: "/view",
+        element: <MainLayout />,
+        errorElement: <NotFound isAuthorized={true} />,
+        children: [
+          {
+            path: 'user/:id',
+            element: <Overview />,
+            errorElement: <ErrorView />
+          },
+          {
+            path: 'user/by/:id',
+            element: <Overview />,
+            errorElement: <ErrorView />,
+            loader: loaderById("user/by")
+          },
+          {
+            path: 'my/permissions',
+            element: <Permissions />,
+            errorElement: <ErrorView />,
+            loader: loader("user/permissions")
+          },
+        ]
       },
       {
-        path: 'logs/history',
-        element: <Catalog label="Historik filer"/>,
-        errorElement: <ErrorView />,
-        loader: loader("/data/logs/history")
+        path: "/catalog",
+        children: [
+          {
+            path: 'logs/errors',
+            element: <Catalog label="Loggfiler" />,
+            errorElement: <ErrorView />,
+            loader: loader("logs")
+          },
+          {
+            path: 'logs/history',
+            element: <Catalog label="Historik filer" />,
+            errorElement: <ErrorView />,
+            loader: loader("/data/logs/history")
+          },
+          {
+            path: 'statistics',
+            element: <Catalog label="Statistik" fullWidth={true} />,
+            errorElement: <ErrorView />,
+            loader: loader("data/statistics")
+          },
+          {
+            path: 'schools',
+            element: <Catalog label="Skolor" api="data/school" fields="school" />,
+            errorElement: <ErrorView />,
+            loader: loader("data/schools")
+          },
+        ]
       },
       {
-        path: 'statistics',
-        element: <Catalog label="Statistik" fullWidth={true} />,
-        errorElement: <ErrorView />,
-        loader: loader("data/statistics")
-      },
-      {
-        path: 'schools',
-        element: <Catalog label="Skolor" api="data/school" fields="school" />,
-        errorElement: <ErrorView />,
-        loader: loader("data/schools")
-      },
-    ]
-  },
-  {
-    path: "/employees",
-    element: <FetchContextProvider>
-      <UsersLayout />¨
-    </FetchContextProvider>,
-    errorElement: <NotFound isAuthorized={true} />,
-    loader: loader("employees/groups"),
-    children: [
-      {
-        index: true,
-        element: <Employees />,
-        errorElement: <ErrorView />
-      },
-      {
-        path: ":id",
-        element: <Employees />,
-        errorElement: <ErrorView />,
-        loader: loaderById("employees")
-      },
-      {
-        path: ':office/:department',
-        element: <Members />,
-        errorElement: <ErrorView />,
-        loader: loaderByApiParam("search/members", ["department", "office"])
+        path: "/employees",
+        element: <FetchContextProvider>
+          <UsersLayout />¨
+        </FetchContextProvider>,
+        errorElement: <NotFound isAuthorized={true} />,
+        loader: loader("employees/groups"),
+        children: [
+          {
+            index: true,
+            element: <Employees />,
+            errorElement: <ErrorView />
+          },
+          {
+            path: ":id",
+            element: <Employees />,
+            errorElement: <ErrorView />,
+            loader: loaderById("employees")
+          },
+          {
+            path: ':office/:department',
+            element: <Members />,
+            errorElement: <ErrorView />,
+            loader: loaderByApiParam("search/members", ["department", "office"])
+          },
+        ]
       },
     ]
   },

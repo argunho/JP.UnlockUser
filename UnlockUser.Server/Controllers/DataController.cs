@@ -26,23 +26,49 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             Dictionary<string, List<UserViewModel>> data = [];
             var claims = _credentials.GetClaims(["username", "access", "permissions"], Request);
 
+            // List of groups the current user is a member of
             List<GroupModel> claimGroups = JsonConvert.DeserializeObject<List<GroupModel>>(claims!["permissions"]) ?? [];
+
+            // List of groups the current user are member
             List<string?> sessionUserGroups = [.. claimGroups?.Select(s => s.Name)!];
 
+            // Employee groups where each group has its own password management permissions
             List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
-            var cachedEmployees = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
+            // Saved employees who have permission to manage employee passwords
+            var savedEmployees = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
+
+            // Verify the current user's membership in the support group
             bool accessGroup = !string.IsNullOrEmpty(claims["access"]);
 
-            var sessionUserPermissions = cachedEmployees.FirstOrDefault(x => x.Name == claims["username"])?.Permissions;
+            // Currentsession user permissions
+            var sessionUserPermissions = savedEmployees.FirstOrDefault(x => x.Name == claims["username"])?.Permissions;
+
+            // Filter the list of saved employees according to the current password management group
+            Dictionary<string, List<UserViewModel>> usersByGroup = [];
+            // Lopp of all employees groups
             foreach (var group in passwordManageGroups)
             {
+                usersByGroup.Add(
+                    group.Name!,
+                    [.. savedEmployees.Where(x => x.Permissions!.PasswordManageGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase))]
+                );
+            }
+
+            // Lopp of all employees groups
+            foreach (var group in passwordManageGroups)
+            {
+                // If the user is not a member of the support group and not a member of the current password management group, continue
                 if (!accessGroup && !sessionUserGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase))
                     continue;
 
+                // Parameters used to filter employees
                 List<string>? alternativeParams = [];
+
+                // Verify whether the current password management group is the student group
                 bool isStudents = string.Equals(group.Group, "Students", StringComparison.OrdinalIgnoreCase);
 
+                // If the user is a member of the support group
                 if (!accessGroup)
                 {
                     if (isStudents)
@@ -51,11 +77,12 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                         alternativeParams = sessionUserPermissions!.Managers;
                 }
 
-                var users = (_provider.GetUsersByGroupName(group, alternativeParams))?.Select(s => new UserViewModel(s)).ToList();
-                var usersByGroup = cachedEmployees.Where(x => x.Permissions!.PasswordManageGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase)).ToList();
-                for (int i = 0; i < usersByGroup.Count; i++)
+                // All users who are members of the current password management group
+                var users = (_provider.GetUsersByGroupName(group, alternativeParams)).ToList();
+
+                // Update permissions in all users of the current password management group based on the filtered saved users
+                foreach (var userByGroup in usersByGroup[group.Name!])
                 {
-                    var userByGroup = usersByGroup[i];
                     var user = users?.FirstOrDefault(x => x.Name == userByGroup.Name);
                     if (user == null)
                         continue;
@@ -63,19 +90,21 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                     user.Permissions = userByGroup.Permissions;
                 }
 
-                _ = users!.ConvertAll(x => x.Group = group.Name);
+                var usersViewModel = users?.Select(s => new UserViewModel(s)).ToList();
+
+                _ = usersViewModel!.ConvertAll(x => x.Group = group.Name);
 
                 if (!isStudents)
-                    _ = users!.ConvertAll(x => x.PasswordLength = 12).ToList();
+                    _ = usersViewModel!.ConvertAll(x => x.PasswordLength = 12).ToList();
 
-                data.Add(group.Name?.ToLower()!, users!);
+                data.Add(group.Name?.ToLower()!, usersViewModel!);
             }
 
             return Ok(data);
         }
         catch (Exception ex)
         {
-            return Ok(await _helpService.Error(ex));;
+            return Ok(await _helpService.Error(ex)); ;
         }
     }
 
@@ -128,7 +157,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error(ex));;
+            return BadRequest(await _helpService.Error(ex)); ;
         }
     }
 
@@ -144,7 +173,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error(ex));;
+            return BadRequest(await _helpService.Error(ex)); ;
         }
     }
 
@@ -179,7 +208,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error(ex));;
+            return BadRequest(await _helpService.Error(ex)); ;
         }
     }
     #endregion
@@ -202,7 +231,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error(ex));;
+            return BadRequest(await _helpService.Error(ex)); ;
         }
     }
     #endregion
@@ -217,12 +246,11 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             schools.RemoveAll(x => x.Name == name);
             await Task.Delay(1000);
             await _localFileService.SaveUpdateFile(schools, "schools");
-        return Ok();
+            return Ok();
         }
         catch (Exception ex)
         {
-
-            return BadRequest(await _helpService.Error(ex));;
+            return BadRequest(await _helpService.Error(ex)); ;
         }
     }
     #endregion

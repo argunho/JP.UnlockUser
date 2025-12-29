@@ -10,6 +10,8 @@
 
 .header-wrapper {
   height: calc(var(--header-height) - 70px);
+  padding: 0 !important;
+  max-width: var(--max-width);
 }
 
 .header-wrapper,

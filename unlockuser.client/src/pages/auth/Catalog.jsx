@@ -41,7 +41,7 @@ function Catalog({ label, fields, api, fullWidth }) {
 
     async function removeConfirmedItem() {
         const success = await fetchData({ api: `${api}/${confirmId}`, method: "delete", action: "success" });
-        console.log(success)
+
         if (success)
             revalidate();
         setConfirmId(null);

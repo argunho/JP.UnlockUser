@@ -113,7 +113,6 @@ function FetchContextProvider({ children }) {
                 dispatch({ type: action !== "complete" ? 'SUCCESS' : "COMPLETE", payload: null });
             }
 
-            console.log(res)
             if(action === "success")
                 return (res?.statusCode === 200 || res?.color === "success" || res === "");
 

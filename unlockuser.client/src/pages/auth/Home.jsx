@@ -81,6 +81,7 @@ function Home() {
 
     const groups = Claim("groups")?.split(",");
     const permissionGroups = Claim("permissions");
+    const supportGroup = Claim("access");
 
     const { collections, schools, group: groupName } = useOutletContext();
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
@@ -142,10 +143,14 @@ function Home() {
 
         let res = null;
         if (collection?.length > 0) {
-            res = (isClass)
-                ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)
-                : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)) 
-                                            && (gn === "support" ? x : !x?.permission?.passwordManageGroups?.length == 0));
+            if(gn === "support")
+                res = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)));
+            else {
+                res = (isClass)
+                    ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)
+                    : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)) 
+                                                && (supportGroup ? x : (!x.permissions || x?.permission?.passwordManageGroups?.length == 0)));                
+            }
         } else {
             // API parameters by chosen searching alternative
             let options = isClass

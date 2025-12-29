@@ -17,7 +17,7 @@ public class LocalUserService(ILocalFileService localFileService,
     {
         #region Get employees        
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
-        var currentCahchedList = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
+        var currentSavedList = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
         var schools = _localFileService.GetListFromFile<School>("schools");
         List<User> employees = [];
 
@@ -28,6 +28,9 @@ public class LocalUserService(ILocalFileService localFileService,
             for (int i = 0; i < membersUsernames?.Count; i++)
             {
                 string username = membersUsernames[i];
+                if (username.Length < 6)
+                    continue;
+
                 User? employee = employees.FirstOrDefault(x => x.Name == username);
                 PermissionsViewModel? permissions = employee != null ? employee.Permissions : new();
 
@@ -38,15 +41,15 @@ public class LocalUserService(ILocalFileService localFileService,
                 else
                     employee ??= new();
 
-                var cachedUser = currentCahchedList?.FirstOrDefault(x => x.Name == username);
-                var userPermissions = cachedUser?.Permissions;
+                var savedUser = currentSavedList?.FirstOrDefault(x => x.Name == username);
+                var userPermissions = savedUser?.Permissions;
 
                 // Get user
                 UserPrincipalExtension? user = _provider.FindUserByUsername(username);
-                if (user == null || user.SamAccountName.Length < 6)
+                if (user == null)
                     continue;
 
-                if (cachedUser != null && string.Equals(cachedUser.Manager, user.Manager, StringComparison.OrdinalIgnoreCase))
+                if (savedUser != null && string.Equals(savedUser.Manager, user.Manager, StringComparison.OrdinalIgnoreCase))
                 {
                     permissions!.Managers = userPermissions!.Managers;
                     permissions.Offices = userPermissions!.Offices;
