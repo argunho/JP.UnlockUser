@@ -10,25 +10,38 @@ import TabPanel from './../../components/blocks/TabPanel';
 import CollapseForm from "../../components/forms/CollapseForm";
 import ConfirmButtons from "../../components/forms/ConfirmButtons";
 import Message from "../../components/blocks/Message";
+import SearchFilter from "../../components/forms/SearchFilter";
+
+// Hooks
+import usePagination from "../../hooks/usePagination";
 
 // Storage
 import { FetchContext } from "../../storage/FetchContext";
 
 
 // { loc, includedList, label, fullWidth, api, id, fields, labels, navigate }
-function Catalog({ label, fields, api, fullWidth }) {
+function Catalog({ label, fields, api, fullWidth, search }) {
 
     const [open, setOpen] = useState(false);
     const [confirmId, setConfirmId] = useState(null);
     const [collapsedItemIndex, setCollapsedItemIndex] = useState(null);
+    const [searchWord, setSearchWord] = useState(null);
+
     const { loading } = useOutletContext();
 
     const list = useLoaderData();
-    const viewCount = 0;//count ?? 0;
     const { fetchData, response, pending, handleResponse } = use(FetchContext);
 
     const navigate = useNavigate();
     const { revalidate } = useRevalidator()
+
+
+    const { content: pagination, page, perPage } = usePagination(
+        {
+            length: list.length,
+            loading,
+            number: 20
+        });
 
     useEffect(() => {
         setOpen(false);
@@ -47,17 +60,25 @@ function Catalog({ label, fields, api, fullWidth }) {
         setConfirmId(null);
     }
 
+    const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
+
     return (
         <>
             {/* Tab menu */}
-            <TabPanel primary={label} secondary={loading ? "Data hämtning pågå ..." : (!!viewCount ? viewCount : `Antal: ${list?.length}`)} >
+            <TabPanel primary={label}
+                secondary={loading ? "Data hämtning pågå ..." : ""} >
                 {/* If account is blocked */}
                 <div className="d-row">
                     {!!fields && <Button style={{ minWidth: "120px" }} variant='outlined' color={open ? "error" : "primary"} disabled={loading} onClick={() => setOpen((open) => !open)}>
                         {open ? "Avryt" : "Lägg till ny"}
                     </Button>}
+
+                    {/* Search filter */}
+                    {search && <SearchFilter label="anställda" disabled={loading || response}
+                        onSearch={(value) => setSearchWord(value)} onReset={() => setSearchWord(null)} />}
                 </div>
             </TabPanel>
+
 
             {/* Confirm/Form block */}
             {!!fields && <CollapseForm open={open} fieldsName={fields} api={api} />}
@@ -74,13 +95,20 @@ function Catalog({ label, fields, api, fullWidth }) {
                 {!!response && <Message res={response} cancel={() => handleResponse()} />}
             </Collapse>
 
-            <List className="d-row list-container" component="div">
+            {/* Pagination */}
+            {!open && pagination}
+
+            {!open && <List className="d-row list-container w-100">
                 {/* Loop of result list */}
-                {(list?.length > 0 && !loading) && list?.map((item, index) => {
-                    const props = !!item?.link ? { onClick: () => navigate(item?.link) } : null;
-                    return <div key={index} className={`list-item${fullWidth || ((index + 1) === list?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}${collapsedItemIndex === index ? " dropdown" : ""}`}>
+                {(items?.length > 0 && !loading) && items?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, index) => {
+                    const onClickProps = !!item?.link ? { onClick: () => navigate(item?.link) } : null;
+
+                    return <>
                         {/* List item */}
-                        <ListItem className="w-100"
+                        <ListItem
+                            key={index}
+                            className={`list-item${fullWidth || ((index + 1) === list?.length && (list?.length % 2) !== 0) ? " w-100 last" : ""}
+                                        ${collapsedItemIndex === index ? " dropdown" : ""}`}
                             secondaryAction={
                                 <div className="d-row">
                                     {item?.includedList?.length > 0 && <IconButton onClick={() => handleDropdown(index)}>
@@ -90,11 +118,14 @@ function Catalog({ label, fields, api, fullWidth }) {
                                         {(confirmId == item?.id && pending) ? <CircularProgress size={20} /> : <Delete />}
                                     </IconButton>}
                                 </div>
-                            }>
+                            }
+                        >
                             <ListItemIcon>{index + 1}</ListItemIcon>
                             <ListItemText className="li-div"
                                 primary={<span dangerouslySetInnerHTML={{ __html: item?.primary }} />}
-                                secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }} />} {...props} />
+                                secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }} />}
+                                {...onClickProps}
+                            />
                         </ListItem>
 
                         {/* If the item has an included list */}
@@ -112,9 +143,9 @@ function Catalog({ label, fields, api, fullWidth }) {
                                     })}
                                 </List>
                             </Collapse>}
-                    </div>
+                    </>
                 })}
-            </List>
+            </List>}
         </>
     )
 }

@@ -38,21 +38,18 @@
 .view-modal-list {
     margin: -20px auto 0 auto !important;
     flex-wrap: wrap !important;
+    overflow: hidden !important;
 }
 
 .list-container {
     margin-top: 20px !important;
 }
 
-div.list-item,
+
 li.list-item {
     min-height: 80px !important;
-    width: calc(50% - 12px);
+    width: calc(50% - 12px) !important;
     margin: 4px 3px !important;
-}
-
-div.list-item {
-    border: var(--border-secondary)
 }
 
 .li-div span:first-child {
@@ -64,31 +61,28 @@ div.list-item {
     width: 95% !important;
 }
 
-div.last,
 li.last {
     margin: 4px 9px !important;
 }
 
-div.list-item:hover,
 li.list-item:hover {
     cursor: pointer !important;
 }
 
-div.list-item:not(.dropdown):hover,
-li.list-item:hover  {
+li.list-item:not(.dropdown):hover  {
     cursor: pointer !important;
     background-color: var(--color-light-gray) !important;
 }
 
-div.dropdown li,
-div.dropdown li div,
-div.dropdown li p,
-div.dropdown li span,
-div.dropdown li button {
+li.dropdown,
+li.dropdown div,
+li.dropdown p,
+li.dropdown span,
+li.dropdown button {
     color: #2e2e2ee8 !important;
 }
 
-div.dropdown>li {
+li.dropdown {
     border-top: 2px solid #4d4c4c;
 }
 
