@@ -28,33 +28,27 @@ function UsersLayout() {
     const groups = collections["groups"];
 
     const moderators = useLoaderData();
-
     const groupName = Capitalize(group);
-
 
     async function renewList() {
         await fetchData({ api: "user/renew/cached/data", method: "post" });
         sessionStorage.setItem("updated", "true");
     }
 
-
     const groupsLinks = groups?.map((name, index) => (
         <NavLink className="link-group" to={`/moderators/${name.toLowerCase()}`} key={index} >{name}</NavLink>
     ));
 
+    const moderatorsByGroup = moderators?.filter(x => x.permissions?.passwordManageGroups?.includes(groupName));
 
-    const moderatorsByGroup = moderators?.filter(x =>
-        x.permissions?.passwordManageGroups?.includes(groupName)
-            && searchWord ? JSON.stringify(x).toLowerCase().includes(searchWord) : x);
-
-    console.log(moderatorsByGroup)
+    console.log(searchWord)
 
     return (
         <div className="d-column jc-start w-100">
 
             {/* Tab menu */}
             <TabPanel primary="Moderators" secondary={groupsLinks} >
-
+                
                 {/* Refresh list */}
                 <div className="d-row">
                     {/* Search filter */}
@@ -71,7 +65,15 @@ function UsersLayout() {
                 </div>
             </TabPanel>
 
-            <Outlet key={group} context={{ ...context, moderators: moderatorsByGroup }} />
+            <Outlet key={`${group}_${searchWord}`}
+                context={{
+                    ...context,
+                    moderators:
+                        searchWord
+                            ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase()))
+                            : moderatorsByGroup,
+                    onReset: () => setSearchWord(null)
+                }} />
         </div>
     )
 }

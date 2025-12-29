@@ -49,10 +49,6 @@ ul>li:not(.pagination li, .dropdown-li) {
     color: var(--color-dark-gray);
 }
 
-.result-li {
-    margin-bottom: 0 !important;
-}
-
 div[role="presentation"] li {
     width: 98% !important;
     margin: 1px auto !important;

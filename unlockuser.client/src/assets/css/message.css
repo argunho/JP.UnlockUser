@@ -5,7 +5,7 @@
     color: #000000 !important;
     height: max-content !important;
     font-family: var(--font-primary) !important;
-    margin: 10px auto 25px auto !important;
+    margin: 10px auto 25px auto;
     padding: 15px 20px !important;
 }
 

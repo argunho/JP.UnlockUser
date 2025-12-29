@@ -19,9 +19,9 @@ function SearchFilter({ label, disabled, onSearch, onReset }) {
         onReset();
     }
 
-    function clickHandle(){
+    function clickHandle() {
         onSearch(value);
-        resetHandle();
+        setValue("");
     }
 
     return (
@@ -56,6 +56,10 @@ function SearchFilter({ label, disabled, onSearch, onReset }) {
                             <SearchSharp />
                         </IconButton>
                     </div>
+            }}
+            onKeyDown={(e) => {
+                if (e.key === "Enter")
+                    clickHandle();
             }}
         />
     )

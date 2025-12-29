@@ -5,7 +5,7 @@ import { Outlet, useNavigation, useLoaderData, useParams } from 'react-router-do
 
 // Components
 import Header from "../components/blocks/Header";
-import LinearLoading from './../components/LinearLoading';
+import LinearLoading from './../components/blocks/LinearLoading';
 
 // Storage
 import { DashboardContext } from '../storage/DashboardContext';

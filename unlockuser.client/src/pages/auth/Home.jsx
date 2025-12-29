@@ -251,7 +251,7 @@ function Home() {
                         : (isMatch ? "Skriv exakt fullständigt namn eller anvädarnamn här ..." : "Sök ord här ...")
                     }
                     onKeyDown={(e) => {
-                        if (e.key === 'Enter')
+                        if (e.key === "Enter")
                             refSubmit.current?.click();
                     }}
                 />

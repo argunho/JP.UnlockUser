@@ -11,7 +11,6 @@ import UsersLayout from './../layouts/UsersLayout';
 import Employees from "../pages/auth/Employees";
 import ClassManager from "../pages/auth/ClassManager";
 import UserManager from "../pages/auth/UserManager";
-import Members from "../pages/auth/Members";
 import Home from "../pages/auth/Home";
 import Catalog from "../pages/auth/Catalog";
 import Logout, { signout } from "../pages/auth/Logout";
@@ -171,7 +170,7 @@ const AppRoutes = () => [
           // },
           {
             path: ':office/:department',
-            element: <Members />,
+            element: <Catalog />,
             errorElement: <ErrorView />,
             loader: loaderByApiParam("search/members", ["department", "office"])
           },

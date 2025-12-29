@@ -1,18 +1,14 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect} from 'react';
 
 //  Installed
 import { Close, FileOpen, Upload } from '@mui/icons-material';
 import { Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import moment from "moment";
 import fileDownload from 'js-file-download';
-import { useLoaderData, useOutletContext } from 'react-router-dom';
 
 // Components
-import Message from '../../components/blocks/Message';
-import Loading from '../../components/Loading';
 import ModalPreview from '../../components/modals/ModalPreview'
-import SearchFilter from '../../components/forms/SearchFilter';
 
 // Functions
 import { ErrorHandle } from '../../functions/ErrorHandle';
@@ -22,11 +18,6 @@ import { ApiRequest } from '../../services/ApiRequest';
 
 function LogFiles() {
 
-    const [viewFile, setFileView] = useState(null);
-    const [value, setSearchValue] = useState(null)
-
-    const { list } = useLoaderData();
-    const { loading, id } = useOutletContext();
 
     useEffect(() => {
         document.title = `UnlockUser | Logfiler`;
@@ -49,18 +40,6 @@ function LogFiles() {
 
     return (
         <>
-
-            {/* Search filter */}
-            <SearchFilter label="Logfil" onChange={(value) => setSearchValue(value)} onReset={() => setSearchValue(null)} />
-
-            {/* Result info box */}
-            <ListItem className='search-result'>
-                {/* Result info */}
-                <ListItemText
-                    primary={id === "history" ? "Detaljerad historia" : "Loggfiler"}
-                    secondary={loading ? "Data hämtning pågå ..." : `Antal: ${list?.length}`} />
-            </ListItem>
-
             {/* Loop of list */}
             {(list?.length > 0 && !viewFile) &&
                 <List sx={{ width: '100%' }}>
@@ -91,13 +70,6 @@ function LogFiles() {
                     <Close color="error" />
                 </IconButton>
             </ModalPreview>}
-
-            {/* Loading symbol */}
-            {loading && <Loading msg="söker efter loggfiler." />}
-
-            {/* Message if result is null */}
-            {(list?.length === 0 && !loading) &&
-                <Message res={{ color: "info", msg: "Här finns inga loggfiler" }} />}
         </>
     )
 }

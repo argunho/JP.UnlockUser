@@ -36,9 +36,7 @@
 
 .list-container,
 .view-modal-list {
-    width: 100% !important;
     margin: -20px auto 0 auto !important;
-    justify-content: center !important;
     flex-wrap: wrap !important;
 }
 
@@ -48,10 +46,13 @@
 
 div.list-item,
 li.list-item {
-    min-height: 70px !important;
-    box-shadow: var(--box-shadow);
+    min-height: 80px !important;
     width: calc(50% - 12px);
     margin: 4px 3px !important;
+}
+
+div.list-item {
+    border: var(--border-secondary)
 }
 
 .li-div span:first-child {

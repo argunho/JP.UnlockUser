@@ -176,7 +176,7 @@ function Overview() {
                         </InputAdornment>
                     }}
                     onKeyDown={(e) => {
-                        if (e.key === 'Enter')
+                        if (e.key === "Enter")
                             onSubmit();
                     }}
                 />

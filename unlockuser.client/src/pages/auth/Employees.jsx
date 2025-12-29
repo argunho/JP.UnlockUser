@@ -8,15 +8,12 @@ import {
 import { CheckBox, CheckBoxOutlineBlank, Close, Delete, OpenInFull } from '@mui/icons-material';
 import { useOutletContext } from 'react-router-dom';
 
-
 // Components
 import Message from '../../components/blocks/Message';
-import Loading from '../../components/Loading';
 import FormButtons from '../../components/forms/FormButtons';
 
 // Hooks
 import usePagination from '../../hooks/usePagination';
-
 
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
@@ -32,10 +29,10 @@ function Employees() {
     const [changed, setChanged] = useState(false);
     const [open, setOpen] = useState(false);
 
-    const { loading: buffering, group, moderators } = useOutletContext();
+    const { loading: buffering, group, moderators, onReset } = useOutletContext();
     const { response, pending, fetchData, handleResponse } = use(FetchContext);
     const loading = buffering || pending;
-  
+
     // const { selections } = useLoaderData() ?? {};
     // const items = selections ?? [];
 
@@ -130,42 +127,39 @@ function Employees() {
 
     return (
         <>
-
             {/* Pagination */}
-            {(moderators?.length > perPage && !loading) && pagination}
-            {/* Result list */}
-            <List className="d-row list-container">
+            {pagination}
 
+            {/* If list is empty or bad response from server */}
+            {((response || moderators.length == 0) && !loading)
+                && <Message res={response ?? { color: "info", msg: "Inga anställda hittades med matchande sökord." }} 
+                    cancel={response ? handleResponse : onReset} styles={{ marginTop: "32px" }} />}
+
+
+            {/* Result list */}
+            {(moderators?.length > 0 && !loading) && <List className="d-row list-container w-100">
 
                 {/* Loop of result list */}
-                {(moderators?.length > 0 && !loading) && moderators?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, index) => {
+                {moderators?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, index) => {
                     const calculatedIndex = (perPage * (page - 1)) + (index + 1);
                     return <ListItem key={index} className={`list-item${(calculatedIndex === moderators?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}`}
                         secondaryAction={<IconButton onClick={() => openModal(item)}><OpenInFull /></IconButton>}>
                         <ListItemIcon>
                             {page > 1 ? calculatedIndex : index + 1}
                         </ListItemIcon>
-                        <ListItemText primary={item?.primary} secondary={item?.secondary} />
+                        <ListItemText primary={<span dangerouslySetInnerHTML={{ __html: item?.primary }} />}
+                            secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }} />} />
                     </ListItem>
                 })}
-
-                {/* If listan is empty */}
-                {(!loading && moderators?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.length == 0)
-                    && <Message res={{ color: "info", msg: "Inga anställda hittades med matchande sökord." }} cancel={handleResponse} />}
-            </List>
-
-            {/* Loading symbol */}
-            {loading && <Loading msg="data hämtas ..." styles={{ minHeight: "calc(100vh - 400px)" }} />}
-
-            {/* Message if result is null */}
-            {(response && !loading && !open) && <Message res={response} cancel={handleResponse} />}
+            </List>}
 
 
             {/* Modal form */}
             <Dialog open={!!userData} onClose={() => closeModal()} aria-labelledby="draggable-dialog-title" className='modal-wrapper print-page' id="content" >
 
                 <DialogTitle className='view-modal-label'
-                    id="draggable-dialog-title" dangerouslySetInnerHTML={{ __html: userData?.primary + "<span>" + userData?.title + "</span>" }}>
+                    id="draggable-dialog-title" 
+                    dangerouslySetInnerHTML={{ __html: userData?.primary + "<span>" + userData?.title + "</span>" }}>
                 </DialogTitle>
 
                 {/* View this block if data is a text */}
