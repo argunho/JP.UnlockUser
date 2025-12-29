@@ -48,7 +48,7 @@
 
 li.list-item {
     min-height: 80px !important;
-    width: calc(50% - 12px) !important;
+    width: calc(50% - 12px);
     margin: 4px 3px !important;
 }
 

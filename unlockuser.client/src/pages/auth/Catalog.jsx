@@ -107,7 +107,7 @@ function Catalog({ label, fields, api, fullWidth, search }) {
                         {/* List item */}
                         <ListItem
                             key={index}
-                            className={`list-item${fullWidth || ((index + 1) === list?.length && (list?.length % 2) !== 0) ? " w-100 last" : ""}
+                            className={`list-item${fullWidth || ((index + 1) === items?.length && (items?.length % 2) !== 0) ? " w-100 last" : ""}
                                         ${collapsedItemIndex === index ? " dropdown" : ""}`}
                             secondaryAction={
                                 <div className="d-row">
