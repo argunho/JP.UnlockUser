@@ -90,7 +90,7 @@ function ResultView({ list, isClass, disabled, group, loading, onReset, resultBl
 
     return (
         /* Box to view the result of search */
-        <div className='interior-div result-div' ref={refResult}>
+        <div className='result-div' ref={refResult}>
 
             {/* Result info box */}
             {resultBlock && <div className='d-row jc-between w-100 view-list-result'>

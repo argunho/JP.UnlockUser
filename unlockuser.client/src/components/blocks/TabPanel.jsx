@@ -17,7 +17,12 @@ function TabPanel({ children, primary, secondary }) {
         <div className="label-wrapper d-column">
             <p className="d-column ai-start">
                 {primary}
-                {secondary && <span dangerouslySetInnerHTML={{ __html: secondary }}></span>}
+                {secondary && <>
+                    {typeof secondary === "string"
+                        ? <span dangerouslySetInnerHTML={{ __html: secondary }}></span>
+                        : <span className="d-row">{secondary}</span>
+                    }
+                </>}
             </p>
         </div>
 

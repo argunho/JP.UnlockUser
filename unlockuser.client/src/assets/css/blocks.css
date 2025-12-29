@@ -1,11 +1,4 @@
 /* #region Search */
-.interior-div {
-  width: 99%;
-  margin: 10px auto;
-  overflow: hidden;
-}
-
-
 .info-wrapper {
   width: 100% !important;
   min-height: 100px !;
@@ -197,11 +190,11 @@ div.view h3 {
 }
 
 section.search {
-    max-width: 450px; 
-    height: 100%;
-    justify-self: flex-start !important;
-    align-self:  flex-start !important;
-    margin-left: 0 !important;
+  max-width: 450px;
+  height: 100%;
+  justify-self: flex-start !important;
+  align-self: flex-start !important;
+  margin-left: 0 !important;
 }
 
 /* #endregion */
@@ -364,6 +357,27 @@ pre {
   text-transform: none;
   margin-top: 5px;
   letter-spacing: 1px;
+}
+
+.menu-div .link-group {
+  text-transform: uppercase;
+  margin-right: 20px;
+}
+
+.menu-div .link-group.active {
+  font-weight: 600;
+  transform: scale(1.2);
+  color: var(--color-primary);
+}
+
+.menu-div .link-group:hover {
+  color: var(--color-active);
+}
+
+.menu-div div>.search-bar {
+  margin-right: 30px !important;
+  width: 400px !important;
+  font-weight: normal !important;
 }
 
 .nav-back {

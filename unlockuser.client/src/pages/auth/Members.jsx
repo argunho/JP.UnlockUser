@@ -11,7 +11,7 @@ function Members() {
     const { loading } = useOutletContext() ?? {};
 
     return (
-        <div className='interior-div'>
+        <>
             {/* Info about user */}
             <Info name="Studenter"
                 displayName={office + " " + department}
@@ -24,7 +24,7 @@ function Members() {
                 loading={loading}
                 resultBlock={false}
             />
-        </div>
+        </>
     )
 }
 

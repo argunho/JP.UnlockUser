@@ -1,7 +1,4 @@
-.interior-div.view-list {
-    overflow-y: hidden;
-    position: relative;
-}
+
 
 .view-list-container>div {
     margin-bottom: 0 !important;
@@ -107,13 +104,8 @@ div.dropdown>li {
 }
 
 .pagination {
-    margin: 50px auto 0 auto;
-    position: sticky;
-    bottom: 5px;
-    right: 0;
-    padding: 20px;
-    background-color: #FFFFFF;
-    border: 1px solid #7e7c7c9f;
+    margin-top: 15px;
+    height: 40px;
 }
 
 .pagination>nav {

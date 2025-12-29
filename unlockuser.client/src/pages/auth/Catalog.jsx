@@ -62,7 +62,7 @@ function Catalog({ label, fields, api, fullWidth }) {
             {/* Confirm/Form block */}
             {!!fields && <CollapseForm open={open} fieldsName={fields} api={api} />}
 
-            {/* COnfirm message and response */}
+            {/* Confirm message and response */}
             <Collapse className="collapse" in={confirmId || response}>
                 {/* Confirm */}
                 {!!confirmId && <ConfirmButtons

@@ -48,7 +48,7 @@ function LogFiles() {
     }
 
     return (
-        <div className='interior-div'>
+        <>
 
             {/* Search filter */}
             <SearchFilter label="Logfil" onChange={(value) => setSearchValue(value)} onReset={() => setSearchValue(null)} />
@@ -98,7 +98,7 @@ function LogFiles() {
             {/* Message if result is null */}
             {(list?.length === 0 && !loading) &&
                 <Message res={{ color: "info", msg: "Här finns inga loggfiler" }} />}
-        </div>
+        </>
     )
 }
 

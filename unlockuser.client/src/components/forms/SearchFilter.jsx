@@ -1,63 +1,64 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 // Installed
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
-import { Button, TextField } from '@mui/material';
+import { TextField, IconButton } from '@mui/material';
 
-function SearchFilter({ label, disabled, clean, onChange, onReset }) {
-    SearchFilter.displayName = "SearchFilter";
+function SearchFilter({ label, disabled, onSearch, onReset }) {
 
-    const [keyword, setKeyword] = useState("");
+    const [value, setValue] = useState("");
 
-    useEffect(() => {
-        if (clean && keyword?.length > 0)
-            setKeyword("");
-    }, [clean])
-
-    const changeHandler = (e) => {
-        if (!e?.target) return;
+    function changeHandle(e) {
         let value = e.target.value;
-        onChange(value);
-        setKeyword(value);
+        console.log(value)
+        setValue(value);
     }
 
-    const resetFilter = () => {
-        setKeyword("");
+    function resetHandle() {
+        setValue("");
         onReset();
     }
 
-    return <div className='search-form-logs'>
+    function clickHandle(){
+        onSearch(value);
+        resetHandle();
+    }
+
+    return (
         <TextField
             label={`Sök ${label} ...`}
-            className='search-full-width'
-            value={keyword}
-            disabled={!!disabled}
+            className="search-bar"
+            disabled={disabled}
+            value={value}
+            onChange={changeHandle}
             placeholder="Anvädarnamn, school, klass, datum, gruppnamn ..."
-            onChange={changeHandler}
             InputProps={{
-                endAdornment: <div className="d-row">
+                endAdornment:
+                    <div className="d-row">
 
-                    {/* Reset form - button */}
-                    {keyword?.length > 0 && <Button
-                        variant="text"
-                        color="error"
-                        className="search-reset search-button-mobile"
-                        onClick={resetFilter}>
-                        <SearchOffSharp />
-                    </Button>}
+                        {/* Reset form - button */}
+                        {value?.length > 0 && <IconButton
+                            variant="text"
+                            color="error"
+                            className="search-reset search-button-mobile"
+                            onClick={resetHandle}>
+                            <SearchOffSharp />
+                        </IconButton>}
 
-                    {/* Disabled button */}
-                    <Button
-                        variant="outlined"
-                        color="inherit"
-                        className="search-button search-button-mobile"
-                        type="button"
-                        disabled={true}>
-                        <SearchSharp /></Button>
-                </div>
+                        {/* Disabled button */}
+                        <IconButton
+                            variant="outlined"
+                            color="primary"
+                            className="search-button search-button-mobile"
+                            type="button"
+                            onClick={clickHandle}
+                            disabled={value?.length < 2}>
+                            <SearchSharp />
+                        </IconButton>
+                    </div>
             }}
         />
-    </div>
+    )
 }
 
 export default SearchFilter;
