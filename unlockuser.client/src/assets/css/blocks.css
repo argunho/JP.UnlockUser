@@ -364,6 +364,10 @@ pre {
   margin-right: 20px;
 }
 
+.link-group:first-of-type {
+  margin-left: 5px;
+}
+
 .menu-div .link-group.active {
   font-weight: 600;
   transform: scale(1.2);
@@ -375,9 +379,12 @@ pre {
 }
 
 .menu-div div>.search-bar {
-  margin-right: 30px !important;
+  margin-right: 20px !important;
   width: 400px !important;
-  font-weight: normal !important;
+}
+.menu-div div>.search-bar,
+.menu-div div>.search-bar * {
+  font-weight: 500 !important;
 }
 
 .nav-back {
