@@ -2,7 +2,7 @@ import { useEffect, useState, use } from 'react';
 
 // Installed
 import {
-    Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton,
+    Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, Capitalize,
     InputLabel, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, ListSubheader, MenuItem, Select, Tooltip, Typography
 } from '@mui/material';
 import { CheckBox, CheckBoxOutlineBlank, Close, Delete, OpenInFull, Refresh } from '@mui/icons-material';
@@ -43,8 +43,8 @@ function Employees() {
     const { selections, updated } = useLoaderData() ?? {};
     const items = selections ?? [];
 
-    const moderatorsByGroup = moderators.filter(x => x.permissions?.groups?.includes(group));
-
+    const moderatorsByGroup = moderators?.filter(x => x.permissions?.passwordManageGroups?.includes(Capitalize(group)));
+console.log(moderators, moderatorsByGroup)
     const list = searchWord ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord)) : moderatorsByGroup ?? [];
     const { content: pagination, page, perPage } = usePagination(
         {

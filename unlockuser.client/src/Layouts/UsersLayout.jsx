@@ -10,7 +10,7 @@ function UsersLayout() {
 
     return (
         <div className="d-column jc-start w-100">
-            <Outlet context={{ ...context, employees: moderators }} />
+            <Outlet context={{ ...context, moderators }} />
         </div>
     )
 }
