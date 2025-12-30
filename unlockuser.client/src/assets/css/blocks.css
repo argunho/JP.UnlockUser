@@ -96,7 +96,8 @@ button.reset-button {
 .secondary-span {
   padding: 3px 8px;
   background-color: #faebd7;
-  margin-left: 10px;
+  margin-left: 5px;
+  margin-right: 5px;
   font-size: 12px;
   cursor: pointer;
 }
@@ -321,6 +322,7 @@ pre {
   margin-right: 20px !important;
   width: 400px !important;
 }
+
 .menu-div div>.search-bar,
 .menu-div div>.search-bar * {
   font-weight: 500 !important;

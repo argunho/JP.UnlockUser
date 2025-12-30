@@ -226,6 +226,10 @@ main,
     text-align: left !important;
 }
 
+.tooltip-green {
+   background-color: var(--color-primary) !important;
+}
+
 .tooltip-red {
     background-color: #cc0000 !important;
     text-transform: uppercase !important;

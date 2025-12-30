@@ -73,10 +73,34 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     [HttpGet("moderators")]
     public async Task<IActionResult> GetUsersByGroupName()
     {
-        // Saved employees who have permission to manage employee passwords
-        var moderators = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
-        return Ok(moderators);
+        try
+        {
+            // Saved employees who have permission to manage employee passwords
+            var moderators = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
+            return Ok(moderators);
+        }
+        catch (Exception ex)
+        {
+            await _helpService.Error(ex);
+            return Ok();
+        }
     }
+
+    [HttpGet("managers")]
+    public async Task<IActionResult> GetManagers()
+    {
+        try
+        {
+            var managers = _localFileService.GetListFromFile<Manager>("managers") ?? [];
+            return Ok(managers);
+        }
+        catch (Exception ex)
+        {
+            await _helpService.Error(ex);
+            return Ok();
+        }
+    }
+
 
     [HttpGet("cached/{username}")]
     [Authorize(Roles = "Support, DevelopeTeam")]
@@ -162,7 +186,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 return NotFound(_helpService.NotFound("Användaren"));
 
             var schools = _localFileService.GetListFromFile<School>("schools")?
-                         .Where(x => (bool)(user.Permissions?.Offices.Contains(x.Name, StringComparer.OrdinalIgnoreCase))!).ToList();
+                         .Where(x => (bool)(user.Permissions?.Schools.Contains(x.Name, StringComparer.OrdinalIgnoreCase))!).ToList();
 
             var managersNames = user.Permissions?.Managers.ConvertAll(x => x.Trim()?[3..x.IndexOf(',')]);
             var managers = _localFileService.GetListFromFile<Manager>("managers")
@@ -292,7 +316,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 return NotFound(_helpService.NotFound("Anställd"));
 
             if (group == "Studenter")
-                employee.Permissions!.Offices = model.Permissions!.Offices;
+                employee.Permissions!.Schools = model.Permissions!.Schools;
             else
                 employee.Permissions!.Managers = model.Permissions!.Managers;
 
@@ -379,7 +403,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permission"])!;
             if (model.Users.Count > 0 && model.GroupName!.Equals("Students", StringComparison.OrdinalIgnoreCase))
             {
-                if (permissions.Offices.Contains(model.Office, StringComparer.OrdinalIgnoreCase))
+                if (permissions.Schools.Contains(model.Office, StringComparer.OrdinalIgnoreCase))
                     users = model.Users;
             }
             else

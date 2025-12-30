@@ -1,0 +1,29 @@
+/* .view-header,
+.view-body {
+    padding: 5px;
+} */
+
+.view-header {
+    margin-bottom: 10px;
+    margin-top: 20px;;
+}
+
+.view-header th {
+    font-size: 22px;
+    font-weight: normal !important;
+    border-bottom: var(--border-secondary) !important;
+    height: 50px;
+    margin: 2px 5px
+}
+
+.view-body td {
+    height: 60px;
+     padding: 0 15px 0 20px;
+     margin: 2px 20px;
+     text-transform: uppercase;
+}
+
+.view-body td:not(.empty) {
+     border: var(--border-secondary);
+     border-radius: 3px;
+}

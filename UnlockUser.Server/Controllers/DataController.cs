@@ -61,7 +61,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 if (!accessGroup)
                 {
                     if (isStudents)
-                        alternativeParams = sessionUserPermissions!.Offices;
+                        alternativeParams = sessionUserPermissions!.Schools;
                     else
                         alternativeParams = sessionUserPermissions!.Managers;
                 }

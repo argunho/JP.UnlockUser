@@ -17,6 +17,7 @@ import Logout, { signout } from "../pages/auth/Logout";
 import ExpiredSession from '../pages/auth/ExpiredSession';
 import Overview from './../pages/auth/Overview';
 import Permissions from '../pages/auth/permissions';
+import EmployeeView from '../pages/auth/EmployeeView';
 
 import Contacts from "../pages/Contacts";
 import NotFound from "../pages/NotFound";
@@ -154,7 +155,7 @@ const AppRoutes = () => [
         children: [
           {
             index: true,
-            element: <Navigate to="/moderators/personal" replace/>,
+            element: <Navigate to="/moderators/personal" replace />,
             errorElement: <ErrorView />
           },
           {
@@ -162,12 +163,13 @@ const AppRoutes = () => [
             element: <Employees />,
             errorElement: <ErrorView />
           },
-          // {
-          //   path: ":id",
-          //   element: <Employees />,
-          //   errorElement: <ErrorView />,
-          //   loader: loaderById("user")
-          // },
+          {
+            path: "view/:id",
+            element: <EmployeeView />,
+            errorElement: <ErrorView />,
+            loader: loader("user/managers"),
+            shouldRevalidate: () => false
+          },
           {
             path: ':office/:department',
             element: <Catalog />,

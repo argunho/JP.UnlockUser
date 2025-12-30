@@ -42,7 +42,7 @@ public class LocalUserService(ILocalFileService localFileService,
                     employee ??= new();
 
                 var savedUser = currentSavedList?.FirstOrDefault(x => x.Name == username);
-                var userPermissions = savedUser?.Permissions;
+                var userPermissions = savedUser?.Permissions ?? new();
 
                 // Get user
                 UserPrincipalExtension? user = _provider.FindUserByUsername(username);
@@ -52,16 +52,17 @@ public class LocalUserService(ILocalFileService localFileService,
                 if (savedUser != null && string.Equals(savedUser.Manager, user.Manager, StringComparison.OrdinalIgnoreCase))
                 {
                     permissions!.Managers = userPermissions!.Managers;
-                    permissions.Offices = userPermissions!.Offices;
+                    permissions.Schools = userPermissions!.Schools;
                 }
                 else
                 {
                     permissions.Managers.Add(user.Manager);
-                    permissions.Offices.Add(user.Office);
+                    if (group.Name == "Studenter")
+                        permissions.Schools.Add(user.Office);
                 }
 
-                if (!string.IsNullOrWhiteSpace(user!.Office) && !permissions.Offices.Contains(user!.Office, StringComparer.OrdinalIgnoreCase))
-                    permissions.Offices.Add(user.Office);
+                if (!string.IsNullOrWhiteSpace(user!.Office) && !permissions.Schools.Contains(user!.Office, StringComparer.OrdinalIgnoreCase))
+                    permissions.Schools.Add(user.Office);
 
                 employee!.Name = user.SamAccountName;
                 employee.DisplayName = user.DisplayName;
@@ -78,8 +79,8 @@ public class LocalUserService(ILocalFileService localFileService,
                     foreach (var school in schools)
                     {
                         if (user!.Office.Contains(school.Name!, StringComparison.OrdinalIgnoreCase)
-                            && !permissions.Offices.Contains(school.Name!, StringComparer.OrdinalIgnoreCase))
-                            permissions.Offices.Add(school.Name!);
+                            && !permissions.Schools.Contains(school.Name!, StringComparer.OrdinalIgnoreCase))
+                            permissions.Schools.Add(school.Name!);
                     }
                 }
 
@@ -155,7 +156,7 @@ public class LocalUserService(ILocalFileService localFileService,
                 user.Managers = _provider.GetUserManagers(user);
         }
         else
-            users = [.. users.Where(x => permissions.Offices.Contains(x.Office, StringComparer.OrdinalIgnoreCase))];
+            users = [.. users.Where(x => permissions.Schools.Contains(x.Office, StringComparer.OrdinalIgnoreCase))];
 
         return users;
     }

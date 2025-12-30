@@ -6,7 +6,7 @@ import {
     List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, Typography
 } from '@mui/material';
 import { CheckBox, CheckBoxOutlineBlank, Close, Delete, OpenInFull } from '@mui/icons-material';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 
 // Components
 import Message from '../../components/blocks/Message';
@@ -32,6 +32,8 @@ function Employees() {
     const { loading: buffering, group, moderators, onReset } = useOutletContext();
     const { response, pending, fetchData, handleResponse } = use(FetchContext);
     const loading = buffering || pending;
+
+    const navigate = useNavigate();
 
     // const { selections } = useLoaderData() ?? {};
     // const items = selections ?? [];
@@ -135,7 +137,6 @@ function Employees() {
                 && <Message res={response ?? { color: "info", msg: "Inga anställda hittades med matchande sökord." }} 
                     cancel={response ? handleResponse : onReset} styles={{ marginTop: "32px" }} />}
 
-
             {/* Result list */}
             {(moderators?.length > 0 && !loading) && <List className="d-row list-container w-100">
 
@@ -143,7 +144,7 @@ function Employees() {
                 {moderators?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, index) => {
                     const calculatedIndex = (perPage * (page - 1)) + (index + 1);
                     return <ListItem key={index} className={`list-item${(calculatedIndex === moderators?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}`}
-                        secondaryAction={<IconButton onClick={() => openModal(item)}><OpenInFull /></IconButton>}>
+                        secondaryAction={<IconButton onClick={() => navigate(`/moderators/view/${item?.name}`)}><OpenInFull /></IconButton>}> 
                         <ListItemIcon>
                             {page > 1 ? calculatedIndex : index + 1}
                         </ListItemIcon>

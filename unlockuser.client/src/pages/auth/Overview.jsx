@@ -97,7 +97,7 @@ function Overview() {
             setMessage(messages.forbid);
         else if (!pmGroups?.includes(userToCheck?.group))
             setMessage(messages.error);
-        else if (userToCheck?.group !== "Studenter" ? !user.permissions?.managers?.includes(userToCheck.manager) : !user.permissions?.offices?.includes(userToCheck.office))
+        else if (userToCheck?.group !== "Studenter" ? !user.permissions?.managers?.includes(userToCheck.manager) : !user.permissions?.schools?.includes(userToCheck.office))
             setMessage(messages.warning);
         else
             setMessage(messages.success)
