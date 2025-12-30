@@ -10,6 +10,12 @@ const AutocompleteList = memo(function AutocompleteList({ label, multiple, name,
     const defaultValue = multiple ? (defValue ?? []) : ((Array.isArray(defValue) ? defValue[0] : defValue) ?? "")
     const [value, setValue] = useState(defaultValue ?? []);
 
+    function onChange(value) {
+        console.log(value)
+        setValue(value);
+    }
+
+
     return <Autocomplete
         id="combo-box-demo"
         disablePortal
@@ -23,7 +29,7 @@ const AutocompleteList = memo(function AutocompleteList({ label, multiple, name,
         multiple={multiple}
         value={value}
         name={name}
-        onChange={(e, option) => setValue(option)}
+        onChange={(e, option) => onChange(option)}
         isOptionEqualToValue={(option, value) => {
             return option === value;
         }}
