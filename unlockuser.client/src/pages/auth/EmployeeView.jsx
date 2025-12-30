@@ -52,7 +52,7 @@ function EmployeeView() {
             if (hasGroups)
                 row.group = ps?.groups[i] ?? "";
             if (hasManagers)
-                row.manager = ((approvedManagers[i]?.displayName ?? "") + " | <span class='secondary-span'" + (approvedManagers[i]?.office ?? "")).trim() + "</span>";
+                row.manager = ((approvedManagers[i]?.displayName ?? "") + " | " + (approvedManagers[i]?.office ?? "")).trim();
             if (hasSchools)
                 row.school = ps?.schools[i] ?? "";
 
@@ -63,6 +63,31 @@ function EmployeeView() {
 
         setRows(rows);
     }, [])
+
+        // async function onSubmit() {
+        //     setUpdating(true);
+    
+        //     const obj = JSON.parse(JSON.stringify(userData));
+        //     delete obj.primary,
+        //         delete obj.secondary,
+        //         delete obj.boolValue,
+        //         obj.offices = obj.includedList.map((o) => {
+        //             return o?.primary;
+        //         })
+        //     obj.managers = obj.includedList.map((m) => {
+        //         return {
+        //             username: m?.id ?? m?.username,
+        //             displayName: m?.primary,
+        //             division: m?.secondary,
+        //             disabled: m?.boolValue ?? false,
+        //             default: m?.default ?? false
+        //         }
+        //     })
+        //     delete obj.includedList;
+    
+        //     await fetchData({ api: `employees/group/${group}`, method: "put", data: obj })
+        //     closeModal();
+        // }
 
     if (columns?.length === 0 || rows?.length == 0)
         return <Message res={{ color: "warning", msg: "Ingen data att visa ..." }} />;

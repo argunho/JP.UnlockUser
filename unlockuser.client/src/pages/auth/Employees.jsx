@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 // Installed
 import { IconButton, List, ListItem, ListItemIcon, ListItemText
 } from '@mui/material';
-import {  OpenInFull } from '@mui/icons-material';
+import { ArrowForward } from '@mui/icons-material';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 
 // Components
@@ -18,19 +18,8 @@ import '../../assets/css/list-view.css';
 
 function Employees() {
 
-    // const [userData, setUserData] = useState();
-    // const [updating, setUpdating] = useState(false);
-    // const [changed, setChanged] = useState(false);
-    // const [open, setOpen] = useState(false);
-
     const { loading, moderators, onReset } = useOutletContext();
-    // const { response, pending, fetchData, handleResponse } = use(FetchContext);: buffering,
-    // const loading = buffering || pending;
-
     const navigate = useNavigate();
-
-    // const { selections } = useLoaderData() ?? {};
-    // const items = selections ?? [];
 
     const { content: pagination, page, perPage } = usePagination(
         {
@@ -39,86 +28,9 @@ function Employees() {
             number: 20
         });
 
-
     useEffect(() => {
         document.title = "UnlockUser | Anställda";
     }, [])
-
-    // useEffect(() => {
-    //     setOpen(false);
-    // }, [group])
-
-
-    // function openModal(item) {
-    //     setUserData(item);
-    //     resetActions();
-    // }
-
-    // function clickHandle(item, index) {
-    //     let array = userData.includedList;
-    //     if (item?.boolValue !== undefined) {
-    //         if (!item?.default)
-    //             array = array.filter((x, ind) => index != ind);
-    //         else
-    //             array[index].boolValue = !item.boolValue;
-    //     } else
-    //         array = array.filter((x, ind) => index != ind);
-
-    //     setUserData({ ...userData, includedList: array });
-    //     setChanged(true);
-    // }
-
-    // function updateAccessList(item) {
-    //     setOpen(false)
-    //     let array = [...userData?.includedList];
-    //     if (item?.removable !== undefined)
-    //         item.removable = true;
-    //     else if (group === "Studenter")
-    //         delete item.secondary;
-
-    //     array.push(item);
-    //     setChanged(true);
-    //     setUserData({ ...userData, includedList: array });
-    // }
-
-    // function closeModal() {
-    //     setChanged(false);
-    //     setUpdating(false);
-    //     setUserData(null);
-    // }
-
-    // function resetActions() {
-    //     setUpdating(false);
-    //     setChanged(false);
-    // }
-
-
-    // async function onSubmit() {
-    //     setUpdating(true);
-
-    //     const obj = JSON.parse(JSON.stringify(userData));
-    //     delete obj.primary,
-    //         delete obj.secondary,
-    //         delete obj.boolValue,
-    //         obj.offices = obj.includedList.map((o) => {
-    //             return o?.primary;
-    //         })
-    //     obj.managers = obj.includedList.map((m) => {
-    //         return {
-    //             username: m?.id ?? m?.username,
-    //             displayName: m?.primary,
-    //             division: m?.secondary,
-    //             disabled: m?.boolValue ?? false,
-    //             default: m?.default ?? false
-    //         }
-    //     })
-    //     delete obj.includedList;
-
-    //     await fetchData({ api: `employees/group/${group}`, method: "put", data: obj })
-    //     closeModal();
-    // }
-
-    // const label = group === "Studenter" ? "Skola" : "Chef";
 
     return (
         <>
@@ -137,7 +49,7 @@ function Employees() {
                 {moderators?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, index) => {
                     const calculatedIndex = (perPage * (page - 1)) + (index + 1);
                     return <ListItem key={index} className={`list-item${(calculatedIndex === moderators?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}`}
-                        secondaryAction={<IconButton onClick={() => navigate(`/moderators/view/${item?.name}`)}><OpenInFull /></IconButton>}> 
+                        secondaryAction={<IconButton onClick={() => navigate(`/moderators/view/${item?.name}`)}>ArrowForward /></IconButton>}> 
                         <ListItemIcon>
                             {page > 1 ? calculatedIndex : index + 1}
                         </ListItemIcon>
@@ -146,9 +58,6 @@ function Employees() {
                     </ListItem>
                 })}
             </List>}
-
-
-
         </>
     )
 }
