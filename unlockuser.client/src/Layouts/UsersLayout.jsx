@@ -14,6 +14,7 @@ import SearchFilter from '../components/forms/SearchFilter';
 
 // Functions
 import { Capitalize } from '../functions/Helpers';
+import { useEffect } from 'react';
 
 function UsersLayout() {
     const [searchWord, setSearchWord] = useState(null);
@@ -30,6 +31,17 @@ function UsersLayout() {
     const moderators = useLoaderData();
     const groupName = Capitalize(group);
 
+    useEffect(() => {
+        document.title = "UnlockUser | Moderators";
+        console.log("hopsan", group)
+    }, [])
+
+    useEffect(() => {
+        if(searchWord)
+            setSearchWord(null);
+    }, [group])
+
+
     async function renewList() {
         await fetchData({ api: "user/renew/cached/data", method: "post" });
         sessionStorage.setItem("updated", "true");
@@ -41,13 +53,21 @@ function UsersLayout() {
 
     const moderatorsByGroup = group ? moderators?.filter(x => x.permissions?.groups?.includes(groupName)) : moderators;
     const moderator = id ? moderatorsByGroup?.find(x => x.name === id) : null;
+    const permissionsGroups = moderator?.permissions?.groups?.map(x => {
+        return `<span class="secondary-span">${x}</span>`;
+    })
+
+    const secondaryRow = id 
+                    ? `${moderator?.primary}, ${moderator?.office}, ${moderator?.title} | ${permissionsGroups?.join("")}`
+                    : groupsLinks
 
     return (
         <div className="d-column jc-start w-100">
 
             {/* Tab menu */}
-            <TabPanel primary={id ? `Behörighetslista` : "Moderators"}
-                secondary={id ? `${moderator?.secondary} | <span class="secondary-span">${moderator?.title}</span>` : groupsLinks} >
+            <TabPanel 
+                primary={id ? `Behörighetslista` : "Moderators"}   
+                secondary={secondaryRow} >
 
                 {/* Refresh list */}
                 {!id && <div className="d-row">
@@ -77,8 +97,8 @@ function UsersLayout() {
                 context={{
                     ...context,
                     moderators: (searchWord
-                            ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase()))
-                            : moderatorsByGroup),
+                        ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase()))
+                        : moderatorsByGroup),
                     moderator,
                     onReset: () => setSearchWord(null)
                 }} />

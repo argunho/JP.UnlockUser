@@ -47,6 +47,9 @@ public class LocalUserService(ILocalFileService localFileService,
                 if (user == null)
                     continue;
 
+                bool isSchool = group.Name == "Studenter" && ((string.Equals(user.Division, "Arbete och Lärande", StringComparison.OrdinalIgnoreCase)
+                                                  || string.Equals(user.Division, "Utbildningsförvalltning", StringComparison.OrdinalIgnoreCase)));
+
                 if (savedUser != null && string.Equals(savedUser.Manager, user.Manager, StringComparison.OrdinalIgnoreCase))
                 {
                     permissions!.Managers = userPermissions!.Managers;
@@ -54,14 +57,13 @@ public class LocalUserService(ILocalFileService localFileService,
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(user.Manager))
+                    if (!string.IsNullOrEmpty(user.Manager) && group.Name != "Studenter")
                         permissions.Managers.Add(user.Manager.Trim()?[3..user.Manager.IndexOf(',')]!);
-                    if (group.Name == "Studenter" && ((string.Equals(user.Division, "Arbete och Lärande", StringComparison.OrdinalIgnoreCase)
-                                                  || string.Equals(user.Division, "Utbildningsförvalltning", StringComparison.OrdinalIgnoreCase))))
+                    if (isSchool)
                         permissions.Schools.Add(user.Office);
                 }
 
-                if (!string.IsNullOrWhiteSpace(user!.Office) && !permissions.Schools.Contains(user!.Office, StringComparer.OrdinalIgnoreCase))
+                if (isSchool && !string.IsNullOrWhiteSpace(user!.Office) && !permissions.Schools.Contains(user!.Office, StringComparer.OrdinalIgnoreCase))
                     permissions.Schools.Add(user.Office);
 
                 employee!.Name = user.SamAccountName;

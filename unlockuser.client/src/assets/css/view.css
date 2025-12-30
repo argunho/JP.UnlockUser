@@ -5,10 +5,11 @@
 
 .view-header {
     margin-bottom: 10px;
-    margin-top: 20px;;
+    margin-top: 20px;
+    ;
 }
 
-.view-header th {
+.view-header p {
     font-size: 22px;
     font-weight: normal !important;
     border-bottom: var(--border-secondary) !important;
@@ -16,14 +17,28 @@
     margin: 2px 5px
 }
 
-.view-body td {
-    height: 60px;
-     padding: 0 15px 0 20px;
-     margin: 2px 20px;
-     text-transform: uppercase;
+.view-body ul {
+    padding: 0 15px;
+    margin: 2px 5px;
 }
 
-.view-body td:not(.empty) {
-     border: var(--border-secondary);
-     border-radius: 3px;
+.view-body ul > div {
+    margin-bottom: 15px;
+}
+
+.view-body ul>li {
+    height: 50px !important;
+    text-transform: uppercase;
+    border: var(--border-secondary);
+    border-radius: 3px;
+    font-size: 16px !important;
+    list-style: none;
+    min-height: unset !important;
+}
+
+.li-empty {
+    font-style: italic;
+    color: var(--color-danger) !important;
+    border: none !important;
+    text-transform: none !important;
 }

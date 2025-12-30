@@ -10,4 +10,6 @@ public class Manager
     public string? ManagerName { get; set; }
     public bool Disabled { get; set; }
     public bool Default { get; set; } = true;
+
+    public string Primary => $"{DisplayName} | {Office}";
 }
