@@ -56,7 +56,7 @@ public class LocalUserService(ILocalFileService localFileService,
                 {
                     if (!string.IsNullOrEmpty(user.Manager))
                         permissions.Managers.Add(user.Manager.Trim()?[3..user.Manager.IndexOf(',')]!);
-                    if (group.Name == "Studenter" && ((string.Equals(user.Division., "Arbete och Lärande", StringComparison.OrdinalIgnoreCase)
+                    if (group.Name == "Studenter" && ((string.Equals(user.Division, "Arbete och Lärande", StringComparison.OrdinalIgnoreCase)
                                                   || string.Equals(user.Division, "Utbildningsförvalltning", StringComparison.OrdinalIgnoreCase))))
                         permissions.Schools.Add(user.Office);
                 }
