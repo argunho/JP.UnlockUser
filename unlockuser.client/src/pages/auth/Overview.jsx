@@ -63,16 +63,16 @@ function Overview() {
     const user = collection ? collection.find(x => x.name === id) : reqUser;
 
     const accessToPasswordManage = JSON.parse(permissions).find(x => x.Name === user.group) != null;
-    const pmGroups = user?.permissions?.passwordManageGroups;
+    const pmGroups = user?.permissions?.groups;
     const navigate = useNavigate();
     const ref = useRef(null);
 
     useEffect(() => {
-        if(loading) return;
+        if (loading) return;
 
         if (!access)
             navigate(-1);
-        else if(!user && !reqUser)
+        else if (!user && !reqUser)
             navigate(`view/user/by/${id}`);
     }, [loading])
 
@@ -93,7 +93,7 @@ function Overview() {
             setMessage(messages.none)
         else if (user?.name === userToCheck?.name)
             setMessage(messages.same);
-        else if (userToCheck?.permissions?.passwordManageGroups?.length > 0)
+        else if (userToCheck?.permissions?.groups?.length > 0)
             setMessage(messages.forbid);
         else if (!pmGroups?.includes(userToCheck?.group))
             setMessage(messages.error);
@@ -103,7 +103,7 @@ function Overview() {
             setMessage(messages.success)
     }
 
-    function onReset(){
+    function onReset() {
         setMessage(messages.info);
         setChecked(null);
     }

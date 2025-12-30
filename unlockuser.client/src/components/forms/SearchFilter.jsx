@@ -10,7 +10,6 @@ function SearchFilter({ label, disabled, onSearch, onReset }) {
 
     function changeHandle(e) {
         let value = e.target.value;
-        console.log(value)
         setValue(value);
     }
 

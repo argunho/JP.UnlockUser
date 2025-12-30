@@ -18,22 +18,24 @@ function EmployeeView() {
     const { loading, school, moderator: userData } = useOutletContext();
     const managers = useLoaderData();
 
+    console.log(userData)
+
     const { permissions: ps } = userData;
-    console.log(managers, ps)
 
     useEffect(() => {
-        const hasGroups = ps.passwordManageGroups?.length > 0;
+        const hasGroups = ps.groups?.length > 0;
         const hasSchools = ps.schools?.length > 0;
 
         const approvedManagers = managers?.filter(x => ps.managers?.includes(x?.username)) ?? [];
+        console.log(approvedManagers, ps.managers)
         const hasManagers = approvedManagers?.length > 0;
 
         const maxLength = Math.max(
-            ps?.passwordManageGroups?.length ?? 0,
+            ps?.groups?.length ?? 0,
             approvedManagers?.length,
             ps?.schools?.length ?? 0
         );
-console.log(maxLength)
+
         const columns = [];
         if (hasGroups)
             columns.push({ name: "group", label: "Lösenordshanteringgrupper" });
@@ -43,28 +45,27 @@ console.log(maxLength)
             columns.push({ name: "school", label: "Skola" });
 
         setColumns(columns);
-console.log(hasGroups, hasManagers, hasSchools)
 
         const rows = [];
         for (let i = 0; i < maxLength; i++) {
             const row = {};
             if (hasGroups)
-                row.group = ps?.passwordManageGroups[i] ?? "";
+                row.group = ps?.groups[i] ?? "";
             if (hasManagers)
-                row.manager = ((approvedManagers[i]?.displayName ?? "") + " " + (approvedManagers[i]?.office ?? "")).trim();
+                row.manager = ((approvedManagers[i]?.displayName ?? "") + " | <span class='secondary-span'" + (approvedManagers[i]?.office ?? "")).trim() + "</span>";
             if (hasSchools)
                 row.school = ps?.schools[i] ?? "";
 
             rows.push(row);
         }
-        
-console.log("rows", rows)
+
+        console.log("rows", rows)
 
         setRows(rows);
     }, [])
 
     if (columns?.length === 0 || rows?.length == 0)
-        return <Message res={{color: "warning",  msg: "Ingen data att visa ..."}} />;
+        return <Message res={{ color: "warning", msg: "Ingen data att visa ..." }} />;
 
     return (
         <>

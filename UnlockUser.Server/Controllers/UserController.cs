@@ -198,7 +198,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                              Secondary = s.Department == s.Office ? s.Division : s.Department
                          }).ToList();
 
-            return Ok(new { groups = user.Permissions?.PasswordManageGroups, schools, managers });
+            return Ok(new { groups = user.Permissions?.Groups, schools, managers });
         }
         catch (Exception ex)
         {

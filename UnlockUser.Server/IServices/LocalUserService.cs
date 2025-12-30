@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.DirectoryServices;
-using UnlockUser.Server.Interface;
+﻿using System.DirectoryServices;
 
 namespace UnlockUser.Server.IServices;
 
@@ -34,7 +32,7 @@ public class LocalUserService(ILocalFileService localFileService,
                 User? employee = employees.FirstOrDefault(x => x.Name == username);
                 PermissionsViewModel? permissions = employee != null ? employee.Permissions : new();
 
-                permissions!.PasswordManageGroups.Add(group.Name!);
+                permissions!.Groups.Add(group.Name!);
 
                 if (employee != null)
                     continue;
@@ -42,7 +40,7 @@ public class LocalUserService(ILocalFileService localFileService,
                     employee ??= new();
 
                 var savedUser = currentSavedList?.FirstOrDefault(x => x.Name == username);
-                var userPermissions = savedUser?.Permissions ?? new();
+                var userPermissions = savedUser?.Permissions;
 
                 // Get user
                 UserPrincipalExtension? user = _provider.FindUserByUsername(username);
@@ -56,8 +54,10 @@ public class LocalUserService(ILocalFileService localFileService,
                 }
                 else
                 {
-                    permissions.Managers.Add(user.Manager);
-                    if (group.Name == "Studenter")
+                    if (!string.IsNullOrEmpty(user.Manager))
+                        permissions.Managers.Add(user.Manager.Trim()?[3..user.Manager.IndexOf(',')]!);
+                    if (group.Name == "Studenter" && ((string.Equals(user.Division., "Arbete och Lärande", StringComparison.OrdinalIgnoreCase)
+                                                  || string.Equals(user.Division, "Utbildningsförvalltning", StringComparison.OrdinalIgnoreCase))))
                         permissions.Schools.Add(user.Office);
                 }
 

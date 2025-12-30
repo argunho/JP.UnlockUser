@@ -143,13 +143,13 @@ function Home() {
 
         let res = null;
         if (collection?.length > 0) {
-            if(gn === "support")
+            if (gn === "support")
                 res = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)));
             else {
                 res = (isClass)
                     ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)
-                    : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)) 
-                                                && (supportGroup ? x : (!x.permissions || x?.permission?.passwordManageGroups?.length == 0)));                
+                    : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name))
+                        && (supportGroup ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
             }
         } else {
             // API parameters by chosen searching alternative

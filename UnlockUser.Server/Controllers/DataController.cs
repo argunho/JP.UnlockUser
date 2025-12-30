@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Diagnostics;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -71,7 +70,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
 
 
                 // Filter the list of saved employees according to the current password management group
-                List<UserViewModel> usersByGroup = [.. savedEmployees.Where(x => x.Permissions!.PasswordManageGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase))];
+                List<UserViewModel> usersByGroup = [.. savedEmployees.Where(x => x.Permissions!.Groups.Contains(group.Name, StringComparer.OrdinalIgnoreCase))];
 
                 // Update permissions in all users of the current password management group based on the filtered saved users
                 foreach (var userByGroup in usersByGroup)

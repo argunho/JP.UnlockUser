@@ -1,22 +1,16 @@
-import { useEffect, useState, use } from 'react';
+import { useEffect } from 'react';
 
 // Installed
-import {
-    Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton,
-    List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, Typography
+import { IconButton, List, ListItem, ListItemIcon, ListItemText
 } from '@mui/material';
-import { CheckBox, CheckBoxOutlineBlank, Close, Delete, OpenInFull } from '@mui/icons-material';
+import {  OpenInFull } from '@mui/icons-material';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 
 // Components
 import Message from '../../components/blocks/Message';
-import FormButtons from '../../components/forms/FormButtons';
 
 // Hooks
 import usePagination from '../../hooks/usePagination';
-
-// Storage
-import { FetchContext } from '../../storage/FetchContext';
 
 // Css
 import '../../assets/css/list-view.css';
@@ -24,20 +18,19 @@ import '../../assets/css/list-view.css';
 
 function Employees() {
 
-    const [userData, setUserData] = useState();
-    const [updating, setUpdating] = useState(false);
-    const [changed, setChanged] = useState(false);
-    const [open, setOpen] = useState(false);
+    // const [userData, setUserData] = useState();
+    // const [updating, setUpdating] = useState(false);
+    // const [changed, setChanged] = useState(false);
+    // const [open, setOpen] = useState(false);
 
-    const { loading: buffering, group, moderators, onReset } = useOutletContext();
-    const { response, pending, fetchData, handleResponse } = use(FetchContext);
-    const loading = buffering || pending;
+    const { loading, moderators, onReset } = useOutletContext();
+    // const { response, pending, fetchData, handleResponse } = use(FetchContext);: buffering,
+    // const loading = buffering || pending;
 
     const navigate = useNavigate();
 
     // const { selections } = useLoaderData() ?? {};
     // const items = selections ?? [];
-
 
     const { content: pagination, page, perPage } = usePagination(
         {
@@ -51,29 +44,29 @@ function Employees() {
         document.title = "UnlockUser | Anställda";
     }, [])
 
-    useEffect(() => {
-        setOpen(false);
-    }, [group])
+    // useEffect(() => {
+    //     setOpen(false);
+    // }, [group])
 
 
-    function openModal(item) {
-        setUserData(item);
-        resetActions();
-    }
+    // function openModal(item) {
+    //     setUserData(item);
+    //     resetActions();
+    // }
 
-    function clickHandle(item, index) {
-        let array = userData.includedList;
-        if (item?.boolValue !== undefined) {
-            if (!item?.default)
-                array = array.filter((x, ind) => index != ind);
-            else
-                array[index].boolValue = !item.boolValue;
-        } else
-            array = array.filter((x, ind) => index != ind);
+    // function clickHandle(item, index) {
+    //     let array = userData.includedList;
+    //     if (item?.boolValue !== undefined) {
+    //         if (!item?.default)
+    //             array = array.filter((x, ind) => index != ind);
+    //         else
+    //             array[index].boolValue = !item.boolValue;
+    //     } else
+    //         array = array.filter((x, ind) => index != ind);
 
-        setUserData({ ...userData, includedList: array });
-        setChanged(true);
-    }
+    //     setUserData({ ...userData, includedList: array });
+    //     setChanged(true);
+    // }
 
     // function updateAccessList(item) {
     //     setOpen(false)
@@ -88,44 +81,44 @@ function Employees() {
     //     setUserData({ ...userData, includedList: array });
     // }
 
-    function closeModal() {
-        setChanged(false);
-        setUpdating(false);
-        setUserData(null);
-    }
+    // function closeModal() {
+    //     setChanged(false);
+    //     setUpdating(false);
+    //     setUserData(null);
+    // }
 
-    function resetActions() {
-        setUpdating(false);
-        setChanged(false);
-    }
+    // function resetActions() {
+    //     setUpdating(false);
+    //     setChanged(false);
+    // }
 
 
-    async function onSubmit() {
-        setUpdating(true);
+    // async function onSubmit() {
+    //     setUpdating(true);
 
-        const obj = JSON.parse(JSON.stringify(userData));
-        delete obj.primary,
-            delete obj.secondary,
-            delete obj.boolValue,
-            obj.offices = obj.includedList.map((o) => {
-                return o?.primary;
-            })
-        obj.managers = obj.includedList.map((m) => {
-            return {
-                username: m?.id ?? m?.username,
-                displayName: m?.primary,
-                division: m?.secondary,
-                disabled: m?.boolValue ?? false,
-                default: m?.default ?? false
-            }
-        })
-        delete obj.includedList;
+    //     const obj = JSON.parse(JSON.stringify(userData));
+    //     delete obj.primary,
+    //         delete obj.secondary,
+    //         delete obj.boolValue,
+    //         obj.offices = obj.includedList.map((o) => {
+    //             return o?.primary;
+    //         })
+    //     obj.managers = obj.includedList.map((m) => {
+    //         return {
+    //             username: m?.id ?? m?.username,
+    //             displayName: m?.primary,
+    //             division: m?.secondary,
+    //             disabled: m?.boolValue ?? false,
+    //             default: m?.default ?? false
+    //         }
+    //     })
+    //     delete obj.includedList;
 
-        await fetchData({ api: `employees/group/${group}`, method: "put", data: obj })
-        closeModal();
-    }
+    //     await fetchData({ api: `employees/group/${group}`, method: "put", data: obj })
+    //     closeModal();
+    // }
 
-    const label = group === "Studenter" ? "Skola" : "Chef";
+    // const label = group === "Studenter" ? "Skola" : "Chef";
 
     return (
         <>
@@ -133,9 +126,9 @@ function Employees() {
             {pagination}
 
             {/* If list is empty or bad response from server */}
-            {((response || moderators.length == 0) && !loading)
-                && <Message res={response ?? { color: "info", msg: "Inga anställda hittades med matchande sökord." }} 
-                    cancel={response ? handleResponse : onReset} styles={{ marginTop: "32px" }} />}
+            {(moderators.length == 0 && !loading)
+                && <Message res={{ color: "info", msg: "Inga anställda hittades..." }} 
+                    cancel={onReset} styles={{ marginTop: "32px" }} />}
 
             {/* Result list */}
             {(moderators?.length > 0 && !loading) && <List className="d-row list-container w-100">
@@ -155,23 +148,30 @@ function Employees() {
             </List>}
 
 
+
+        </>
+    )
+}
+
+export default Employees;
+
             {/* Modal form */}
-            <Dialog open={!!userData} onClose={() => closeModal()} aria-labelledby="draggable-dialog-title" className='modal-wrapper print-page' id="content" >
+            // <Dialog open={!!userData} onClose={() => closeModal()} aria-labelledby="draggable-dialog-title" className='modal-wrapper print-page' id="content" >
 
-                <DialogTitle className='view-modal-label'
-                    id="draggable-dialog-title" 
-                    dangerouslySetInnerHTML={{ __html: userData?.primary + "<span>" + userData?.title + "</span>" }}>
-                </DialogTitle>
+            //     <DialogTitle className='view-modal-label'
+            //         id="draggable-dialog-title" 
+            //         dangerouslySetInnerHTML={{ __html: userData?.primary + "<span>" + userData?.title + "</span>" }}>
+            //     </DialogTitle>
 
-                {/* View this block if data is a text */}
-                <DialogContent style={{ position: "relative" }}>
+            //     {/* View this block if data is a text */}
+            //     <DialogContent style={{ position: "relative" }}>
 
-                    <Box className='view-list-result'>
-                        <Typography>{label}</Typography>
-                    </Box>
+            //         <Box className='view-list-result'>
+            //             <Typography>{label}</Typography>
+            //         </Box>
 
                     {/* List of included list */}
-                    <div className='w-100 view-modal-list-wrapper' style={{ height: "400px" }}>
+                    {/* <div className='w-100 view-modal-list-wrapper' style={{ height: "400px" }}>
                         <List className="d-row view-modal-list w-100">
                             {!!userData && userData.includedList?.map((item, ind) => {
                                 const schools = group === "Studenter";
@@ -187,7 +187,7 @@ function Employees() {
                                 </ListItem>
                             })}
                         </List>
-                    </div>
+                    </div> */}
 
                     {/* List with choices */}
                     {/* {open && <List className='choices-list w-100 h-100'>
@@ -202,13 +202,13 @@ function Employees() {
                                     onClick={() => updateAccessList(item)} disabled={!!userData?.includedList.find(x => x.primary == item.primary && x.secondary == item.secondary)} />
                             </div>
                         })}
-                    </List>} */}
+                    </List>}
 
                 </DialogContent>
 
-                <DialogActions className="list-view-modal-buttons d-column">
+                <DialogActions className="list-view-modal-buttons d-column"> */}
                     {/* Actions buttons */}
-                    {!response && <FormButtons
+                    {/* {!response && <FormButtons
                         label="Spara"
                         disabled={!changed}
                         loading={updating}
@@ -220,14 +220,9 @@ function Employees() {
                             onClick={() => setOpen((open) => !open)} style={{ width: "140px" }} disabled={updating}>
                             {open ? <Close /> : `Lägg till ${label}`}
                         </Button>
-                    </FormButtons>}
+                    </FormButtons>} */}
 
                     {/* Response */}
-                    {!!response && <Message res={response} cancel={handleResponse} />}
+                    {/* {!!response && <Message res={response} cancel={handleResponse} />}
                 </DialogActions>
-            </Dialog>
-        </>
-    )
-}
-
-export default Employees;
+            </Dialog> */}
