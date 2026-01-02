@@ -53,12 +53,9 @@ function UsersLayout() {
 
     const moderatorsByGroup = group ? moderators?.filter(x => x.permissions?.groups?.includes(groupName)) : moderators;
     const moderator = id ? moderatorsByGroup?.find(x => x.name === id) : null;
-    const permissionsGroups = moderator?.permissions?.groups?.map(x => {
-        return `<span class="secondary-span">${x}</span>`;
-    })
 
     const secondaryRow = id 
-                    ? `${moderator?.primary}, ${moderator?.office}, ${moderator?.title} | ${permissionsGroups?.join("")}`
+                    ? `${moderator?.primary} | <span class="secondary-span">${moderator?.office}</span> | <span class="secondary-span">${moderator?.title}</span>`
                     : groupsLinks
 
     return (

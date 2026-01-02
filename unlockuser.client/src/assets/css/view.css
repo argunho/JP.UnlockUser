@@ -12,14 +12,15 @@
 .view-header p {
     font-size: 22px;
     font-weight: normal !important;
-    border-bottom: var(--border-secondary) !important;
+    border-bottom: 2px solid var(--color-primary) !important;
     height: 50px;
     margin: 2px 5px
 }
 
 .view-body ul {
     padding: 0 15px;
-    margin: 2px 5px;
+    margin: 5px;
+    flex: 1;
 }
 
 .view-body ul > div {

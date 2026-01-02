@@ -24,7 +24,7 @@ import NotFound from "../pages/NotFound";
 import ErrorView from '../pages/ErrorView';
 
 // Services
-import { loader, loaderByApiParam, loaderById, loaderByParams } from '../services/LoadFunctions';
+import { loader, loaderById, loaderByParams } from '../services/LoadFunctions';
 
 // Storage
 import FetchContextProvider from '../storage/FetchContext';
@@ -170,12 +170,12 @@ const AppRoutes = () => [
             loader: loader("user/managers"),
             shouldRevalidate: () => false
           },
-          {
-            path: ':office/:department',
-            element: <Catalog />,
-            errorElement: <ErrorView />,
-            loader: loaderByApiParam("search/members", ["department", "office"])
-          },
+          // {
+          //   path: ':office/:department',
+          //   element: <Catalog />,
+          //   errorElement: <ErrorView />,
+          //   loader: loaderByApiParam("search/members", ["department", "office"])
+          // },
         ]
       },
     ]

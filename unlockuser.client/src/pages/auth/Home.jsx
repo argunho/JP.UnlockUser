@@ -193,7 +193,6 @@ function Home() {
                     disabled={loading}
                     defValue={formState ? formState?.school : ""}
                     keyword="id"
-                    placeholder="Välj skolnamn .."
                     ref={refAutocomplete}
                 />}
 

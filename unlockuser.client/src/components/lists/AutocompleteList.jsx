@@ -5,16 +5,15 @@ import { useState, memo } from "react";
 import { Autocomplete, TextField } from "@mui/material";
 
 const AutocompleteList = memo(function AutocompleteList({ label, multiple, name, collection,
-    defValue, disabled, keyword, required, response, helperText, fullWidth, shrink, ref }) {
+    defValue, disabled, keyword, required, response, helperText, fullWidth, shrink, onClick, ref }) {
 
     const defaultValue = multiple ? (defValue ?? []) : ((Array.isArray(defValue) ? defValue[0] : defValue) ?? "")
     const [value, setValue] = useState(defaultValue ?? []);
 
-    function onChange(value) {
-        console.log(value)
-        setValue(value);
+    function onChange(option){
+        setValue(option);
+        onClick?.(keyword ? option[keyword] : option);
     }
-
 
     return <Autocomplete
         id="combo-box-demo"
@@ -45,7 +44,7 @@ const AutocompleteList = memo(function AutocompleteList({ label, multiple, name,
             <>
                 <TextField
                     {...params}
-                    label={(!collection || collection?.length === 0) ? "Listan laddas eller saknas ..." : label}
+                    label={(!collection || collection?.length === 0) ? "Listan laddas ..." : label}
                     required={collection?.length > 0 && (required && !value)}
                     helperText={helperText ?? ""}
                     InputLabelProps={{ 

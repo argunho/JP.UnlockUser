@@ -11,8 +11,6 @@ import AutocompleteList from '../../components/lists/AutocompleteList';
 // Css
 import './../../assets/css/view.css';
 
-const columns = ["Närmaste chefer", "Avdelning", "Skola"];
-
 
 function EmployeeView() {
 
@@ -21,7 +19,8 @@ function EmployeeView() {
     const managers = useLoaderData();
     const { schools, moderator: userData } = useOutletContext();
     const { permissions } = userData;
-
+    const columns = ["Närmaste chefer", ...permissions?.groups];
+console.log(schools)
     useEffect(() => {
         const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
         console.log(approvedManagers, userData.managers);
@@ -31,13 +30,29 @@ function EmployeeView() {
         })
     }, [])
 
-    function onChange(value) {
-        var newManagers = managers.filter(x => (x.managerName === value || x.username === value)
-            && !approved.managers.some(y => y.username === x.username));
+    function onChange(value, group, multiple) {
+        if(!value || !group)
+            return;
+
+        let newValues;
+
+        if (group === "managers") {
+            newValues = multiple
+                ?  managers.filter(x => (x.managerName === value || x.username === value)
+                && !approved?.managers?.some(y => y.username === x.username)) : [value];
+        } else if (group === "politician") {
+            newValues = [value];
+        } else if(group === "school") {
+            newValues = [value];
+        }
+
+
+
+
         setApproved(previous => {
             return {
                 ...previous,
-                managers: [...previous.managers, ...newManagers]
+                [group]: [...previous[group], ...newValues]
             }
         })
     }
@@ -85,65 +100,76 @@ function EmployeeView() {
                 ))}
             </div>
 
-            <div className="w-100 view-body d-row jc-start ai-start">
-                <ul className="w-100">
-                    {userData?.managers?.map((manager, index) => {
-                        const checked = approved?.managers?.find(x => x.username === manager?.username);
-                        return <li className="w-100 d-row jc-between" key={index}>
-                            {manager?.displayName}
+            <div className="w-100 view-body d-row jc-start ai-start ai-stretch">
 
-                            <IconButton disabled={checked} onClick={() => onChange(manager?.username)}>
-                                {checked ? <CheckBox /> : <CheckBoxOutlineBlank />}
-                            </IconButton>
-                        </li>
-                    })}
-                </ul>
+                {columns.map((column) => {
+                    return <ul key={column} className="w-100">
 
-                {/* Managers list */}
-                <ul className="w-100">
-                    <AutocompleteList
-                        label="Managers"
-                        name="name"
-                        collection={managers}
-                        shrink={true}
-                        keyword="username"
-                        placeholder="Välj Manager .."
-                    />
+                        {/* Managers list */}
+                        {column === "Närmaste chefer" && userData?.managers?.map((manager, index) => {
+                            const checked = approved?.managers?.find(x => x?.username === manager?.username);
+                            return <li className="w-100 d-row jc-between" key={index}>
+                                {manager?.displayName}
 
-                    {approved?.managers?.map((manager, index) => (
-                        <li className="w-100 d-row jc-between" key={index}>
-                            <span>{manager?.displayName} | <span className="secondary-span">{manager?.office}</span></span>
-                            <IconButton onClick={() => onDelete(manager?.username)} color="error">
-                                <Close />
-                            </IconButton>
-                        </li>
-                    ))}
-                    {approved?.managers?.length === 0 && <li className="d-row li-empty">Ingen data att visa ...</li>}
-                </ul>
+                                <IconButton disabled={checked} onClick={() => onChange(manager?.username)}>
+                                    {checked ? <CheckBox /> : <CheckBoxOutlineBlank />}
+                                </IconButton>
+                            </li>
+                        })}
 
-                {/* Schools list */}
-                <ul className="w-100">
+                        {/* Personals managers list */}
+                        {column === "Personal" && <>
+                            <AutocompleteList
+                                label="Managers"
+                                collection={managers.filter(x => !approved?.managers?.some(s => s?.username === x?.username))}
+                                shrink={true}
+                                onClick={(value) => onChange(value, "managers")}
+                            />
 
-                    <AutocompleteList
-                        label="Skolnamn"
-                        name="school"
-                        collection={schools}
-                        shrink={true}
-                        keyword="id"
-                        placeholder="Välj skolnamn .."
-                    />
+                            {approved?.managers?.map((manager, index) => (
+                                <li className="w-100 d-row jc-between" key={index}>
+                                    <span>{manager?.displayName} | <span className="secondary-span">{manager?.office}</span></span>
+                                    <IconButton onClick={() => onDelete(manager?.username)} color="error">
+                                        <Close />
+                                    </IconButton>
+                                </li>
+                            ))}
+                        </>}
+
+                        {/* Politician list */}
+                        {column === "Politiker" && <>
+                            <AutocompleteList
+                                label="Politiker"
+                                collection={schools.filter(x => !approved.schools?.includes(x?.name))}
+                                shrink={true}
+                                keyword="name"
+                                onClick={(value) => onChange(value, "politician")}
+                            />
+                        </>}
+
+                        {/* School list */}
+                        {column === "Studenter" && <>
+                            <AutocompleteList
+                                label="Skolnamn"
+                                collection={schools.filter(x => !approved.schools?.includes(x?.name))}
+                                shrink={true}
+                                keyword="id"
+                                onClick={(value) => onChange(value, "school")}
+                            />
 
 
-                    {approved?.schools?.map((school, index) => (
-                        <li className="w-100 d-row jc-between" key={index}>
-                            {school}
-                            <IconButton onClick={() => onDelete(school)} color="error">
-                                <Close />
-                            </IconButton>
-                        </li>
-                    ))}
-                    {approved?.schools?.length === 0 && <li className=" d-row li-empty">Ingen data att visa ...</li>}
-                </ul>
+                            {approved?.schools?.map((school, index) => (
+                                <li className="w-100 d-row jc-between" key={index}>
+                                    {school}
+                                    <IconButton onClick={() => onDelete(school)} color="error">
+                                        <Close />
+                                    </IconButton>
+                                </li>
+                            ))}
+                        </>}
+                    </ul>;
+                })}
+
             </div >
         </>
     )

@@ -165,6 +165,10 @@ main,
     align-items: flex-end;
 }
 
+.ai-stretch {
+    align-items: stretch;
+}
+
 .jc-between {
     justify-content: space-between;
 }
