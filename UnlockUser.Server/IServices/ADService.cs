@@ -83,7 +83,9 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
         {
             var props = result.Properties;
             var user = GetUserParams(props);
-            if (isEmployeeGroup)
+            if ((alternativeParams?.Count == 0))
+                users.Add(user!);
+            else if (isEmployeeGroup)
             {
                 var properties = props["memberOf"].OfType<string>() ?? [];
                 bool isMatch = properties.Any(x => x.Contains("Ciceron-Assistentanvändare", StringComparison.OrdinalIgnoreCase));

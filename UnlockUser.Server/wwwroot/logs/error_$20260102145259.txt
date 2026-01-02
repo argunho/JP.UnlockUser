@@ -1,0 +1,1 @@
+﻿{"Id":"39b8cc94-e9fd-41aa-8f1b-9eb29890fb12","Source":"System.DirectoryServices.AccountManagement","Type":"Error","Description":"Error: The server could not be contacted.\n\nPath to file: IServices\\ADService.cs\n\nLine number: 192\n\nMethod: GetContext\n","Opened":false,"Date":"2026.01.02 14:52:59"}

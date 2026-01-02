@@ -1,0 +1,1 @@
+﻿{"Id":"e4da97df-3ef9-466a-a48d-ecdb36133f07","Source":"System.Private.CoreLib","Type":"Error","Description":"Error: startIndex cannot be larger than length of string. (Parameter \u0027startIndex\u0027)\n\nPath to file: IServices\\ADService.cs\n\nLine number: 98\n\nMethod: GetUsersByGroupName\n","Opened":false,"Date":"2026.01.02 14:58:51"}

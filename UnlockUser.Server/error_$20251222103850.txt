@@ -1,7 +1,0 @@
-﻿Error: Additional text encountered after finished reading JSON content: ,. Path '', line 1, position 379.
-
-Path to file: C:\Users\790822asla\Desktop\Jobb\WebApps\UnlockUser\UnlockUser.Server\Controllers\LogController.cs
-
-Line number: 117
-
-Method: MoveNext
