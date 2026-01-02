@@ -86,7 +86,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
     }
 
-    [HttpGet("managers")]
+    [HttpGet("principal")]
     public async Task<IActionResult> GetManagers()
     {
         try

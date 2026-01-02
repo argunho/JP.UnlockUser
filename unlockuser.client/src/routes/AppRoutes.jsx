@@ -167,7 +167,7 @@ const AppRoutes = () => [
             path: "view/:id",
             element: <EmployeeView />,
             errorElement: <ErrorView />,
-            loader: loader("user/managers"),
+            loader: loader("user/principal"),
             shouldRevalidate: () => false
           },
           // {
