@@ -92,7 +92,8 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         try
         {
             var managers = _localFileService.GetListFromFile<Manager>("managers") ?? [];
-            return Ok(managers);
+            var politicians = _localFileService.GetListFromFile<User>("politicians") ?? [];
+            return Ok( new { managers, politicians });
         }
         catch (Exception ex)
         {

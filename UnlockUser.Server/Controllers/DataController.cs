@@ -61,6 +61,8 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 {
                     if (isStudents)
                         alternativeParams = sessionUserPermissions!.Schools;
+                    else if(group.Name == "Politeker")
+                        alternativeParams = sessionUserPermissions!.Politicians;
                     else
                         alternativeParams = sessionUserPermissions!.Managers;
                 }
@@ -82,6 +84,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                     user.Permissions = userByGroup.Permissions;
                 }
 
+                // Users model to view
                 var usersViewModel = users?.Select(s => new UserViewModel(s)).ToList();
 
                 _ = usersViewModel!.ConvertAll(x => x.Group = group.Name);

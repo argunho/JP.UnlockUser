@@ -2,7 +2,6 @@
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using UnlockUser.Server.FormModels;
-using UnlockUser.Server.Models;
 
 namespace UnlockUser.Server.IServices;
 
@@ -100,13 +99,15 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
 
         // Removes users that the session user does not have permission to manage.
         List<User> usersToManage = [];
-        if (alternativeParams?.Count > 0)
+        if (alternativeParams?.Count > 0 && users.Count > 0)
         {
-            if (users.Count > 0 && isEmployeeGroup)
+            if (isEmployeeGroup)
             {
-                foreach (var m in alternativeParams)
+                foreach (var param in alternativeParams)
                 {
-                    var matchUsers = users.Where(x => x.Manager!.StartsWith($"CN={m}", StringComparison.OrdinalIgnoreCase)).ToList() ?? [];
+                    var matchUsers = (group.Name != "Politiker"
+                        ? users.Where(x => x.Manager!.StartsWith($"CN={param}", StringComparison.OrdinalIgnoreCase)).ToList()
+                        : [.. users.Where(x => string.Equals(x.Name, param!, StringComparison.OrdinalIgnoreCase))]) ?? [];
                     usersToManage.AddRange(matchUsers);
                 }
             }

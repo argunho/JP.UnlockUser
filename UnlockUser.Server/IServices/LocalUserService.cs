@@ -13,11 +13,12 @@ public class LocalUserService(ILocalFileService localFileService,
     // A function to API request Active Directory and save/refresh the list of employees who have permission to change a user password.
     public async Task RenewUsersCachedList()
     {
-        #region Get employees        
+        // Get employees        
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
         var currentSavedList = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
         var schools = _localFileService.GetListFromFile<School>("schools");
-        List<User> employees = [];
+        List<User> users = [];
+        List<User> politicians = [];
 
         foreach (var group in groups!)
         {
@@ -29,15 +30,15 @@ public class LocalUserService(ILocalFileService localFileService,
                 if (username.Length < 6)
                     continue;
 
-                User? employee = employees.FirstOrDefault(x => x.Name == username);
-                PermissionsViewModel? permissions = employee != null ? employee.Permissions : new();
+                User? newUser = users.FirstOrDefault(x => x.Name == username);
+                PermissionsViewModel? permissions = newUser != null ? newUser.Permissions : new();
 
                 permissions!.Groups.Add(group.Name!);
 
-                if (employee != null)
+                if (newUser != null)
                     continue;
                 else
-                    employee ??= new();
+                    newUser ??= new();
 
                 var savedUser = currentSavedList?.FirstOrDefault(x => x.Name == username);
                 var userPermissions = savedUser?.Permissions;
@@ -53,12 +54,15 @@ public class LocalUserService(ILocalFileService localFileService,
                 if (savedUser != null && string.Equals(savedUser.Manager, user.Manager, StringComparison.OrdinalIgnoreCase))
                 {
                     permissions!.Managers = userPermissions!.Managers;
+                    permissions!.Politicians = userPermissions!.Politicians;
                     permissions.Schools = userPermissions!.Schools;
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(user.Manager) && group.Name != "Studenter")
+                    if (!string.IsNullOrEmpty(user.Manager) && group.Name == "Personal")
                         permissions.Managers.Add(user.Manager.Trim()?[3..user.Manager.IndexOf(',')]!);
+                    else if (group.Name == "Politiker")
+                        permissions.Politicians.Add(username);
                     if (isSchool)
                         permissions.Schools.Add(user.Office);
                 }
@@ -66,14 +70,14 @@ public class LocalUserService(ILocalFileService localFileService,
                 if (isSchool && !string.IsNullOrWhiteSpace(user!.Office) && !permissions.Schools.Contains(user!.Office, StringComparer.OrdinalIgnoreCase))
                     permissions.Schools.Add(user.Office);
 
-                employee!.Name = user.SamAccountName;
-                employee.DisplayName = user.DisplayName;
-                employee.Email = user.EmailAddress;
-                employee.Office = user.Office;
-                employee.Title = user.Title;
-                employee.Department = user.Department;
-                employee.Division = user.Division;
-                employee.Manager = user.Manager;
+                newUser!.Name = user.SamAccountName;
+                newUser.DisplayName = user.DisplayName;
+                newUser.Email = user.EmailAddress;
+                newUser.Office = user.Office;
+                newUser.Title = user.Title;
+                newUser.Department = user.Department;
+                newUser.Division = user.Division;
+                newUser.Manager = user.Manager;
 
                 // Check all school staff
                 if (group.Group == "Students")
@@ -86,17 +90,27 @@ public class LocalUserService(ILocalFileService localFileService,
                     }
                 }
 
-                employee.Managers = _provider.GetUserManagers(employee);
+                newUser.Managers = _provider.GetUserManagers(newUser);
 
-                employee.Permissions = permissions;
-                employees.Add(employee);
+                newUser.Permissions = permissions;
+                users.Add(newUser);
+
+                if (group.Name == "Politiker")
+                    politicians.Add(newUser);
             }
         }
 
-        await _localFileService.SaveUpdateFile([.. employees.OrderBy(o => o.DisplayName)], "employees");
-        #endregion
+        await _localFileService.SaveUpdateFile([.. users.OrderBy(o => o.DisplayName)], "employees");
+        // end
 
-        #region Get managers
+        // Save Politicasn list
+        if(politicians.Count > 0)
+        {
+            await _localFileService.SaveUpdateFile(politicians, "politicians");
+        }
+        // end
+
+        // Get managers & save to file
         List<User> managers = [];
         DirectorySearcher search = new(_provider.GetContext().Name)
         {
@@ -127,7 +141,7 @@ public class LocalUserService(ILocalFileService localFileService,
         }).ToList();
 
         await _localFileService.SaveUpdateFile(managersToSave, "managers");
-        #endregion
+        // end
     }
 
     public User? GetUserFromFile(string username)

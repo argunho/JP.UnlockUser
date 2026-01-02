@@ -16,7 +16,7 @@ function EmployeeView() {
 
     const [approved, setApproved] = useState([]);
 
-    const managers = useLoaderData();
+    const { managers, politicians } = useLoaderData();
     const { schools, moderator: userData } = useOutletContext();
     const { permissions } = userData;
     const columns = ["Närmaste chefer", ...permissions?.groups];
@@ -42,7 +42,7 @@ console.log(schools)
                 && !approved?.managers?.some(y => y.username === x.username)) : [value];
         } else if (group === "politician") {
             newValues = [value];
-        } else if(group === "school") {
+        } else if(group === "schools") {
             newValues = [value];
         }
 
@@ -57,11 +57,14 @@ console.log(schools)
         })
     }
 
-    function onDelete(value) {
-        setApproved(previous => {
+    function onDelete(value, group) {
+        if(!value || !group)
+            return;
+
+         setApproved(previous => {
             return {
                 ...previous,
-                managers: previous.managers.filter(x => x.username !== value)
+                [group]: previous[group]?.filter(x => x?.username  ? x?.username!== value : x !== value)
             }
         })
     }
@@ -91,6 +94,8 @@ console.log(schools)
     //     await fetchData({ api: `employees/group/${group}`, method: "put", data: obj })
     //     closeModal();
     // }
+
+    console.log(approved.schools)
 
     return (
         <>
@@ -129,7 +134,7 @@ console.log(schools)
                             {approved?.managers?.map((manager, index) => (
                                 <li className="w-100 d-row jc-between" key={index}>
                                     <span>{manager?.displayName} | <span className="secondary-span">{manager?.office}</span></span>
-                                    <IconButton onClick={() => onDelete(manager?.username)} color="error">
+                                    <IconButton onClick={() => onDelete(manager?.username, "managers")} color="error">
                                         <Close />
                                     </IconButton>
                                 </li>
@@ -140,10 +145,10 @@ console.log(schools)
                         {column === "Politiker" && <>
                             <AutocompleteList
                                 label="Politiker"
-                                collection={schools.filter(x => !approved.schools?.includes(x?.name))}
+                                collection={politicians?.filter(x => !approved.schools?.some(s => s === x?.id))}
                                 shrink={true}
                                 keyword="name"
-                                onClick={(value) => onChange(value, "politician")}
+                                onClick={(value) => onChange(value, "politicians")}
                             />
                         </>}
 
@@ -151,17 +156,17 @@ console.log(schools)
                         {column === "Studenter" && <>
                             <AutocompleteList
                                 label="Skolnamn"
-                                collection={schools.filter(x => !approved.schools?.includes(x?.name))}
+                                collection={schools?.filter(x => !approved.schools?.some(s => s === x?.id))}
                                 shrink={true}
                                 keyword="id"
-                                onClick={(value) => onChange(value, "school")}
+                                onClick={(value) => onChange(value, "schools")}
                             />
 
 
                             {approved?.schools?.map((school, index) => (
                                 <li className="w-100 d-row jc-between" key={index}>
                                     {school}
-                                    <IconButton onClick={() => onDelete(school)} color="error">
+                                    <IconButton onClick={() => onDelete(school, "schools")} color="error">
                                         <Close />
                                     </IconButton>
                                 </li>
