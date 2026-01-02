@@ -37,7 +37,7 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
 
                 // Update employees in txt file
                 
-                if (updated.Date != currentDate.Date && currentHour >= 8 && currentHour < 18)
+                if (updated.Date != currentDate.Date && currentHour >= 6)
                 {
                     await _localUserService.RenewUsersCachedList();
                     _localFileService.UpdateConfigFile("appconfig", "LastUpdatedDate", currentDate.ToString("yyyy.MM.dd HH:mm:ss"));

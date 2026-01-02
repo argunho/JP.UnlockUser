@@ -18,7 +18,6 @@ public class LocalUserService(ILocalFileService localFileService,
         var currentSavedList = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
         var schools = _localFileService.GetListFromFile<School>("schools");
         List<User> users = [];
-        List<User> politicians = [];
 
         foreach (var group in groups!)
         {
@@ -94,20 +93,10 @@ public class LocalUserService(ILocalFileService localFileService,
 
                 newUser.Permissions = permissions;
                 users.Add(newUser);
-
-                if (group.Name == "Politiker")
-                    politicians.Add(newUser);
             }
         }
 
         await _localFileService.SaveUpdateFile([.. users.OrderBy(o => o.DisplayName)], "employees");
-        // end
-
-        // Save Politicasn list
-        if(politicians.Count > 0)
-        {
-            await _localFileService.SaveUpdateFile(politicians, "politicians");
-        }
         // end
 
         // Get managers & save to file
