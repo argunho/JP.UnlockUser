@@ -78,6 +78,7 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
 
         bool isEmployeeGroup = string.Equals(group.Group, "Employees", StringComparison.OrdinalIgnoreCase);
 
+        // Get all users by search group parameters
         foreach (SearchResult? result in res.FindAll().OfType<SearchResult>())
         {
             var props = result.Properties;
@@ -87,37 +88,24 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
                 var properties = props["memberOf"].OfType<string>() ?? [];
                 bool isMatch = properties.Any(x => x.Contains("Ciceron-Assistentanvändare", StringComparison.OrdinalIgnoreCase));
 
-                if (string.Equals(group.Name, "Politiker", StringComparison.OrdinalIgnoreCase) && !isMatch)
+                bool isPolitician = string.Equals(group.Name, "Politiker", StringComparison.OrdinalIgnoreCase);
+                bool isEmployee = string.Equals(group.Name, "Personal", StringComparison.OrdinalIgnoreCase);
+                if (isPolitician && !isMatch)
                     continue;
-                else if (string.Equals(group.Name, "Personal", StringComparison.OrdinalIgnoreCase) && isMatch)
+                else if (isEmployee && isMatch)
                     continue;
-            }
 
-            users.Add(user!);
+                if(isEmployee && alternativeParams!.Contains(user.Manager!.Trim()?[3..user.Manager.IndexOf(',')], StringComparer.OrdinalIgnoreCase))
+                    users.Add(user!);
+                else if(isPolitician && alternativeParams!.Contains(user!.Name, StringComparer.OrdinalIgnoreCase))
+                    users.Add(user!);
+            }
+            else if (alternativeParams!.Contains(user!.Office!, StringComparer.OrdinalIgnoreCase))
+                users.Add(user!);
         }
         entry.Close();
 
-        // Removes users that the session user does not have permission to manage.
-        List<User> usersToManage = [];
-        if (alternativeParams?.Count > 0 && users.Count > 0)
-        {
-            if (isEmployeeGroup)
-            {
-                foreach (var param in alternativeParams)
-                {
-                    var matchUsers = (group.Name != "Politiker"
-                        ? users.Where(x => x.Manager!.StartsWith($"CN={param}", StringComparison.OrdinalIgnoreCase)).ToList()
-                        : [.. users.Where(x => string.Equals(x.Name, param!, StringComparison.OrdinalIgnoreCase))]) ?? [];
-                    usersToManage.AddRange(matchUsers);
-                }
-            }
-            else
-                usersToManage = [.. users.Where(x => alternativeParams!.Contains(x.Office!, StringComparer.OrdinalIgnoreCase))];
-        }
-        else
-            usersToManage = users;
-
-        return usersToManage;
+        return users;
     }
 
     // Get memebrs from security group

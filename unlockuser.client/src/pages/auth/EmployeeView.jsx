@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 
 // Installed
 import { useOutletContext, useLoaderData } from 'react-router-dom';
@@ -95,7 +95,7 @@ console.log(schools)
     //     closeModal();
     // }
 
-    console.log(approved.schools)
+    console.log(politicians)
 
     return (
         <>
@@ -123,7 +123,7 @@ console.log(schools)
                         })}
 
                         {/* Personals managers list */}
-                        {column === "Personal" && <>
+                        {column === "Personal" && <Fragment key={column}>
                             <AutocompleteList
                                 label="Managers"
                                 collection={managers.filter(x => !approved?.managers?.some(s => s?.username === x?.username))}
@@ -139,21 +139,21 @@ console.log(schools)
                                     </IconButton>
                                 </li>
                             ))}
-                        </>}
+                        </Fragment>}
 
                         {/* Politician list */}
-                        {column === "Politiker" && <>
+                        {column === "Politiker" && <Fragment key={column}>
                             <AutocompleteList
                                 label="Politiker"
-                                collection={politicians?.filter(x => !approved.schools?.some(s => s === x?.id))}
+                                collection={politicians?.filter(x => !approved.politicians?.some(s => s?.name === x?.name))}
                                 shrink={true}
                                 keyword="name"
                                 onClick={(value) => onChange(value, "politicians")}
                             />
-                        </>}
+                        </Fragment>}
 
                         {/* School list */}
-                        {column === "Studenter" && <>
+                        {column === "Studenter" && <Fragment key={column}>
                             <AutocompleteList
                                 label="Skolnamn"
                                 collection={schools?.filter(x => !approved.schools?.some(s => s === x?.id))}
@@ -171,7 +171,7 @@ console.log(schools)
                                     </IconButton>
                                 </li>
                             ))}
-                        </>}
+                        </Fragment>}
                     </ul>;
                 })}
 
