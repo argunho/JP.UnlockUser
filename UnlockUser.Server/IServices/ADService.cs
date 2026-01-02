@@ -83,9 +83,7 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
         {
             var props = result.Properties;
             var user = GetUserParams(props);
-            if ((alternativeParams?.Count == 0))
-                users.Add(user!);
-            else if (isEmployeeGroup)
+            if (isEmployeeGroup)
             {
                 var properties = props["memberOf"].OfType<string>() ?? [];
                 bool isMatch = properties.Any(x => x.Contains("Ciceron-Assistentanvändare", StringComparison.OrdinalIgnoreCase));
@@ -97,11 +95,15 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
                 else if (isEmployee && isMatch)
                     continue;
 
-                if(isEmployee && alternativeParams!.Contains(user.Manager!.Trim()?[3..user.Manager.IndexOf(',')], StringComparer.OrdinalIgnoreCase))
+                if ((alternativeParams?.Count == 0))
                     users.Add(user!);
-                else if(isPolitician && alternativeParams!.Contains(user!.Name, StringComparer.OrdinalIgnoreCase))
+                else if (isEmployee && alternativeParams!.Contains(user!.Manager!.Trim()?[3..user.Manager.IndexOf(',')], StringComparer.OrdinalIgnoreCase))
+                    users.Add(user!);
+                else if (isPolitician && alternativeParams!.Contains(user!.Name, StringComparer.OrdinalIgnoreCase))
                     users.Add(user!);
             }
+            else if ((alternativeParams?.Count == 0))
+                users.Add(user!);
             else if (alternativeParams!.Contains(user!.Office!, StringComparer.OrdinalIgnoreCase))
                 users.Add(user!);
         }
