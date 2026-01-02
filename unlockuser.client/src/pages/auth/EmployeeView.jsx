@@ -111,7 +111,7 @@ console.log(schools)
                             return <li className="w-100 d-row jc-between" key={index}>
                                 {manager?.displayName}
 
-                                <IconButton disabled={checked} onClick={() => onChange(manager?.username)}>
+                                <IconButton disabled={checked} onClick={() => onChange(manager?.username, "managers", true)}>
                                     {checked ? <CheckBox /> : <CheckBoxOutlineBlank />}
                                 </IconButton>
                             </li>
