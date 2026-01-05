@@ -52,3 +52,24 @@
     border: none !important;
     text-transform: none !important;
 }
+
+
+/*  #region Action buttons */
+.action-wrapper {
+    padding: 20px 10px;
+    background-color: #FFFFFF;
+    border-top: 2px solid var(--color-primary);
+}
+
+.action-wrapper button,
+.action-wrapper a {
+    margin: 0 8px;
+    height: 40px;
+}
+
+.action-wrapper >div.message-box {
+    margin: -8px auto !important;
+    width: calc(100% - 20px) !important;
+    flex: 1 !important;
+}
+/* #endregion */

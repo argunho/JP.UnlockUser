@@ -1,13 +1,17 @@
-import { useEffect, useState } from 'react';
-import _ from 'lodash';
+import { useEffect, useState, use } from 'react';
 
 // Installed
 import { useOutletContext, useLoaderData } from 'react-router-dom';
 import { IconButton } from '@mui/material';
 import { Close, CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
+import _ from 'lodash';
 
 // Components
 import AutocompleteList from '../../components/lists/AutocompleteList';
+import ActionButtons from './../../components/blocks/ActionButtons';
+
+// Storage
+import { FetchContext } from '../../storage/FetchContext';
 
 // Css
 import './../../assets/css/view.css';
@@ -16,7 +20,7 @@ import './../../assets/css/view.css';
 function EmployeeView() {
 
     const [approved, setApproved] = useState([]);
-    const [changed, setChanged] = useState(false);
+    const [isChanged, setChanged] = useState(false);
 
     const { managers, politicians } = useLoaderData();
     const { schools, moderator: userData } = useOutletContext();
@@ -24,6 +28,8 @@ function EmployeeView() {
     const columns = ["Närmaste chefer", ...permissions?.groups];
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
     const approvedPoliticians = politicians.filter(x => permissions?.politicians?.includes(x.name));
+
+    const { fetchData, pending, response, handleResponse } = use(FetchContext);
 
     useEffect(() => {
         setApproved({
@@ -34,12 +40,12 @@ function EmployeeView() {
     }, [])
 
     useEffect(() => {
-        const isChanged =   _.isEqual(approvedManagers, approved.managers)
+        const isChanged = _.isEqual(approvedManagers, approved.managers)
             && _.isEquals(approvedPoliticians, approved?.politicians)
             && _.isEquals(permissions?.schools, approved?.schools)
-        
-        setChanged(isChanged)          
-    }, [changed])
+
+        setChanged(isChanged)
+    }, [isChanged])
 
     function onChange(value, group, multiple) {
         if (!value || !group)
@@ -78,7 +84,7 @@ function EmployeeView() {
     }
 
 
-    // async function onSubmit() {
+    async function onSubmit() {
     //     setUpdating(true);
 
     //     const obj = JSON.parse(JSON.stringify(userData));
@@ -101,10 +107,12 @@ function EmployeeView() {
 
     //     await fetchData({ api: `employees/group/${group}`, method: "put", data: obj })
     //     closeModal();
-    // }
+    }
 
     return (
         <>
+            {isChanged && <ActionButtons pending={pending} onConfirm={onSubmit}/>}
+
             <div className="w-100 view-header d-row jc-between">
                 {columns?.map((column, index) => (
                     <p key={index} className="w-100 d-row jc-start">{column}</p>
@@ -112,7 +120,6 @@ function EmployeeView() {
             </div>
 
             <div className="w-100 d-row jc-start ai-start ai-stretch">
-
                 {columns.map((column) => {
                     return <div key={column} className="view-body w-100">
 
