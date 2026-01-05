@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import _ from 'lodash';
 
 // Installed
 import { useOutletContext, useLoaderData } from 'react-router-dom';
@@ -15,22 +16,30 @@ import './../../assets/css/view.css';
 function EmployeeView() {
 
     const [approved, setApproved] = useState([]);
+    const [changed, setChanged] = useState(false);
 
     const { managers, politicians } = useLoaderData();
     const { schools, moderator: userData } = useOutletContext();
     const { permissions } = userData;
     const columns = ["Närmaste chefer", ...permissions?.groups];
+    const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
+    const approvedPoliticians = politicians.filter(x => permissions?.politicians?.includes(x.name));
 
     useEffect(() => {
-        const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
-
         setApproved({
             managers: approvedManagers,
-            politicians: (permissions?.politicians?.length > 0 ? permissions?.politicians : politicians)
-                            ?.sort((a,b) => a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase())),
+            politicians: (approvedPoliticians?.length > 0 ? approvedPoliticians : politicians),
             schools: permissions?.schools
         })
     }, [])
+
+    useEffect(() => {
+        const isChanged =   _.isEqual(approvedManagers, approved.managers)
+            && _.isEquals(approvedPoliticians, approved?.politicians)
+            && _.isEquals(permissions?.schools, approved?.schools)
+        
+        setChanged(isChanged)          
+    }, [changed])
 
     function onChange(value, group, multiple) {
         if (!value || !group)
@@ -59,7 +68,7 @@ function EmployeeView() {
     function onDelete(value, group, id) {
         if (!value || !group)
             return;
-console.log(value, group)
+        console.log(value, group)
         setApproved(previous => {
             return {
                 ...previous,
@@ -161,14 +170,15 @@ console.log(value, group)
                             ))}
 
                             {/* Politician list */}
-                            {column === "Politiker" && approved?.politicians?.map((item, index) => (
-                                <li className="w-100 d-row jc-between" key={index}>
-                                    <span>{item?.displayName} | <span className="secondary-span">{item?.office}</span></span>
-                                    <IconButton onClick={() => onDelete(item?.name, "politicians", "name")} color="error">
-                                        <Close />
-                                    </IconButton>
-                                </li>
-                            ))}
+                            {column === "Politiker" && approved?.politicians?.sort((a, b) =>
+                                a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase()))?.map((item, index) => (
+                                    <li className="w-100 d-row jc-between" key={index}>
+                                        <span>{item?.displayName} | <span className="secondary-span">{item?.office}</span></span>
+                                        <IconButton onClick={() => onDelete(item?.name, "politicians", "name")} color="error">
+                                            <Close />
+                                        </IconButton>
+                                    </li>
+                                ))}
 
                             {/* School list */}
                             {column === "Studenter" && approved?.schools?.map((item, index) => (
