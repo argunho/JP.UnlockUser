@@ -9,6 +9,7 @@ import _ from 'lodash';
 // Components
 import AutocompleteList from '../../components/lists/AutocompleteList';
 import ActionButtons from './../../components/blocks/ActionButtons';
+import Message from './../../components/blocks/Message';
 
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
@@ -28,9 +29,9 @@ function EmployeeView() {
     const columns = ["Närmaste chefer", ...groups];
 
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
-    const approvedPoliticians = permissions.groups.includes("Politiker") ? 
-            (permissions?.politicians?.length > 0 ?
-                politicians.filter(x => permissions?.politicians?.includes(x.name)) : politicians);
+    const approvedPoliticians = permissions.groups.includes("Politiker") ?
+        (permissions?.politicians?.length > 0 ? politicians.filter(x => permissions?.politicians?.includes(x.name)) 
+        :  politicians) : [];
 
     const { fetchData, pending, response, handleResponse } = use(FetchContext);
 
@@ -42,13 +43,13 @@ function EmployeeView() {
         })
     }, [])
 
-    // useEffect(() => {
-    //     const isChanged = _.isEqual(approvedManagers, approved?.managers)
-    //         && _.isEqual(approvedPoliticians, approved?.politicians)
-    //         && _.isEqual(permissions?.schools, approved?.schools)
+    useEffect(() => {
+        const isChanged = !_.isEqual(permissions?.managers, approved?.managers?.sort((a, b) => a.username?.localeCompare(b.username)))
+            || !_.isEqual(approvedPoliticians, approved?.politicians?.sort((a, b) => a.name?.localeCompare(b.name)))
+            || !_.isEqual(permissions?.schools, approved?.schools?.sort((a, b) => a?.localeCompare(b)))
 
-    //     setChanged(isChanged)
-    // }, [approved])
+        setChanged(isChanged)
+    }, [approved])
 
     function onChange(value, group, multiple) {
         if (!value || !group)
@@ -59,9 +60,10 @@ function EmployeeView() {
         if (group === "managers") {
             newValues = multiple
                 ? managers.filter(x => (x.managerName === value || x.username === value)
-                    && !approved?.managers?.some(y => y.username === x.username)) : [value];
+                    && !approved?.managers?.some(y => y.username === x.username)) 
+                : managers.filter(x => x.username === value);
         } else if (group === "politicians") {
-            newValues = [value];
+            newValues = politicians?.filter(x => x.name === value);
         } else if (group === "schools") {
             newValues = [value];
         }
@@ -77,7 +79,7 @@ function EmployeeView() {
     function onDelete(value, group, id) {
         if (!value || !group)
             return;
-        console.log(value, group)
+
         setApproved(previous => {
             return {
                 ...previous,
@@ -86,35 +88,24 @@ function EmployeeView() {
         })
     }
 
-
     async function onSubmit() {
-        //     setUpdating(true);
+        const data = {
+            groups: permissions.groups,
+            managers: approved?.managers?.map(x => x.username),
+            politicians: approved?.politicians?.map(x => x.name),
+            schools: approved?.schools
+        };
+        console.log(data)
 
-        //     const obj = JSON.parse(JSON.stringify(userData));
-        //     delete obj.primary,
-        //         delete obj.secondary,
-        //         delete obj.boolValue,
-        //         obj.offices = obj.includedList.map((o) => {
-        //             return o?.primary;
-        //         })
-        //     obj.managers = obj.includedList.map((m) => {
-        //         return {
-        //             username: m?.id ?? m?.username,
-        //             displayName: m?.primary,
-        //             division: m?.secondary,
-        //             disabled: m?.boolValue ?? false,
-        //             default: m?.default ?? false
-        //         }
-        //     })
-        //     delete obj.includedList;
-
-        //     await fetchData({ api: `employees/group/${group}`, method: "put", data: obj })
-        //     closeModal();
+        await fetchData({ api: `user/update/permissions/${userData?.name}`, method: "put", data: data })
     }
 
     return (
         <>
-            <ActionButtons pending={pending} disabled={!isChanged} onConfirm={onSubmit} />
+            <ActionButtons pending={pending} disabled={!isChanged } onConfirm={onSubmit} />
+
+            {/* Response message */}
+            {response && <Message res={response} cancel={() => handleResponse()} />}
 
             <div className="w-100 view-header d-row jc-between">
                 {columns?.map((column, index) => {
@@ -166,7 +157,7 @@ function EmployeeView() {
                         <ul className="view-list-wrapper w-100">
 
                             {/* Managers list */}
-                            {(column === "Närmaste chefer"  && !disabled) && userData?.managers?.map((manager, index) => {
+                            {(column === "Närmaste chefer" && !disabled) && userData?.managers?.map((manager, index) => {
                                 const checked = approved?.managers?.find(x => x?.username === manager?.username);
                                 return <li className="w-100 d-row jc-between" key={index}>
                                     {manager?.displayName}
@@ -187,7 +178,7 @@ function EmployeeView() {
                                 </li>
                             ))}
 
-                            {/* Politician list */}
+                            {/* Politicians list */}
                             {(column === "Politiker" && !disabled) && approved?.politicians?.sort((a, b) =>
                                 a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase()))?.map((item, index) => (
                                     <li className="w-100 d-row jc-between" key={index}>
@@ -198,7 +189,7 @@ function EmployeeView() {
                                     </li>
                                 ))}
 
-                            {/* School list */}
+                            {/* Schools list */}
                             {column === "Studenter" && approved?.schools?.map((item, index) => (
                                 <li className="w-100 d-row jc-between" key={index}>
                                     {item}

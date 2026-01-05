@@ -23,7 +23,7 @@ export function DecodedClaims(token = null) {
 }
 
 export function Claim(name) {
-    var claim = DecodedClaims()[name];
+    var claim = DecodedClaims()?.[name];
     try {
         var claimData = JSON.parse(claim);
         if (Array.isArray(claimData)) {

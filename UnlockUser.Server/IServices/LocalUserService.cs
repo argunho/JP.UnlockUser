@@ -127,6 +127,9 @@ public class LocalUserService(ILocalFileService localFileService,
 
                 newUser.Managers = _provider.GetUserManagers(newUser);
 
+                permissions.Managers = [.. permissions.Managers.OrderBy(x => x)];
+                permissions.Politicians = [.. permissions.Politicians.OrderBy(x => x)];
+                permissions.Schools = [.. permissions.Schools.OrderBy(x => x)];
                 newUser.Permissions = permissions;
                 users.Add(newUser);
             }

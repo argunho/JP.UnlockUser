@@ -42,7 +42,7 @@ function UsersLayout() {
 
 
     async function renewList() {
-        await fetchData({ api: "user/renew/cached/data", method: "post" });
+        await fetchData({ api: "user/renew/saved", method: "post" });
         sessionStorage.setItem("updated", "true");
     }
 
