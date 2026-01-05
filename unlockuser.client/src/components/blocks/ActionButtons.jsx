@@ -10,6 +10,11 @@ function ActionButtons({ pending, disabled, onConfirm }) {
 
   const [confirm, setConfirm] = useState(false);
 
+  function handleConfirm(){
+    onConfirm();
+    setConfirm(false);
+  }
+
   return (
     <>
       <div className="d-row jc-end w-100 action-wrapper">
@@ -20,8 +25,7 @@ function ActionButtons({ pending, disabled, onConfirm }) {
 
       {/* Confirm */}
       {confirm && <ModalConfirm
-        msg={`This action will permanently delete the item?`}
-        onConfirm={onConfirm}
+        onConfirm={handleConfirm}
         onClose={() => setConfirm(false)} />}
     </>
   )

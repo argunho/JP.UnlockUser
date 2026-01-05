@@ -19,7 +19,7 @@ import './../../assets/css/view.css';
 
 
 function EmployeeView() {
-
+    
     const [approved, setApproved] = useState([]);
     const [isChanged, setChanged] = useState(false);
 

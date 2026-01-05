@@ -5,11 +5,11 @@ import {
 } from "@mui/material";
 
 
-function ModalConfirm({ open = true, msg, content, clickHandle, close }) {
+function ModalConfirm({ open = true, msg, content, onConfirm, onClose }) {
 
     return (
         <Dialog open={open}
-            onClose={close}
+            onClose={onClose}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
             sx={{
@@ -28,10 +28,10 @@ function ModalConfirm({ open = true, msg, content, clickHandle, close }) {
             </DialogContent>
             <DialogActions>
                 {/* Confirm button */}
-                <Button color="error" onClick={clickHandle}>Ja</Button>
+                <Button color="error" onClick={onConfirm}>Ja</Button>
 
                 {/* Close modal */}
-                <Button variant="contained" color="primary" onClick={close} autoFocus>
+                <Button variant="contained" color="primary" onClick={onClose} autoFocus>
                     Nej
                 </Button>
             </DialogActions>
