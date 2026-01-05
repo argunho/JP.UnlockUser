@@ -13,7 +13,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
     {
         try
         {
-            var path = Path.Combine(@"wwwroot/catalogs/", $"{fileName}.txt");
+            var path = Path.Combine(@"wwwroot", $"{fileName}.txt");
             if (!File.Exists(path))
                 return [];
             var res = File.ReadAllText(path);
@@ -130,6 +130,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
 
         return error;
     }
+    
     // Update configuration json
     public void UpdateConfigFile(string config, string? parameter, string? value, string? obj = null)
     {

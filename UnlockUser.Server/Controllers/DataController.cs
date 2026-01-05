@@ -35,7 +35,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
             // Saved employees who have permission to manage employee passwords
-            var savedEmployees = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
+            var savedEmployees = _localFileService.GetListFromFile<UserViewModel>("catalogs/employees") ?? [];
 
             // Verify the current user's membership in the support group
             bool accessGroup = !string.IsNullOrEmpty(claims["access"]);
@@ -110,7 +110,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     [HttpGet("schools")]
     public IActionResult GetSchools()
     {
-        var schools = _localFileService.GetListFromFile<School>("schools").Select(s => new ListViewModel
+        var schools = _localFileService.GetListFromFile<School>("catalogs/schools").Select(s => new ListViewModel
         {
             Id = s.Name,
             Primary = s.Name,
@@ -161,7 +161,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            List<Statistics> data = _localFileService.GetListFromFile<Statistics>("statistics");
+            List<Statistics> data = _localFileService.GetListFromFile<Statistics>("catalogs/statistics");
             List<ListViewModel> list = [.. data?.OrderBy(x => x.Year).Select(s => new ListViewModel {
                 Primary = s.Year.ToString(),
                 Secondary = $"Byten lösenord: {s.Months.Sum(s => s.PasswordsChange)}, Upplåst konto: {s.Months.Sum(s => s.Unlocked)}",
@@ -197,7 +197,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            var schools = _localFileService.GetListFromFile<School>("schools");
+            var schools = _localFileService.GetListFromFile<School>("catalogs/schools");
             if (schools.Count == 0)
                 schools = _localFileService.GetJsonFile<School>("schools");
             schools.Add(school);
@@ -220,7 +220,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            var schools = _localFileService.GetListFromFile<School>("schools");
+            var schools = _localFileService.GetListFromFile<School>("catalogs/schools");
             schools.RemoveAll(x => x.Name == name);
             await Task.Delay(1000);
             await _localFileService.SaveUpdateFile(schools, "schools");

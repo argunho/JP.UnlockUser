@@ -53,8 +53,8 @@ public class LocalUserService(ILocalFileService localFileService,
 
         #region Get employees        
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
-        var currentSavedList = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
-        var schools = _localFileService.GetListFromFile<School>("schools");
+        var currentSavedList = _localFileService.GetListFromFile<UserViewModel>("catalogs/employees") ?? [];
+        var schools = _localFileService.GetListFromFile<School>("catalogs/schools");
         List<User> users = [];
 
         foreach (var group in groups!)
@@ -141,7 +141,7 @@ public class LocalUserService(ILocalFileService localFileService,
 
     public User? GetUserFromFile(string username)
     {
-        List<UserViewModel> employees = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
+        List<UserViewModel> employees = _localFileService.GetListFromFile<UserViewModel>("catalogs/employees") ?? [];
         UserViewModel? user = employees?.FirstOrDefault(x => x.Name == username);
         return user;
     }
