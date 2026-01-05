@@ -61,7 +61,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 {
                     if (isStudents)
                         alternativeParams = sessionUserPermissions!.Schools;
-                    else if(group.Name == "Politeker")
+                    else if (group.Name == "Politeker")
                         alternativeParams = sessionUserPermissions!.Politicians;
                     else
                         alternativeParams = sessionUserPermissions!.Managers;
@@ -126,32 +126,12 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            var logs = Directory.GetFiles(@"wwwroot/logs/history", "*.txt", SearchOption.AllDirectories).ToList();
+            var histories = Directory.GetFiles(@"wwwroot/logs/history", "*.txt", SearchOption.AllDirectories).ToList();
+            if (histories?.Count > 0)
+                histories = histories?.OrderByDescending(x => System.IO.File.GetLastWriteTime(x).Ticks)?
+                                .Select(x => x.Replace("\\", "/")[(x.LastIndexOf('/') + 1)..].Replace(".txt", "")).ToList();
 
-            // Remove old files
-            if (logs != null && logs?.Count > 0)
-            {
-                var oldFiles = logs.Where(x => System.IO.File.GetLastWriteTime(x).AddMonths(3).Ticks < DateTime.Now.Ticks).ToList();
-                if (oldFiles.Count > 0)
-                {
-                    for (var x = 0; x < oldFiles.Count; x++)
-                    {
-                        var log = logs[x];
-                        FileInfo fi = new(log);
-                        if (fi != null)
-                        {
-                            System.IO.File.Delete(log);
-                            fi.Delete();
-                            logs.Remove(log);
-                        }
-                    }
-                }
-            }
-
-            logs = logs?.OrderByDescending(x => System.IO.File.GetLastWriteTime(x).Ticks)?
-                            .Select(x => x.Replace("\\", "/")[(x.LastIndexOf('/') + 1)..].Replace(".txt", "")).ToList() ?? null;
-
-            return Ok(logs);
+            return Ok(histories);
         }
         catch (Exception ex)
         {

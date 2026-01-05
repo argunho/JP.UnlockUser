@@ -36,7 +36,7 @@ function UsersLayout() {
     }, [])
 
     useEffect(() => {
-        if(searchWord)
+        if (searchWord)
             setSearchWord(null);
     }, [group])
 
@@ -53,16 +53,16 @@ function UsersLayout() {
     const moderatorsByGroup = group ? moderators?.filter(x => x.permissions?.groups?.includes(groupName)) : moderators;
     const moderator = id ? moderatorsByGroup?.find(x => x.name === id) : null;
 
-    const secondaryRow = id 
-                    ? `${moderator?.primary} | <span class="secondary-span">${moderator?.office}</span> | <span class="secondary-span">${moderator?.title}</span>`
-                    : groupsLinks
+    const secondaryRow = id
+        ? `${moderator?.primary} | <span class="secondary-span">${moderator?.office}</span> | <span class="secondary-span">${moderator?.title}</span>`
+        : groupsLinks
 
     return (
         <div className="d-column jc-start w-100">
 
             {/* Tab menu */}
-            <TabPanel 
-                primary={id ? `Behörighetslista` : "Moderators"}   
+            <TabPanel
+                primary={id ? `Behörighetslista` : "Moderators"}
                 secondary={secondaryRow} >
 
                 {/* Refresh list */}
@@ -81,7 +81,7 @@ function UsersLayout() {
                                 variant='outlined'
                                 disabled={loading || !!sessionStorage.getItem("updated")}
                                 onClick={renewList}>
-                                <Refresh /> 
+                                <Refresh />
                             </IconButton>
 
                         </span>
@@ -96,7 +96,7 @@ function UsersLayout() {
                         ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase()))
                         : moderatorsByGroup),
                     moderator,
-                    managers, 
+                    managers,
                     politicians,
                     groups,
                     onReset: () => setSearchWord(null)
@@ -106,3 +106,22 @@ function UsersLayout() {
 }
 
 export default UsersLayout;
+
+// <ListItemText
+//     primary={moment(s.substr(s.lastIndexOf("_") + 1, 8), 'YYYY-MM-DD hh:mm:ss').format('YYYY-MM-DD')}
+//     secondary={<span style={{ fontSize: 10 }}>{moment(s.slice(s.lastIndexOf("_") + 9), 'hh:mm:ss').format('HH:mm:ss')}</span>} />
+
+
+    // const handleFile = async (file, download = false) => {
+    //     // const fileDownload = require('js-file-download');
+    //     await ApiRequest("api/data/read/file/" + file).then(res => {
+    //         if (res.status === 200) {
+    //             if (download)
+    //                 fileDownload(res.data, file.slice(file.lastIndexOf("_") + 1) + ".txt");
+    //             else
+    //                 setFileView(res.data.replaceAll("\n", "</br>"));
+    //         }
+    //         else
+    //             console.error(res.data);
+    //     }, error => ErrorHandle(error));
+    // }

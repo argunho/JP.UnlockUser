@@ -39,9 +39,39 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
                 
                 if (updated.Date != currentDate.Date && currentHour >= 6)
                 {
+                    // Renew users saved list
                     await _localUserService.RenewUsersCachedList();
+
+                    // Remove old files
+                    if (updated.DayOfWeek == DayOfWeek.Monday)
+                    {
+                        var logs = Directory.GetFiles(@"wwwroot/logs", "*.txt", SearchOption.AllDirectories).ToList();
+
+                        // Remove old files
+                        if (logs?.Count > 0)
+                        {
+                            var oldFiles = logs.Where(x => File.GetLastWriteTime(x).AddMonths(3).Ticks < DateTime.Now.Ticks).ToList();
+                            if (oldFiles.Count > 0)
+                            {
+                                for (var x = 0; x < oldFiles.Count; x++)
+                                {
+                                    var log = logs[x];
+                                    FileInfo fi = new(log);
+                                    if (fi != null)
+                                    {
+                                        File.Delete(log);
+                                        fi.Delete();
+                                        logs.Remove(log);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Update app config
                     _localFileService.UpdateConfigFile("appconfig", "LastUpdatedDate", currentDate.ToString("yyyy.MM.dd HH:mm:ss"));
                 }
+
             });
         }
         catch (Exception ex)

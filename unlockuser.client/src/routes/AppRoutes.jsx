@@ -130,7 +130,7 @@ const AppRoutes = () => [
             path: 'logs/history',
             element: <Catalog label="Historik filer" search={true} />,
             errorElement: <ErrorView />,
-            loader: loader("/data/logs/history")
+            loader: loader("data/logs/history")
           },
           {
             path: 'statistics',
@@ -167,13 +167,7 @@ const AppRoutes = () => [
             path: "view/:id",
             element: <EmployeeView />,
             errorElement: <ErrorView />
-          },
-          // {
-          //   path: ':office/:department',
-          //   element: <Catalog />,
-          //   errorElement: <ErrorView />,
-          //   loader: loaderByApiParam("search/members", ["department", "office"])
-          // },
+          }
         ]
       },
     ]
