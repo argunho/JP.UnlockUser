@@ -93,18 +93,6 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                     _ = usersViewModel!.ConvertAll(x => x.PasswordLength = 12).ToList();
 
                 data.Add(group.Name?.ToLower()!, usersViewModel!);
-
-
-                // Save Politicasn list
-                if (group.Name == "Politiker")
-                {
-                    var filePath = Path.Combine("wwwroot", "uploads", "example.jpg");
-                    FileInfo fileInfo = new(filePath);
-
-                    DateTime createdDate = fileInfo.CreationTime;
-                    await _localFileService.SaveUpdateFile(users!, "politicians");
-                }
-                // end
             }
 
             if (accessGroup)

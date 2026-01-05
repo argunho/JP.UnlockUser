@@ -57,7 +57,7 @@ function UsersLayout() {
     const secondaryRow = id 
                     ? `${moderator?.primary} | <span class="secondary-span">${moderator?.office}</span> | <span class="secondary-span">${moderator?.title}</span>`
                     : groupsLinks
-
+console.log(collections)
     return (
         <div className="d-column jc-start w-100">
 

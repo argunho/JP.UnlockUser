@@ -81,8 +81,8 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
         // Get all users by search group parameters
         foreach (SearchResult? result in res.FindAll().OfType<SearchResult>())
         {
-            var props = result.Properties;
-            var user = GetUserParams(props);
+            ResultPropertyCollection? props = result.Properties!;
+            var user = GetUserParams(props); 
             if (isEmployeeGroup)
             {
                 var properties = props["memberOf"].OfType<string>() ?? [];
@@ -113,10 +113,10 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
     }
 
     // Get memebrs from security group
-    public List<string> GetSecurityGroupMembers(string? groupName)
+    public List<string?> GetSecurityGroupMembers(string? groupName)
     {
         using GroupPrincipal group = GroupPrincipal.FindByIdentity(GetContext(), IdentityType.SamAccountName, groupName);
-        var members = group.GetMembers(true).Select(s => s.SamAccountName).ToList();
+        List<string?>? members = [.. group.GetMembers(true).Where(x => x.SamAccountName?.Length > 6).Select(s => s.SamAccountName)];
         return members;
     }
 

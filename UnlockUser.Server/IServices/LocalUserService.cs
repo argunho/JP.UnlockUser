@@ -21,7 +21,7 @@ public class LocalUserService(ILocalFileService localFileService,
 
         foreach (var group in groups!)
         {
-            List<string>? membersUsernames = [.. (_provider.GetSecurityGroupMembers(group.PermissionGroup)).Where(x => x.Length > 6)];
+            List<string?> membersUsernames = [.. _provider.GetSecurityGroupMembers(group.PermissionGroup)];
 
             for (int i = 0; i < membersUsernames?.Count; i++)
             {
@@ -99,8 +99,9 @@ public class LocalUserService(ILocalFileService localFileService,
         await _localFileService.SaveUpdateFile([.. users.OrderBy(o => o.DisplayName)], "employees");
         // end
 
-        // Get managers & save to file
+        // Get managers/politicians & save to file
         List<User> managers = [];
+        List<User> politicians = [];
         DirectorySearcher search = new(_provider.GetContext().Name)
         {
             Filter = "(title=*)",
@@ -110,11 +111,14 @@ public class LocalUserService(ILocalFileService localFileService,
         search = _provider.UpdatedProparties(search);
         List<SearchResult>? list = [.. search.FindAll().OfType<SearchResult>()];
 
+        List<string> _politicians = _provider.GetSecurityGroupMembers("Ciceron-Assistentanvändare");
         foreach (SearchResult res in list)
         {
             var user = new UserViewModel(_provider.GetUserParams(res.Properties)!);
             if (user.Title != null && _provider.CheckManager(user.Title))
                 managers.Add(user);
+            if (_politicians.Contains(user.Name, StringComparer.OrdinalIgnoreCase))
+                politicians.Add(user);
         }
 
         var managersToSave = managers.Select(s => new Manager
@@ -130,6 +134,7 @@ public class LocalUserService(ILocalFileService localFileService,
         }).ToList();
 
         await _localFileService.SaveUpdateFile(managersToSave, "managers");
+        await _localFileService.SaveUpdateFile(politicians, "politicians");
         // end
     }
 
