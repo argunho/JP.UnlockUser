@@ -51,13 +51,14 @@
     margin: 5px 0 !important;
 }
 
-.li-disabled {
+.view-list-wrapper>.li-disabled {
     font-style: italic;
     background-color: var(--color-light-gray) !important;
     text-transform: none !important;
+    margin-top: 0 !important;
 }
 
-.li-disabled svg {
+.view-list-wrapper>.li-disabled svg {
     margin-right: 20px;
 }
 

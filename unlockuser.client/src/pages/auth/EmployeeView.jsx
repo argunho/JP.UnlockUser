@@ -28,10 +28,12 @@ function EmployeeView() {
     const columns = ["Närmaste chefer", ...groups];
 
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
-    const approvedPoliticians = politicians.filter(x => permissions?.politicians?.includes(x.name));
+    const approvedPoliticians = permissions.groups.includes("Politiker") ? 
+            (permissions?.politicians?.length > 0 ?
+                politicians.filter(x => permissions?.politicians?.includes(x.name)) : politicians);
 
     const { fetchData, pending, response, handleResponse } = use(FetchContext);
-    console.log(permissions, groups)
+
     useEffect(() => {
         setApproved({
             managers: approvedManagers,

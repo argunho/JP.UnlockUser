@@ -13,93 +13,7 @@ public class LocalUserService(ILocalFileService localFileService,
     // A function to API request Active Directory and save/refresh the list of employees who have permission to change a user password.
     public async Task RenewUsersCachedList()
     {
-        // Get employees        
-        var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
-        var currentSavedList = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
-        var schools = _localFileService.GetListFromFile<School>("schools");
-        List<User> users = [];
-
-        foreach (var group in groups!)
-        {
-            List<string?> membersUsernames = [.. _provider.GetSecurityGroupMembers(group.PermissionGroup)];
-
-            for (int i = 0; i < membersUsernames?.Count; i++)
-            {
-                string username = membersUsernames[i];
-                if (username.Length < 6)
-                    continue;
-
-                User? newUser = users.FirstOrDefault(x => x.Name == username);
-                PermissionsViewModel? permissions = newUser != null ? newUser.Permissions : new();
-
-                permissions!.Groups.Add(group.Name!);
-
-                if (newUser != null)
-                    continue;
-                else
-                    newUser ??= new();
-
-                var savedUser = currentSavedList?.FirstOrDefault(x => x.Name == username);
-                var userPermissions = savedUser?.Permissions;
-
-                // Get user
-                UserPrincipalExtension? user = _provider.FindUserByUsername(username);
-                if (user == null)
-                    continue;
-
-                bool isSchool = group.Name == "Studenter" && ((string.Equals(user.Division, "Arbete och Lärande", StringComparison.OrdinalIgnoreCase)
-                                                  || string.Equals(user.Division, "Utbildningsförvalltning", StringComparison.OrdinalIgnoreCase)));
-
-                if (savedUser != null && string.Equals(savedUser.Manager, user.Manager, StringComparison.OrdinalIgnoreCase))
-                {
-                    permissions!.Managers = userPermissions!.Managers;
-                    permissions!.Politicians = userPermissions!.Politicians;
-                    permissions.Schools = userPermissions!.Schools;
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(user.Manager) && group.Name == "Personal")
-                        permissions.Managers.Add(user.Manager.Trim()?[3..user.Manager.IndexOf(',')]!);
-                    else if (group.Name == "Politiker")
-                        permissions.Politicians.Add(username);
-                    if (isSchool)
-                        permissions.Schools.Add(user.Office);
-                }
-
-                if (isSchool && !string.IsNullOrWhiteSpace(user!.Office) && !permissions.Schools.Contains(user!.Office, StringComparer.OrdinalIgnoreCase))
-                    permissions.Schools.Add(user.Office);
-
-                newUser!.Name = user.SamAccountName;
-                newUser.DisplayName = user.DisplayName;
-                newUser.Email = user.EmailAddress;
-                newUser.Office = user.Office;
-                newUser.Title = user.Title;
-                newUser.Department = user.Department;
-                newUser.Division = user.Division;
-                newUser.Manager = user.Manager;
-
-                // Check all school staff
-                if (group.Group == "Students")
-                {
-                    foreach (var school in schools)
-                    {
-                        if (user!.Office.Contains(school.Name!, StringComparison.OrdinalIgnoreCase)
-                            && !permissions.Schools.Contains(school.Name!, StringComparer.OrdinalIgnoreCase))
-                            permissions.Schools.Add(school.Name!);
-                    }
-                }
-
-                newUser.Managers = _provider.GetUserManagers(newUser);
-
-                newUser.Permissions = permissions;
-                users.Add(newUser);
-            }
-        }
-
-        await _localFileService.SaveUpdateFile([.. users.OrderBy(o => o.DisplayName)], "employees");
-        // end
-
-        // Get managers & politicians to save to file
+        #region Get managers & politicians to save to file
         List<User> managers = [];
         List<User> politicians = [];
         DirectorySearcher search = new(_provider.GetContext().Name)
@@ -135,7 +49,91 @@ public class LocalUserService(ILocalFileService localFileService,
 
         await _localFileService.SaveUpdateFile(managersToSave, "managers");
         await _localFileService.SaveUpdateFile(politicians, "politicians");
-        // end
+        #endregion
+
+        #region Get employees        
+        var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
+        var currentSavedList = _localFileService.GetListFromFile<UserViewModel>("employees") ?? [];
+        var schools = _localFileService.GetListFromFile<School>("schools");
+        List<User> users = [];
+
+        foreach (var group in groups!)
+        {
+            List<string> membersUsernames = [.. _provider.GetSecurityGroupMembers(group.PermissionGroup)];
+
+            for (int i = 0; i < membersUsernames.Count; i++)
+            {
+                string username = membersUsernames[i];
+
+                User? newUser = users.FirstOrDefault(x => x.Name == username);
+                PermissionsViewModel? permissions = newUser != null ? newUser.Permissions : new();
+
+                permissions!.Groups.Add(group.Name!);
+
+                if (newUser != null)
+                    continue;
+                else
+                    newUser ??= new();
+
+                var savedUser = currentSavedList?.FirstOrDefault(x => x.Name == username);
+                var userPermissions = savedUser?.Permissions;
+
+                // Get user
+                UserPrincipalExtension? user = _provider.FindUserByUsername(username);
+                if (user == null)
+                    continue;
+
+                bool isSchool = group.Name == "Studenter" && ((string.Equals(user.Division, "Arbete och Lärande", StringComparison.OrdinalIgnoreCase)
+                                                  || string.Equals(user.Division, "Utbildningsförvalltning", StringComparison.OrdinalIgnoreCase)));
+
+                if (savedUser != null && string.Equals(savedUser.Manager, user.Manager, StringComparison.OrdinalIgnoreCase))
+                {
+                    permissions!.Managers = userPermissions!.Managers;
+                    permissions!.Politicians = userPermissions!.Politicians;
+                    permissions.Schools = userPermissions!.Schools;
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(user.Manager) && group.Name == "Personal")
+                        permissions.Managers.Add(user.Manager.Trim()?[3..user.Manager.IndexOf(',')]!);
+                    else if (group.Name == "Politiker")
+                        permissions.Politicians = [];
+                    else if (isSchool)
+                        permissions.Schools.Add(user.Office);
+                }
+
+                if (isSchool && !string.IsNullOrWhiteSpace(user!.Office) && !permissions.Schools.Contains(user!.Office, StringComparer.OrdinalIgnoreCase))
+                    permissions.Schools.Add(user.Office);
+
+                newUser!.Name = user.SamAccountName;
+                newUser.DisplayName = user.DisplayName;
+                newUser.Email = user.EmailAddress;
+                newUser.Office = user.Office;
+                newUser.Title = user.Title;
+                newUser.Department = user.Department;
+                newUser.Division = user.Division;
+                newUser.Manager = user.Manager;
+
+                // Check all school staff
+                if (group.Group == "Students")
+                {
+                    foreach (var school in schools)
+                    {
+                        if (user!.Office.Contains(school.Name!, StringComparison.OrdinalIgnoreCase)
+                            && !permissions.Schools.Contains(school.Name!, StringComparer.OrdinalIgnoreCase))
+                            permissions.Schools.Add(school.Name!);
+                    }
+                }
+
+                newUser.Managers = _provider.GetUserManagers(newUser);
+
+                newUser.Permissions = permissions;
+                users.Add(newUser);
+            }
+        }
+
+        await _localFileService.SaveUpdateFile([.. users.OrderBy(o => o.DisplayName)], "employees");
+       #endregion
     }
 
     public User? GetUserFromFile(string username)
