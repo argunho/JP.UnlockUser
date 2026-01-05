@@ -44,7 +44,7 @@ const AutocompleteList = memo(function AutocompleteList({ label, multiple, name,
             <>
                 <TextField
                     {...params}
-                    label={(!collection || collection?.length === 0) ? "Listan laddas ..." : label}
+                    label={label}
                     required={collection?.length > 0 && (required && !value)}
                     helperText={helperText ?? ""}
                     InputLabelProps={{ 

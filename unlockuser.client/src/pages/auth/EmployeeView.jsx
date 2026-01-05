@@ -27,7 +27,7 @@ function EmployeeView() {
         setApproved({
             managers: approvedManagers,
             politicians: (permissions?.politicians?.length > 0 ? permissions?.politicians : politicians)
-                            ?.map((a,b) => a.displayName.toLowerCase().localeCompare(b.displayName)),
+                            ?.sort((a,b) => a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase())),
             schools: permissions?.schools
         })
     }, [])
@@ -48,9 +48,6 @@ function EmployeeView() {
             newValues = [value];
         }
 
-
-
-
         setApproved(previous => {
             return {
                 ...previous,
@@ -59,14 +56,14 @@ function EmployeeView() {
         })
     }
 
-    function onDelete(value, group) {
+    function onDelete(value, group, id) {
         if (!value || !group)
             return;
-
+console.log(value, group)
         setApproved(previous => {
             return {
                 ...previous,
-                [group]: previous[group]?.filter(x => x?.username ? x?.username !== value : x !== value)
+                [group]: previous[group]?.filter(x => id ? x[id] !== value : x !== value)
             }
         })
     }
@@ -112,6 +109,7 @@ function EmployeeView() {
 
                         {/* Personals managers dropdown list */}
                         {column === "Personal" && <AutocompleteList
+                            key={approved.manager?.length}
                             label="Managers"
                             collection={managers.filter(x => !approved?.managers?.some(s => s?.username === x?.username))}
                             shrink={true}
@@ -120,6 +118,7 @@ function EmployeeView() {
 
                         {/* Politician dropdown list */}
                         {column === "Politiker" && <AutocompleteList
+                            key={approved.politicians?.length}
                             label="Politiker"
                             collection={politicians?.filter(x => !approved.politicians?.some(s => s?.name === x?.name))}
                             shrink={true}
@@ -129,6 +128,7 @@ function EmployeeView() {
 
                         {/* School dropdown list */}
                         {column === "Studenter" && <AutocompleteList
+                            key={approved.schools?.length}
                             label="Skolnamn"
                             collection={schools?.filter(x => !approved.schools?.some(s => s === x?.id))}
                             shrink={true}
@@ -154,7 +154,7 @@ function EmployeeView() {
                             {column === "Personal" && approved?.managers?.map((item, index) => (
                                 <li className="w-100 d-row jc-between" key={index}>
                                     <span>{item?.displayName} | <span className="secondary-span">{item?.office}</span></span>
-                                    <IconButton onClick={() => onDelete(item?.username, "managers")} color="error">
+                                    <IconButton onClick={() => onDelete(item?.username, "managers", "username")} color="error">
                                         <Close />
                                     </IconButton>
                                 </li>
@@ -164,7 +164,7 @@ function EmployeeView() {
                             {column === "Politiker" && approved?.politicians?.map((item, index) => (
                                 <li className="w-100 d-row jc-between" key={index}>
                                     <span>{item?.displayName} | <span className="secondary-span">{item?.office}</span></span>
-                                    <IconButton onClick={() => onDelete(item?.username, "managers")} color="error">
+                                    <IconButton onClick={() => onDelete(item?.name, "politicians", "name")} color="error">
                                         <Close />
                                     </IconButton>
                                 </li>
