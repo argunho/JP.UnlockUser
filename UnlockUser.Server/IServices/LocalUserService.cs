@@ -99,7 +99,7 @@ public class LocalUserService(ILocalFileService localFileService,
         await _localFileService.SaveUpdateFile([.. users.OrderBy(o => o.DisplayName)], "employees");
         // end
 
-        // Get managers/politicians & save to file
+        // Get managers & politicians to save to file
         List<User> managers = [];
         List<User> politicians = [];
         DirectorySearcher search = new(_provider.GetContext().Name)

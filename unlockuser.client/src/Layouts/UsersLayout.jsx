@@ -96,6 +96,7 @@ function UsersLayout() {
                         ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase()))
                         : moderatorsByGroup),
                     moderator,
+                    groups,
                     onReset: () => setSearchWord(null)
                 }} />
         </div>
