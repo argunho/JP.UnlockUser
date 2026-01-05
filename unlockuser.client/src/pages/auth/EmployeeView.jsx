@@ -1,7 +1,7 @@
 import { useEffect, useState, use } from 'react';
 
 // Installed
-import { useOutletContext, useLoaderData } from 'react-router-dom';
+import { useOutletContext, useRevalidator } from 'react-router-dom';
 import { IconButton } from '@mui/material';
 import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt } from '@mui/icons-material';
 import _ from 'lodash';
@@ -19,21 +19,21 @@ import './../../assets/css/view.css';
 
 
 function EmployeeView() {
-    
+
     const [approved, setApproved] = useState([]);
     const [isChanged, setChanged] = useState(false);
 
-    const { managers, politicians } = useLoaderData();
-    const { schools, groups, moderator: userData } = useOutletContext();
+    const revalidator = useRevalidator();
+    const { schools, groups, moderator: userData, managers, politicians } = useOutletContext();
     const { permissions } = userData;
     const columns = ["Närmaste chefer", ...groups];
 
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
     const approvedPoliticians = permissions.groups.includes("Politiker") ?
-        (permissions?.politicians?.length > 0 ? politicians.filter(x => permissions?.politicians?.includes(x.name)) 
-        :  politicians) : [];
+        (permissions?.politicians?.length > 0 ? politicians.filter(x => permissions?.politicians?.includes(x.name))
+            : politicians) : [];
 
-    const { fetchData, pending, response, handleResponse } = use(FetchContext);
+    const { fetchData, pending, response, success, handleResponse } = use(FetchContext);
 
     useEffect(() => {
         setApproved({
@@ -51,6 +51,12 @@ function EmployeeView() {
         setChanged(isChanged)
     }, [approved])
 
+    useEffect(() => {
+        setChanged(false);
+        if (success)
+           revalidator.revalidate();
+    }, [success])
+
     function onChange(value, group, multiple) {
         if (!value || !group)
             return;
@@ -60,7 +66,7 @@ function EmployeeView() {
         if (group === "managers") {
             newValues = multiple
                 ? managers.filter(x => (x.managerName === value || x.username === value)
-                    && !approved?.managers?.some(y => y.username === x.username)) 
+                    && !approved?.managers?.some(y => y.username === x.username))
                 : managers.filter(x => x.username === value);
         } else if (group === "politicians") {
             newValues = politicians?.filter(x => x.name === value);
@@ -95,14 +101,13 @@ function EmployeeView() {
             politicians: approved?.politicians?.map(x => x.name),
             schools: approved?.schools
         };
-        console.log(data)
 
-        await fetchData({ api: `user/update/permissions/${userData?.name}`, method: "put", data: data })
+        await fetchData({ api: `user/update/permissions/${userData?.name}`, method: "put", data: data, action: "success" });
     }
 
     return (
         <>
-            <ActionButtons pending={pending} disabled={!isChanged } onConfirm={onSubmit} />
+            <ActionButtons pending={pending} disabled={!isChanged} onConfirm={onSubmit} />
 
             {/* Response message */}
             {response && <Message res={response} cancel={() => handleResponse()} />}

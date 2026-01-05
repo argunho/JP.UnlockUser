@@ -28,7 +28,7 @@ function UsersLayout() {
     const { group, loading, id, collections } = context;
     const groups = collections["groups"];
 
-    const moderators = useLoaderData();
+    const { moderators, managers, politicians } = useLoaderData();
     const groupName = Capitalize(group);
 
     useEffect(() => {
@@ -96,6 +96,8 @@ function UsersLayout() {
                         ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase()))
                         : moderatorsByGroup),
                     moderator,
+                    managers, 
+                    politicians,
                     groups,
                     onReset: () => setSearchWord(null)
                 }} />

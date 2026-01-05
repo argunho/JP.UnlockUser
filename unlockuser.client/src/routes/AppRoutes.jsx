@@ -150,8 +150,8 @@ const AppRoutes = () => [
         path: "/moderators",
         element: <UsersLayout />,
         errorElement: <NotFound isAuthorized={true} />,
-        loader: loader("user/moderators"),
-        shouldRevalidate: () => false,
+        loader: loader("user/principal"),
+        // shouldRevalidate: () => false,
         children: [
           {
             index: true,
@@ -166,9 +166,7 @@ const AppRoutes = () => [
           {
             path: "view/:id",
             element: <EmployeeView />,
-            errorElement: <ErrorView />,
-            loader: loader("user/principal"),
-            shouldRevalidate: () => false
+            errorElement: <ErrorView />
           },
           // {
           //   path: ':office/:department',
