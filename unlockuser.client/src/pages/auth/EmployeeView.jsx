@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment } from 'react';
+import { useEffect, useState } from 'react';
 
 // Installed
 import { useOutletContext, useLoaderData } from 'react-router-dom';
@@ -20,29 +20,31 @@ function EmployeeView() {
     const { schools, moderator: userData } = useOutletContext();
     const { permissions } = userData;
     const columns = ["Närmaste chefer", ...permissions?.groups];
-console.log(schools)
+
     useEffect(() => {
         const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
-        console.log(approvedManagers, userData.managers);
+
         setApproved({
             managers: approvedManagers,
+            politicians: (permissions?.politicians?.length > 0 ? permissions?.politicians : politicians)
+                            ?.map((a,b) => a.displayName.toLowerCase().localeCompare(b.displayName)),
             schools: permissions?.schools
         })
     }, [])
 
     function onChange(value, group, multiple) {
-        if(!value || !group)
+        if (!value || !group)
             return;
 
         let newValues;
 
         if (group === "managers") {
             newValues = multiple
-                ?  managers.filter(x => (x.managerName === value || x.username === value)
-                && !approved?.managers?.some(y => y.username === x.username)) : [value];
+                ? managers.filter(x => (x.managerName === value || x.username === value)
+                    && !approved?.managers?.some(y => y.username === x.username)) : [value];
         } else if (group === "politician") {
             newValues = [value];
-        } else if(group === "schools") {
+        } else if (group === "schools") {
             newValues = [value];
         }
 
@@ -58,13 +60,13 @@ console.log(schools)
     }
 
     function onDelete(value, group) {
-        if(!value || !group)
+        if (!value || !group)
             return;
 
-         setApproved(previous => {
+        setApproved(previous => {
             return {
                 ...previous,
-                [group]: previous[group]?.filter(x => x?.username  ? x?.username!== value : x !== value)
+                [group]: previous[group]?.filter(x => x?.username ? x?.username !== value : x !== value)
             }
         })
     }
@@ -95,8 +97,6 @@ console.log(schools)
     //     closeModal();
     // }
 
-    console.log(politicians)
-
     return (
         <>
             <div className="w-100 view-header d-row jc-between">
@@ -105,77 +105,85 @@ console.log(schools)
                 ))}
             </div>
 
-            <div className="w-100 view-body d-row jc-start ai-start ai-stretch">
+            <div className="w-100 d-row jc-start ai-start ai-stretch">
 
                 {columns.map((column) => {
-                    return <ul key={column} className="w-100">
+                    return <div key={column} className="view-body w-100">
 
-                        {/* Managers list */}
-                        {column === "Närmaste chefer" && userData?.managers?.map((manager, index) => {
-                            const checked = approved?.managers?.find(x => x?.username === manager?.username);
-                            return <li className="w-100 d-row jc-between" key={index}>
-                                {manager?.displayName}
+                        {/* Personals managers dropdown list */}
+                        {column === "Personal" && <AutocompleteList
+                            label="Managers"
+                            collection={managers.filter(x => !approved?.managers?.some(s => s?.username === x?.username))}
+                            shrink={true}
+                            onClick={(value) => onChange(value, "managers")}
+                        />}
 
-                                <IconButton disabled={checked} onClick={() => onChange(manager?.username, "managers", true)}>
-                                    {checked ? <CheckBox /> : <CheckBoxOutlineBlank />}
-                                </IconButton>
-                            </li>
-                        })}
+                        {/* Politician dropdown list */}
+                        {column === "Politiker" && <AutocompleteList
+                            label="Politiker"
+                            collection={politicians?.filter(x => !approved.politicians?.some(s => s?.name === x?.name))}
+                            shrink={true}
+                            keyword="name"
+                            onClick={(value) => onChange(value, "politicians")}
+                        />}
 
-                        {/* Personals managers list */}
-                        {column === "Personal" && <Fragment key={column}>
-                            <AutocompleteList
-                                label="Managers"
-                                collection={managers.filter(x => !approved?.managers?.some(s => s?.username === x?.username))}
-                                shrink={true}
-                                onClick={(value) => onChange(value, "managers")}
-                            />
+                        {/* School dropdown list */}
+                        {column === "Studenter" && <AutocompleteList
+                            label="Skolnamn"
+                            collection={schools?.filter(x => !approved.schools?.some(s => s === x?.id))}
+                            shrink={true}
+                            keyword="id"
+                            onClick={(value) => onChange(value, "schools")}
+                        />}
 
-                            {approved?.managers?.map((manager, index) => (
+                        <ul className="view-list-wrapper w-100">
+
+                            {/* Managers list */}
+                            {column === "Närmaste chefer" && userData?.managers?.map((manager, index) => {
+                                const checked = approved?.managers?.find(x => x?.username === manager?.username);
+                                return <li className="w-100 d-row jc-between" key={index}>
+                                    {manager?.displayName}
+
+                                    <IconButton disabled={checked} onClick={() => onChange(manager?.username, "managers", true)}>
+                                        {checked ? <CheckBox /> : <CheckBoxOutlineBlank />}
+                                    </IconButton>
+                                </li>
+                            })}
+
+                            {/* Personals managers list */}
+                            {column === "Personal" && approved?.managers?.map((item, index) => (
                                 <li className="w-100 d-row jc-between" key={index}>
-                                    <span>{manager?.displayName} | <span className="secondary-span">{manager?.office}</span></span>
-                                    <IconButton onClick={() => onDelete(manager?.username, "managers")} color="error">
+                                    <span>{item?.displayName} | <span className="secondary-span">{item?.office}</span></span>
+                                    <IconButton onClick={() => onDelete(item?.username, "managers")} color="error">
                                         <Close />
                                     </IconButton>
                                 </li>
                             ))}
-                        </Fragment>}
 
-                        {/* Politician list */}
-                        {column === "Politiker" && <Fragment key={column}>
-                            <AutocompleteList
-                                label="Politiker"
-                                collection={politicians?.filter(x => !approved.politicians?.some(s => s?.name === x?.name))}
-                                shrink={true}
-                                keyword="name"
-                                onClick={(value) => onChange(value, "politicians")}
-                            />
-                        </Fragment>}
-
-                        {/* School list */}
-                        {column === "Studenter" && <Fragment key={column}>
-                            <AutocompleteList
-                                label="Skolnamn"
-                                collection={schools?.filter(x => !approved.schools?.some(s => s === x?.id))}
-                                shrink={true}
-                                keyword="id"
-                                onClick={(value) => onChange(value, "schools")}
-                            />
-
-
-                            {approved?.schools?.map((school, index) => (
+                            {/* Politician list */}
+                            {column === "Politiker" && approved?.politicians?.map((item, index) => (
                                 <li className="w-100 d-row jc-between" key={index}>
-                                    {school}
-                                    <IconButton onClick={() => onDelete(school, "schools")} color="error">
+                                    <span>{item?.displayName} | <span className="secondary-span">{item?.office}</span></span>
+                                    <IconButton onClick={() => onDelete(item?.username, "managers")} color="error">
                                         <Close />
                                     </IconButton>
                                 </li>
                             ))}
-                        </Fragment>}
-                    </ul>;
+
+                            {/* School list */}
+                            {column === "Studenter" && approved?.schools?.map((item, index) => (
+                                <li className="w-100 d-row jc-between" key={index}>
+                                    {item}
+                                    <IconButton onClick={() => onDelete(item, "schools")} color="error">
+                                        <Close />
+                                    </IconButton>
+                                </li>
+                            ))}
+
+                        </ul>
+                    </div>
                 })}
-
-            </div >
+            </div>
         </>
     )
 }

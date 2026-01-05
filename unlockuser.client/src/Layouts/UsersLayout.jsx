@@ -33,7 +33,6 @@ function UsersLayout() {
 
     useEffect(() => {
         document.title = "UnlockUser | Moderators";
-        console.log("hopsan", group)
     }, [])
 
     useEffect(() => {
@@ -57,7 +56,7 @@ function UsersLayout() {
     const secondaryRow = id 
                     ? `${moderator?.primary} | <span class="secondary-span">${moderator?.office}</span> | <span class="secondary-span">${moderator?.title}</span>`
                     : groupsLinks
-console.log(collections)
+
     return (
         <div className="d-column jc-start w-100">
 
@@ -82,7 +81,7 @@ console.log(collections)
                                 variant='outlined'
                                 disabled={loading || !!sessionStorage.getItem("updated")}
                                 onClick={renewList}>
-                                <Refresh />
+                                <Refresh /> 
                             </IconButton>
 
                         </span>
