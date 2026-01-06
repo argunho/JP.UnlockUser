@@ -206,7 +206,7 @@ function Home() {
                     autoSave="off"
                     defaultValue={formState?.name ?? ""}
                     onChange={onChange}
-                    className="search-wrapper w-100"
+                    className={`${gn !== "support" ? "search-wrapper " : ""}w-100`}
                     InputProps={{
                         maxLength: 30,
                         minLength: 2,

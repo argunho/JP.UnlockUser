@@ -61,7 +61,7 @@ function Overview() {
 
     const collection = collections ? groups.split(",").flatMap(g => collections[g.toLowerCase()]) : [];
     const user = collection ? collection.find(x => x.name === id) : reqUser;
-
+console.log(user)
     const accessToPasswordManage = JSON.parse(permissions).find(x => x.Name === user.group) != null;
     const pmGroups = user?.permissions?.groups;
     const navigate = useNavigate();
@@ -181,13 +181,10 @@ function Overview() {
                     }}
                 />
 
-                {/* Checked user info */}
-
-
                 {/* Response from server */}
                 {response && <Message res={response} cancel={() => navigate(-1)} />}
 
-                {/* Local response */}
+                {/* Local response. Checked user info */}
                 {!response && <Alert className="d-column ai-start message-wrapper" icon={false} color={message.color}>
                     {/* Message */}
                     <Message res={{ ...message, msg: message?.msg?.replace(/\{name\}/g, `<span style="color: red">${user.displayName}</span>`) }} />
