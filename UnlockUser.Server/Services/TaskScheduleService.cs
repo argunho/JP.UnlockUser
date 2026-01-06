@@ -2,7 +2,7 @@
 
 namespace UnlockUser.Server.Services;
 
-public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskScheduleService> logger, ILocalUserService localUserService, 
+public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskScheduleService> logger, ILocalUserService localUserService,
     ILocalFileService localFileService) : IHostedService, IDisposable
 {
     private int _execution = 0;
@@ -36,7 +36,7 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
                 var updated = Convert.ToDateTime(appConfig.LastUpdatedDate);
 
                 // Update employees in txt file
-                
+
                 if (updated.Date != currentDate.Date && currentHour >= 6)
                 {
                     // Renew users saved list
@@ -45,29 +45,29 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
                     // Remove old files
                     if (updated.DayOfWeek == DayOfWeek.Monday)
                     {
-                        var logs = Directory.GetFiles(@"wwwroot/logs", "*.txt", SearchOption.AllDirectories).ToList();
+                        var cutOffDate = currentDate.AddMonths(-3);
+
+                        // Clean history file from old histories
+                        var histories = _localFileService.GetListFromEncryptedFile<FileViewModel>("catacatalogs/histories");
+                        histories = [.. histories.Where(x => Convert.ToDateTime(x.Date) >= cutOffDate)];
+                        await _localFileService.SaveUpdateEncryptedFile(histories, "catalogs/histories");
+
 
                         // Remove old files
+                        var logs = Directory.GetFiles(@"wwwroot/logs", "*.txt", SearchOption.AllDirectories).ToList();
                         if (logs?.Count > 0)
                         {
-                            var oldFiles = logs.Where(x => File.GetLastWriteTime(x).AddMonths(3).Ticks < DateTime.Now.Ticks).ToList();
-                            if (oldFiles.Count > 0)
+                            cutOffDate = DateTime.Now.AddMonths(-1);
+
+                            foreach (var file in logs)
                             {
-                                for (var x = 0; x < oldFiles.Count; x++)
+                                if (File.GetLastWriteTime(file) < cutOffDate)
                                 {
-                                    var log = logs[x];
-                                    FileInfo fi = new(log);
-                                    if (fi != null)
-                                    {
-                                        File.Delete(log);
-                                        fi.Delete();
-                                        logs.Remove(log);
-                                    }
+                                    File.Delete(file);
                                 }
                             }
                         }
                     }
-
                     // Update app config
                     _localFileService.UpdateConfigFile("appconfig", "LastUpdatedDate", currentDate.ToString("yyyy.MM.dd HH:mm:ss"));
                 }

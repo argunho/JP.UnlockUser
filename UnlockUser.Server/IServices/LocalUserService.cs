@@ -47,14 +47,14 @@ public class LocalUserService(ILocalFileService localFileService,
             Default = false
         }).ToList();
 
-        await _localFileService.SaveUpdateFile(managersToSave, "managers");
-        await _localFileService.SaveUpdateFile(politicians, "politicians");
+        await _localFileService.SaveUpdateEncryptedFile(managersToSave, "catalogs/managers");
+        await _localFileService.SaveUpdateEncryptedFile(politicians, "catalogs/politicians");
         #endregion
 
         #region Get employees        
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
-        var currentSavedList = _localFileService.GetListFromFile<UserViewModel>("catalogs/employees") ?? [];
-        var schools = _localFileService.GetListFromFile<School>("catalogs/schools");
+        var currentSavedList = _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/employees") ?? [];
+        var schools = _localFileService.GetListFromEncryptedFile<School>("catalogs/schools");
         List<User> users = [];
 
         foreach (var group in groups!)
@@ -105,7 +105,7 @@ public class LocalUserService(ILocalFileService localFileService,
                 if (isSchool && !string.IsNullOrWhiteSpace(user!.Office) && !permissions.Schools.Contains(user!.Office, StringComparer.OrdinalIgnoreCase))
                     permissions.Schools.Add(user.Office);
 
-                newUser!.Name = user.SamAccountName;
+                newUser.Name = user.SamAccountName;
                 newUser.DisplayName = user.DisplayName;
                 newUser.Email = user.EmailAddress;
                 newUser.Office = user.Office;
@@ -135,13 +135,13 @@ public class LocalUserService(ILocalFileService localFileService,
             }
         }
 
-        await _localFileService.SaveUpdateFile([.. users.OrderBy(o => o.DisplayName)], "employees");
+        await _localFileService.SaveUpdateEncryptedFile([.. users.OrderBy(o => o.DisplayName)], "catalogs/employees");
        #endregion
     }
 
     public User? GetUserFromFile(string username)
     {
-        List<UserViewModel> employees = _localFileService.GetListFromFile<UserViewModel>("catalogs/employees") ?? [];
+        List<UserViewModel> employees = _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/employees") ?? [];
         UserViewModel? user = employees?.FirstOrDefault(x => x.Name == username);
         return user;
     }

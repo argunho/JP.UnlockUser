@@ -128,7 +128,7 @@ const AppRoutes = () => [
           },
           {
             path: 'logs/history',
-            element: <Catalog label="Historik filer" search={true} />,
+            element: <Catalog label="Historik" search={true} />,
             errorElement: <ErrorView />,
             loader: loader("data/logs/history")
           },

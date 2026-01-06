@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
@@ -8,8 +9,8 @@ namespace UnlockUser.Server.IServices;
 public class LocalFileService(IConfiguration config) : ILocalFileService
 {
     private readonly IConfiguration _config = config;
-    
-    public List<T> GetListFromFile<T>(string fileName) where T : class
+
+    public List<T> GetListFromEncryptedFile<T>(string fileName) where T : class
     {
         try
         {
@@ -29,7 +30,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
             return [];
         }
     }
-    
+
     public string DecryptStringFromBytes(byte[] cypherText)
     {
         // Check arguments.
@@ -60,7 +61,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
 
         return plainText;
     }
-    
+
     public byte[] EncryptStringToBytes(string plainText)
     {        // Check arguments.
         if (plainText == null || plainText.Length <= 0)
@@ -94,13 +95,13 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
         // Return the encrypted bytes from the memory stream.
         return encrypted;
     }
-    
-    public async Task<string?> SaveUpdateFile<T>(List<T> list, string fileName) where T : class
+
+    public async Task<string?> SaveUpdateEncryptedFile<T>(List<T> list, string fileName) where T : class
     {
         string? error = String.Empty;
         try
         {
-            var directory = @"wwwroot/catalogs/";
+            var directory = @"wwwroot/";
             CheckDirectory(directory);
 
             var path = Path.Combine(directory, $"{fileName}.txt");
@@ -124,13 +125,13 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"{nameof(SaveUpdateFile)} => Error: ${ex.Message}");
+            Debug.WriteLine($"{nameof(SaveUpdateEncryptedFile)} => Error: ${ex.Message}");
             error = ex.Message;
         }
 
         return error;
     }
-    
+
     // Update configuration json
     public void UpdateConfigFile(string config, string? parameter, string? value, string? obj = null)
     {
@@ -155,7 +156,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
             Debug.WriteLine(ex.Message);
         }
     }
-   
+
     public List<T> GetJsonFile<T>(string fileName)
     {
         var path = Path.Combine(@"wwwroot/json/", $"{fileName}.json");
@@ -170,24 +171,41 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
     }
 
     // Save history logfile
-    public void SaveLogFile(List<string> contentList, string pathName)
+    public async Task SaveUpdateTextFile<T>(List<T> models, string fileName) where T : class
     {
-        var directory = $@"wwwroot\logs\{pathName}";
+        var directory = $@"wwwroot\logs";
         if (CheckDirectory(directory))
         {
-            contentList.Add("\n\n Datum: " + DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
-
-            // Write the string array to a new file named ".txt".
-            var fileName = string.Concat(Guid.NewGuid().ToString().AsSpan(10), "_", DateTime.Now.ToString("yyyyMMddHHmmss"));
             var path = Path.Combine(directory, $"{fileName}.txt");
+            if (File.Exists(path))
+                File.Delete(path);
 
-            //using StreamWriter outputFile = new(pathName, true);
-            using StreamWriter stream = File.CreateText(path);
-            foreach (var contentLine in contentList)
-                stream.WriteLine(contentLine);
+            if (models.Count > 0)
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(models);
+                await File.WriteAllTextAsync(path, json, Encoding.UTF8);
+            }
 
-            stream.Close();
+
+
+
+            //fileNem += string.Concat(Guid.NewGuid().ToString().AsSpan(10), "_", DateTime.Now.ToString("yyyyMMddHHmmss"));
+
+            //// Write line by lien in file using loop of list
+            //using StreamWriter stream = File.CreateText(path);
+            //foreach (var contentLine in list)
+            //    stream.WriteLine(contentLine);
+
+            //stream.Close();
         }
+    }
+
+    // Read text fiel
+    public async Task<List<T>> GetListFromTextFile<T>(string pathName) where T : class
+    {
+        string path = Path.Combine(@"wwwroot", $"{pathName}.txt");
+        string stringContent = await File.ReadAllTextAsync(pathName);
+        return System.Text.Json.JsonSerializer.Deserialize<List<T>>(stringContent) ?? [];
     }
 
     #region Help methods
@@ -200,20 +218,19 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
     }
 
     // Check directory path exists or not
-    public bool CheckDirectory(string path)
+    private bool CheckDirectory(string path)
     {
         try
         {
             if (!Directory.Exists(path)) // Check directory          
                 Directory.CreateDirectory(path); //Create directory if it doesn't exist
+            return true;
         }
         catch (Exception ex)
         {
             Debug.WriteLine(ex.Message);
             return false;
         }
-
-        return true;
     }
     #endregion
 }

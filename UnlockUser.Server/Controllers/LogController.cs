@@ -17,7 +17,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        List<Log> logs = [];
+        List<LogViewModel> logs = [];
         try
         {
             logs = await GetLogs();
@@ -38,8 +38,8 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         try
         {
             var logs = await GetLogs();
-            Log log = logs?.FirstOrDefault(x => x.Id == id) ?? new();
-            if (!log.Equals(new Log()))
+            LogViewModel log = logs?.FirstOrDefault(x => x.Id == id) ?? new();
+            if (!log.Equals(new LogViewModel()))
             {
                 log.Opened = true;
                 string logsJson = System.Text.Json.JsonSerializer.Serialize(logs);
@@ -64,12 +64,12 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         try
         {
             var logs = await GetLogs();
-            Log? log = logs.FirstOrDefault(x => x.Id == id);
+            LogViewModel? log = logs.FirstOrDefault(x => x.Id == id);
             if (log == null)
                 return NotFound(_helpService.NotFound("Log"));
 
             logs.Remove(log);
-            string logsJson = System.Text.Json.JsonSerializer.Serialize(logs);
+            string logsJson = JsonSerializer.Serialize(logs);
             await _fileService.SaveFile(logsJson!, "logs", @"wwwroot/json");
             return Ok();
         }
@@ -102,24 +102,60 @@ public class LogController(IHelpService helpService, IFileService fileService) :
     #endregion
 
     #region Help methods
-    public async Task<List<Log>> GetLogs()
+    public async Task<List<LogViewModel>> GetLogsOneByOne()
     {
-        List<Log> logs = [];
-        var logFiles = Directory.GetFiles(@"wwwroot/logs", "*.txt", SearchOption.AllDirectories).ToList();
-        if (logFiles.Count == 0)
+        List<LogViewModel> logs = [];
+        var logFiles = Directory.GetFiles(@"wwwroot/logs", "*.txt", SearchOption.AllDirectories);
+        if (logFiles.Length == 0)
             return logs;
 
-        foreach(var file in logFiles)
+        foreach (var file in logFiles)
         {
-            var json = await System.IO.File.ReadAllTextAsync(file);
-            if (string.IsNullOrEmpty(json))
-                continue;
+            try
+            {
+                var json = await System.IO.File.ReadAllTextAsync(file);
 
-            var log = JsonSerializer.Deserialize<Log>(json);
-            logs.Add(log);
+                if (string.IsNullOrEmpty(json))
+                    continue;
+
+                var log = JsonSerializer.Deserialize<LogViewModel>(json);
+                if (log != null)
+                    logs.Add(log);
+
+            }
+            catch (Exception ex)
+            {
+                await _helpService.Error(ex);
+            }
         }
 
         return logs;
+    }
+
+    public async Task<List<LogViewModel?>> GetLogs()
+    {
+        var logFiles = Directory.GetFiles(@"wwwroot/logs", "*.txt", SearchOption.AllDirectories);
+
+        var logs = logFiles.Select(async file =>
+        {
+            try
+            {
+                var json = await System.IO.File.ReadAllTextAsync(file);
+
+                if (string.IsNullOrWhiteSpace(json))
+                    return null;
+
+                return JsonSerializer.Deserialize<LogViewModel>(json);
+            }
+            catch
+            {
+                return null;
+            }
+        });
+
+        var results = await Task.WhenAll(logs) ?? [];
+
+        return [.. results.Where(x => x != null)];
     }
     #endregion
 }
