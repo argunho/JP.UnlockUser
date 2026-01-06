@@ -118,11 +118,14 @@ td.number {
 }
 
 span.skeleton-box-list {
-    min-height: 60px;
+    min-height: 80px;
     background-color: var(--color-list-bg) !important;
     margin: 5px 0 !important;
 }
 
+span.skeleton-box-list:first-of-type {
+    margin-top: 20px !important;
+}
 /* #endregion */
 
 /* #region Ul panel */

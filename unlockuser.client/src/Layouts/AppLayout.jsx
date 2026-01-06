@@ -1,7 +1,7 @@
 import { useEffect, useRef, use } from 'react';
 
 // Installed
-import { Outlet, useNavigation, useLoaderData, useParams } from 'react-router-dom';
+import { Outlet, useNavigation, useLoaderData, useParams, useLocation } from 'react-router-dom';
 
 // Components
 import Header from "../components/blocks/Header";
@@ -10,20 +10,20 @@ import LinearLoading from './../components/blocks/LinearLoading';
 // Storage
 import { DashboardContext } from '../storage/DashboardContext';
 
-
 function AppLayout() {
   const dashboardData = use(DashboardContext);
 
   const refContainer = useRef();
   const navigation = useNavigation();
   const params = useParams();
+  const loc = useLocation();
 
-  const loads = dashboardData?.loading || navigation.state === "loading";
+  const loads = dashboardData?.loading;
   const schools = useLoaderData();
 
   useEffect(() => {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
-  }, [])
+  }, [loc])
 
   return (
     <>
@@ -31,7 +31,7 @@ function AppLayout() {
 
       <div className="container d-column jc-start fade-in" ref={refContainer}>
 
-        {!loads && <Outlet context={{ loading: loads, ...dashboardData, ...params, schools }} />}
+        {!loads && <Outlet context={{ ...dashboardData, ...params, schools, loading: navigation.state === "loading" }} />}
 
         {/* Loading */}
         {loads && <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain" />}

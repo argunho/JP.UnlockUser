@@ -188,7 +188,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 }
             }
 
-            return new JsonResult(new { list, count = $"Byten lösenord: {passwordChange}, Upplåst konto: {unlockedAccount}" });
+            return Ok(new { list, secondaryLabel = $"Byten lösenord: {passwordChange}, Upplåst konto: {unlockedAccount}" });
         }
         catch (Exception ex)
         {

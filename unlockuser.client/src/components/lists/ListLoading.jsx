@@ -17,7 +17,7 @@ function ListLoading({ rows = 1, loading, pending }) {
         )
     }
     
-    return <List className="w-100">
+    return <List className="list-container w-100">
         {Array(rows).fill().map((i, ind) => {
             return <ListItem
                 className="li-disabled"
