@@ -53,8 +53,8 @@ public class LocalUserService(ILocalFileService localFileService,
 
         #region Get employees        
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
-        var currentSavedList = _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/employees") ?? [];
-        var schools = _localFileService.GetListFromEncryptedFile<School>("catalogs/schools");
+        var currentSavedList = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/employees") ?? [];
+        var schools = await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools");
         List<User> users = [];
 
         foreach (var group in groups!)
@@ -139,25 +139,25 @@ public class LocalUserService(ILocalFileService localFileService,
        #endregion
     }
 
-    public User? GetUserFromFile(string username)
+    public async Task<User?> GetUserFromFile(string username)
     {
-        List<UserViewModel> employees = _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/employees") ?? [];
+        List<UserViewModel> employees = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/employees") ?? [];
         UserViewModel? user = employees?.FirstOrDefault(x => x.Name == username);
         return user;
     }
 
-    public List<Manager> GetUsersManagers(string username, string groupName)
+    public async Task<List<Manager>> GetUsersManagers(string username, string groupName)
     {
-        var user = GetUserFromFile(username);
-        return user?.Managers.Where(x => !x.Disabled).ToList() ?? [];
+        var user = await GetUserFromFile(username);
+        return user!.Managers.Where(x => !x.Disabled).ToList() ?? [];
     }
 
     // Usersr filter
-    public List<User> Filter(List<User> users, string? groupName, string? username)
+    public async Task<List<User>> Filter(List<User> users, string? groupName, string? username)
     {
         if (string.IsNullOrEmpty(groupName) || string.IsNullOrEmpty(username)) return users;
 
-        var userCahcedData = GetUserFromFile(username);
+        var userCahcedData = await GetUserFromFile(username);
         var permissions = userCahcedData?.Permissions ?? new();
 
         if (!groupName.Equals("Students", StringComparison.OrdinalIgnoreCase))

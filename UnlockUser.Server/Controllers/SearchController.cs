@@ -20,7 +20,7 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
     #region GET
     // Search one user
     [HttpGet("person/{name}/{group}/{match:bool}")]
-    public IActionResult FindUser(string name, string group, bool match = false)
+    public async Task<IActionResult> FindUser(string name, string group, bool match = false)
     {
         var usersToView = new List<User>();
         var support = group == "Support";
@@ -45,7 +45,7 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
                 var usersToManage = _provider.GetUsers(result!, group).ToList();
                 if (!support)
                 {
-                    usersToManage = _localUserService.Filter(usersToManage, group, claims!["username"]);
+                    usersToManage = await _localUserService.Filter(usersToManage, group, claims!["username"]);
                 }
 
 
@@ -69,7 +69,7 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
 
     // Search class students by class and school name
     [HttpGet("students/{school}/{class}")]
-    public IActionResult FindClassMembers(string school, string @class)
+    public async Task<IActionResult> FindClassMembers(string school, string @class)
     {
         try
         {
@@ -81,7 +81,7 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
 
             result.Filter = $"(&(objectClass=User)((physicalDeliveryOfficeName={@class})(department={school})))";
 
-            users = _localUserService.Filter(users, "Students", claims!["username"]);
+            users = await _localUserService.Filter(users, "Students", claims!["username"]);
 
             if (users.Count > 0)
                 return Ok(new { users = users.Distinct().OrderBy(x => x.Department).ThenBy(x => x.Name) });

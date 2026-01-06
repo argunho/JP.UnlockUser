@@ -3,7 +3,7 @@
 public interface ILocalUserService
 {
     Task RenewUsersCachedList();
-    User? GetUserFromFile(string username);
-    List<Manager> GetUsersManagers(string username, string groupName);
-    List<User> Filter(List<User> users, string? groupName, string? username);
+    Task<User?> GetUserFromFile(string username);
+    Task<List<Manager>> GetUsersManagers(string username, string groupName);
+    Task<List<User>> Filter(List<User> users, string? groupName, string? username);
 }

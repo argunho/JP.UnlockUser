@@ -35,7 +35,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
             // Saved employees who have permission to manage employee passwords
-            var savedEmployees = _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/employees") ?? [];
+            var savedEmployees = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/employees") ?? [];
 
             // Verify the current user's membership in the support group
             bool accessGroup = !string.IsNullOrEmpty(claims["access"]);
@@ -108,9 +108,9 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
 
     // Get schools list
     [HttpGet("schools")]
-    public IActionResult GetSchools()
+    public async Task<IActionResult> GetSchools()
     {
-        var schools = _localFileService.GetListFromEncryptedFile<School>("catalogs/schools").Select(s => new ListViewModel
+        var schools = (await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools")).Select(s => new ListViewModel
         {
             Id = s.Name,
             Primary = s.Name,
@@ -126,8 +126,8 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            var histories = await _localFileService.GetListFromTextFile<FileViewModel>("catologs/histories");
-            if (histories.Count() == 0)
+            var histories = await _localFileService.GetListFromEncryptedFile<FileViewModel>("catalogs/histories");
+            if (histories.Count == 0)
                 return Ok();
 
             var historiesToView = histories?.OrderByDescending(x => x.Date).Select(s => new ListViewModel
@@ -167,7 +167,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            List<Statistics> data = _localFileService.GetListFromEncryptedFile<Statistics>("catacatalogs/statistics");
+            List<Statistics> data = await _localFileService.GetListFromEncryptedFile<Statistics>("catacatalogs/statistics");
             List<ListViewModel> list = [.. data?.OrderBy(x => x.Year).Select(s => new ListViewModel {
                 Primary = s.Year.ToString(),
                 Secondary = $"Byten lösenord: {s.Months.Sum(s => s.PasswordsChange)}, Upplåst konto: {s.Months.Sum(s => s.Unlocked)}",
@@ -203,7 +203,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            var schools = _localFileService.GetListFromEncryptedFile<School>("catalogs/schools");
+            var schools = await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools");
             if (schools.Count == 0)
                 schools = _localFileService.GetJsonFile<School>("schools");
             schools.Add(school);
@@ -226,7 +226,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            var schools = _localFileService.GetListFromEncryptedFile<School>("catalogs/schools");
+            var schools = await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools");
             schools.RemoveAll(x => x.Name == name);
             await Task.Delay(1000);
             await _localFileService.SaveUpdateEncryptedFile(schools, "catalogs/schools");

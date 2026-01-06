@@ -2,7 +2,7 @@
 
 public interface ILocalFileService
 {
-    List<T> GetListFromEncryptedFile<T>(string fileName) where T : class;
+    Task<List<T>> GetListFromEncryptedFile<T>(string fileName) where T : class;
     byte[] EncryptStringToBytes(string plainText);
     string DecryptStringFromBytes(byte[] cypherText);
     Task<string?> SaveUpdateEncryptedFile<T>(List<T> list, string fileName) where T : class;

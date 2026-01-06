@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,14 +9,14 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
 {
     private readonly IConfiguration _config = config;
 
-    public List<T> GetListFromEncryptedFile<T>(string fileName) where T : class
+    public async Task<List<T>> GetListFromEncryptedFile<T>(string fileName) where T : class
     {
         try
         {
             var path = Path.Combine(@"wwwroot", $"{fileName}.txt");
             if (!File.Exists(path))
                 return [];
-            var res = File.ReadAllText(path);
+            var res = await File.ReadAllTextAsync(path);
             byte[] resInBytes = Convert.FromBase64String(res);
 
             // Decrypt file content
