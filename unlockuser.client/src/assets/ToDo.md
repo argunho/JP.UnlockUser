@@ -17,8 +17,6 @@
 2. Load log files
 
 
-# Permissions by Group not by place/school
-# Politker for all politeker group
 # Page. behörighets listan
 # Page User overview for support
 

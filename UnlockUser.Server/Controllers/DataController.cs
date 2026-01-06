@@ -126,12 +126,18 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            var histories = Directory.GetFiles(@"wwwroot/logs/history", "*.txt", SearchOption.AllDirectories).ToList();
-            if (histories?.Count > 0)
-                histories = histories?.OrderByDescending(x => System.IO.File.GetLastWriteTime(x).Ticks)?
-                                .Select(x => x.Replace("\\", "/")[(x.LastIndexOf('/') + 1)..].Replace(".txt", "")).ToList();
+            var histories = await _localFileService.GetListFromTextFile<FileViewModel>("catologs/histories");
+            if (histories.Count() == 0)
+                return Ok();
 
-            return Ok(histories);
+            var historiesToView = histories?.OrderByDescending(x => x.Date).Select(s => new ListViewModel
+                {
+                    Id = s.Date,
+                    Primary = s.Name,
+                    Secondary = s.Description
+                }).ToList();
+
+            return Ok(historiesToView);
         }
         catch (Exception ex)
         {
