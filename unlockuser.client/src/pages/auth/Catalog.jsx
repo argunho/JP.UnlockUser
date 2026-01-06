@@ -67,7 +67,7 @@ function Catalog({ label, fields, api, fullWidth, search }) {
 
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
 
-    if(loading && loads)
+    if(loading && !loads)
         return <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain" />
 
     return (

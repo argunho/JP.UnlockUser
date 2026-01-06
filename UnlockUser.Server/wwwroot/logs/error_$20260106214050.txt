@@ -1,0 +1,1 @@
+﻿{"Id":"4e57be9e-19f8-4baa-92d5-e3ee988c4dc2","Source":"System.Private.CoreLib","Type":"Error","Description":"Error: length (\u0027-4\u0027) must be a non-negative value. (Parameter \u0027length\u0027)\r\nActual value was -4.\n\n","Opened":false,"Date":"2026.01.06 21:40:50"}

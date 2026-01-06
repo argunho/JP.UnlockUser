@@ -4,7 +4,6 @@ import { Navigate } from 'react-router-dom';
 // Layouts
 import AppLayout from '../layouts/AppLayout';
 import SessionLayout from './../layouts/SessionLayout';
-import MainLayout from './../layouts/MainLayout';
 import UsersLayout from './../layouts/UsersLayout';
 
 // Pages
@@ -95,8 +94,6 @@ const AppRoutes = () => [
       },
       {
         path: "/view",
-        element: <MainLayout />,
-        errorElement: <NotFound isAuthorized={true} />,
         children: [
           {
             path: 'user/:id',

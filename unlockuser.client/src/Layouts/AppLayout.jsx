@@ -1,7 +1,7 @@
 import { useEffect, useRef, use } from 'react';
 
 // Installed
-import { Outlet, useNavigation, useLoaderData, useParams, useLocation } from 'react-router-dom';
+import { Outlet, useNavigation, useLoaderData, useParams } from 'react-router-dom';
 
 // Components
 import Header from "../components/blocks/Header";
@@ -16,14 +16,13 @@ function AppLayout() {
   const refContainer = useRef();
   const navigation = useNavigation();
   const params = useParams();
-  const loc = useLocation();
 
   const loads = dashboardData?.loading;
   const schools = useLoaderData();
 
   useEffect(() => {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
-  }, [loc])
+  }, [])
 
   return (
     <>
