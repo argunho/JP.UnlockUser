@@ -144,7 +144,7 @@ console.log(user)
                     <h3>Förvaltning</h3>
                     <span> - {user?.division}</span>
                 </>}
-                {pmGroups && <Button variant="outlined" onCLick={() => navigate("/")} sx={{ marginTop: "30px" }}>Behörigheter</Button>}
+                {pmGroups && <Button variant="outlined" onClick={() => navigate(`/moderators/view/${user?.name}`)} sx={{ marginTop: "30px" }}>Behörigheter</Button>}
             </section>
 
             {/* IIf the user is a member of any password management group. */}
