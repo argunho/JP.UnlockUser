@@ -77,7 +77,7 @@ function FetchContextProvider({ children }) {
         dispatch({ type: 'CLEAR' });
     }, []);
 
-    const fetchData = useCallback(async ({ api, method = 'get', data = null, action = null }) => {
+    const fetchData = useCallback(async ({ api, method = 'get', data = null, action = null, responseType = null }) => {
         controllerRef.current = new AbortController();
 
         dispatch({ type: 'START', pending: method != "get" && action !== "none" });
@@ -88,9 +88,16 @@ function FetchContextProvider({ children }) {
                 signal: controllerRef.current.signal
             };
 
-            const response = data
-                ? await axios[method](`api/${api}`, data, config)
-                : (["post", "patch", "put"].includes(method) ? await axios[method](`api/${api}`, {}, config) : await axios[method](`api/${api}`, config));
+            if(responseType)
+                config.responseType = responseType;
+
+            
+            let apiProps = [`api/${api}`];
+            if(["post", "patch", "put"].includes(method))
+                apiProps.push(data || {});
+            apiProps.push(config);
+
+            const response = await axios[method](...apiProps);
 
             const res = response?.data !== undefined ? response.data : response;
             const warning = (res?.msg || res?.result?.msg || res?.response);
@@ -113,7 +120,7 @@ function FetchContextProvider({ children }) {
                 dispatch({ type: action !== "complete" ? 'SUCCESS' : "COMPLETE", payload: null });
             }
 
-            if(action === "success")
+            if (action === "success")
                 return (res?.statusCode === 200 || res?.color === "success" || res === "");
 
         } catch (error) {

@@ -11,7 +11,7 @@ import { AuthContext } from "../../storage/AuthContext";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export async function signout() {
-    await ApiRequest("api/authentication/logout", "delete");
+    await ApiRequest("authentication/logout", "delete");
 }
 
 function Logout() {

@@ -58,20 +58,21 @@ public class LogController(IHelpService helpService, IFileService fileService) :
     }
 
     [HttpGet("download/by/{id}")]
+    [AllowAnonymous]
     public async Task<IActionResult> DownloadFile(string id)
     {
         try
         {
             var logs = await GetLogs();
             if (logs?.Count == 0)
-                return BadRequest(_helpService.Warning("File hittades inte."));
+                return NotFound(_helpService.Warning("File hittades inte."));
 
-            var log = logs.FirstOrDefault(x => x!.Id == id);
+            var log = logs?.FirstOrDefault(x => x!.Id == id);
             if (log == null)
-                return BadRequest(_helpService.Warning("File hittades inte."));
+                return NotFound(_helpService.Warning("File hittades inte."));
 
             byte[] downloadBytes = Encoding.UTF8.GetBytes(log.Download);
-            return File(downloadBytes, "text/plain", $"Error_log_{log?.Id}");
+            return File(downloadBytes, "text/plain", $"error_log.txt");
         }
         catch (Exception ex)
         {
@@ -91,29 +92,19 @@ public class LogController(IHelpService helpService, IFileService fileService) :
             if (log == null)
                 return NotFound(_helpService.NotFound("Log"));
 
-            logs.Remove(log);
-            string logsJson = JsonSerializer.Serialize(logs);
-            await _fileService.SaveFile(logsJson!, "logs", @"wwwroot/json");
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(await _helpService.Error(ex)); ;
-        }
-    }
-
-    [HttpDelete("multiple/{ids}")]
-    public async Task<IActionResult> DeleteMultiple(string? ids)
-    {
-        try
-        {
-            if (string.IsNullOrEmpty(ids))
-                return NotFound(_helpService.Warning());
-
-            List<string>? idsToRemove = [.. ids.Split(",")];
-            for (int i = 0; i < idsToRemove?.Count; i++)
+            string fileName = $"{Convert.ToDateTime(log.Date):yyyyMMddHHmmss}.txt";
+            var files = Directory.GetFiles(@"wwwroot/logs", "*.txt", SearchOption.AllDirectories);
+            foreach (var file in files)
             {
-                await Delete(idsToRemove[i]);
+                try
+                {
+                    if (file.EndsWith(fileName))
+                        System.IO.File.Delete(file);
+                }
+                catch (Exception ex)
+                {
+                    await _helpService.Error(ex);
+                }
             }
             return Ok();
         }

@@ -173,7 +173,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            List<Statistics> data = await _localFileService.GetListFromEncryptedFile<Statistics>("catacatalogs/statistics");
+            List<Statistics> data = await _localFileService.GetListFromEncryptedFile<Statistics>("catalogs/statistics");
             List<ListViewModel> list = [.. data?.OrderBy(x => x.Year).Select(s => new ListViewModel {
                 Primary = s.Year.ToString(),
                 Secondary = $"Byten lösenord: {s.Months.Sum(s => s.PasswordsChange)}, Upplåst konto: {s.Months.Sum(s => s.Unlocked)}",

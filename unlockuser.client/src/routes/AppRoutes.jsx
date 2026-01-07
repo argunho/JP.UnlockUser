@@ -118,14 +118,14 @@ const AppRoutes = () => [
         path: "/catalog",
         children: [
           {
-            path: 'logs/errors',
-            element: <Catalog label="Loggfiler" search={true} download="logs/download/by/" />,
+            path: ':api/errors',
+            element: <Catalog label="Loggfiler" search={true} download="logs/download/by" />,
             errorElement: <ErrorView />,
             loader: loader("logs")
           },
           {
-            path: 'logs/history',
-            element: <Catalog label="Historik" search={true} download="data/download/by/" />,
+            path: ':api/history',
+            element: <Catalog label="Historik" api="data/history" search={true} download="data/download/by" />,
             errorElement: <ErrorView />,
             loader: loader("data/logs/history")
           },

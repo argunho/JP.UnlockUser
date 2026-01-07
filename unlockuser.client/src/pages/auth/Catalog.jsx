@@ -1,4 +1,4 @@
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, Fragment } from "react";
 
 // Installed
 import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText, Skeleton } from "@mui/material";
@@ -19,17 +19,18 @@ import usePagination from "../../hooks/usePagination";
 
 // Storage
 import { FetchContext } from "../../storage/FetchContext";
+import { DownloadFile } from "../../functions/Functions";
 
 
 // { loc, includedList, label, fullWidth, api, id, fields, labels, navigate }
-function Catalog({ label, fields, api, fullWidth, search, download }) {
+function Catalog({ label, fields, fullWidth, search, download }) {
 
     const [open, setOpen] = useState(false);
     const [confirmId, setConfirmId] = useState(null);
     const [collapsedItemIndex, setCollapsedItemIndex] = useState(null);
     const [searchWord, setSearchWord] = useState(null);
 
-    const { loading } = useOutletContext();
+    const { api, loading } = useOutletContext();
     const catalogLoading = useMatch("/catalog/*");
     const moderatorsLoading = useMatch("/moderators/*");
     const loads = loading && (catalogLoading || moderatorsLoading);
@@ -56,17 +57,25 @@ function Catalog({ label, fields, api, fullWidth, search, download }) {
     function handleDropdown(index) {
         setCollapsedItemIndex(index === collapsedItemIndex ? null : index);
     }
-
+console.log(api)
     async function removeConfirmedItem() {
         const success = await fetchData({ api: `${api}/${confirmId}`, method: "delete", action: "success" });
 
+        console.log(api, success)
         if (success)
             revalidate();
         setConfirmId(null);
     }
 
     async function onDownload(id){
-        await fetchData({ api: `${download}/${id}`, method: "get" });
+        const blob = await fetchData({ api: `${download}/${id}`, method: "get", action: "return", responseType: "blob" });
+        console.log(blob)
+        DownloadFile(blob, `${api}_${id}.txt`);
+
+        // if(!res?.msg){
+        //     const blob = await res.blob();
+        //     console.log(blob)
+        // }
     }
 
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
@@ -112,15 +121,14 @@ function Catalog({ label, fields, api, fullWidth, search, download }) {
 
             {(!open && (items?.length > 0 && !loads)) && <List className="d-row list-container w-100">
                 {/* Loop of result list */}
-                {items?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, index) => {
+                {items?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, ind) => {
                     const onClickProps = !!item?.link ? { onClick: () => navigate(item?.link) } : null;
 
-                    return <>
+                    return <Fragment key={ind}>
                         {/* List item */}
                         <ListItem
-                            key={index}
-                            className={`list-item${fullWidth || ((index + 1) === items?.length && (items?.length % 2) !== 0) ? " w-100 last" : ""}
-                                        ${collapsedItemIndex === index ? " dropdown" : ""}`}
+                            className={`list-item${fullWidth || ((ind + 1) === items?.length && (items?.length % 2) !== 0) ? " w-100 last" : ""}
+                                        ${collapsedItemIndex === ind ? " dropdown" : ""}`}
                             secondaryAction={
                                 <div className="d-row">
 
@@ -131,8 +139,8 @@ function Catalog({ label, fields, api, fullWidth, search, download }) {
 
                                     {/* Dropdown and delete button */}
                                     {item?.includedList?.length > 0 
-                                    ? <IconButton onClick={() => handleDropdown(index)}>
-                                        {collapsedItemIndex === index ? <ArrowDropUp /> : <ArrowDropDown />}
+                                    ? <IconButton onClick={() => handleDropdown(ind)}>
+                                        {collapsedItemIndex === ind ? <ArrowDropUp /> : <ArrowDropDown />}
                                     </IconButton> 
                                     : <IconButton onClick={() => setConfirmId(item?.id)} color="error" disabled={confirmId || open || loads || pending}>
                                             {(confirmId == item?.id && pending) ? <CircularProgress size={20} /> : <Delete />}
@@ -140,7 +148,7 @@ function Catalog({ label, fields, api, fullWidth, search, download }) {
                                 </div>
                             }
                         >
-                            <ListItemIcon>{index + 1}</ListItemIcon>
+                            <ListItemIcon>{ind + 1}</ListItemIcon>
                             <ListItemText className="li-div"
                                 primary={<span dangerouslySetInnerHTML={{ __html: item?.primary }} />}
                                 secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }} />}
@@ -150,11 +158,11 @@ function Catalog({ label, fields, api, fullWidth, search, download }) {
 
                         {/* If the item has an included list */}
                         {item?.includedList?.length > 0 &&
-                            <Collapse in={collapsedItemIndex === index} className='d-row dropdown-block' timeout="auto" unmountOnExit>
+                            <Collapse in={collapsedItemIndex === ind} className='d-row dropdown-block' timeout="auto" unmountOnExit>
                                 <List style={{ width: "95%", margin: "5px auto" }}>
-                                    {item?.includedList?.map((inc, ind) => {
+                                    {item?.includedList?.map((inc, index) => {
                                         const collapseProps = !!inc?.link ? { onClick: () => navigate(inc.link) } : null;
-                                        return <ListItem className="w-100" key={ind} {...collapseProps}>
+                                        return <ListItem className="w-100" key={index} {...collapseProps}>
                                             <ListItemIcon>
                                                 <CalendarMonth />
                                             </ListItemIcon>
@@ -163,7 +171,7 @@ function Catalog({ label, fields, api, fullWidth, search, download }) {
                                     })}
                                 </List>
                             </Collapse>}
-                    </>
+                    </Fragment>
                 })}
             </List>}
 

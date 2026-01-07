@@ -1,0 +1,1 @@
+﻿{"Id":"error_20260107154531","Source":"Error: System.Private.CoreLib","Description":"Error: Failed to compare two elements in the array.\n\nPath to file: Controllers\\LogController.cs\n\nLine number: 193\n\nMethod: MoveNext\n","Opened":false,"Date":"2026.01.07 15:45:31"}
