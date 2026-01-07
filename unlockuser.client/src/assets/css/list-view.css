@@ -58,7 +58,7 @@ li.list-item {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     font-size: 18px !important;
-    width: 95% !important;
+    width: 90% !important;
 }
 
 li.last {

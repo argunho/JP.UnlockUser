@@ -57,8 +57,8 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         }
     }
 
-    [HttpGet("download/by/({id}")]
-    public async Task<IActionResult> DownloadFile(string catalog, string id)
+    [HttpGet("download/by/{id}")]
+    public async Task<IActionResult> DownloadFile(string id)
     {
         try
         {

@@ -92,12 +92,14 @@ function Catalog({ label, fields, api, fullWidth, search, download }) {
                 </div>}
             </TabPanel>
 
+            {/* Pagination */}
+            {!open && pagination}
 
             {/* Confirm/Form block */}
             {!!fields && <CollapseForm open={open} fieldsName={fields} api={api} />}
 
             {/* Confirm message and response */}
-            <Collapse className="collapse" in={confirmId || response}>
+            <Collapse className="collapse w-100" in={confirmId || response}>
                 {/* Confirm */}
                 {!!confirmId && <ConfirmButtons
                     question="Radera?"
@@ -107,9 +109,6 @@ function Catalog({ label, fields, api, fullWidth, search, download }) {
                 {/* Response */}
                 {!!response && <Message res={response} cancel={() => handleResponse()} />}
             </Collapse>
-
-            {/* Pagination */}
-            {!open && pagination}
 
             {(!open && (items?.length > 0 && !loads)) && <List className="d-row list-container w-100">
                 {/* Loop of result list */}
