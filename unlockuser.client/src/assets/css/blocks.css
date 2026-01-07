@@ -113,29 +113,34 @@ button.reset-button {
 /* #endregion */
 
 /*  #region Overview/View */
+.view-wrapper {
+  flex: 1;
+  padding: 0;
+}
+
 section {
   clear: both;
 }
 
 section.view,
 section.search {
-  border-radius: 5px;
-  margin: 20px auto;
+  margin: 10px;
+  flex: 1;
 }
 
 section.view {
-  width: 60% !important;
+  max-width: 60% !important;
   padding: 35px;
   box-shadow: var(--box-shadow);
 }
 
 div.view {
-  padding: 10px 40px;
-  margin-top: -40px !important;
+  padding: 10px 30px;
+  margin-top: 0px !important;
 }
 
 section.view h3,
-div.view h3 {
+div.view h3:last-of-type {
   margin-bottom: 5px !important;
 }
 

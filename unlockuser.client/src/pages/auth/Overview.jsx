@@ -35,7 +35,7 @@ const messages = {
     },
     error: {
         color: "warning",
-        msg: "{name} tillhör inte gruppen för lösenordshantering."
+        msg: "{name} tillhör inte gruppen {group} för lösenordshantering."
     },
     none: {
         color: "warning",
@@ -61,7 +61,7 @@ function Overview() {
 
     const collection = collections ? groups.split(",").flatMap(g => collections[g.toLowerCase()]) : [];
     const user = collection ? collection.find(x => x.name === id) : reqUser;
-console.log(user)
+    console.log(user)
     const accessToPasswordManage = JSON.parse(permissions).find(x => x.Name === user.group) != null;
     const pmGroups = user?.permissions?.groups;
     const navigate = useNavigate();
@@ -130,10 +130,10 @@ console.log(user)
             </div>
         </TabPanel>
 
-        <div className="d-row jc-start w-100">
+        <div className="d-row ai-stretch w-100 view-wrapper">
 
             {/* User profile info */}
-            <section className="d-column ai-start w-100 view">
+            <section className="d-column jc-start ai-start w-100 view">
                 <h3>Användarnamn</h3>
                 <span> - {user?.name}</span>
                 <h3>Email</h3>
@@ -148,7 +148,7 @@ console.log(user)
             </section>
 
             {/* IIf the user is a member of any password management group. */}
-            {pmGroups?.length > 0 && <section className="d-column ai-start search w-100 swing-in-right-bck">
+            {pmGroups?.length > 0 && <section className="d-column jc-start ai-start search w-100 swing-in-right-bck">
                 <TextField
                     fullWidth
                     key={message.msg}
@@ -186,20 +186,28 @@ console.log(user)
 
                 {/* Local response. Checked user info */}
                 {!response && <Alert className="d-column ai-start message-wrapper" icon={false} color={message.color}>
-                    {/* Message */}
-                    <Message res={{ ...message, msg: message?.msg?.replace(/\{name\}/g, `<span style="color: red">${user.displayName}</span>`) }} />
-
                     {/* User info */}
-                    {checked && <div className="d-row jc-between w-100 view">
-                        <div className="d-column ai-start">
-                            <h3>Gruppnamn</h3>
-                            <span> - {checked?.group}</span>
-                        </div>
-                        <div className="d-column ai-start">
-                            <h3>Arebtesplats</h3>
-                            <span> - {checked?.office}</span>
+                    {checked && <div className="w-100 view">
+
+                        <h3>Namn: {checked.displayName}</h3>
+                        <div className="d-row jc-between w-100">
+                            <div>
+                                <h3>Gruppnamn</h3>
+                                <span> - {checked?.group}</span>
+                            </div>
+                            <div>
+                                <h3>Arebtesplats</h3>
+                                <span> - {checked?.office}</span>
+                            </div>
                         </div>
                     </div>}
+
+                    {/* Message */}
+                    <Message res={{
+                        ...message, msg: message?.msg
+                            ?.replace(/\{name\}/g, `<span style="color: red">${user.displayName}</span>`)
+                            ?.replace(/\{group\}/g, `<span style="color: red">${checked?.group}</span>`)
+                    }} />
                 </Alert>}
             </section>}
 

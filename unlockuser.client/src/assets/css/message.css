@@ -94,7 +94,7 @@
     width: 100% !important;
 }
 
-.message-wrapper > .message-box {
+.message-wrapper .message-box {
     margin: 0 !important;
 }
 /* #endregion */

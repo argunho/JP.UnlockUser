@@ -70,19 +70,22 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 // All users who are members of the current password management group
                 var users = (_provider.GetUsersByGroupName(group, alternativeParams)).ToList();
 
-
-                // Filter the list of saved employees according to the current password management group
-                List<UserViewModel> usersByGroup = [.. savedEmployees.Where(x => x.Permissions!.Groups.Contains(group.Name, StringComparer.OrdinalIgnoreCase))];
-
-                // Update permissions in all users of the current password management group based on the filtered saved users
-                foreach (var userByGroup in usersByGroup)
+                if(!isStudents)
                 {
-                    var user = users?.FirstOrDefault(x => x.Name == userByGroup.Name);
-                    if (user == null)
-                        continue;
+                    // Filter the list of saved employees according to the current password management group
 
-                    user.Permissions = userByGroup.Permissions;
+
+                    // Update permissions in all users of the current password management group based on the filtered saved users
+                    foreach (var employee in savedEmployees)
+                    {
+                        var user = users?.FirstOrDefault(x => x.Name == employee.Name);
+                        if (user == null)
+                            continue;
+
+                        user.Permissions = employee.Permissions;
+                    }
                 }
+
 
                 // Users model to view
                 var usersViewModel = users?.Select(s => new UserViewModel(s)).ToList();
