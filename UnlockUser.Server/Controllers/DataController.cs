@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using JobRelatedHelpLibrary.LibraryModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Reflection;
+using System.Text;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -198,6 +201,22 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             return BadRequest(await _helpService.Error(ex)); ;
         }
     }
+
+    // Download history file
+    [HttpGet("download/by/{id}")]
+    public async Task<IActionResult> DownloadFile(string id)
+    {
+        var items = await _localFileService.GetListFromEncryptedFile<FileViewModel>("catalogs/histories");
+        if (items?.Count == 0)
+            return BadRequest(_helpService.Warning("File hittades inte."));
+
+        var item = items.FirstOrDefault(x => x.Date == id);
+        if (item == null)
+            return BadRequest(_helpService.Warning("File hittades inte."));
+
+        byte[] downloadBytes = Encoding.UTF8.GetBytes(item.Download);
+        return File(downloadBytes, "text/plain", $"History_{item?.Date}");
+    }
     #endregion
 
     #region POST
@@ -221,6 +240,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             return BadRequest(await _helpService.Error(ex)); ;
         }
     }
+
     #endregion
 
     #region DELETE

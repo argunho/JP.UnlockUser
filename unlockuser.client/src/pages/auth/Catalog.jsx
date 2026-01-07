@@ -2,7 +2,7 @@ import { useEffect, useState, use } from "react";
 
 // Installed
 import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText, Skeleton } from "@mui/material";
-import { ArrowDropDown, ArrowDropUp, CalendarMonth, Delete } from "@mui/icons-material";
+import { ArrowDropDown, ArrowDropUp, CalendarMonth, Delete, Download } from "@mui/icons-material";
 import { useLoaderData, useNavigate, useRevalidator, useOutletContext, useMatch } from 'react-router-dom';
 
 // Components
@@ -22,7 +22,7 @@ import { FetchContext } from "../../storage/FetchContext";
 
 
 // { loc, includedList, label, fullWidth, api, id, fields, labels, navigate }
-function Catalog({ label, fields, api, fullWidth, search }) {
+function Catalog({ label, fields, api, fullWidth, search, download }) {
 
     const [open, setOpen] = useState(false);
     const [confirmId, setConfirmId] = useState(null);
@@ -65,9 +65,13 @@ function Catalog({ label, fields, api, fullWidth, search }) {
         setConfirmId(null);
     }
 
+    async function onDownload(id){
+        await fetchData({ api: `${download}/${id}`, method: "get" });
+    }
+
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
 
-    if(loading && !loads)
+    if (loading && !loads)
         return <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain" />
 
     return (
@@ -120,12 +124,20 @@ function Catalog({ label, fields, api, fullWidth, search }) {
                                         ${collapsedItemIndex === index ? " dropdown" : ""}`}
                             secondaryAction={
                                 <div className="d-row">
-                                    {item?.includedList?.length > 0 && <IconButton onClick={() => handleDropdown(index)}>
+
+                                    {/* Download button */}
+                                    {download && <IconButton onClick={() => onDownload(item?.id)}>
+                                        <Download />
+                                    </IconButton>}
+
+                                    {/* Dropdown and delete button */}
+                                    {item?.includedList?.length > 0 
+                                    ? <IconButton onClick={() => handleDropdown(index)}>
                                         {collapsedItemIndex === index ? <ArrowDropUp /> : <ArrowDropDown />}
-                                    </IconButton>}
-                                    {<IconButton onClick={() => setConfirmId(item?.id)} color="error" disabled={confirmId || open || loads || pending}>
-                                        {(confirmId == item?.id && pending) ? <CircularProgress size={20} /> : <Delete />}
-                                    </IconButton>}
+                                    </IconButton> 
+                                    : <IconButton onClick={() => setConfirmId(item?.id)} color="error" disabled={confirmId || open || loads || pending}>
+                                            {(confirmId == item?.id && pending) ? <CircularProgress size={20} /> : <Delete />}
+                                        </IconButton>}
                                 </div>
                             }
                         >

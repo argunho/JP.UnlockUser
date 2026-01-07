@@ -119,13 +119,13 @@ const AppRoutes = () => [
         children: [
           {
             path: 'logs/errors',
-            element: <Catalog label="Loggfiler" search={true} />,
+            element: <Catalog label="Loggfiler" search={true} download="logs/download/by/" />,
             errorElement: <ErrorView />,
             loader: loader("logs")
           },
           {
             path: 'logs/history',
-            element: <Catalog label="Historik" search={true} />,
+            element: <Catalog label="Historik" search={true} download="data/download/by/" />,
             errorElement: <ErrorView />,
             loader: loader("data/logs/history")
           },

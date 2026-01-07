@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 using System.Text.Json;
 
 namespace UnlockUser.Server.Controllers;
@@ -17,7 +18,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        List<LogViewModel> logs = [];
+        List<LogViewModel?> logs = [];
         try
         {
             logs = await GetLogs();
@@ -53,6 +54,28 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         catch (Exception ex)
         {
             return BadRequest(await _helpService.Error(ex)); ;
+        }
+    }
+
+    [HttpGet("download/by/({id}")]
+    public async Task<IActionResult> DownloadFile(string catalog, string id)
+    {
+        try
+        {
+            var logs = await GetLogs();
+            if (logs?.Count == 0)
+                return BadRequest(_helpService.Warning("File hittades inte."));
+
+            var log = logs.FirstOrDefault(x => x!.Id == id);
+            if (log == null)
+                return BadRequest(_helpService.Warning("File hittades inte."));
+
+            byte[] downloadBytes = Encoding.UTF8.GetBytes(log.Download);
+            return File(downloadBytes, "text/plain", $"Error_log_{log?.Id}");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(_helpService.Error(ex));
         }
     }
     #endregion

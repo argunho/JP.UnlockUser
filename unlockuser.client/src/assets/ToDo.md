@@ -15,8 +15,3 @@
 
 1. Logout
 2. Load log files
-
-
-# Page. behörighets listan
-# Page User overview for support
-
