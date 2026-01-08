@@ -68,6 +68,10 @@ function MultiplePassword({ users, label, subLabel, pending, disabled, onSwitch 
     const refSubmit = useRef(null);
 
     useEffect(() => {
+        handleFormChange(true);
+    }, [])
+
+    useEffect(() => {
         if (disabled)
             handleDispatch("preview", null);
     }, [disabled])

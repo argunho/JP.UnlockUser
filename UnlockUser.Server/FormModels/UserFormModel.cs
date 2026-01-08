@@ -10,6 +10,13 @@ public class UserFormModel
     [DataType(DataType.Password)]
     public string? Password { get; set; }
 
+    [DataType(DataType.Password)]
+    public string? ConfirmPassword { get; set; }
+
+
+    public bool Check { get; set; }
+    public string? Office { get; set; }
+    public string? Department { get; set; }
     public  string? GroupName { get; set; }
 }
 

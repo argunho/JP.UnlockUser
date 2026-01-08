@@ -61,7 +61,7 @@ function UserManager() {
             key={locked?.toString()}
             label="Återställa lösenord"
             users={[user]}
-            locked={!locked}
+            locked={locked}
             passwordLength={user?.passwordLength} />}
     </>
 

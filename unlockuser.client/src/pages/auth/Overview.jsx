@@ -61,7 +61,7 @@ function Overview() {
 
     const collection = collections ? groups.split(",").flatMap(g => collections[g.toLowerCase()]) : [];
     const user = collection ? collection.find(x => x.name === id) : reqUser;
-    console.log(user)
+
     const accessToPasswordManage = JSON.parse(permissions).find(x => x.Name === user.group) != null;
     const pmGroups = user?.permissions?.groups;
     const navigate = useNavigate();

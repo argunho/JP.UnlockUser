@@ -74,7 +74,7 @@ div[role="presentation"] li {
 /* #region Table */
 .preview-container {
     padding: 0 10px;
-    overflow: auto;
+    overflow-y: auto;
     height: 300px !important;
     position: relative;
 }

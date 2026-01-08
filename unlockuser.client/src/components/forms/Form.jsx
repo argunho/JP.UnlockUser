@@ -20,7 +20,6 @@ import { PDFConverter } from '../../functions/PDFConverter';
 import { DownloadFile } from '../../functions/Functions';
 
 // Storage
-import { AuthContext } from '../../storage/AuthContext';
 import { FetchContext } from '../../storage/FetchContext';
 
 // Form inputs
@@ -57,8 +56,7 @@ function actionReducer(state, action) {
     }
 }
 
-function Form({ children, label, labelFile, passwordLength, locked, users, multiple, hidden }) {
-    const { group } = use(AuthContext);
+function Form({ children, label, labelInFile, passwordLength, locked, users, multiple, hidden }) {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
     const { showPassword, password, isCleaned, isChanged } = state;
@@ -66,7 +64,7 @@ function Form({ children, label, labelFile, passwordLength, locked, users, multi
     const { response, pending: load, fetchData, handleResponse } = use(FetchContext);
 
     const decodedToken = DecodedToken();
-    const developer = decodedToken?.Roles?.indexOf("DevelopeTeam") > -1;
+    const developer = decodedToken?.Roles?.indexOf("DevelopTeam") > -1;
 
     const navigate = useNavigate();
 
@@ -95,11 +93,10 @@ function Form({ children, label, labelFile, passwordLength, locked, users, multi
         if (error)
             return { data, error };
 
-        data.username = users[0].name;
-        data.group = group;
-        
+        data.username = users[0]?.name;
+
         // Request
-        await fetchData({ api: "user/reset/passwords", method: "post", data: data });
+        await fetchData({ api: "user/reset/single/password", method: "post", data: data });
 
         onReset();
         return null;
@@ -107,47 +104,52 @@ function Form({ children, label, labelFile, passwordLength, locked, users, multi
 
     // Submit form => This is used when a password is being set for a school class.
     async function onSubmitMultiple(previous, fd) {
-        let data = {};
+        let data = {
+            office: users[0]?.office,
+            department: users[0]?.department,
+            groupName: users[0]?.group,
+        };
         let error = null;
+
+
+        const usersValue = fd.get("users") ? JSON.parse(fd.get("users")) : [];
+        if (usersValue?.length === 0)
+            error = "Listan med användare för att sätta lösenord är tom.";
+
+        if (error)
+            return { data, error };
 
         // If form inputs not used for password
         if (!hidden) {
             const res = comparePasswords(fd);
             data = res.data;
             error = res.error;
-        }
+        } else if (fd.get("check") === "on")
+            data.check = true;
 
-        delete data.password;
 
-        const usersToManage = fd.get("users");
-
-        if (!usersToManage || JSON.parse(usersToManage)?.length === 0)
-            error = "Listan med användare för att sätta lösenord är tom.";
-
-        if (error)
-            return { data, error };
-
-        data.users = JSON.parse(usersToManage);
+        const usersToManage = usersValue.map(x => ({ ...x, ...data }));
 
         // Request
-        let formData = data;
+        let formData = usersToManage;
         let actions = fd.get("actions") ? JSON.parse(fd.get("actions")) : null;
-        let api = "user/reset/passwords";
-        if (actions) {
-            const blobFile = PDFConverter(label, labelFile);
+        console.log(actions)
+        let api = "user/reset/multiple/passwords";
+        if (actions?.length > 0) {
+            const blobFile = PDFConverter(label, labelInFile);
             if (actions.includes("email")) {
-                api = "user/reset/save/passwords";
-                const file = new File([blobFile], `${label} ${labelFile}.pdf`, { type: "application/pdf" });
+                api = "user/reset/send/passwords";
+                const file = new File([blobFile], `${label} ${labelInFile}.pdf`, { type: "application/pdf" });
                 formData = new FormData();
                 formData.append("file", file)
-                formData.append("data", JSON.stringify(data));
-                formData.append("label", labelFile);
+                formData.append("data", JSON.stringify(usersToManage));
+                formData.append("label", labelInFile);
             }
 
             const res = await fetchData({ api: api, method: "post", data: formData, action: "success" });
 
             if (res && actions.includes("download"))
-                DownloadFile(blobFile, `${label} ${labelFile}.pdf`);
+                DownloadFile(blobFile, `${label} ${labelInFile}.pdf`);
         } else
             await fetchData({ api: api, method: "post", data: formData });
 
@@ -161,12 +163,15 @@ function Form({ children, label, labelFile, passwordLength, locked, users, multi
 
         let data = {
             password: _password,
+            confirmPassword: _confirmPassword,
+            office: users[0]?.office,
+            department: users[0]?.department,
+            groupName: users[0]?.group,
             check: false
         };
 
         if (fd.get("check") === "on")
             data.check = true;
-        
 
         let error = null;
         if (_password.length < passwordLength)
@@ -176,15 +181,13 @@ function Form({ children, label, labelFile, passwordLength, locked, users, multi
         else if (!regex.test(password))
             error = "Lösenordet följer inte det angivna formatet. Var god kontrollera kraven.";
 
-        data.group = group;
-
         return { data, error };
     }
+
 
     const [formState, formAction, pending] = useActionState(multiple ? onSubmitMultiple : onSubmit, { error: null });
     const error = formState?.error;
     const disabled = load || response || pending || locked;
-
 
     const modifiedChildren = children ? Children.map(children, child =>
         cloneElement(child, {
@@ -192,6 +195,7 @@ function Form({ children, label, labelFile, passwordLength, locked, users, multi
             disabled: response
         })
     ) : null;
+
 
     return (
         <>
@@ -222,6 +226,7 @@ function Form({ children, label, labelFile, passwordLength, locked, users, multi
 
                 {/* Response message */}
                 {response && <Message res={response} cancel={() => response.success ? navigate("/") : handleResponse()} />}
+
                 {/* Error message */}
                 {error && <Message res={{ color: "error", msg: error }} />}
 

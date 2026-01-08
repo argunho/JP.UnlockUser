@@ -6,7 +6,7 @@
     height: max-content !important;
     font-family: var(--font-primary) !important;
     margin: 10px auto 25px auto;
-    padding: 5px 20px !important;
+    padding: 15px 20px !important;
 }
 
 .collapse .message-box {

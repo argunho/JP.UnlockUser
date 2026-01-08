@@ -57,11 +57,10 @@ function Catalog({ label, fields, fullWidth, search, download }) {
     function handleDropdown(index) {
         setCollapsedItemIndex(index === collapsedItemIndex ? null : index);
     }
-console.log(api)
+
     async function removeConfirmedItem() {
         const success = await fetchData({ api: `${api}/${confirmId}`, method: "delete", action: "success" });
 
-        console.log(api, success)
         if (success)
             revalidate();
         setConfirmId(null);
@@ -69,13 +68,7 @@ console.log(api)
 
     async function onDownload(id){
         const blob = await fetchData({ api: `${download}/${id}`, method: "get", action: "return", responseType: "blob" });
-        console.log(blob)
         DownloadFile(blob, `${api}_${id}.txt`);
-
-        // if(!res?.msg){
-        //     const blob = await res.blob();
-        //     console.log(blob)
-        // }
     }
 
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;

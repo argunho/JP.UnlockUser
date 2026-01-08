@@ -1,0 +1,1 @@
+﻿{"Id":"error_20260108173336","Source":"Error: System.Private.CoreLib","Description":"Error: Value cannot be null. (Parameter \u0027s\u0027)\n\nPath to file: Controllers\\UserController.cs\n\nLine number: 348\n\nMethod: CurrentUserCredentials\n","Opened":false,"Date":"2026.01.08 17:33:36"}

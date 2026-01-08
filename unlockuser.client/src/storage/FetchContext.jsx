@@ -21,27 +21,29 @@ const initialState = {
     resData: undefined,
     loading: false,
     success: false,
-    complete: false,
-    pending: null,
+    pending: false,
+    complete: false
 };
 
 function fetchReducer(state, action) {
+    const processClean = { loading: false, pending: false };
+    const initialClean = { ...processClean, response: null, success: false };
 
     switch (action.type) {
         case 'START':
-            return { ...state, loading: !action.pending, success: false, response: null, complete: false, pending: action.pending };
+            return initialState;
+        case 'LOAD_START':
+            return { ...state, loading: !action.isMutation, pending: action.isMutation };
         case 'SUCCESS':
-            return { ...state, loading: false, success: true, complete: false, resData: action.payload, response: null, pending: false };
+            return { ...state, ...processClean, success: true, resData: action.payload};
         case 'ERROR':
-            return { ...state, loading: false, complete: false, response: action.payload, success: false, pending: false };
-        case 'COMPLETE':
-            return { ...state, response: null, success: false, pending: false, complete: true, resData: action.payload };
+            return { ...state, ...processClean, response: action.payload };
         case 'MESSAGE':
-            return { ...state, loading: false, response: action.payload, pending: false, complete: false };
+            return { ...state, ...processClean, response: action.payload };
+        case 'COMPLETE':
+            return { ...state, ...initialClean, complete: true, resData: action.payload };
         case 'CLEAR':
-            return { ...state, response: null, success: false, pending: false, complete: false };
-        case 'CLEAR_TOTAL':
-            return { ...state, response: null, success: false, pending: false, complete: false, resData: null };
+            return { ...state, ...initialClean };
         case 'SET_DATA':
             return { ...state, resData: action.payload };
         default:
@@ -79,8 +81,8 @@ function FetchContextProvider({ children }) {
 
     const fetchData = useCallback(async ({ api, method = 'get', data = null, action = null, responseType = null }) => {
         controllerRef.current = new AbortController();
-
-        dispatch({ type: 'START', pending: method != "get" && action !== "none" });
+ 
+        dispatch({ type: 'LOAD_START', isMutation: method !== "get" });
 
         try {
             const config = {
@@ -90,8 +92,7 @@ function FetchContextProvider({ children }) {
 
             if(responseType)
                 config.responseType = responseType;
-
-            
+     
             let apiProps = [`api/${api}`];
             if(["post", "patch", "put"].includes(method))
                 apiProps.push(data || {});
@@ -124,10 +125,14 @@ function FetchContextProvider({ children }) {
                 return (res?.statusCode === 200 || res?.color === "success" || res === "");
 
         } catch (error) {
-            if (axios.isCancel(error)) {
-                error.message = "Pågående frågeformuläret har avbrutits ...";
+            if (error.response?.status === 400)
+                dispatch({ type: 'ERROR', payload: ErrorHandle(error.response.data) });
+            else {
+                if (axios.isCancel(error))
+                    error.message = "Pågående frågeformuläret har avbrutits.";
+
+                dispatch({ type: 'ERROR', payload: ErrorHandle(error) });
             }
-            dispatch({ type: 'ERROR', payload: ErrorHandle(error) });
         }
     }, []);
 
@@ -136,7 +141,11 @@ function FetchContextProvider({ children }) {
     }, []);
 
     const handleResponse = useCallback((value = null) => {
-        dispatch({ type: value ? 'MESSAGE' : "CLEAR", payload: value });
+        console.log("handle response")
+        if (!!value)
+            dispatch({ type: 'MESSAGE', payload: value });
+        else
+            dispatch({ type: "CLEAR" });
     }, []);
 
     const contextValue = useMemo(() => ({

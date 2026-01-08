@@ -55,9 +55,9 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
             List<string> roles = [];
             if (_provider.MembershipCheck(authorizedUser, "Azure-Utvecklare Test"))
-                roles.Add("DevelopeTeam");
+                roles.Add("DevelopTeam");
 
-            if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning") || roles.Contains("DevelopeTeam", StringComparer.OrdinalIgnoreCase))
+            if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning") || roles.Contains("DevelopTeam", StringComparer.OrdinalIgnoreCase))
                 roles.Add("Support");
 
             var userGroups = _provider.GetUserGroups(authorizedUser);
@@ -88,7 +88,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             if (roles.IndexOf("Support") > -1)
                 claims.Add(new("Access", "access")); //
 
-            _session?.SetString("HashedCredential", _helpService.EncodeToBase64($"{model.Password}{_config["JwtSettings:Key"]}"));
+            _session?.SetString("HashedCredentials", _helpService.EncodeToBase64($"{model.Password}{_config["JwtSettings:Key"]}"));
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
             return Ok(_credentials.GenerateJwtToken(
