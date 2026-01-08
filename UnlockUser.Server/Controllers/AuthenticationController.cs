@@ -9,7 +9,7 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class AuthenticationController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache,
-    IHelpService helpService, ICredentialsService credentials) : ControllerBase
+    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
@@ -17,6 +17,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
     private readonly IDistributedCache _distributedCache = distributedCache;
     private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentials = credentials;
+    private readonly ILocalFileService _localFileService = localFileService;
 
     #region POST   
     [HttpPost]
@@ -57,7 +58,8 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             if (_provider.MembershipCheck(authorizedUser, "Azure-Utvecklare Test"))
                 roles.Add("DevelopTeam");
 
-            if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning") || roles.Contains("DevelopTeam", StringComparer.OrdinalIgnoreCase))
+            if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning") 
+                    || roles.Contains("DevelopTeam", StringComparer.OrdinalIgnoreCase))
                 roles.Add("Support");
 
             var userGroups = _provider.GetUserGroups(authorizedUser);
@@ -68,11 +70,14 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             if (permissionGroups.Count == 0 && roles.Count == 0)
                 return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
 
-            var passwordManageGroups = permissionGroups.OrderBy(x => x.Name).Select(s => new GroupModel
-            {
-                Name = s.Name,
-                Group = s.Group
-            }).ToList();
+            //var passwordManageGroups = permissionGroups.OrderBy(x => x.Name).Select(s => new GroupModel
+            //{
+            //    Name = s.Name,
+            //    Group = s.Group
+            //}).ToList();
+
+            var moderators = await _localFileService.GetListFromEncryptedFile<User>("catalogs/moderators");
+            var currentModerator = moderators.FirstOrDefault(x => x.Name == authorizedUser.Name);
 
             List<Claim> claims = [];
             claims.Add(new("Email", authorizedUser.EmailAddress));
@@ -82,7 +87,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             claims.Add(new("Office", authorizedUser.Office));
             claims.Add(new("Department", authorizedUser.Department));
             claims.Add(new("Groups", groups));
-            claims.Add(new("Permissions", JsonConvert.SerializeObject(passwordManageGroups)));
+            claims.Add(new("Permissions", JsonConvert.SerializeObject(currentModerator?.Permissions)));
             claims.Add(new("Roles", string.Join(",", roles)));
 
             if (roles.IndexOf("Support") > -1)

@@ -18,5 +18,6 @@ public class UserFormModel
     public string? Office { get; set; }
     public string? Department { get; set; }
     public  string? GroupName { get; set; }
+    public string? Manager { get; set; }
 }
 

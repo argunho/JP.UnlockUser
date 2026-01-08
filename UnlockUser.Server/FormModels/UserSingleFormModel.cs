@@ -2,6 +2,6 @@
 
 public class UserSingleFormModel
 {
-    public UserForm UserForm { get; set; }
+    public UserForm? UserForm { get; set; }
     public UserFormModel? User { get; set; }
 }

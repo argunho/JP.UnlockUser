@@ -87,13 +87,14 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
     }
 
     // Submit form => This is used when a password is being set for a user.
-    async function onSubmit(previous, fd) {
+    async function onSubmitSinglePassword(previous, fd) {
         const { data, error } = comparePasswords(fd);
 
         if (error)
             return { data, error };
 
         data.username = users[0]?.name;
+        data.manager = users[0]?.manager;
 
         // Request
         await fetchData({ api: "user/reset/single/password", method: "post", data: data });
@@ -103,7 +104,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
     }
 
     // Submit form => This is used when a password is being set for a school class.
-    async function onSubmitMultiple(previous, fd) {
+    async function onSubmitMultiplePasswords(previous, fd) {
         let data = {
             office: users[0]?.office,
             department: users[0]?.department,
@@ -185,7 +186,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
     }
 
 
-    const [formState, formAction, pending] = useActionState(multiple ? onSubmitMultiple : onSubmit, { error: null });
+    const [formState, formAction, pending] = useActionState(multiple ? onSubmitMultiplePasswords : onSubmitSinglePassword, { error: null });
     const error = formState?.error;
     const disabled = load || response || pending || locked;
 

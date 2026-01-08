@@ -53,7 +53,7 @@ public class LocalUserService(ILocalFileService localFileService,
 
         #region Get employees        
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
-        var currentSavedList = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/employees") ?? [];
+        var currentSavedList = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
         var schools = await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools");
         List<User> users = [];
 
@@ -135,13 +135,13 @@ public class LocalUserService(ILocalFileService localFileService,
             }
         }
 
-        await _localFileService.SaveUpdateEncryptedFile([.. users.OrderBy(o => o.DisplayName)], "catalogs/employees");
+        await _localFileService.SaveUpdateEncryptedFile([.. users.OrderBy(o => o.DisplayName)], "catalogs/moderators");
        #endregion
     }
 
     public async Task<User?> GetUserFromFile(string username)
     {
-        List<UserViewModel> employees = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/employees") ?? [];
+        List<UserViewModel> employees = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
         UserViewModel? user = employees?.FirstOrDefault(x => x.Name == username);
         return user;
     }

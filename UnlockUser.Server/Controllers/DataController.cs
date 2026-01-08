@@ -38,7 +38,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
             // Saved employees who have permission to manage employee passwords
-            var savedEmployees = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/employees") ?? [];
+            var savedEmployees = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
 
             // Verify the current user's membership in the support group
             bool accessGroup = !string.IsNullOrEmpty(claims["access"]);
