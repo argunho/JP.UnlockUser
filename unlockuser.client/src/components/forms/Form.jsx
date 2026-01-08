@@ -134,7 +134,6 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
         // Request
         let formData = usersToManage;
         let actions = fd.get("actions") ? JSON.parse(fd.get("actions")) : null;
-        console.log(actions)
         let api = "user/reset/multiple/passwords";
         if (actions?.length > 0) {
             const blobFile = PDFConverter(label, labelInFile);

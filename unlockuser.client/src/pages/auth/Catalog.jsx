@@ -39,7 +39,7 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, download }) 
     const loaded = useLoaderData();
     const list = loaded?.list ?? loaded;
     const { fetchData, response, pending, handleResponse } = use(FetchContext);
-console.log(response)
+
     const navigate = useNavigate();
     const { revalidate } = useRevalidator()
 

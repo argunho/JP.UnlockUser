@@ -91,7 +91,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 // Users model to view
                 var usersViewModel = users?.Select(s => new UserViewModel(s)).ToList();
 
-                _ = usersViewModel!.ConvertAll(x => x.Group = group.Name);
+                _ = usersViewModel!.ConvertAll(x => x.Group = group.Name).ToList(); ;
 
                 if (!isStudents)
                     _ = usersViewModel!.ConvertAll(x => x.PasswordLength = 12).ToList();
@@ -248,7 +248,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         try
         {
             var schools = await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools");
-            schools = [.. schools.Where(x => !string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase))];
+            schools = [.. schools.Where(x => !string.Equals(x.Name!.Trim(), name.Trim(), StringComparison.OrdinalIgnoreCase))];
             await Task.Delay(1000);
             await _localFileService.SaveUpdateEncryptedFile(schools, "catalogs/schools");
             return Ok();

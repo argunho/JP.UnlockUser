@@ -1,7 +1,7 @@
 # Todo
 
- 1. Add new school & response.
- 2. https://localhost:51173/view/user/790822asla
+ 1.
+ 2.
  3. Histories list
  4. History view
  5. Statistic list

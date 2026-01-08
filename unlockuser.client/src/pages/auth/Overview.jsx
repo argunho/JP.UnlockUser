@@ -23,7 +23,7 @@ const messages = {
     },
     success: {
         color: "success",
-        msg: "Behörighet för lösenordsändring är tillgänglig."
+        msg: "{name} har behörighet att ändra lösenord."
     },
     forbid: {
         color: "warning",
@@ -56,14 +56,15 @@ function Overview() {
     const reqUser = useLoaderData();
     const { id, collections, loading } = useOutletContext();
 
-    const { permissions, groups, access } = DecodedClaims();
+    const { permissions, groups: groupNames, access } = DecodedClaims();
     const { fetchData, response } = use(FetchContext)
 
-    const collection = collections ? groups.split(",").flatMap(g => collections[g.toLowerCase()]) : [];
+    const collection = collections ? groupNames.split(",").flatMap(g => collections[g.toLowerCase()]) : [];
     const user = collection ? collection.find(x => x.name === id) : reqUser;
+    const { groups, schools, managers, politicians } = user?.permissions ?? {};
 
     const accessToPasswordManage = JSON.parse(permissions).Groups.find(x => x === user.group) != null;
-    const pmGroups = user?.permissions?.groups;
+    
     const navigate = useNavigate();
     const ref = useRef(null);
 
@@ -87,6 +88,8 @@ function Overview() {
             ? collection.find(x => x.name === value || x.email === value)
             : await fetchData({ api: `user/by/${value}`, method: "get", action: "return" });
 
+        const userManager =  userToCheck?.manager ? userToCheck.manager?.trim()?.substring(3, userToCheck.manager.indexOf(',')) : null;
+
         setChecked(userToCheck);
 
         if (!userToCheck)
@@ -95,9 +98,11 @@ function Overview() {
             setMessage(messages.same);
         else if (userToCheck?.permissions?.groups?.length > 0)
             setMessage(messages.forbid);
-        else if (!pmGroups?.includes(userToCheck?.group))
+        else if (!groups?.includes(userToCheck?.group))
             setMessage(messages.error);
-        else if (userToCheck?.group !== "Studenter" ? !user.permissions?.managers?.includes(userToCheck.manager) : !user.permissions?.schools?.includes(userToCheck.office))
+        else if ((userToCheck?.group === "Studenter" && !schools?.includes(userToCheck.office))
+                || (userToCheck?.group === "Personal" && !managers?.includes(userManager))
+                || (userToCheck?.group === "Politiker" && !politicians?.includes(userToCheck?.name)))
             setMessage(messages.warning);
         else
             setMessage(messages.success)
@@ -144,11 +149,11 @@ function Overview() {
                     <h3>Förvaltning</h3>
                     <span> - {user?.division}</span>
                 </>}
-                {pmGroups && <Button variant="outlined" onClick={() => navigate(`/moderators/view/${user?.name}`)} sx={{ marginTop: "30px" }}>Behörigheter</Button>}
+                {groups && <Button variant="outlined" onClick={() => navigate(`/moderators/view/${user?.name}`)} sx={{ marginTop: "30px" }}>Behörigheter</Button>}
             </section>
 
             {/* IIf the user is a member of any password management group. */}
-            {pmGroups?.length > 0 && <section className="d-column jc-start ai-start search w-100 swing-in-right-bck">
+            {groups?.length > 0 && <section className="d-column jc-start ai-start search w-100 swing-in-right-bck">
                 <TextField
                     fullWidth
                     key={message.msg}

@@ -1,0 +1,1 @@
+﻿{"Id":"error_20260108222012","Source":"Error: System.Private.CoreLib","Description":"Error: startIndex cannot be larger than length of string. (Parameter \u0027startIndex\u0027)\n\nPath to file: Controllers\\DataController.cs\n\nLine number: 98\n\nMethod: \u003CGetGroupUsers\u003Eb__6_5\n","Opened":false,"Date":"2026.01.08 22:20:12"}

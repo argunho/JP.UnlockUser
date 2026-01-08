@@ -141,7 +141,6 @@ function FetchContextProvider({ children }) {
     }, []);
 
     const handleResponse = useCallback((value = null) => {
-        console.log("handle response")
         if (!!value)
             dispatch({ type: 'MESSAGE', payload: value });
         else

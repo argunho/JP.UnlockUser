@@ -91,13 +91,10 @@ function Home() {
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
-        if (response)
-            handleResponse();
     }, []);
 
     useEffect(() => {
         const currentGroup = groupName ? permissionGroups?.find(x => x?.toLowerCase() == groupName) : permissionGroups[0];
-        console.log(groupName, currentGroup)
         handleDispatch("group", currentGroup, "START");
         onReset();
     }, [groupName])
