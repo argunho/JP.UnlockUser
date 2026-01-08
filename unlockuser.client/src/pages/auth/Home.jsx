@@ -33,7 +33,7 @@ const radioChoices = [
 ]
 
 const initialState = {
-    group: [],
+    group: "",
     users: null,
     isClass: false,
     isMatch: true,
@@ -80,14 +80,14 @@ function Home() {
     const { isClass, isMatch, isChanged, isCleaned, users, group } = state;
 
     const groups = Claim("groups")?.split(",");
-    const permissionGroups = Claim("permissions");
+    const permissionGroups = Claim("permissions")?.groups;
     const supportGroup = Claim("access");
 
     const { collections, schools, group: groupName } = useOutletContext();
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
-    const gn = group?.name?.toLowerCase() ?? groupName;
+    const gn = group ? group?.toLowerCase() : groupName;
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
@@ -96,7 +96,8 @@ function Home() {
     }, []);
 
     useEffect(() => {
-        const currentGroup = groupName ? permissionGroups.find(x => x.name.toLowerCase() == groupName) : permissionGroups[0];
+        const currentGroup = groupName ? permissionGroups?.find(x => x?.toLowerCase() == groupName) : permissionGroups[0];
+        console.log(groupName, currentGroup)
         handleDispatch("group", currentGroup, "START");
         onReset();
     }, [groupName])
@@ -155,7 +156,7 @@ function Home() {
             // API parameters by chosen searching alternative
             let options = isClass
                 ? `students${fd.get("school")}/${name}`
-                : `person/${name}/${group?.name}/${match}`;
+                : `person/${name}/${group}/${match}`;
 
             res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
         }
@@ -259,7 +260,7 @@ function Home() {
                 {(permissionGroups?.length > 1 && gn !== "support") && <DropdownMenu
                     label="Hanteras"
                     list={permissionGroups}
-                    value={group ? group?.name : ""}
+                    value={group ? group : ""}
                     link="/search/"
                     disabled={permissionGroups?.length === 1} />}
             </form>

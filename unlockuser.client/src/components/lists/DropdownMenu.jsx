@@ -33,8 +33,8 @@ function DropdownMenu({ label, list, link, value, disabled, keyValue = "name", k
             >
                 {/* Loop of list */}
                 {list?.map((item, index) => (
-                    <MenuItem className="dropdown-li" value={item[keyValue]} key={index}>
-                        <span style={{ marginLeft: "10px" }}> - {item[keyName]}</span>
+                    <MenuItem className="dropdown-li" value={item?.[keyValue] ?? item} key={index}>
+                        <span style={{ marginLeft: "10px" }}> - {item?.[keyName] ?? item}</span>
                     </MenuItem>
                 ))}
             </Select>

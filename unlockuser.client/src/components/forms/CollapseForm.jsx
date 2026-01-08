@@ -19,7 +19,7 @@ const fields = {
 }
 
 /* eslint-disable no-unused-vars */
-function CollapseForm({ open = true, fieldsName, api, id }) {
+function CollapseForm({ open = true, fieldsName, api, id, onClose }) {
 
     const { fetchData, pending: process, success } = use(FetchContext);
     const refMessage = useRef(null);
@@ -45,8 +45,10 @@ function CollapseForm({ open = true, fieldsName, api, id }) {
         }
 
         const success = await fetchData({ api: api, method: "post", data: data, action: "success" });
-        if(success)
+        if(success){
             revalidate();
+            onClose?.();
+        }
     }
 
     const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });

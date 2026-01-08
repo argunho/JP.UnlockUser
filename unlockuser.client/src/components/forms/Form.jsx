@@ -185,7 +185,6 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
         return { data, error };
     }
 
-
     const [formState, formAction, pending] = useActionState(multiple ? onSubmitMultiplePasswords : onSubmitSinglePassword, { error: null });
     const error = formState?.error;
     const disabled = load || response || pending || locked;

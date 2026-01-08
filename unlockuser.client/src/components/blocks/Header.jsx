@@ -37,8 +37,7 @@ const Header = memo(function Header({ disabled }) {
     const loc = useLocation();
     const refMenu = useRef();
     const { permissions, displayName, access } = DecodedClaims();
-    const groups = JSON.parse(permissions).map(x => x.Name);
-    
+    const groups = JSON.parse(permissions).Groups;
 
     useEffect(() => {
         let clickHandler = (event) => {
@@ -82,7 +81,7 @@ const Header = memo(function Header({ disabled }) {
                                         className="header-link"
                                         to="/search/support"
                                     >Support</Button>}
-                                {groups.map((name, ind) => {
+                                {groups?.map((name, ind) => {
                                     return <Button
                                         key={ind}
                                         component={NavLink}

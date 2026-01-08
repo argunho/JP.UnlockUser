@@ -1,8 +1,6 @@
-﻿using JobRelatedHelpLibrary.LibraryModels;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Reflection;
 using System.Text;
 
 namespace UnlockUser.Server.Controllers;
@@ -29,10 +27,10 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             var claims = _credentials.GetClaims(["username", "access", "permissions"], Request);
 
             // List of groups the current user is a member of
-            List<GroupModel> claimGroups = JsonConvert.DeserializeObject<List<GroupModel>>(claims!["permissions"]) ?? [];
+            PermissionsViewModel claimPermissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permissions"])!;
 
             // List of groups the current user are member
-            List<string?> sessionUserGroups = [.. claimGroups?.Select(s => s.Name)!];
+            List<string> sessionUserGroups = claimPermissions.Groups ?? [];
 
             // Employee groups where each group has its own password management permissions
             List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
@@ -233,7 +231,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
 
             await _localFileService.SaveUpdateEncryptedFile(schools, "catalogs/schools");
 
-            return Ok(GetSchools());
+            return Ok();
         }
         catch (Exception ex)
         {
@@ -250,7 +248,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         try
         {
             var schools = await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools");
-            schools.RemoveAll(x => x.Name == name);
+            schools = [.. schools.Where(x => !string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase))];
             await Task.Delay(1000);
             await _localFileService.SaveUpdateEncryptedFile(schools, "catalogs/schools");
             return Ok();

@@ -23,22 +23,23 @@ import { DownloadFile } from "../../functions/Functions";
 
 
 // { loc, includedList, label, fullWidth, api, id, fields, labels, navigate }
-function Catalog({ label, fields, fullWidth, search, download }) {
+function Catalog({ label, api: propsApi, fields, fullWidth, search, download }) {
 
     const [open, setOpen] = useState(false);
     const [confirmId, setConfirmId] = useState(null);
     const [collapsedItemIndex, setCollapsedItemIndex] = useState(null);
     const [searchWord, setSearchWord] = useState(null);
 
-    const { api, loading } = useOutletContext();
+    const { api: urlApi, loading } = useOutletContext();
     const catalogLoading = useMatch("/catalog/*");
     const moderatorsLoading = useMatch("/moderators/*");
     const loads = loading && (catalogLoading || moderatorsLoading);
+    const api = urlApi ?? propsApi;
 
     const loaded = useLoaderData();
     const list = loaded?.list ?? loaded;
     const { fetchData, response, pending, handleResponse } = use(FetchContext);
-
+console.log(response)
     const navigate = useNavigate();
     const { revalidate } = useRevalidator()
 
@@ -98,7 +99,7 @@ function Catalog({ label, fields, fullWidth, search, download }) {
             {!open && pagination}
 
             {/* Confirm/Form block */}
-            {!!fields && <CollapseForm open={open} fieldsName={fields} api={api} />}
+            {!!fields && <CollapseForm open={open} fieldsName={fields} api={api} onClose={() => setOpen(false)} />}
 
             {/* Confirm message and response */}
             <Collapse className="collapse w-100" in={confirmId || response}>

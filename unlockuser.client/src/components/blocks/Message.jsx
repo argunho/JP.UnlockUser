@@ -36,7 +36,7 @@ function Message({ res, cancel, ref, message, styles }) {
             {...props}
             ref={ref ?? refMessage}>
 
-            <p className="res-message w-100" dangerouslySetInnerHTML={{ __html: msg.replaceAll("\n", "<br/>").replaceAll("\n\r", "<br/>") }}></p>
+            <p className="res-message w-100" dangerouslySetInnerHTML={{ __html: msg?.replaceAll("\n", "<br/>").replaceAll("\n\r", "<br/>") }}></p>
         </Alert>
 }
 
