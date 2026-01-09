@@ -36,7 +36,7 @@ function Contacts({ isAuthorized }) {
       </section>}
 
       <section className='contacts-wrapper' id="info-contacts">
-        <img src="../images/support.png" className="contact-img" alt="contact" />
+        <img src="../images/contacts.png" className="contact-img" alt="contact" />
         <h3>Kontakta oss</h3>
         <p className='d-row'><Phone /> <span>0472 150 33</span></p>
         <p className='d-row'><Web /> <span onClick={navigateToContactsPage}>Självbetjäningsportalen</span></p>

@@ -43,6 +43,12 @@ const proxy = {
         changeOrigin: true,
         secure: isProd, // dev certs: allow self-signed
     },
+    // Static files from server’s wwwroot → backend
+    '/images': {
+        target,
+        changeOrigin: true,
+        secure: false,
+    },
 }
 // End custom change    
 
