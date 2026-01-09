@@ -24,11 +24,11 @@ import ModalOverview from "../../components/modals/ModalOverview";
 
 
 // { loc, includedList, label, fullWidth, api, id, fields, labels, navigate }
-function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, download }) {
+function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, download, dropdown }) {
 
     const [open, setOpen] = useState(false);
     const [confirmId, setConfirmId] = useState(null);
-    const [collapsedItemIndex, setCollapsedItemIndex] = useState(null);
+    const [collapsedIndex, setCollapsedIndex] = useState(null);
     const [searchWord, setSearchWord] = useState(null);
     const [model, setModel] = useState();
 
@@ -54,11 +54,11 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
 
     useEffect(() => {
         setOpen(false);
-        setCollapsedItemIndex(null);
+        setCollapsedIndex(null);
     }, [])
 
     function handleDropdown(index) {
-        setCollapsedItemIndex(index === collapsedItemIndex ? null : index);
+        setCollapsedIndex(index === collapsedIndex ? null : index);
     }
 
     async function removeConfirmedItem() {
@@ -125,7 +125,7 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
                         {/* List item */}
                         <ListItem
                             className={`list-item${fullWidth || ((ind + 1) === items?.length && (items?.length % 2) !== 0) ? " w-100 last" : ""}
-                                        ${collapsedItemIndex === ind ? " dropdown" : ""}`}
+                                        ${collapsedIndex === ind ? " dropdown" : (typeof collapsedIndex === "number" && collapsedIndex < ind ? " fade-out" : "")}`}
                             secondaryAction={
                                 <div className="d-row">
 
@@ -140,9 +140,9 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
                                     </IconButton>}
 
                                     {/* Dropdown and delete button */}
-                                    {item?.includedList?.length > 0
-                                        ? <IconButton onClick={() => handleDropdown(ind)}>
-                                            {collapsedItemIndex === ind ? <ArrowDropUp /> : <ArrowDropDown />}
+                                    {dropdown
+                                        ? <IconButton onClick={() => handleDropdown(ind)} disabled={item?.values?.length === 0}>
+                                            {collapsedIndex === ind ? <ArrowDropUp /> : <ArrowDropDown />}
                                         </IconButton>
                                         : <IconButton onClick={() => setConfirmId(item?.id)} color="error" disabled={confirmId || open || loads || pending}>
                                             {(confirmId == item?.id && pending) ? <CircularProgress size={20} /> : <Delete />}
@@ -159,16 +159,16 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
                         </ListItem>
 
                         {/* If the item has an included list */}
-                        {item?.includedList?.length > 0 &&
-                            <Collapse in={collapsedItemIndex === ind} className='d-row dropdown-block' timeout="auto" unmountOnExit>
-                                <List style={{ width: "95%", margin: "5px auto" }}>
-                                    {item?.includedList?.map((inc, index) => {
-                                        const collapseProps = !!inc?.link ? { onClick: () => navigate(inc.link) } : null;
+                        {item?.values?.length > 0 &&
+                            <Collapse in={collapsedIndex === ind} className='d-row dropdown-block w-100' timeout="auto" unmountOnExit>
+                                <List style={{ margin: "0 20px" }}>
+                                    {item?.values?.map((item, index) => {
+                                        const collapseProps = !!item?.link ? { onClick: () => navigate(item.link) } : null;
                                         return <ListItem className="w-100" key={index} {...collapseProps}>
                                             <ListItemIcon>
                                                 <CalendarMonth />
                                             </ListItemIcon>
-                                            <ListItemText primary={inc?.primary} secondary={inc?.secondary} />
+                                            <ListItemText primary={item?.primary} secondary={item?.secondary} />
                                         </ListItem>
                                     })}
                                 </List>

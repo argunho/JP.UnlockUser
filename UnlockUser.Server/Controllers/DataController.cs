@@ -193,7 +193,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             List<ViewModel> list = [.. data?.OrderBy(x => x.Year).Select(s => new ViewModel {
                 Primary = s.Year.ToString(),
                 Secondary = $"Byten lösenord: {s.Months.Sum(s => s.PasswordsChange)}, Upplåst konto: {s.Months.Sum(s => s.Unlocked)}",
-                IncludedList = [.. s.Months.OrderBy(o => o.Name).Select(s => new ViewModel {
+                Values = [.. s.Months.OrderBy(o => o.Name).Select(s => new ViewModel {
                     Primary = s.Name,
                     Secondary = $"Byten lösenord: {s.PasswordsChange}, Upplåst konto: {s.Unlocked}"
                 })]

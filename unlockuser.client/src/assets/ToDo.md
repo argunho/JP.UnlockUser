@@ -2,8 +2,8 @@
 
  1.
  2.
- 3. Histories list
- 4. History view
+ 3. 
+ 4. 
  5. Statistic list
  6. Email logotype
 

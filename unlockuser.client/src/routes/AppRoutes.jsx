@@ -131,7 +131,7 @@ const AppRoutes = () => [
           },
           {
             path: 'statistics',
-            element: <Catalog label="Statistik" fullWidth={true} />,
+            element: <Catalog label="Statistik" fullWidth={true} dropdown={true} />,
             errorElement: <ErrorView />,
             loader: loader("data/statistics")
           },

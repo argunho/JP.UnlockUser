@@ -59,7 +59,7 @@ function ClassManager() {
             </TabPanel>
 
             {/* Student to manage  */}
-            <div className={`selected-list dropdown-container ${dropdown ? "open" : ""}`}>
+            <div className={`selected-list dropdown-container${dropdown ? " open" : ""}`}>
 
                 <p className="w-100 dropdown-label">
                     Klicka på användare för att radera användaren från listan

@@ -11,10 +11,9 @@
     --color-gray: #cecece !important;
     --color-dark-gray: #424242 !important;
     --color-light-gray: #e7e7e76e !important;
-    --color-hover: #e1dede !important;
+    --color-light: #eeeeee77 !important;
     --color-warning: #ec5200 !important;
     --color-danger: #a50029 !important;
-    --color-hover: #05441d64 !important;
     --color-success: #1db822 !important;
     --color-info: #729bee !important;
     --color-active: #1976D2 !important;
@@ -505,6 +504,59 @@ main,
 
     100% {
         background-color: transparent
+    }
+}
+
+.fade-out {
+    animation-name: opacity-out;
+    animation-duration: 1s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards; /* keep the final state */
+}
+
+@keyframes opacity-out {
+    0% {
+        opacity: 1
+    }
+
+    10% {
+        opacity: 0.9
+    }
+
+    20% {
+        opacity: 0.8
+    }
+
+    30% {
+        opacity: 0.7
+    }
+
+    40% {
+        opacity: 0.6
+    }
+
+    50% {
+        opacity: 0.5
+    }
+
+    60% {
+        opacity: 0.4
+    }
+
+    70% {
+        opacity: 0.3
+    }
+
+    80% {
+        opacity: 0.2
+    }
+
+    90% {
+        opacity: 0.1
+    }
+
+    100% {
+        opacity: 0
     }
 }
 

@@ -7,5 +7,5 @@ public class ViewModel
     public string? Secondary { get; set; }
     public string? Hidden { get; set; }
     public bool? BoolValue { get; set; }
-    public List<ViewModel> IncludedList { get; set; } = [];
+    public List<ViewModel> Values { get; set; } = [];
 }
