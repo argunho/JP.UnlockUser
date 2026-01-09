@@ -332,11 +332,13 @@ function Home() {
 
             {/* Message if result is null */}
             {users?.length == 0 && <Message res={{
-                color: "warning", msg: "Inget data hittades. \n\nMöjliga orsaker:" +
+                color: "warning", msg: "Inga resultat hittades." +
+                    "\n\nMöjliga orsaker:" +
                     "\n• Sökparametrarna kan vara felstavade." +
-                    "\n• Personen/Class saknas i databasen." +
+                    "\n• Personen, skolan eller klassen finns inte i databasen.." +
                     "\n• Du saknar behörighet att hantera personens/classens konto." +
-                    "\n• Du försöker ändra lösenordet för ett administratörskonto. Av säkerhetsskäl får administratörer inte ändra lösenord för andra administratörer."
+                    "\n• Du försöker ändra lösenordet för ett administratörskonto. Av säkerhetsskäl får administratörer inte ändra lösenord för andra administratörer." +
+                    "\n\n Försök att justera din sökning eller kontrollera stavningen."
             }} cancel={onReset} />}
         </>
     )

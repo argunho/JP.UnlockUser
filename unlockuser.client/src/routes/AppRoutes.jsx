@@ -35,6 +35,7 @@ import '../assets/css/modals.css';
 import '../assets/css/lists.css';
 import '../assets/css/manage.css';
 import '../assets/css/message.css';
+import ModalOverview from '../components/modals/ModalOverview';
 
 const AppRoutes = () => [
   {
@@ -125,7 +126,7 @@ const AppRoutes = () => [
           },
           {
             path: ':api/history',
-            element: <Catalog label="Historik" api="data/history" search={true} download="data/download/by" />,
+            element: <Catalog label="Historik" api="data/history" search={true} download="data/download/by" modal={true} />,
             errorElement: <ErrorView />,
             loader: loader("data/logs/history")
           },

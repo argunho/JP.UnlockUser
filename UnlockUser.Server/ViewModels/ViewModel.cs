@@ -1,10 +1,11 @@
 ﻿namespace UnlockUser.Server.ViewModels;
 
-public class ListViewModel
+public class ViewModel
 {
     public string? Id { get; set; }
     public string? Primary { get; set; }
     public string? Secondary { get; set; }
+    public string? Hidden { get; set; }
     public bool? BoolValue { get; set; }
-    public List<ListViewModel> IncludedList { get; set; } = [];
+    public List<ViewModel> IncludedList { get; set; } = [];
 }

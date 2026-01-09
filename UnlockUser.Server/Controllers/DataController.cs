@@ -71,7 +71,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 // All users who are members of the current password management group
                 var users = (_provider.GetUsersByGroupName(group, alternativeParams)).ToList();
 
-                if(!isStudents)
+                if (!isStudents)
                 {
                     // Filter the list of saved employees according to the current password management group
 
@@ -99,7 +99,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 data.Add(group.Name?.ToLower()!, usersViewModel!);
             }
 
-            if (accessGroup)
+            if (!accessGroup)
                 return Ok(new { data, groups = passwordManageGroups.Select(s => s.Name).ToList() });
 
             return Ok(data);
@@ -114,7 +114,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     [HttpGet("schools")]
     public async Task<IActionResult> GetSchools()
     {
-        var schools = (await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools")).Select(s => new ListViewModel
+        var schools = (await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools")).Select(s => new ViewModel
         {
             Id = s.Name,
             Primary = s.Name,
@@ -124,7 +124,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         return Ok(schools);
     }
 
-    // Get all txt files
+    // Get all history files
     [HttpGet("logs/history")]
     public async Task<IActionResult> GetTextFiles()
     {
@@ -134,12 +134,13 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             if (histories.Count == 0)
                 return Ok();
 
-            var historiesToView = histories?.OrderByDescending(x => x.Date).Select(s => new ListViewModel
-                {
-                    Id = s.Date,
-                    Primary = s.Name,
-                    Secondary = s.Description
-                }).ToList();
+            var historiesToView = histories?.OrderByDescending(x => x.Date).Select(s => new ViewModel
+            {
+                Id = s.Date!.Trim(),
+                Primary = s.Name,
+                Secondary = s.Date,
+                Hidden = s.Description
+            }).ToList();
 
             return Ok(historiesToView);
         }
@@ -147,6 +148,23 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         {
             return BadRequest(await _helpService.Error(ex)); ;
         }
+    }
+
+    [HttpGet("logs/history/{id}")]
+    public async Task<IActionResult> GetHistoryFileById(string id)
+    {
+        var histories = await _localFileService.GetListFromEncryptedFile<FileViewModel>("catalogs/histories");
+        if (histories.Count == 0)
+            return NotFound(_helpService.NotFound("Histork filen"));
+
+        var history = histories.FirstOrDefault(x => x.Date!.Trim() == id.Trim());
+        if (history == null)
+            return NotFound(_helpService.NotFound("Histork filen"));
+
+        return Ok(new ViewModel {
+            Primary = history.Name,
+            Secondary = history.Description
+        });
     }
 
     // Get file to download
@@ -172,10 +190,10 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         try
         {
             List<Statistics> data = await _localFileService.GetListFromEncryptedFile<Statistics>("catalogs/statistics");
-            List<ListViewModel> list = [.. data?.OrderBy(x => x.Year).Select(s => new ListViewModel {
+            List<ViewModel> list = [.. data?.OrderBy(x => x.Year).Select(s => new ViewModel {
                 Primary = s.Year.ToString(),
                 Secondary = $"Byten lösenord: {s.Months.Sum(s => s.PasswordsChange)}, Upplåst konto: {s.Months.Sum(s => s.Unlocked)}",
-                IncludedList = [.. s.Months.OrderBy(o => o.Name).Select(s => new ListViewModel {
+                IncludedList = [.. s.Months.OrderBy(o => o.Name).Select(s => new ViewModel {
                     Primary = s.Name,
                     Secondary = $"Byten lösenord: {s.PasswordsChange}, Upplåst konto: {s.Unlocked}"
                 })]

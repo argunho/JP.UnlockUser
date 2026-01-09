@@ -2,7 +2,7 @@ import { useEffect, useState, use, Fragment } from "react";
 
 // Installed
 import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText, Skeleton } from "@mui/material";
-import { ArrowDropDown, ArrowDropUp, CalendarMonth, Delete, Download } from "@mui/icons-material";
+import { ArrowDropDown, ArrowDropUp, CalendarMonth, Delete, Download, Pageview } from "@mui/icons-material";
 import { useLoaderData, useNavigate, useRevalidator, useOutletContext, useMatch } from 'react-router-dom';
 
 // Components
@@ -20,15 +20,17 @@ import usePagination from "../../hooks/usePagination";
 // Storage
 import { FetchContext } from "../../storage/FetchContext";
 import { DownloadFile } from "../../functions/Functions";
+import ModalOverview from "../../components/modals/ModalOverview";
 
 
 // { loc, includedList, label, fullWidth, api, id, fields, labels, navigate }
-function Catalog({ label, api: propsApi, fields, fullWidth, search, download }) {
+function Catalog({ label, api: propsApi, fields, fullWidth, search, modal,  download }) {
 
     const [open, setOpen] = useState(false);
     const [confirmId, setConfirmId] = useState(null);
     const [collapsedItemIndex, setCollapsedItemIndex] = useState(null);
     const [searchWord, setSearchWord] = useState(null);
+    const [model, setModel] = useState();
 
     const { api: urlApi, loading } = useOutletContext();
     const catalogLoading = useMatch("/catalog/*");
@@ -126,8 +128,13 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, download }) 
                             secondaryAction={
                                 <div className="d-row">
 
+                                    {/* View item in modal */}
+                                    {modal && <IconButton onClick={() => setModel(item)}>
+                                        <Pageview />
+                                    </IconButton>}
+
                                     {/* Download button */}
-                                    {download && <IconButton onClick={() => onDownload(item?.id)}>
+                                    {download && <IconButton onClick={() => onDownload(item?.id)} style={{ marginRight: "10px"}}>
                                         <Download />
                                     </IconButton>}
 
@@ -171,6 +178,9 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, download }) 
 
             {/* If list is empty */}
             {(!open && (!list || list?.length == 0 || loads)) && <ListLoading rows={1} pending={loads} />}
+
+            {/* Modal overview */}
+            {modal && <ModalOverview item={model} open={!!model} onClose={() => setModel()}/>}
         </>
     )
 }
