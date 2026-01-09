@@ -1,11 +1,6 @@
 # Todo
 
- 1.
- 2.
- 3. 
- 4. 
- 5. 
- 6. Email logotype
+1. Email logotype
 
  # Backend
 
