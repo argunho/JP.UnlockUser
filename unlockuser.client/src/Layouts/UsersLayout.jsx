@@ -106,22 +106,3 @@ function UsersLayout() {
 }
 
 export default UsersLayout;
-
-// <ListItemText
-//     primary={moment(s.substr(s.lastIndexOf("_") + 1, 8), 'YYYY-MM-DD hh:mm:ss').format('YYYY-MM-DD')}
-//     secondary={<span style={{ fontSize: 10 }}>{moment(s.slice(s.lastIndexOf("_") + 9), 'hh:mm:ss').format('HH:mm:ss')}</span>} />
-
-
-    // const handleFile = async (file, download = false) => {
-    //     // const fileDownload = require('js-file-download');
-    //     await ApiRequest("api/data/read/file/" + file).then(res => {
-    //         if (res.status === 200) {
-    //             if (download)
-    //                 fileDownload(res.data, file.slice(file.lastIndexOf("_") + 1) + ".txt");
-    //             else
-    //                 setFileView(res.data.replaceAll("\n", "</br>"));
-    //         }
-    //         else
-    //             console.error(res.data);
-    //     }, error => ErrorHandle(error));
-    // }
