@@ -4,7 +4,7 @@
  2.
  3. 
  4. 
- 5. Statistic list
+ 5. 
  6. Email logotype
 
  # Backend
