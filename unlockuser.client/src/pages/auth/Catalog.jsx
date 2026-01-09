@@ -24,7 +24,7 @@ import ModalOverview from "../../components/modals/ModalOverview";
 
 
 // { loc, includedList, label, fullWidth, api, id, fields, labels, navigate }
-function Catalog({ label, api: propsApi, fields, fullWidth, search, modal,  download }) {
+function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, download }) {
 
     const [open, setOpen] = useState(false);
     const [confirmId, setConfirmId] = useState(null);
@@ -69,7 +69,8 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal,  down
         setConfirmId(null);
     }
 
-    async function onDownload(id){
+    async function onDownload(id) {
+        if(model) setModel();
         const blob = await fetchData({ api: `${download}/${id}`, method: "get", action: "return", responseType: "blob" });
         DownloadFile(blob, `${api}_${id}.txt`);
     }
@@ -129,21 +130,21 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal,  down
                                 <div className="d-row">
 
                                     {/* View item in modal */}
-                                    {modal && <IconButton onClick={() => setModel(item)}>
+                                    {modal && <IconButton color="primary" onClick={() => setModel(item)}>
                                         <Pageview />
                                     </IconButton>}
 
                                     {/* Download button */}
-                                    {download && <IconButton onClick={() => onDownload(item?.id)} style={{ marginRight: "10px"}}>
+                                    {download && <IconButton onClick={() => onDownload(item?.id)}>
                                         <Download />
                                     </IconButton>}
 
                                     {/* Dropdown and delete button */}
-                                    {item?.includedList?.length > 0 
-                                    ? <IconButton onClick={() => handleDropdown(ind)}>
-                                        {collapsedItemIndex === ind ? <ArrowDropUp /> : <ArrowDropDown />}
-                                    </IconButton> 
-                                    : <IconButton onClick={() => setConfirmId(item?.id)} color="error" disabled={confirmId || open || loads || pending}>
+                                    {item?.includedList?.length > 0
+                                        ? <IconButton onClick={() => handleDropdown(ind)}>
+                                            {collapsedItemIndex === ind ? <ArrowDropUp /> : <ArrowDropDown />}
+                                        </IconButton>
+                                        : <IconButton onClick={() => setConfirmId(item?.id)} color="error" disabled={confirmId || open || loads || pending}>
                                             {(confirmId == item?.id && pending) ? <CircularProgress size={20} /> : <Delete />}
                                         </IconButton>}
                                 </div>
@@ -180,7 +181,12 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal,  down
             {(!open && (!list || list?.length == 0 || loads)) && <ListLoading rows={1} pending={loads} />}
 
             {/* Modal overview */}
-            {modal && <ModalOverview item={model} open={!!model} onClose={() => setModel()}/>}
+            {modal && <ModalOverview item={{ ...model, secondary: model?.hidden ?? model?.secondary }} open={!!model} onClose={() => setModel()}>
+                {/* Download button */}
+                {download && <IconButton onClick={() => onDownload(model?.id)}>
+                    <Download />
+                </IconButton>}
+            </ModalOverview>}
         </>
     )
 }

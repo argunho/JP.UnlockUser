@@ -1,27 +1,34 @@
 // Installed
-import {  Dialog, DialogActions, DialogContent, IconButton } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, IconButton } from '@mui/material';
 import { Close } from '@mui/icons-material';
+import { DialogTitle } from '@mui/material';
 
-function ModalOverview({children, open = true, item, onClose }) {
+function ModalOverview({ children, open = true, item, onClose }) {
 
     return <Dialog open={open}
         onClose={onClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
+        className="modal-overview w-100"
         sx={{
             zIndex: 3000
         }}
-        className="modal-view w-100"
         id="modal-view"
     >
-        <div id="alert-dialog-title" className="dialog-label">
-            <h3 className="d-row jc-start" >
-                {item?.primary}
-            </h3>
-        </div>
+        <DialogTitle
+            id="dialog-title"
+            className="modal-label"
+            sx={{
+                marginBottom: "20px",
+                backgroundColor: "var(--color-primary)",
+                color: "#FFFFFF"
+            }}
+            dangerouslySetInnerHTML={{ __html: item?.primary }}>
+        </DialogTitle>
 
-        <DialogContent>
-            <div dangerouslySetInnerHTML={{ __html: item?.description }}/>
+
+        <DialogContent className="modal-desc">
+            <div dangerouslySetInnerHTML={{ __html: item?.secondary?.replaceAll("\n", "</br>") }} />
         </DialogContent>
 
 

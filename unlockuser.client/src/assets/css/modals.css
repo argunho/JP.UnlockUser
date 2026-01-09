@@ -4,9 +4,13 @@ div[role="dialog"] {
   transition: all 0.7s ease-in-out;
 }
 
-.modal-view div[role="dialog"] {
+.modal-view div[role="dialog"],
+.modal-overview div[role="dialog"] {
   width: 95%;
   max-width: 600px;
+}
+
+.modal-view div[role="dialog"] {
   padding: 20px 15px
 }
 
@@ -24,4 +28,18 @@ button.modal-help-btn {
 
 .modal-view ul>li>div>span {
   font-weight: 600;
+}
+
+.modal-label {
+  padding: 25px !important;
+}
+
+.modal-desc {
+  padding: 20px 30px !important;
+}
+
+.modal-actions {
+  padding: 15px !important;
+  margin: 10px 0 0 0 !important;
+  border-top: 2px solid var(--color-primary);
 }

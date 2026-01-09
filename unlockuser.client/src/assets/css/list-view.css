@@ -53,6 +53,10 @@ li.list-item {
     overflow: hidden;
 }
 
+li.list-item div>button {
+    margin-left: 10px !important;
+}
+
 .li-div span:first-child {
     white-space: nowrap !important;
     display: block !important;
