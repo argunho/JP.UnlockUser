@@ -14,8 +14,8 @@ public class MailService : ILocalMailService
                                         "<div style=\"width:auto;padding:35px 25px;font-size:'14px';display:block;\"><br/><br/>{content}</div>" +
                                         "<div style=\"width:96%;margin:20px 1%;display:block;padding:25px 1%;text-align:center;line-height:25px;font-size:16px;border-top:1px solid #D8D8D8;display:flex;justify-content:center;\">" +
                                             "<div style=\"width:50%;min-width:320px;display:block;margin:auto;font-family:Franklin Gothic Medium;\">" +
-                                            "<img src=\"data:image/png;base64,{contacts}\" alt='Alvesta Kommun' width='200' height='65' style=\"display: block;margin: 15pt\"/>" +
-        "</div>" +
+                                            //"<img src=\"data:image/png;base64,{contacts}\" alt='Alvesta Kommun' width='200' height='65' style=\"display: block;margin: 15pt\"/>" +
+                                            "</div>" +
                                             "</div></div></div>";
 
     public static string? _message { get; set; }
@@ -83,7 +83,8 @@ public class MailService : ILocalMailService
             _mail.IsBodyHtml = true;
             _smtp.Send(_mail);
             return true;
-        }catch(Exception ex)
+        }
+        catch (Exception ex)
         {
             Debug.WriteLine(ex.Message);
             _message = ex.Message;
