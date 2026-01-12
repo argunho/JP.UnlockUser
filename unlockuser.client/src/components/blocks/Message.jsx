@@ -19,7 +19,7 @@ function Message({ res, cancel, ref, message, styles }) {
 
 
     const error = typeof res === "string" ? res : res?.error;
-    const msg = res === 0 || res?.msg === "0" ? "Inget data finns att visa..." : (error ? res.error : res?.msg);
+    const msg = res === 0 || res?.msg === "0" ? "Inget data finns att visa ..." : (error ? res.error : res?.msg);
     const color = res == 0 ? "warning" : (error ? "error" : (res?.color ?? "success"));
 
     let props = cancel || ref ? { onClose: () => ref ? ref.current.className = "none" : cancel(msg || error) } : {};

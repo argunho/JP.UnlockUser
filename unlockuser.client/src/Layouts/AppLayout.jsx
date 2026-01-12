@@ -33,7 +33,7 @@ function AppLayout() {
         {!loads && <Outlet context={{ ...dashboardData, ...params, schools, loading: navigation.state === "loading" }} />}
 
         {/* Loading */}
-        {loads && <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain" />}
+        {loads && <LinearLoading size={30} cls="curtain" />}
       </div>
     </>
 

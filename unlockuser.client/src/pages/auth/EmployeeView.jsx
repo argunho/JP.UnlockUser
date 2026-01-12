@@ -26,6 +26,7 @@ function EmployeeView() {
     const revalidator = useRevalidator();
     const { schools, groups, moderator: userData, managers, politicians } = useOutletContext();
     const { permissions } = userData;
+
     const columns = ["Närmaste chefer", ...groups];
 
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
@@ -44,8 +45,8 @@ function EmployeeView() {
     }, [])
 
     useEffect(() => {
-        const isChanged = !_.isEqual(permissions?.managers, approved?.managers?.sort((a, b) => a.username?.localeCompare(b.username)))
-            || !_.isEqual(approvedPoliticians, approved?.politicians?.sort((a, b) => a.name?.localeCompare(b.name)))
+        const isChanged = !_.isEqual(permissions?.managers, approved?.managers?.sort((a, b) => a.username?.localeCompare(b.username))?.map(x => x.username))
+            || !_.isEqual(approvedPoliticians?.sort((a, b) => a.name?.localeCompare(b.name))?.map(x => x.name), approved?.politicians?.sort((a, b) => a.name?.localeCompare(b.name))?.map(x => x.name))
             || !_.isEqual(permissions?.schools, approved?.schools?.sort((a, b) => a?.localeCompare(b)))
 
         setChanged(isChanged)
@@ -58,6 +59,7 @@ function EmployeeView() {
     }, [success])
 
     function onChange(value, group, multiple) {
+
         if (!value || !group)
             return;
 
@@ -67,7 +69,7 @@ function EmployeeView() {
             newValues = multiple
                 ? managers.filter(x => (x.managerName === value || x.username === value)
                     && !approved?.managers?.some(y => y.username === x.username))
-                : managers.filter(x => x.username === value);
+                : [value];
         } else if (group === "politicians") {
             newValues = politicians?.filter(x => x.name === value);
         } else if (group === "schools") {

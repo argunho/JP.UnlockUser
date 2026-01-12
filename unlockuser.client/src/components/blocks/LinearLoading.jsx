@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Box, LinearProgress } from "@mui/material";
 
 // Loading linear
-function LinearLoading({ msg = "Var god vänta, data hämtas...", color = "inherit", loading, size = 16, styles = null }) {
+function LinearLoading({ msg = "Var vänlig vänta ...", color = "inherit", loading, size = 16, styles = null }) {
 
     const [progress, setProgress] = useState(0);
     const [buffer, setBuffer] = useState(10);

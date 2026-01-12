@@ -99,7 +99,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 data.Add(group.Name?.ToLower()!, usersViewModel!);
             }
 
-            if (!accessGroup)
+            if (accessGroup)
                 return Ok(new { data, groups = passwordManageGroups.Select(s => s.Name).ToList() });
 
             return Ok(data);
