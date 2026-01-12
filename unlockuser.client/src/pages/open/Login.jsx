@@ -78,6 +78,7 @@ function Login() {
       else if (token)
         authorize(token);
 
+
       return data;
     } catch (error) {
       handleResponse(ErrorHandle(error));
@@ -92,8 +93,8 @@ function Login() {
       handleResponse();
   }
 
-  const [formState, formAction, loading] = useActionState(onSubmit)
-  const disabled = loading || !!response;
+  const [formState, formAction, pending] = useActionState(onSubmit)
+  const disabled = pending || !!response;
 
   return <div className="d-column jc-between ai-start w-100 login-wrapper p-rel fade-in">
 
@@ -120,11 +121,11 @@ function Login() {
       <FormButtons
         label="Logga in"
         disabled={disabled}
-        loading={loading} />
+        loading={pending} />
     </form>
 
     {/* contacts link button  */}
-    <IconButton className="login-contacts-link" onClick={() => navigate("/contacts")} disabled={loading}>
+    <IconButton className="login-contacts-link" onClick={() => navigate("/contacts")} disabled={pending}>
       <ContactSupportIcon />
     </IconButton>
 

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, memo } from 'react';
 
-
 // Installed
 import { LiveHelp, Logout, Menu, Close, FactCheck, SettingsApplications, School, WorkHistory, ErrorOutline, BarChart, Home } from '@mui/icons-material';
 import { Button, IconButton } from '@mui/material';

@@ -25,7 +25,11 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            Dictionary<string, object> data = [];
+            if (_memoryCache.TryGetValue("dashboard", out Dictionary<string, object>? data))
+                return Ok(data);
+
+            data ??= [];
+
             var claims = _credentials.GetClaims(["username", "openAccess", "permissions"], Request);
 
             // List of groups the current user is a member of
@@ -53,67 +57,51 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 if (!accessGroup && !sessionUserGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase))
                     continue;
 
-                if (!_memoryCache.TryGetValue(group.Name!, out List<UserViewModel>? usersViewModel))
+                // Parameters used to filter employees
+                List<string>? alternativeParams = [];
+
+                // Verify whether the current password management group is the student group
+                bool isStudents = string.Equals(group.Group, "Students", StringComparison.OrdinalIgnoreCase);
+
+                // If the user is a member of the support group
+                if (!accessGroup)
                 {
-
-                    // Parameters used to filter employees
-                    List<string>? alternativeParams = [];
-
-                    // Verify whether the current password management group is the student group
-                    bool isStudents = string.Equals(group.Group, "Students", StringComparison.OrdinalIgnoreCase);
-
-                    // If the user is a member of the support group
-                    if (!accessGroup)
-                    {
-                        if (isStudents)
-                            alternativeParams = sessionUserPermissions!.Schools;
-                        else if (group.Name == "Politeker")
-                            alternativeParams = sessionUserPermissions!.Politicians;
-                        else
-                            alternativeParams = sessionUserPermissions!.Managers;
-                    }
-
-                    // All users who are members of the current password management group
-                    var users = (_provider.GetUsersByGroupName(group, alternativeParams)).ToList();
-
-                    if (!isStudents)
-                    {
-                        // Filter the list of saved employees according to the current password management group
-
-
-                        // Update permissions in all users of the current password management group based on the filtered saved users
-                        foreach (var employee in savedEmployees)
-                        {
-                            var user = users?.FirstOrDefault(x => x.Name == employee.Name);
-                            if (user == null)
-                                continue;
-
-                            user.Permissions = employee.Permissions;
-                        }
-                    }
-
-
-                    // Users model to view
-                    usersViewModel = users?.Select(s => new UserViewModel(s)).ToList();
-
-                    _ = usersViewModel!.ConvertAll(x => x.Group = group.Name).ToList(); ;
-
-                    if (!isStudents)
-                        _ = usersViewModel!.ConvertAll(x => x.PasswordLength = 12).ToList();
-
-                    // Save to session memory
-                    _memoryCache.Set(
-                        group.Name!,
-                        usersViewModel,
-                        new MemoryCacheEntryOptions
-                        {
-                            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60),
-                            SlidingExpiration = TimeSpan.FromMinutes(15)
-                        }
-                    );
+                    if (isStudents)
+                        alternativeParams = sessionUserPermissions!.Schools;
+                    else if (group.Name == "Politeker")
+                        alternativeParams = sessionUserPermissions!.Politicians;
+                    else
+                        alternativeParams = sessionUserPermissions!.Managers;
                 }
 
-                data.Add(group.Name?.ToLower()!, usersViewModel!);
+                // All users who are members of the current password management group
+                var users = (_provider.GetUsersByGroupName(group, alternativeParams)).ToList();
+
+                if (!isStudents)
+                {
+                    // Filter the list of saved employees according to the current password management group
+
+
+                    // Update permissions in all users of the current password management group based on the filtered saved users
+                    foreach (var employee in savedEmployees)
+                    {
+                        var user = users?.FirstOrDefault(x => x.Name == employee.Name);
+                        if (user == null)
+                            continue;
+
+                        user.Permissions = employee.Permissions;
+                    }
+                }
+
+                // Users model to view
+                var usersViewModel = users?.Select(s => new UserViewModel(s)).ToList();
+
+                _ = usersViewModel!.ConvertAll(x => x.Group = group.Name).ToList(); ;
+
+                if (!isStudents)
+                    _ = usersViewModel!.ConvertAll(x => x.PasswordLength = 12).ToList();
+
+                data!.Add(group.Name?.ToLower()!, usersViewModel!);
             }
 
             var schools = await GetSchoolsFromFile();
@@ -125,6 +113,16 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 //return Ok(new { data, groups = passwordManageGroups.Select(s => s.Name).ToList() });
             }
 
+            // Save to session memory
+            _memoryCache.Set(
+                "dashboard",
+                data,
+                new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60),
+                    SlidingExpiration = TimeSpan.FromMinutes(15)
+                }
+            );
 
             return Ok(data);
         }

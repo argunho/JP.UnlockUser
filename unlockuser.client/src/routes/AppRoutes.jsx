@@ -43,8 +43,6 @@ const AppRoutes = () => [
       <AppLayout />
     </FetchContextProvider>,
     errorElement: <NotFound isAuthorized={true} />,
-    loader: loader("data/dashboard"),
-    shouldRevalidate: () => false,
     children: [
       {
         index: true,

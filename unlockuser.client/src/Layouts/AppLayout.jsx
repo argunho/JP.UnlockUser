@@ -1,45 +1,53 @@
-import { useEffect, useRef } from 'react'; //, use
+import { useEffect, useRef, useState } from 'react'; //, use
 
 // Installed
-import { Outlet, useNavigation, useLoaderData, useParams } from 'react-router-dom';
+import { Outlet, useNavigation, useParams } from 'react-router-dom';
 
 // Components
 import Header from "../components/blocks/Header";
 import LinearLoading from './../components/blocks/LinearLoading';
 
-// Storage
-// import { DashboardContext } from '../storage/DashboardContext';
+// Services
+import { ApiRequest } from '../services/ApiRequest';
+
 
 function AppLayout() {
-  // const dashboardData = use(DashboardContext);
-  const collections = useLoaderData();
+
+  const [ collections, setCollections ] = useState();
 
   const refContainer = useRef();
   const navigation = useNavigation();
   const params = useParams();
 
-  // const loads = dashboardData?.loading;
-  // const schools = useLoaderData();
-
-  const  loading = navigation.state === "loading";
-
   useEffect(() => {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
-  }, [])
+
+    async function getCollections(){
+      const res = await ApiRequest("data/dashboard");
+      setCollections(res ?? []);
+    }
+
+    getCollections()
+  }, []);
+
+  const loads = !collections;
 
   return (
     <>
-      {/* <Header disabled={loads} /> */}
-      <Header disabled={loading} />
+      <Header disabled={loads} />
 
       <div className="container d-column jc-start fade-in" ref={refContainer}>
 
-        {/* {!loads && <Outlet context={{ ...dashboardData, ...params, schools, loading  }} />} */}
-        {!loading && <Outlet context={{ collections, ...params, groups: collections?.groups, schools: collections?.schools, loading  }} />}
+        {!loads && <Outlet context={{  
+          ...params,
+          collections, 
+          groups: collections?.groups, 
+          schools: collections?.schools, 
+          loading: navigation.state === "loading" 
+           }} />}
 
         {/* Loading */}
-        {/* {loads && <LinearLoading size={30} cls="curtain" />} */}
-        {loading && <LinearLoading size={30} cls="curtain" />}
+        {loads && <LinearLoading size={30} cls="curtain" />}
       </div>
     </>
 
