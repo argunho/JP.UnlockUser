@@ -56,7 +56,7 @@ function Overview() {
     const reqUser = useLoaderData();
     const { id, collections, loading } = useOutletContext();
 
-    const { permissions, groups: groupNames, access } = DecodedClaims();
+    const { permissions, groups: groupNames, openAccess } = DecodedClaims();
     const { fetchData, response } = use(FetchContext)
 
     const collection = collections ? groupNames.split(",").flatMap(g => collections[g.toLowerCase()]) : [];
@@ -71,7 +71,7 @@ function Overview() {
     useEffect(() => {
         if (loading) return;
 
-        if (!access)
+        if (!openAccess)
             navigate(-1);
         else if (!user && !reqUser)
             navigate(`view/user/by/${id}`);
