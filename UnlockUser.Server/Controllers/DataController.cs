@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Text;
 
@@ -8,12 +9,13 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class DataController(IHelpService helpService, IActiveDirectory provider, ICredentialsService credentials,
+public class DataController(IHelpService helpService, IActiveDirectory provider, IMemoryCache memoryCache, ICredentialsService credentials,
                                 ILocalFileService localFileService, IConfiguration config) : ControllerBase
 {
     private readonly IHelpService _helpService = helpService;
     private readonly IActiveDirectory _provider = provider;
     private readonly ICredentialsService _credentials = credentials;
+    private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IConfiguration _config = config;
 
@@ -23,8 +25,8 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     {
         try
         {
-            Dictionary<string, List<UserViewModel>> data = [];
-            var claims = _credentials.GetClaims(["username", "access", "permissions"], Request);
+            Dictionary<string, object> data = [];
+            var claims = _credentials.GetClaims(["username", "openAccess", "permissions"], Request);
 
             // List of groups the current user is a member of
             PermissionsViewModel claimPermissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permissions"])!;
@@ -39,7 +41,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             var savedEmployees = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
 
             // Verify the current user's membership in the support group
-            bool accessGroup = !string.IsNullOrEmpty(claims["access"]);
+            bool accessGroup = !string.IsNullOrEmpty(claims["openAccess"]);
 
             // Currentsession user permissions
             var sessionUserPermissions = savedEmployees.FirstOrDefault(x => x.Name == claims["username"])?.Permissions;
@@ -51,56 +53,78 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 if (!accessGroup && !sessionUserGroups.Contains(group.Name, StringComparer.OrdinalIgnoreCase))
                     continue;
 
-                // Parameters used to filter employees
-                List<string>? alternativeParams = [];
-
-                // Verify whether the current password management group is the student group
-                bool isStudents = string.Equals(group.Group, "Students", StringComparison.OrdinalIgnoreCase);
-
-                // If the user is a member of the support group
-                if (!accessGroup)
+                if (!_memoryCache.TryGetValue(group.Name!, out List<UserViewModel>? usersViewModel))
                 {
-                    if (isStudents)
-                        alternativeParams = sessionUserPermissions!.Schools;
-                    else if (group.Name == "Politeker")
-                        alternativeParams = sessionUserPermissions!.Politicians;
-                    else
-                        alternativeParams = sessionUserPermissions!.Managers;
-                }
 
-                // All users who are members of the current password management group
-                var users = (_provider.GetUsersByGroupName(group, alternativeParams)).ToList();
+                    // Parameters used to filter employees
+                    List<string>? alternativeParams = [];
 
-                if (!isStudents)
-                {
-                    // Filter the list of saved employees according to the current password management group
+                    // Verify whether the current password management group is the student group
+                    bool isStudents = string.Equals(group.Group, "Students", StringComparison.OrdinalIgnoreCase);
 
-
-                    // Update permissions in all users of the current password management group based on the filtered saved users
-                    foreach (var employee in savedEmployees)
+                    // If the user is a member of the support group
+                    if (!accessGroup)
                     {
-                        var user = users?.FirstOrDefault(x => x.Name == employee.Name);
-                        if (user == null)
-                            continue;
-
-                        user.Permissions = employee.Permissions;
+                        if (isStudents)
+                            alternativeParams = sessionUserPermissions!.Schools;
+                        else if (group.Name == "Politeker")
+                            alternativeParams = sessionUserPermissions!.Politicians;
+                        else
+                            alternativeParams = sessionUserPermissions!.Managers;
                     }
+
+                    // All users who are members of the current password management group
+                    var users = (_provider.GetUsersByGroupName(group, alternativeParams)).ToList();
+
+                    if (!isStudents)
+                    {
+                        // Filter the list of saved employees according to the current password management group
+
+
+                        // Update permissions in all users of the current password management group based on the filtered saved users
+                        foreach (var employee in savedEmployees)
+                        {
+                            var user = users?.FirstOrDefault(x => x.Name == employee.Name);
+                            if (user == null)
+                                continue;
+
+                            user.Permissions = employee.Permissions;
+                        }
+                    }
+
+
+                    // Users model to view
+                    usersViewModel = users?.Select(s => new UserViewModel(s)).ToList();
+
+                    _ = usersViewModel!.ConvertAll(x => x.Group = group.Name).ToList(); ;
+
+                    if (!isStudents)
+                        _ = usersViewModel!.ConvertAll(x => x.PasswordLength = 12).ToList();
+
+                    // Save to session memory
+                    _memoryCache.Set(
+                        group.Name!,
+                        usersViewModel,
+                        new MemoryCacheEntryOptions
+                        {
+                            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60),
+                            SlidingExpiration = TimeSpan.FromMinutes(15)
+                        }
+                    );
                 }
-
-
-                // Users model to view
-                var usersViewModel = users?.Select(s => new UserViewModel(s)).ToList();
-
-                _ = usersViewModel!.ConvertAll(x => x.Group = group.Name).ToList(); ;
-
-                if (!isStudents)
-                    _ = usersViewModel!.ConvertAll(x => x.PasswordLength = 12).ToList();
 
                 data.Add(group.Name?.ToLower()!, usersViewModel!);
             }
 
+            var schools = await GetSchoolsFromFile();
+            data.Add("schools", schools);
+
             if (accessGroup)
-                return Ok(new { data, groups = passwordManageGroups.Select(s => s.Name).ToList() });
+            {
+                data.Add("groups", passwordManageGroups.Select(s => s.Name).ToList());
+                //return Ok(new { data, groups = passwordManageGroups.Select(s => s.Name).ToList() });
+            }
+
 
             return Ok(data);
         }
@@ -114,13 +138,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     [HttpGet("schools")]
     public async Task<IActionResult> GetSchools()
     {
-        var schools = (await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools")).Select(s => new ViewModel
-        {
-            Id = s.Name,
-            Primary = s.Name,
-            Secondary = s.Place
-        }).ToList() ?? [];
-
+        var schools = await GetSchoolsFromFile();
         return Ok(schools);
     }
 
@@ -161,7 +179,8 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         if (history == null)
             return NotFound(_helpService.NotFound("Histork filen"));
 
-        return Ok(new ViewModel {
+        return Ok(new ViewModel
+        {
             Primary = history.Name,
             Secondary = history.Description
         });
@@ -256,7 +275,6 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             return BadRequest(await _helpService.Error(ex)); ;
         }
     }
-
     #endregion
 
     #region DELETE
@@ -275,6 +293,20 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         {
             return BadRequest(await _helpService.Error(ex)); ;
         }
+    }
+    #endregion
+
+    #region Help
+    private async Task<List<ViewModel>> GetSchoolsFromFile()
+    {
+        var schools = (await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools")).Select(s => new ViewModel
+        {
+            Id = s.Name,
+            Primary = s.Name,
+            Secondary = s.Place
+        }).ToList() ?? [];
+
+        return schools;
     }
     #endregion
 }

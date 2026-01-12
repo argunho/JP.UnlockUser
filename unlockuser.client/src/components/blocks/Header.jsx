@@ -36,7 +36,7 @@ const Header = memo(function Header({ disabled }) {
     const navigate = useNavigate();
     const loc = useLocation();
     const refMenu = useRef();
-    const { permissions, displayName, access } = DecodedClaims();
+    const { permissions, displayName, openAccess } = DecodedClaims();
     const groups = JSON.parse(permissions).Groups;
 
     useEffect(() => {
@@ -76,7 +76,7 @@ const Header = memo(function Header({ disabled }) {
                         <div className="hml-wrapper">
                             <span>{displayName}</span>
                             <span className="d-row">
-                                {access && <Button component={NavLink} 
+                                {openAccess && <Button component={NavLink} 
                                         disabled={disabled}
                                         className="header-link"
                                         to="/search/support"
@@ -108,7 +108,7 @@ const Header = memo(function Header({ disabled }) {
                     {/* Hidden menu */}
                     <HiddenMenu
                         open={open}
-                        links={access ? links : links.filter(x => !x.access && !x?.hidden)}
+                        links={openAccess ? links : links.filter(x => !x.access && !x?.hidden)}
                         onClose={() => setOpen(false)} />
 
                 </div>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, use } from 'react';
+import { useEffect, useRef } from 'react'; //, use
 
 // Installed
 import { Outlet, useNavigation, useLoaderData, useParams } from 'react-router-dom';
@@ -8,17 +8,20 @@ import Header from "../components/blocks/Header";
 import LinearLoading from './../components/blocks/LinearLoading';
 
 // Storage
-import { DashboardContext } from '../storage/DashboardContext';
+// import { DashboardContext } from '../storage/DashboardContext';
 
 function AppLayout() {
-  const dashboardData = use(DashboardContext);
+  // const dashboardData = use(DashboardContext);
+  const collections = useLoaderData();
 
   const refContainer = useRef();
   const navigation = useNavigation();
   const params = useParams();
 
-  const loads = dashboardData?.loading;
-  const schools = useLoaderData();
+  // const loads = dashboardData?.loading;
+  // const schools = useLoaderData();
+
+  const  loading = navigation.state === "loading";
 
   useEffect(() => {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
@@ -26,14 +29,17 @@ function AppLayout() {
 
   return (
     <>
-      <Header disabled={loads} />
+      {/* <Header disabled={loads} /> */}
+      <Header disabled={loading} />
 
       <div className="container d-column jc-start fade-in" ref={refContainer}>
 
-        {!loads && <Outlet context={{ ...dashboardData, ...params, schools, loading: navigation.state === "loading" }} />}
+        {/* {!loads && <Outlet context={{ ...dashboardData, ...params, schools, loading  }} />} */}
+        {!loading && <Outlet context={{ collections, ...params, groups: collections?.groups, schools: collections?.schools, loading  }} />}
 
         {/* Loading */}
-        {loads && <LinearLoading size={30} cls="curtain" />}
+        {/* {loads && <LinearLoading size={30} cls="curtain" />} */}
+        {loading && <LinearLoading size={30} cls="curtain" />}
       </div>
     </>
 

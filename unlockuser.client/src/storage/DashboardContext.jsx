@@ -8,6 +8,7 @@ import { IsLocalhost } from "../functions/Functions";
 
 // Storage
 import { AuthContext } from './AuthContext';
+import { Claim } from "../functions/DecodedToken";
 
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -27,8 +28,10 @@ function DashboardProvider({ children }) {
     const [sessionData, setSessionData] = useState({});
     const [loading, setLoading] = useState(true);
 
+    const openAccess = Claim("openAccess");
+
     useEffect(() => {
-        if (!isAuthorized) return;
+        if (!isAuthorized || !openAccess) return;
 
         if (IsLocalhost && sessionStorage.getItem("collections")) {
             setCollections(JSON.parse(sessionStorage.getItem("collections")));

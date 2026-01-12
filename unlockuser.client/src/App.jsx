@@ -5,7 +5,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 // Storage
 import AuthContextProvider, { AuthContext } from "./storage/AuthContext";
-import DashboardProvider from './storage/DashboardContext';
+// import DashboardProvider from './storage/DashboardContext';
 
 // Routes
 import OpenRoutes from "./routes/OpenRoutes";
@@ -18,9 +18,9 @@ import './assets/css/animation.css';
 function App() {
     return (
         <AuthContextProvider>
-            <DashboardProvider>
+            {/* <DashboardProvider> */}
                 <Root />
-            </DashboardProvider>
+            {/* </DashboardProvider> */}
         </AuthContextProvider>
     );
 }

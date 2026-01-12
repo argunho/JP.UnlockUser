@@ -91,7 +91,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             claims.Add(new("Roles", string.Join(",", roles)));
 
             if (roles.IndexOf("Support") > -1)
-                claims.Add(new("Access", "access")); //
+                claims.Add(new("OpenAccess", "ok")); //
 
             _session?.SetString("HashedCredentials", _helpService.EncodeToBase64($"{model.Password}{_config["JwtSettings:Key"]}"));
 

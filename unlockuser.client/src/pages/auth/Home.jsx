@@ -81,7 +81,7 @@ function Home() {
 
     const groups = Claim("groups")?.split(",");
     const permissionGroups = Claim("permissions")?.groups;
-    const supportGroup = Claim("access");
+    const openAccess = Claim("openAccess");
 
     const { collections, schools, group: groupName } = useOutletContext();
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
@@ -147,7 +147,7 @@ function Home() {
                 res = (isClass)
                     ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)
                     : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name))
-                        && (supportGroup ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
+                        && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
             }
         } else {
             // API parameters by chosen searching alternative
