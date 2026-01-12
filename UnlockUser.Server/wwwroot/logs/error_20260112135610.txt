@@ -1,1 +1,0 @@
-﻿{"Id":"error_20260112135610","Source":"Error: System.Private.CoreLib","Description":"Error: The given key \u0027access\u0027 was not present in the dictionary.\n\nPath to file: Controllers\\DataController.cs\n\nLine number: 44\n\nMethod: MoveNext\n","Opened":false,"Date":"2026.01.12 13:56:10"}
