@@ -12,7 +12,7 @@ export function TokenConfig(isForm) {
   if (isExpired) {
     localStorage.removeItem("token");
     sessionStorage.removeItem("token");
-    window.location.pathname = "/session/logout";
+    window.location.pathname = "/";
   }
 
   const headers = isForm ? {} : {
