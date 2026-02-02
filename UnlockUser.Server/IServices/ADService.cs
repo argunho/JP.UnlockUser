@@ -5,7 +5,7 @@ using UnlockUser.Server.FormModels;
 
 namespace UnlockUser.Server.IServices;
 
-public class ADService : IActiveDirectory // Help class inherit an interface and this class is a provider to use interface methods into another controller
+public class ADService(IHttpContextAccessor httpContextAccessor) : IActiveDirectory // Help class inherit an interface and this class is a provider to use interface methods into another controller
 {
     private readonly string domain = "alvesta";
     private readonly string defaultOU = "DC=alvesta,DC=local";
@@ -82,7 +82,7 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
         foreach (SearchResult? result in res.FindAll().OfType<SearchResult>())
         {
             ResultPropertyCollection? props = result.Properties!;
-            var user = GetUserParams(props); 
+            var user = GetUserParams(props);
             if (isEmployeeGroup)
             {
                 var properties = props["memberOf"].OfType<string>() ?? [];
@@ -193,21 +193,21 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
 
     #region Actions
     // Context to build a connection to local host
-    public PrincipalContext GetContext() => new(ContextType.Domain, domain, defaultOU);
+    public PrincipalContext? GetContext() => new(ContextType.Domain, domain, defaultOU);
 
     // Method to reset user password
-    public void ResetPassword(UserFormModel model, CredentialsViewModel credentials)
+    public void ResetPassword(UserFormModel model)
     {
-        using var context = PContexAccessCheck(credentials!);
+        using var context = PContexAccessCheck();
         using AuthenticablePrincipal user = UserPrincipal.FindByIdentity(context, model.Username)!;
         user.SetPassword(model.Password);
         user.Dispose();
     }
 
     // Method to unlock user
-    public string UnlockUser(string username, CredentialsViewModel credentials)
+    public string UnlockUser(string username)
     {
-        using var context = PContexAccessCheck(credentials);
+        using var context = PContexAccessCheck();
         using AuthenticablePrincipal user = UserPrincipal.FindByIdentity(context, username);
         if (user == null)
             return $"Användaren {username} hittades inte."; // User not found
@@ -231,9 +231,17 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
 
     #region Helpers
     // Context to build a connection with credentials to local host
-    public PrincipalContext PContexAccessCheck(CredentialsViewModel model)
-        => new(ContextType.Domain, domain, defaultOU, model.Username, model.Password);
+    public PrincipalContext PContexAccessCheck()
+    {
+        var _session = httpContextAccessor.HttpContext!.Session;
+        var username = _session.GetString("AdminUsername");
+        var protectedPassword = _session.Get("AdminPassword");
 
+        string password = DpapiProtector.Unprotect(protectedPassword);
+        PrincipalContext context = new(ContextType.Domain, domain, defaultOU, username, password);
+
+        return context;
+    }
     public DirectorySearcher? UpdatedProparties(DirectorySearcher? result)
     {
         if (result == null)
@@ -276,12 +284,5 @@ public class ADService : IActiveDirectory // Help class inherit an interface and
 
     public bool CheckManager(string jobTitle) =>
         jobTitle.Contains("chef", StringComparison.CurrentCultureIgnoreCase) || jobTitle.ToLower().Contains("rektor", StringComparison.CurrentCultureIgnoreCase);
-    #endregion
-
-    #region Not in use
-    // Method to get a group by name
-    [Obsolete("Not in use")]
-    public GroupPrincipal FindGroupName(string name)
-        => GroupPrincipal.FindByIdentity(GetContext(), name);
     #endregion
 }

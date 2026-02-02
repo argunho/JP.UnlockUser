@@ -35,7 +35,7 @@ function fetchReducer(state, action) {
         case 'LOAD_START':
             return { ...state, loading: !action.isMutation, pending: action.isMutation };
         case 'SUCCESS':
-            return { ...state, ...processClean, success: true, resData: action.payload};
+            return { ...state, ...processClean, success: true, resData: action.payload };
         case 'ERROR':
             return { ...state, ...processClean, response: action.payload };
         case 'MESSAGE':
@@ -65,9 +65,9 @@ function FetchContextProvider({ children }) {
 
         currentPathname.current = loc.pathname;
         const currentLayoutPathname = loc.pathname.split("/")[1];
-console.log(currentLayoutPathname, lastLayoutRef.current);
+
         if (currentLayoutPathname !== lastLayoutRef.current) {
-            dispatch({ type: 'CLEAR_TOTAL' });
+            dispatch({ type: 'CLEAR' });
             lastLayoutRef.current = currentLayoutPathname;
         } else
             dispatch({ type: 'CLEAR' });
@@ -80,7 +80,7 @@ console.log(currentLayoutPathname, lastLayoutRef.current);
 
     const fetchData = useCallback(async ({ api, method = 'get', data = null, action = null, responseType = null }) => {
         controllerRef.current = new AbortController();
- 
+
         dispatch({ type: 'LOAD_START', isMutation: method !== "get" });
 
         try {
@@ -89,11 +89,11 @@ console.log(currentLayoutPathname, lastLayoutRef.current);
                 signal: controllerRef.current.signal
             };
 
-            if(responseType)
+            if (responseType)
                 config.responseType = responseType;
-     
+
             let apiProps = [`api/${api}`];
-            if(["post", "patch", "put"].includes(method))
+            if (["post", "patch", "put"].includes(method))
                 apiProps.push(data || {});
             apiProps.push(config);
 

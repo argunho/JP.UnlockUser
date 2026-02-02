@@ -21,8 +21,8 @@ public interface IActiveDirectory
     List<Manager> GetUserManagers(User user);
 
     PrincipalContext GetContext();
-    void ResetPassword(UserFormModel model, CredentialsViewModel credentials);
-    string UnlockUser(string username, CredentialsViewModel credentials);
+    void ResetPassword(UserFormModel model);
+    string UnlockUser(string username);
     DirectorySearcher? UpdatedProparties(DirectorySearcher? result);
     User? GetUserParams(ResultPropertyCollection? props);
     bool CheckManager(string jobTitle);

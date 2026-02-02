@@ -13,7 +13,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
-    private readonly ISession? _session = contextAccessor?.HttpContext?.Session;
+    private readonly ISession? _session = contextAccessor.HttpContext!.Session;
     private readonly IDistributedCache _distributedCache = distributedCache;
     private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentials = credentials;
@@ -93,7 +93,11 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             if (roles.IndexOf("Support") > -1)
                 claims.Add(new("OpenAccess", "ok")); //
 
-            _session?.SetString("HashedCredentials", _helpService.EncodeToBase64($"{model.Password}{_config["JwtSettings:Key"]}"));
+            // Save hashed credentials in session to validate user on other requests
+            byte[] protectedPassword = DpapiProtector.Protect(model.Password);
+            _session.Set("AdminPassword", protectedPassword);
+            _session.SetString("AdminUsername", model.Username);
+
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
             return Ok(_credentials.GenerateJwtToken(

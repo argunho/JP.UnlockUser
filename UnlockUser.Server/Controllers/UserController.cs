@@ -299,8 +299,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     {
         try
         {
-            var credentials = CurrentUserCredentials();
-            var message = _provider.UnlockUser(username, credentials);
+            var message = _provider.UnlockUser(username);
             if (message.Length > 0)
                 return Ok(_helpService.Warning(message));
 
@@ -343,23 +342,27 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     #endregion
 
     #region Helpers
-    // Return hashed user credentials
-    public CredentialsViewModel CurrentUserCredentials()
-    => new()
-    {
-        Username = _credentialsService.GetClaim("username", Request),
-        Password = _helpService.DecodeFromBase64(_session.GetString("HashedCredentials")!)?.Replace(_config["JwtSettings:Key"]!, "")
-    };
-
     // Return information
-    private Data GetLogData([FromBody] string group, [FromBody] string office, [FromBody] string department)
+    private async Task<Data> GetLogData([FromBody] string group, [FromBody] string office, [FromBody] string department)
     {
         var ip = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
 
         // Get computer name
-        IPHostEntry GetIPHost = Dns.GetHostEntry(IPAddress.Parse(ip!));
-        List<string> compName = [.. GetIPHost.HostName.ToString().Split('.')];
-        string pcName = compName.First();
+        string pcName = "Unknown";
+
+        try
+        {
+            if (IPAddress.TryParse(ip, out var addr))
+                pcName = (await Dns.GetHostEntryAsync(addr))
+                    .HostName
+                    .Split('.', StringSplitOptions.RemoveEmptyEntries)
+                    .FirstOrDefault() ?? pcName;
+        }
+        catch { }
+
+        //IPHostEntry GetIPHost = Dns.GetHostEntry(IPAddress.Parse(ip!));
+        //List<string> compName = [.. GetIPHost.HostName.ToString().Split('.')];
+        //string pcName = compName.First();
         //string computerName = (Environment.MachineName ?? System.Net.Dns.GetHostName() ?? Environment.GetEnvironmentVariable("COMPUTERNAME"));
 
         var claims = _credentialsService.GetClaims(["office", "department"], Request) ?? [];
@@ -386,10 +389,10 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     // Set multiple passwords
-    private async Task<string?> SetPasswords([FromBody] List<UserFormModel> users)
+    private async Task<string?> SetPasswords(List<UserFormModel> users)
     {
         // Check model is valid or not and return warning is true or false
-        if (users?.Count == 0)
+        if (users == null || users.Count == 0)
             return "Användare för lösenordsåterställning har inte specificerats."; // Password reset user not specified
 
         // If password needs to confirm
@@ -408,12 +411,15 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permission"], Request);
 
         // Check permission for the managed users group
-        var groups = claims?["groups"].Split(",") ?? [];
+        var groups = claims != null && claims.TryGetValue("groups", out var g) && !string.IsNullOrEmpty(g)
+                        ? g.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
         if (!groups.Contains(group, StringComparer.OrdinalIgnoreCase))
             return "Behörigheter saknas!"; // Warning!
 
+
         // Check current moderators role
-        var roles = claims?["roles"].Split(",") ?? [];
+        var roles = claims != null && claims.TryGetValue("roles", out var r) && !string.IsNullOrEmpty(r)
+                                ? r.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
         if (!roles.Contains("Support", StringComparer.OrdinalIgnoreCase))
         {
             var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permission"])!;
@@ -426,22 +432,23 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
             }
             else
             {
-                string userManager = users?[0].Manager?.Trim()?[3..users[0].Manager!.IndexOf(',')]!;
-                if (!permissions.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase))
+                var manager = users?[0].Manager;
+
+                string? userManager = (!string.IsNullOrEmpty(manager) && manager.Contains(',')) ? manager.Trim()?[3..manager!.IndexOf(',')] : null;
+                if (string.IsNullOrEmpty(userManager) || !permissions.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase))
                     return $"{warningMessage} {users?[0].Username}";
             }
         }
 
-        var credentials = CurrentUserCredentials();
-        Data sessionUserData = GetLogData(group!, office!, department!);
-        StringBuilder? message = null;
+        Data sessionUserData = await GetLogData(group!, office!, department!);
+        var message = new StringBuilder();
 
         // Set password to class students
         foreach (var user in users!)
         {
             try
             {
-                _provider.ResetPassword(user, credentials);
+                _provider.ResetPassword(user);
                 if (_env.IsProduction())
                     sessionUserData.Users.Add(user?.Username ?? "");
             }
@@ -452,17 +459,17 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
 
         // Save/Update statistics
-        if (!users[0].Check && _env.IsProduction())
-        {
+        //if (!users[0].Check && _env.IsProduction())
+        //{
             await SaveHistoryLogFile(sessionUserData);
             await SaveUpdateStatitics("PasswordsChange", users.Count);
-        }
+        //}
 
         return (message?.Length > 0) ? message.ToString() : null;
     }
 
     // Save update statistik
-    private async Task SaveUpdateStatitics([FromBody] string param, int count)
+    private async Task SaveUpdateStatitics(string param, int count)
     {
         var year = DateTime.Now.Year;
         var month = DateTime.Now.ToString("MMMM", CultureInfo.InvariantCulture);
@@ -505,7 +512,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
     }
 
     // Save log file
-    private async Task SaveHistoryLogFile([FromBody] Data model)
+    private async Task SaveHistoryLogFile(Data model)
     {
         var user = _provider.FindUserByUsername(_credentialsService.GetClaim("username", Request) ?? "");
         if (user == null)
