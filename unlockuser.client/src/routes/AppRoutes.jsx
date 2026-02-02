@@ -123,7 +123,7 @@ const AppRoutes = () => [
           },
           {
             path: ':api/history',
-            element: <Catalog label="Historik" api="data/history" search={true} download="data/download/by" modal={true} />,
+            element: <Catalog label="Historik" api="data/history" search={true} download="data/download/by" modal={true} disabled={true} />,
             errorElement: <ErrorView />,
             loader: loader("data/logs/history")
           },

@@ -1,4 +1,4 @@
-import { useEffect, useState, use, Fragment } from "react";
+import { useState, use, Fragment } from "react";
 
 // Installed
 import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText, Skeleton } from "@mui/material";
@@ -24,7 +24,7 @@ import ModalOverview from "../../components/modals/ModalOverview";
 
 
 // { loc, includedList, label, fullWidth, api, id, fields, labels, navigate }
-function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, download, dropdown }) {
+function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, download, dropdown, disabled }) {
 
     const [open, setOpen] = useState(false);
     const [confirmId, setConfirmId] = useState(null);
@@ -51,11 +51,6 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
             loading: loads,
             number: 20
         });
-
-    useEffect(() => {
-        setOpen(false);
-        setCollapsedIndex(null);
-    }, [])
 
     function handleDropdown(index) {
         setCollapsedIndex(index === collapsedIndex ? null : index);
@@ -144,7 +139,7 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
                                         ? <IconButton onClick={() => handleDropdown(ind)} disabled={item?.values?.length === 0}>
                                             {collapsedIndex === ind ? <ArrowDropUp /> : <ArrowDropDown />}
                                         </IconButton>
-                                        : <IconButton onClick={() => setConfirmId(item?.id)} color="error" disabled={confirmId || open || loads || pending}>
+                                        : <IconButton onClick={() => setConfirmId(item?.id)} color="error" disabled={confirmId || open || loads || pending || disabled}>
                                             {(confirmId == item?.id && pending) ? <CircularProgress size={20} /> : <Delete />}
                                         </IconButton>}
                                 </div>
