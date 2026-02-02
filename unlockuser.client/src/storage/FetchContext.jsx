@@ -65,8 +65,7 @@ function FetchContextProvider({ children }) {
 
         currentPathname.current = loc.pathname;
         const currentLayoutPathname = loc.pathname.split("/")[1];
-        // const rootId = matches[0]?.id;
-
+console.log(currentLayoutPathname, lastLayoutRef.current);
         if (currentLayoutPathname !== lastLayoutRef.current) {
             dispatch({ type: 'CLEAR_TOTAL' });
             lastLayoutRef.current = currentLayoutPathname;
