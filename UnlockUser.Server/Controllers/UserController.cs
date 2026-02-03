@@ -14,14 +14,12 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class UserController(IActiveDirectory provider, IHttpContextAccessor contextAccessor, IWebHostEnvironment env,
+public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localService,
     ICredentialsService credinalService, ILocalMailService localMailService) : ControllerBase
 {
 
     private readonly IActiveDirectory _provider = provider;
-    private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
-    private readonly ISession _session = contextAccessor.HttpContext!.Session;
     private readonly IConfiguration _config = config;
     private readonly IHelpService _helpService = helpService;
     private readonly ILocalFileService _localFileService = localFileService;
@@ -367,6 +365,13 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
 
         var claims = _credentialsService.GetClaims(["office", "department"], Request) ?? [];
         var data = new Data();
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        if (string.IsNullOrEmpty(ipAddress))
+        {
+            var ipHeader = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            ipAddress = ipHeader?.Split(',').First().Trim();
+        }
+
         try
         {
             data = new()
@@ -377,7 +382,7 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
                 ManagedUserDepartment = department,
                 Group = group,
                 ComputerName = pcName,
-                IpAddress = _contextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString()
+                IpAddress = ipAddress
             };
         }
         catch (Exception ex)
@@ -459,11 +464,11 @@ public class UserController(IActiveDirectory provider, IHttpContextAccessor cont
         }
 
         // Save/Update statistics
-        //if (!users[0].Check && _env.IsProduction())
-        //{
+        if (!users[0].Check && _env.IsProduction())
+        {
             await SaveHistoryLogFile(sessionUserData);
             await SaveUpdateStatitics("PasswordsChange", users.Count);
-        //}
+        }
 
         return (message?.Length > 0) ? message.ToString() : null;
     }
