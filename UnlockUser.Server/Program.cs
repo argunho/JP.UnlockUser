@@ -31,8 +31,7 @@ builder.Services.AddSingleton<ILocalMailService, MailService>();
 builder.Services.AddHelpLocalServices();
 
 // Remove JobRelatedHelpLibrary service IRequestApiService and IMailService if they are registered by default
-var requestApiDescriptor = builder.Services.FirstOrDefault(
-    d => d.ServiceType == typeof(IRequestApiService));
+var requestApiDescriptor = builder.Services.FirstOrDefault(d => d.ServiceType == typeof(IRequestApiService));
 if (requestApiDescriptor != null)
 {
     builder.Services.Remove(requestApiDescriptor);
