@@ -11,6 +11,7 @@ using JobRelatedHelpLibrary.Extenssions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Serilog;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,22 @@ var builder = WebApplication.CreateBuilder(args);
 
 #region Implemented
 ConfigurationManager configuration = builder.Configuration;
+
+// Ensure log directory exists
+Directory.CreateDirectory("wwwroot/logs");
+
+// Replace default logging with Serilog
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration
+        .WriteTo.Console()
+        .WriteTo.File(
+            "wwwroot/logs/app-.txt",
+            rollingInterval: RollingInterval.Day,
+            retainedFileCountLimit: 30,
+            fileSizeLimitBytes: 10_000_000, // optional
+            rollOnFileSizeLimit: true);
+});
 
 // Services
 builder.Services.AddSingleton<IActiveDirectory, ADService>();
