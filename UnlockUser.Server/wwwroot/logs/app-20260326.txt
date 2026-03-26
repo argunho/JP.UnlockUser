@@ -1,0 +1,8 @@
+2026-03-26 10:35:58.005 +01:00 [INF] Gruppdata har laddats ner. Group: Personal
+2026-03-26 10:36:00.914 +01:00 [INF] Gruppdata har laddats ner. Group: Personal
+2026-03-26 10:36:34.740 +01:00 [INF] Gruppdata har laddats ner. Group: Politiker
+2026-03-26 10:36:37.040 +01:00 [INF] Gruppdata har laddats ner. Group: Politiker
+2026-03-26 10:37:02.387 +01:00 [INF] Gruppdata har laddats ner. Group: Studenter
+2026-03-26 10:37:02.403 +01:00 [INF] Gruppdata har laddats ner. Group: Skolor.
+2026-03-26 10:37:04.700 +01:00 [INF] Gruppdata har laddats ner. Group: Studenter
+2026-03-26 10:37:04.703 +01:00 [INF] Gruppdata har laddats ner. Group: Skolor.

@@ -1,7 +1,7 @@
-import { useState, use, Fragment } from "react";
+import { useState, use, Fragment, useRef } from "react";
 
 // Installed
-import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText, Skeleton } from "@mui/material";
+import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText, Skeleton, Tooltip } from "@mui/material";
 import { ArrowDropDown, ArrowDropUp, CalendarMonth, Delete, Download, Pageview } from "@mui/icons-material";
 import { useLoaderData, useNavigate, useRevalidator, useOutletContext, useMatch } from 'react-router-dom';
 
@@ -44,6 +44,17 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
     const list = loaded?.list ?? loaded;
     const { fetchData, response, pending, handleResponse } = use(FetchContext);
 
+    const inputDate = useRef();
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    const maxDate = yesterday.toISOString().split("T")[0];
+
+    const minDateObj = new Date();
+    minDateObj.setDate(yesterday.getDate() - 29);
+    const minDate = minDateObj.toISOString().split("T")[0];
+
     const navigate = useNavigate();
     const { revalidate } = useRevalidator()
 
@@ -67,9 +78,16 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
     }
 
     async function onDownload(id) {
-        if(model) setModel();
+        if (model) setModel();
         const blob = await fetchData({ api: `${download}/${id}`, method: "get", action: "return", responseType: "blob" });
         DownloadFile(blob, `${api}_${id}.txt`);
+    }
+
+
+    // Download serie log file
+    async function downloadFile(e) {
+        const blob = await fetchData({ api: `logs/download/${e.target.value}`, method: "get", action: "return", responseType: "blob" });
+        DownloadFile(blob, `app-${e.target.value.replaceAll("-", "")}.txt`);
     }
 
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
@@ -93,6 +111,28 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
                     {search && <SearchFilter label="anställda" disabled={loads || response}
                         onSearch={(value) => setSearchWord(value)} onReset={() => setSearchWord(null)} />}
                 </div>}
+
+
+                {/* Button to download app log by date */}
+                {api === "logs" && <>
+                    <input
+                        type="date"
+                        className="none"
+                        onChange={downloadFile}
+                        disabled={pending}
+                        ref={inputDate}
+                        min={minDate}
+                        max={maxDate}
+                    />
+                    <Tooltip title="Ladda ner app logg fil" classes={{
+                        tooltip: "tooltip-info margin",
+                        arrow: "tooltip-arrow-info"
+                    }} arrow>
+                        <IconButton color="primary" className="blink-color" style={{ marginRight: "-10px", marginLeft: "10px" }} onClick={() => inputDate.current?.showPicker()} disabled={pending} >
+                            <Download />
+                        </IconButton>
+                    </Tooltip>
+                </>}
             </TabPanel>
 
             {/* Pagination */}

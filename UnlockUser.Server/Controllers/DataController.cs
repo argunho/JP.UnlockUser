@@ -10,7 +10,7 @@ namespace UnlockUser.Server.Controllers;
 [ApiController]
 [Authorize]
 public class DataController(IHelpService helpService, IActiveDirectory provider, IMemoryCache memoryCache, ICredentialsService credentials,
-                                ILocalFileService localFileService, IConfiguration config) : ControllerBase
+                                ILocalFileService localFileService, IConfiguration config, ILogger<DataController> logger) : ControllerBase
 {
     private readonly IHelpService _helpService = helpService;
     private readonly IActiveDirectory _provider = provider;
@@ -18,6 +18,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IConfiguration _config = config;
+    private readonly ILogger<DataController> _logger = logger;
 
     #region GET
     [HttpGet("dashboard")]
@@ -80,8 +81,6 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                 if (!isStudents)
                 {
                     // Filter the list of saved employees according to the current password management group
-
-
                     // Update permissions in all users of the current password management group based on the filtered saved users
                     foreach (var employee in savedEmployees)
                     {
@@ -102,16 +101,16 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                     _ = usersViewModel!.ConvertAll(x => x.PasswordLength = 12).ToList();
 
                 data!.Add(group.Name?.ToLower()!, usersViewModel!);
+
+                _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", group.Name, DateTime.Now.ToString("G"));
             }
 
             var schools = await GetSchoolsFromFile();
             data.Add("schools", schools);
+            _logger.LogInformation("Gruppdata har laddats ner. Group: Skolor. Tid: {time}.", DateTime.Now.ToString("G"));
 
             if (accessGroup)
-            {
                 data.Add("groups", passwordManageGroups.Select(s => s.Name).ToList());
-                //return Ok(new { data, groups = passwordManageGroups.Select(s => s.Name).ToList() });
-            }
 
             // Save to session memory
             _memoryCache.Set(
@@ -186,6 +185,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
 
     // Get file to download
     [HttpGet("read/file/{directory}/{id}")]
+    [Obsolete("No longer used.")]
     public async Task<IActionResult> ReadTextFile(string directory, string id)
     {
         var path = Path.Combine($@"wwwroot/logs/{directory}", $"{id}.txt");

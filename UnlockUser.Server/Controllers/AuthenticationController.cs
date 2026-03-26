@@ -9,7 +9,7 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class AuthenticationController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache,
-    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService) : ControllerBase
+    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, ILogger<AuthenticationController> logger) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
@@ -18,6 +18,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
     private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentials = credentials;
     private readonly ILocalFileService _localFileService = localFileService;
+    private readonly ILogger<AuthenticationController> _logger = logger;
 
     #region POST   
     [HttpPost]
@@ -42,6 +43,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             {
                 // If the user tried to put in a wrong password, save this like +1 a wrong attempt and the max is 4 attempts
                 _session?.SetInt32("LoginAttempt", loginAttempt += 1);
+                _logger.LogWarning("Varning: Försök att logga in med fel användarnamn eller lösenord. Användarnamn: {username}. Tid: {time}", model!.Username, DateTime.Now.ToString("g"));
                 return Ok(_helpService.Warning($"Felaktig användarnamn eller lösenord. {4 - loginAttempt} försök kvar."));
             }
 
@@ -70,12 +72,6 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             if (permissionGroups.Count == 0 && roles.Count == 0)
                 return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
 
-            //var passwordManageGroups = permissionGroups.OrderBy(x => x.Name).Select(s => new GroupModel
-            //{
-            //    Name = s.Name,
-            //    Group = s.Group
-            //}).ToList();
-
             var moderators = await _localFileService.GetListFromEncryptedFile<User>("catalogs/moderators");
             var currentModerator = moderators.FirstOrDefault(x => x.Name == authorizedUser.Name);
 
@@ -94,10 +90,14 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
                 claims.Add(new("OpenAccess", "ok")); //
 
             // Save hashed credentials in session to validate user on other requests
-            byte[] protectedPassword = DpapiProtector.Protect(model.Password);
-            _session.Set("AdminPassword", protectedPassword);
-            _session.SetString("AdminUsername", model.Username);
+            if(_session != null)
+            {
+                byte[] protectedPassword = DpapiProtector.Protect(model.Password);
+                _session.Set("AdminPassword", protectedPassword);
+                _session.SetString("AdminUsername", model.Username);
+            }
 
+            _logger.LogInformation("Autentisering utförd vid: {time}. Department: {department}. Office: {office}.", DateTime.Now.ToString("g"), authorizedUser.Department, authorizedUser.Office);
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
             return Ok(_credentials.GenerateJwtToken(
@@ -108,6 +108,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
         }
         catch (Exception ex)
         {
+            _logger.LogError("Autentisering misslyckades. Fel: {error}", ex.Message);
             return BadRequest(await _helpService.Error(ex));
         }
     }

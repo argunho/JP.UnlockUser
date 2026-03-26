@@ -57,9 +57,7 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
             if (usersToView.Count == 0)
                 return Ok(_helpService.Warning("Inga användarkonto hittades."));
 
-
             return Ok(new { users = usersToView.OrderBy(x => x.Name) });
-
         }
         catch (Exception ex)
         {

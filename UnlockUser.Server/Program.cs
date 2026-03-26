@@ -1,3 +1,4 @@
+global using JobRelatedHelpLibrary.Interfaces;
 global using UnlockUser.Server.DataModels;
 global using UnlockUser.Server.Extensions;
 global using UnlockUser.Server.Interface;
@@ -5,13 +6,12 @@ global using UnlockUser.Server.IServices;
 global using UnlockUser.Server.Models;
 global using UnlockUser.Server.Services;
 global using UnlockUser.Server.ViewModels;
-global using JobRelatedHelpLibrary.Interfaces;
-
 using JobRelatedHelpLibrary.Extenssions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Serilog;
+using Serilog.Events;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,14 +23,19 @@ ConfigurationManager configuration = builder.Configuration;
 // Ensure log directory exists
 Directory.CreateDirectory("wwwroot/logs");
 
+
 // Replace default logging with Serilog
 builder.Host.UseSerilog((context, services, configuration) =>
 {
     configuration
+        .MinimumLevel.Information()
+        .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
+        .MinimumLevel.Override("System", LogEventLevel.Error)
         .WriteTo.Console()
         .WriteTo.File(
             "wwwroot/logs/app-.txt",
             rollingInterval: RollingInterval.Day,
+            shared: true,
             retainedFileCountLimit: 30,
             fileSizeLimitBytes: 10_000_000, // optional
             rollOnFileSizeLimit: true);

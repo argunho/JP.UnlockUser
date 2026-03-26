@@ -43,7 +43,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
             if (!log.Equals(new LogViewModel()))
             {
                 log.Opened = true;
-                string logsJson = System.Text.Json.JsonSerializer.Serialize(logs);
+                string logsJson = JsonSerializer.Serialize(logs);
                 await _fileService.SaveFile(logsJson!, "logs", @"wwwroot/json");
             }
             else
@@ -58,7 +58,6 @@ public class LogController(IHelpService helpService, IFileService fileService) :
     }
 
     [HttpGet("download/by/{id}")]
-    [AllowAnonymous]
     public async Task<IActionResult> DownloadFile(string id)
     {
         try
@@ -76,7 +75,26 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error(ex));
+            return BadRequest(await _helpService.Error(ex));
+        }
+    }
+
+    // Download Serielog
+    [HttpGet("download/{date}")]
+    public async Task<IActionResult> DownloadLog(string date)
+    {
+        if (!DateTime.TryParse(date, out DateTime res))
+            return Ok(_helpService.Warning("Fel datum format."));
+
+        string filePath = Path.Combine("wwwroot/logs", $"app-{res:yyyyMMdd}.txt");
+        try
+        {
+            byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+            return File(fileBytes, "text/plain", $"app-{res:yyyyMMdd}.txt");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(await _helpService.Error(ex));
         }
     }
     #endregion
