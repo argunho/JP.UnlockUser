@@ -89,8 +89,16 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         string filePath = Path.Combine("wwwroot/logs", $"app-{res:yyyyMMdd}.txt");
         try
         {
-            byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
-            return File(fileBytes, "text/plain", $"app-{res:yyyyMMdd}.txt");
+            //byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+            //return File(fileBytes, "text/plain", $"app-{res:yyyyMMdd}.txt");
+
+            var stream = new FileStream(
+                filePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.ReadWrite // 🔥 Important
+            );
+            return File(stream, "text/plain", $"app-{res:yyyyMMdd}.txt");
         }
         catch (Exception ex)
         {
