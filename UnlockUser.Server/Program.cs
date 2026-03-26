@@ -28,17 +28,34 @@ Directory.CreateDirectory("wwwroot/logs");
 builder.Host.UseSerilog((context, services, configuration) =>
 {
     configuration
+        // Default level for your app
         .MinimumLevel.Information()
+        // Suppress framework noise
         .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
         .MinimumLevel.Override("System", LogEventLevel.Error)
         .WriteTo.Console()
-        .WriteTo.File(
-            "wwwroot/logs/app-.txt",
-            rollingInterval: RollingInterval.Day,
-            shared: true,
-            retainedFileCountLimit: 30,
-            fileSizeLimitBytes: 10_000_000, // optional
-            rollOnFileSizeLimit: true);
+        // Normal logs (no errors)
+        .WriteTo.Logger(lc => lc
+            .Filter.ByExcluding(e => e.Level >= LogEventLevel.Error)
+            .WriteTo.File(
+                "wwwroot/logs/app-.txt",
+                rollingInterval: RollingInterval.Day,
+                shared: true,
+                retainedFileCountLimit: 30,
+                fileSizeLimitBytes: 10_000_000, // optional
+                rollOnFileSizeLimit: true)
+        )
+        // Error-only logs (separate file)
+        .WriteTo.Logger(lc => lc
+            .Filter.ByIncludingOnly(e => e.Level >= LogEventLevel.Error)
+            .WriteTo.File(
+                "wwwroot/logs/errors-.txt",
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 30,
+                fileSizeLimitBytes: 10_000_000, // optional
+                rollOnFileSizeLimit: true
+             )
+       );
 });
 
 // Services

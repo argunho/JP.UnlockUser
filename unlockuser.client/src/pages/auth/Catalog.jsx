@@ -92,8 +92,8 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
 
     // Download serie log file
     async function downloadFile(e) {
-        const blob = await fetchData({ api: `logs/download/${e.target.value}`, method: "get", action: "return", responseType: "blob" });
-        DownloadFile(blob, `app-${e.target.value.replaceAll("-", "")}.txt`);
+        const blob = await fetchData({ api: `logs/download/logs/by/${e.target.value}`, method: "get", action: "return", responseType: "blob" });
+        DownloadFile(blob, `logs-${e.target.value.replaceAll("-", "")}.zip`);
     }
 
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;

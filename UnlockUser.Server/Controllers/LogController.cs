@@ -80,25 +80,26 @@ public class LogController(IHelpService helpService, IFileService fileService) :
     }
 
     // Download Serielog
-    [HttpGet("download/{date}")]
-    public async Task<IActionResult> DownloadLog(string date)
+    [HttpGet("download/logs/by/{date}")]
+    public async Task<IActionResult> DownloadLogs(string date)
     {
         if (!DateTime.TryParse(date, out DateTime res))
             return Ok(_helpService.Warning("Fel datum format."));
 
-        string filePath = Path.Combine("wwwroot/logs", $"app-{res:yyyyMMdd}.txt");
+        string fileLogPath = Path.Combine("wwwroot/logs", $"app-{res:yyyyMMdd}.txt");
+        string fileErrorPath = Path.Combine("wwwroot/logs", $"error-{res:yyyyMMdd}.txt");
         try
         {
             //byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
             //return File(fileBytes, "text/plain", $"app-{res:yyyyMMdd}.txt");
 
-            var stream = new FileStream(
-                filePath,
-                FileMode.Open,
-                FileAccess.Read,
-                FileShare.ReadWrite // 🔥 Important
-            );
-            return File(stream, "text/plain", $"app-{res:yyyyMMdd}.txt");
+            //var stream = new FileStream(
+            //    filePath,
+            //    FileMode.Open,
+            //    FileAccess.Read,
+            //    FileShare.ReadWrite // 🔥 Important
+            //);
+            //return File(stream, "text/plain", $"app-{res:yyyyMMdd}.txt");
         }
         catch (Exception ex)
         {
