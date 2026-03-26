@@ -46,13 +46,19 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
 
     const inputDate = useRef();
     const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-
-    const maxDate = yesterday.toISOString().split("T")[0];
+    today.setDate(today.getDate());
+    const maxDate = today.toISOString().split("T")[0];
 
     const minDateObj = new Date();
-    minDateObj.setDate(yesterday.getDate() - 29);
+    minDateObj.setDate(today.getDate() - 30);
+
+    // const yesterday = new Date(today);
+    // yesterday.setDate(today.getDate() - 1);
+
+    // const maxDate = yesterday.toISOString().split("T")[0];
+
+    // const minDateObj = new Date();
+    // minDateObj.setDate(yesterday.getDate() - 29);
     const minDate = minDateObj.toISOString().split("T")[0];
 
     const navigate = useNavigate();
