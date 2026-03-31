@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 
@@ -88,8 +89,44 @@ public class LogController(IHelpService helpService, IFileService fileService) :
 
         string fileLogPath = Path.Combine("wwwroot/logs", $"app-{res:yyyyMMdd}.txt");
         string fileErrorPath = Path.Combine("wwwroot/logs", $"error-{res:yyyyMMdd}.txt");
+
+        var memoryStream = new MemoryStream();
         try
         {
+            using (var zip = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+            {
+                // Log file
+                if (System.IO.File.Exists(fileLogPath))
+                {
+                    var logEntry = zip.CreateEntry($"app-{res:yyyyMMdd}.txt");
+                    using var entryStream = logEntry.Open();
+                    using var fileStream = new FileStream(
+                            fileLogPath,
+                            FileMode.Open,
+                            FileAccess.Read,
+                            FileShare.ReadWrite // 🔥 Important
+                        );
+                    await fileStream.CopyToAsync(entryStream);
+                }
+
+                // Error file
+                if (System.IO.File.Exists(fileErrorPath))
+                {
+                    var errorEntry = zip.CreateEntry($"error-{res:yyyyMMdd}.txt");
+                    using var entryStream = errorEntry.Open();
+                    using var fileStream = new FileStream(
+                            fileErrorPath,
+                            FileMode.Open,
+                            FileAccess.Read,
+                            FileShare.ReadWrite // 🔥 Important
+                        );
+                    await fileStream.CopyToAsync(entryStream);
+                }
+            }
+
+            memoryStream.Position = 0;
+
+            return File(memoryStream, "application/zip", $"logs-{res:yyyyMMdd}.zip");
             //byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
             //return File(fileBytes, "text/plain", $"app-{res:yyyyMMdd}.txt");
 

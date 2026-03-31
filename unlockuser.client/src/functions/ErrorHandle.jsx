@@ -5,19 +5,20 @@ export function ErrorHandle(error) {
         msg: "Något har gått snett.<br/>Fel: "
     }
 
-    if(error?.result){
+    if (error?.result) {
         console.error("error result", error?.result)
         return error?.result;
     } else if (error?.code === "ERR_BAD_RESPONSE") {
         console.error("error bad response", error?.response?.data)
         errorResponse.msg += "Servern svarade inte som förväntat.";
         errorResponse.msg += error?.message ? ` (${error.message})` : "Okänd serverfel.";
+        return errorResponse;
     }
-    else if (error?.response?.status !== undefined){
+    else if (error?.response?.status !== undefined) {
         console.error("error response", error?.response?.data)
         return error?.response?.data;
     }
-    else if (error?.msg){
+    else if (error?.msg) {
         console.error("error msg", error?.msg)
         return error;
     }
@@ -26,15 +27,25 @@ export function ErrorHandle(error) {
         localStorage.removeItem("token");
         sessionStorage.removeItem("token");
         window.location.pathname = "/session/expired";
+        return errorResponse;
     }
-    else if (error?.code && error?.code === "ERR_CANCELED"){
+    else if (error?.code && error?.code === "ERR_CANCELED") {
         console.error("error canceled", error)
         errorResponse.msg = error?.message;
+        return errorResponse;
     }
-    else{
+    else if (error?.response?.status === 400 || error?.status === 400) {
+        console.error("error validation", error?.errors)
+        Object.keys(error?.errors).forEach(key => {
+            const err = error?.errors[key];
+            console.log("error validation key", key, err)
+            errorResponse.msg += Array.isArray(err) ? err.join("<br/>") : `${err}<br/>`;
+        });
+        return errorResponse;
+    }
+    else {
         console.error("error unknown", error)
         errorResponse.msg += typeof error === "object" ? error?.message : error;
+        return errorResponse;
     }
-
-    return errorResponse;
 }
