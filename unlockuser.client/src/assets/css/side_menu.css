@@ -1,0 +1,33 @@
+.sm-wrapper {
+    width: 300px;
+    height: auto;
+    min-height: 300px;
+    max-height: calc(var(--min-height) - 220px);
+    box-shadow: 0 0 1px 1px var(--color-light-gray);
+    align-self: flex-start;
+    margin: 10px 0 10px 10px;
+    padding: 20px !important;
+    overflow-y: auto;
+}
+
+button.sm-btn {
+    font-size: 16px !important;
+    justify-content: flex-start;
+    margin-bottom: 14px;
+    border: 1px solid transparent;
+}
+
+button.sm-btn.active {
+    transform: scaleY(1.1);
+    z-index: 3000;
+    letter-spacing: 1px;
+    /* border-color: var(--color-primary); */
+    color: var(--color-primary) !important;
+}
+
+button.sm-btn svg {
+    font-size: 8px !important;
+    margin-top: 4px !important;
+    margin-right: 10px !important;
+    margin-left: 10px !important;
+}

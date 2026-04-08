@@ -31,7 +31,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
 
             data ??= [];
 
-            var claims = _credentials.GetClaims(["username", "openAccess", "permissions"], Request);
+            var claims = _credentials.GetClaims(["username", "openAccess", "permissions"]);
 
             // List of groups the current user is a member of
             PermissionsViewModel claimPermissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permissions"])!;

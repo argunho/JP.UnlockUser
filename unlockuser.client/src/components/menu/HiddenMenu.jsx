@@ -5,7 +5,7 @@ import { IconButton, ClickAwayListener } from '@mui/material';
 import { NavLink } from 'react-router-dom';
 
 // Components
-import Logotype from './Logotype';
+import Logotype from '../blocks/Logotype';
 
 // Css
 import '../../assets/css/hidden-menu.css';
@@ -36,7 +36,7 @@ function HiddenMenu({ open, links, onClose }) {
                         return <NavLink
                             key={ind}
                             to={link.url}
-                            className={({ isActive }) => `hm-link d-row jc-start w-100 "${isActive ? " active" : ""}`}>
+                            className={({ isActive }) => `hm-link d-row jc-start w-100 "${isActive ? " active" : ""}${link?.blink ? " blink-color" : ""}`}>
                             {link.icon} {link.label}
                         </NavLink>
                     })}

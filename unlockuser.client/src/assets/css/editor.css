@@ -1,0 +1,148 @@
+.d-row,
+.d-column,
+.d-column-jb .container {
+    display: flex !important;
+    display: -ms-flexbox !important;
+    justify-content: center;
+    align-items: center;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+}
+
+.d-column {
+    flex-direction: column;
+}
+
+.d-row {
+    flex-direction: row;
+}
+
+.wrap {
+    flex-wrap: wrap !important;
+}
+
+.row-wrap {
+    flex-flow: row wrap !important;
+    height: max-content !important;
+}
+
+.wrap-50>div {
+    max-width: 50%;
+    display: inline-flex;
+}
+
+.jc-start {
+    justify-content: flex-start;
+}
+
+.jc-end {
+    justify-content: flex-end;
+}
+
+.ai-start {
+    align-items: flex-start;
+}
+
+.ai-end {
+    align-items: flex-end;
+}
+
+.jc-between {
+    justify-content: space-between;
+}
+
+.jc-around {
+    justify-content: space-around;
+}
+
+.w100 {
+    width: 100% !important;
+}
+
+.wh100 {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.w-100 {
+    width: -webkit-fill-available !important;
+    width: -moz-available !important
+}
+
+
+/* Editor */
+.editor-label {
+    font-weight: 400;
+    font-size: 12px !important;
+    margin-bottom: 3px;
+    text-transform: uppercase;
+    letter-spacing: 1px !important;
+}
+
+.editor-container {
+    border: 1px solid #b8b8b880;
+    border-radius: 2px;
+    background-color: #FFFFFF;
+    padding: 0 !important;
+    height: auto;
+}
+
+.editor-tools-panel,
+.editor-tools-panel>div {
+    background-color: #FFFFFF !important;
+    overflow: hidden;
+    border-bottom: 0.5px solid #b8b8b830 ;
+    box-shadow: none !important;
+    height: max-content;
+}
+
+.editor-tools-panel>div.view-wrapper {
+    background-color: #b8b8b820 !important;
+}
+
+.editor-tools-panel>div {
+    display: flex;
+    flex-wrap: wrap !important;
+    padding: 5px 0;
+    width: 100%;
+    justify-content: flex-start !important;
+}
+
+.editor-tools-panel button {
+    margin: 2px 3px !important;
+}
+
+.editor-wrapper {
+    position: relative;
+}
+
+.editor-textarea {
+    padding: 12px;
+    margin: 0 !important;
+    min-height: 150px;
+    border-radius: 0;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.editor-textarea,
+.editor-textarea>*,
+.editor-textarea * {
+    user-select: text;
+    caret-color: auto;
+}
+
+.editor-textarea>div fieldset {
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+.button-wrapper>button {
+    margin: 5px 7px;
+}

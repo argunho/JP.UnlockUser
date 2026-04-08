@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="JobRelatedHelpLibrary" Version="1.0.54" />
+    <PackageReference Include="JobRelatedHelpLibrary" Version="1.0.56" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
       <Version>9.0.11</Version>
@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\logs\" />
+    <Folder Include="wwwroot\manual\" />
   </ItemGroup>
 
 </Project>

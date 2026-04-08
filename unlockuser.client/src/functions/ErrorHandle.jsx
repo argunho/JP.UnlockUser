@@ -9,7 +9,7 @@ export function ErrorHandle(error) {
         console.error("error result", error?.result)
         return error?.result;
     } else if (error?.code === "ERR_BAD_RESPONSE") {
-        console.error("error bad response", error?.response?.data)
+        console.error("error bad response", error?.message)
         errorResponse.msg += "Servern svarade inte som förväntat.";
         errorResponse.msg += error?.message ? ` (${error.message})` : "Okänd serverfel.";
         return errorResponse;

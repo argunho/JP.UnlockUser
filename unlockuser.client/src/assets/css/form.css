@@ -23,12 +23,17 @@ input[type="password"]:disabled {
   font-size: 12px !important;
 }
 
-.form-wrapper {
+.form-wrapper,
+.form-manual {
   padding: 10px;
   margin: 10px 0;
   position: relative;
   transition: all 0.9s ease-in-out;
-  max-width: 950px;
+  max-width: 1050px;
+}
+
+.form-manual {
+  width: 1000px
 }
 
 .form-wrapper>* {

@@ -41,7 +41,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
             members.Filter = $"(&(objectClass=User)(|(cn={name})(sAMAccountname={name})))";
 
-            var claims = _credentialsService.GetClaims(["roles", "permission"], Request);
+            var claims = _credentialsService.GetClaims(["roles", "permission"]);
 
             if (members.FindOne() != null)
             {
@@ -165,7 +165,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
-            var username = _credentialsService.GetClaim("username", Request);
+            var username = _credentialsService.GetClaim("username");
             var user = await _localService.GetUserFromFile(username!);
             if (user == null)
                 return NotFound(_helpService.NotFound("Användaren"));
@@ -256,7 +256,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                 //}
 
                 // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
-                var claims = _credentialsService.GetClaims(["email", "displayname"], Request) ?? [];
+                var claims = _credentialsService.GetClaims(["email", "displayname"]) ?? [];
                 var pass = _helpService.DecodeFromBase64("HashedCredential").Replace(_config["JwtSettings:Key"]!, "") ?? "";
                 var success = _localMailService.SendMail(claims["email"], file!.FileName.Replace(".pdf", ""),
                             $"Hej {claims["displayname"]}!<br/> Här bifogas PDF document filen med nya lösenord till elever från {label}.",
@@ -363,7 +363,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         //string pcName = compName.First();
         //string computerName = (Environment.MachineName ?? System.Net.Dns.GetHostName() ?? Environment.GetEnvironmentVariable("COMPUTERNAME"));
 
-        var claims = _credentialsService.GetClaims(["office", "department"], Request) ?? [];
+        var claims = _credentialsService.GetClaims(["office", "department"]) ?? [];
         var data = new Data();
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
         if (string.IsNullOrEmpty(ipAddress))
@@ -413,7 +413,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         string? department = users?[0].Department;
 
         // CUrrent moderator claims
-        var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permission"], Request);
+        var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permission"]);
 
         // Check permission for the managed users group
         var groups = claims != null && claims.TryGetValue("groups", out var g) && !string.IsNullOrEmpty(g)
@@ -519,7 +519,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     // Save log file
     private async Task SaveHistoryLogFile(Data model)
     {
-        var user = _provider.FindUserByUsername(_credentialsService.GetClaim("username", Request) ?? "");
+        var user = _provider.FindUserByUsername(_credentialsService.GetClaim("username") ?? "");
         if (user == null)
             return;
 

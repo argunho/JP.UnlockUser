@@ -1,0 +1,49 @@
+2026-04-08 11:15:10.958 +02:00 [WRN] Varning: Försök att logga in med fel användarnamn eller lösenord. Användarnamn: 790822asla. Tid: 2026-04-08 11:15
+2026-04-08 11:15:57.221 +02:00 [INF] Autentisering utförd vid: 2026-04-08 11:15. Department: IT avdelning. Office: IT avdelning.
+2026-04-08 11:16:18.823 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-08 11:16:18.
+2026-04-08 11:16:24.786 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-08 11:16:24.
+2026-04-08 11:16:41.088 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-08 11:16:41.
+2026-04-08 11:16:47.092 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-08 11:16:47.
+2026-04-08 11:16:57.514 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-08 11:16:57.
+2026-04-08 11:16:57.596 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-08 11:16:57.
+2026-04-08 11:17:03.578 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-08 11:17:03.
+2026-04-08 11:17:03.604 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-08 11:17:03.
+2026-04-08 11:37:27.241 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-08 11:37:27.
+2026-04-08 11:37:54.878 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-08 11:37:54.
+2026-04-08 11:37:55.370 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-08 11:37:55.
+2026-04-08 11:37:56.780 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-08 11:37:56.
+2026-04-08 15:16:53.764 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-08 15:16:53.
+2026-04-08 15:17:08.035 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-08 15:17:08.
+2026-04-08 15:17:17.177 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-08 15:17:17.
+2026-04-08 15:17:17.207 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-08 15:17:17.
+2026-04-08 15:19:57.213 +02:00 [WRN] Varning: Försök att logga in med fel användarnamn eller lösenord. Användarnamn: 790822asla. Tid: 2026-04-08 15:19
+2026-04-08 15:20:37.539 +02:00 [INF] Autentisering utförd vid: 2026-04-08 15:20. Department: IT avdelning. Office: IT avdelning.
+2026-04-08 15:31:04.388 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-08 15:31:04.
+2026-04-08 15:31:05.890 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-08 15:31:05.
+2026-04-08 15:31:22.660 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-08 15:31:22.
+2026-04-08 15:31:23.956 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-08 15:31:23.
+2026-04-08 15:31:34.760 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-08 15:31:34.
+2026-04-08 15:31:34.810 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-08 15:31:34.
+2026-04-08 15:31:36.395 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-08 15:31:36.
+2026-04-08 15:31:36.401 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-08 15:31:36.
+2026-04-08 15:35:25.484 +02:00 [INF] Autentisering utförd vid: 2026-04-08 15:35. Department: IT avdelning. Office: IT avdelning.
+2026-04-08 15:35:39.710 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-08 15:35:39.
+2026-04-08 15:35:57.387 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-08 15:35:57.
+2026-04-08 15:36:08.406 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-08 15:36:08.
+2026-04-08 15:36:08.417 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-08 15:36:08.
+2026-04-08 15:57:34.461 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-08 15:57:34.
+2026-04-08 15:57:47.961 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-08 15:57:47.
+2026-04-08 15:57:57.978 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-08 15:57:57.
+2026-04-08 15:57:58.023 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-08 15:57:58.
+2026-04-08 21:32:22.148 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-08 21:32:22.
+2026-04-08 21:32:37.957 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-08 21:32:37.
+2026-04-08 21:32:51.509 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-08 21:32:51.
+2026-04-08 21:32:51.573 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-08 21:32:51.
+2026-04-08 21:53:16.885 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-08 21:53:16.
+2026-04-08 21:53:21.330 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-08 21:53:21.
+2026-04-08 21:53:36.933 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-08 21:53:36.
+2026-04-08 21:53:38.668 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-08 21:53:38.
+2026-04-08 21:53:49.575 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-08 21:53:49.
+2026-04-08 21:53:49.635 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-08 21:53:49.
+2026-04-08 21:53:50.766 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-08 21:53:50.
+2026-04-08 21:53:50.769 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-08 21:53:50.

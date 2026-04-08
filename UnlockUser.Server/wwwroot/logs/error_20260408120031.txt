@@ -1,0 +1,1 @@
+﻿{"Id":"error_20260408120031","Source":"Error: System.DirectoryServices","Description":"Error: Den angivna dom\u00E4nen finns inte eller kunde inte kontaktas.\n\nPath to file: IServices\\ADService.cs\n\nLine number: 82\n\nMethod: GetUsersByGroupName\n","Opened":false,"Date":"2026.04.08 12:00:31"}

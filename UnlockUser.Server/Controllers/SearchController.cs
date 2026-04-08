@@ -28,7 +28,7 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
         try
         {
             List<string> groupNames = support ? ["Students", "Employees"] : [(group == "Studenter" ? "Students" : "Employees")];
-            var claims = _credentialsService.GetClaims(["roles", "username"], Request);
+            var claims = _credentialsService.GetClaims(["roles", "username"]);
 
             foreach (string groupName in groupNames)
             {
@@ -73,7 +73,7 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
         {
             List<User> users = []; // Empty list of users
             var context = _provider.GetContext(); // Get active derictory context
-            var claims = _credentialsService.GetClaims(["roles", "username"], Request);
+            var claims = _credentialsService.GetClaims(["roles", "username"]);
 
             DirectorySearcher result = _provider.GetMembers("Students");
 

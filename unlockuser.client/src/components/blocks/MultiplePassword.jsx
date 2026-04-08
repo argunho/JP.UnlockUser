@@ -67,14 +67,6 @@ function MultiplePassword({ users, label, subLabel, pending, disabled, onSwitch 
     const refChange = useRef(null);
     const refSubmit = useRef(null);
 
-    useEffect(() => {
-        handleFormChange(true);
-    }, [])
-
-    useEffect(() => {
-        if (disabled)
-            handleDispatch("preview", null);
-    }, [disabled])
 
     function handleDispatch(name, value) {
         dispatch({ type: "PARAM", name: name, payload: value });
@@ -92,6 +84,15 @@ function MultiplePassword({ users, label, subLabel, pending, disabled, onSwitch 
             onSwitch(!value)
         }, value ? 1000 : 0)
     }
+    
+    useEffect(() => {
+        handleFormChange(true);
+    }, [])
+
+    useEffect(() => {
+        if (disabled)
+            handleDispatch("preview", null);
+    }, [disabled])
 
     // Generate multiple passwords
     function generatePasswords() {

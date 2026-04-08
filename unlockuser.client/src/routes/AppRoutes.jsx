@@ -12,6 +12,8 @@ import ClassManager from "../pages/auth/ClassManager";
 import UserManager from "../pages/auth/UserManager";
 import Home from "../pages/auth/Home";
 import Catalog from "../pages/auth/Catalog";
+import Manual from "../pages/auth/Manual";
+import FormManual from "../pages/auth/FormManual";
 import Logout, { signout } from "../pages/auth/Logout";
 import ExpiredSession from '../pages/auth/ExpiredSession';
 import Overview from './../pages/auth/Overview';
@@ -62,6 +64,17 @@ const AppRoutes = () => [
       {
         path: "search/:group",
         element: <Home />,
+        errorElement: <ErrorView />
+      },
+      {
+        path: "manual",
+        element: <Manual />,
+        errorElement: <ErrorView />,
+        loader: loader("manual")
+      },
+      {
+        path: "manual/new",
+        element: <FormManual />,
         errorElement: <ErrorView />
       },
       {
