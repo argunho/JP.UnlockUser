@@ -3,7 +3,7 @@ import { useRef, useEffect, useState } from 'react';
 // Installed
 import { AppBar, Box, IconButton, InputLabel, Tooltip, Button } from '@mui/material';
 import {
-    Clear, DeleteSweep, FormatAlignCenter, FormatAlignJustify, FormatAlignLeft, FormatAlignRight, FormatBold, FormatClear,
+    Clear, DeleteSweep, FormatAlignCenter, FormatAlignJustify, FormatAlignLeft, FormatAlignRight, FormatBold, FormatClear, Title, FormatSize,
     FormatItalic, FormatListBulleted, FormatListNumbered, Image, Compare, FormatStrikethrough, FormatColorText, Square, Close, FormatColorFill,
     FormatUnderlined, Link
 } from '@mui/icons-material';
@@ -45,19 +45,25 @@ const colorsTooltip = {
     success: "#2e7d32"
 }
 
+const paragraphs = ["h1", "h2", "h3", "h4", "h5", "h6"];
+const numbers = Array.from({ length: 27 }, (_, i) => i + 4);
+const sizes = [...numbers, ...[32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76]];
+
 const buttons = [
     { cmd: "bold", key: "strong", icon: <FormatBold /> },
     { cmd: "italic", key: "em", icon: <FormatItalic /> },
     { cmd: "underline", key: "u", icon: <FormatUnderlined /> },
     { cmd: "strikethrough", key: "del", icon: <FormatStrikethrough /> },
+    { cmd: "paragraph", key: "paragraph", icon: <Title />, title: "h1,h2,h3,h4,h5,h6", models: paragraphs },
+    { cmd: "formatSize", key: "formatSize", icon: <FormatSize />, title: "Font size", models: sizes },
     { cmd: "left", icon: <FormatAlignLeft /> },
     { cmd: "center", icon: <FormatAlignCenter /> },
     { cmd: "right", icon: <FormatAlignRight /> },
     { cmd: "justify", icon: <FormatAlignJustify /> },
     { cmd: "insertOrderedList", key: "ol", icon: <FormatListNumbered /> },
     { cmd: "insertUnorderedList", key: "ul", icon: <FormatListBulleted /> },
-    { cmd: "backColor", icon: <FormatColorFill />, color: "primary", title: "Bakgrund färg", sub: colors },
-    { cmd: "foreColor", icon: <FormatColorText />, color: "secondary", title: "Text färg", sub: colors },
+    { cmd: "backColor", icon: <FormatColorFill />, color: "primary", title: "Bakgrund färg", colors: colors },
+    { cmd: "foreColor", icon: <FormatColorText />, color: "secondary", title: "Text färg", colors: colors },
     { cmd: "image", color: "info", icon: <Image />, title: "Bild 100% i bred", width: "100%", clickKey: "image" },
     { cmd: "image", color: "inherit", icon: <Compare />, title: "Bild 50% i bred", width: "50%", clickKey: "image" },
     { cmd: "createLink", key: "a", icon: <Link />, color: "success", title: "Länk" },
@@ -137,8 +143,7 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
 
     // Action buttons handle
     function handleChange(key) {
-        if (sub)
-            setSub();
+
         let selection = window.getSelection();
         let str = selection?.toString() ?? null;
 
@@ -177,6 +182,14 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
             case "coral":
                 if (sub && str?.length > 0)
                     document.execCommand(sub?.cmd, false, colors[key]);
+                break;
+            case "h1":
+            case "h2":
+            case "h3":
+            case "h4":
+            case "h5":
+            case "h6":
+                document.execCommand("formatBlock", false, key.toUpperCase());
                 break;
             case "erase":
                 if (str?.length > 0)
@@ -222,7 +235,7 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
             clickHandle(item?.clickKey);
             setAction(item);
         }
-        else if (item?.sub) {
+        else if (item?.colors) {
             setSub(item);
             setAction(item);
         }
@@ -236,7 +249,7 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                 <InputLabel className='editor-label' required={required}>{label ?? "TextEditor"}</InputLabel>
                 <Box className='w-100 editor-container'>
                     <AppBar position='static' variant='elevation' color='default' className='d-row ai-start editor-tools-panel w-100'>
-                        <div className={`d-row ai-start${sub ? " view-wrapper" : ""}`}>
+                        <div className={`d-row jc-start${sub ? " view-wrapper" : ""}`}>
                             {/* Primary actions */}
                             {!sub && buttons?.map((b, ind) => {
                                 return <Tooltip key={ind} title={b?.title ?? ""}
@@ -270,16 +283,27 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
 
                             {/* Secondary actions, sub action of primary actions */}
                             {sub && <>
-                                {Object.keys(sub?.sub)?.map((key, ind) => {
+                                {!Array.isArray(sub.models) && Object.keys(sub?.models)?.map((key, ind) => {
                                     return <IconButton
                                         key={ind}
                                         type="button"
+                                        className="d-row"
                                         style={{ color: colors[key] }}
                                         onClick={() => handleChange(key)}>
                                         <Square />
                                     </IconButton>;
                                 })}
-                                <IconButton color="error" type="button" onClick={() => setSub()}>
+
+                                {Array.isArray(sub?.models) && sub?.models.map(key => (
+                                    <IconButton
+                                        key={key}
+                                        type="button"
+                                        style={{ fontSize: "14px" }}
+                                        onClick={() => handleChange(key)}>
+                                        {key}
+                                    </IconButton>
+                                ))}
+                                <IconButton color="error" type="button" onClick={() => setSub()} style={{ alignSelf: "flex-end"}}>
                                     <Close />
                                 </IconButton>
                             </>}

@@ -51,9 +51,9 @@ function Manual() {
       <TabPanel primary="Webbapp-manual" secondary={manual?.name?.replace(".txt", "")}>
 
         {/* Delete manual */}
-        {<>
+        {!noFound && <>
           <Tooltip title="Radera dokument" classes={{ tooltip: "tooltip-white" }} arrow>
-            <IconButton color="error" onClick={deleteItem}>
+            <IconButton color="error" onClick={() => setConfirm(true)}>
               <Delete />
             </IconButton>
           </Tooltip>
@@ -93,7 +93,7 @@ function Manual() {
       </div>
 
       {/* Confirm modal */}
-      {confirm && <ModalConfirm clickHandle={deleteItem} close={() => setConfirm(false)} />}
+      {confirm && <ModalConfirm onConfirm={deleteItem} onClose={() => setConfirm(false)} />}
 
       {/* Success modal */}
       {success && <ModalSuccess close={closeModal} />}

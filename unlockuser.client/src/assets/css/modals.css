@@ -43,3 +43,9 @@ button.modal-help-btn {
   margin: 10px 0 0 0 !important;
   border-top: 2px solid var(--color-primary);
 }
+
+.modal-svg {
+    font-size: 100px !important;
+    margin: 10px auto !important;
+    display: block !important;
+}
