@@ -3,7 +3,7 @@ import { useEffect, useState, use } from 'react';
 // Installed
 import { useLoaderData, useNavigate } from 'react-router-dom';
 import { Skeleton, Button, IconButton, Tooltip } from '@mui/material';
-import { Edit } from '@mui/icons-material';
+import { Edit, EditSquare, Delete } from '@mui/icons-material';
 
 // Components
 import Message from '../../components/blocks/Message';
@@ -24,17 +24,17 @@ function Manual() {
   const navigate = useNavigate();
 
   const { pending, success, response, fetchData, handleResponse } = use(FetchContext);
-console.log(manuals)
+  console.log(manuals)
   useEffect(() => {
     document.title = "UnlockUser | Manual";
 
-    // if (manuals?.length > 0)
-    // setManual(manuals[0]);
   }, [manuals])
 
   async function deleteItem() {
     setConfirm(false);
-    await fetchData({ api: `manual/${manual?.id}`, method: "delete" });
+
+    const id = manual ? manual?.id : manuals[0]?.id;
+    await fetchData({ api: `manual/${id}`, method: "delete" });
   }
 
   function closeModal() {
@@ -42,22 +42,40 @@ console.log(manuals)
     navigate("/manual", { replace: true });
   }
 
+  const noFound = (!manuals || manuals?.length == 0);
+
   return (
     <div className="d-column jc-start w-100 mh">
 
       {/* Tab menu */}
-      <TabPanel primary="Webbapp-manual och kunskapsartiklar" secondary={manual?.name?.replace(".txt", "")}>
+      <TabPanel primary="Webbapp-manual" secondary={manual?.name?.replace(".txt", "")}>
 
-        {/* Button */}
-        <Tooltip title="Skapa manual" classes={{ tooltip: "tooltip-white" }} arrow>
-          <IconButton onClick={() => navigate("new")}>
-            <Edit />
+        {/* Delete manual */}
+        {<>
+          <Tooltip title="Radera dokument" classes={{ tooltip: "tooltip-white" }} arrow>
+            <IconButton color="error" onClick={deleteItem}>
+              <Delete />
+            </IconButton>
+          </Tooltip>
+
+          {/*  Edit manual */}
+          <Tooltip title="Redigera dokument" classes={{ tooltip: "tooltip-white" }} arrow>
+            <IconButton color="primary" onClick={() => navigate(`edit/${manual?.id}`)} style={{marginLeft: "20px"}}>
+              <Edit />
+            </IconButton>
+          </Tooltip>
+        </>}
+
+        {/* New manual */}
+        <Tooltip title="Skapa manual" color="secondary" classes={{ tooltip: "tooltip-white" }} arrow>
+          <IconButton onClick={() => navigate("new")} style={{marginLeft: noFound ? 0 : "20px"}}>
+            <EditSquare />
           </IconButton>
         </Tooltip>
       </TabPanel>
 
       {/* If manuals is not exists */}
-      {(!manuals || manuals?.length == 0) && <Message res={0} cancel={() => navigate(-1)} />}
+      {noFound && <Message res={0} cancel={() => navigate(-1)} />}
 
       {/* If response */}
       {response && <Message res={response} cancel={() => handleResponse()} />}
@@ -65,11 +83,11 @@ console.log(manuals)
       <div className="d-row jc-between ai-start w-100">
 
         {/* Menu */}
-        <SideMenu list={manuals} disabled={pending} clickHandle={setManual} />
+        <SideMenu label="Kunskapsartiklar" list={manuals} disabled={pending} clickHandle={setManual} />
 
         {/* Manual content view */}
         {manuals?.length > 0 &&
-          <div key={manual?.name} className="d-column ai-start jc-start w-100 wrapper fade-in"
+          <div key={manual?.name} className="d-column ai-start jc-start wrapper-div fade-in w-100"
             dangerouslySetInnerHTML={{ __html: (manual ?? manuals?.[0])?.html }}></div>}
 
       </div>

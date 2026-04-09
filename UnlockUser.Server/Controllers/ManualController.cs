@@ -29,6 +29,7 @@ public class ManualController(IHelpService help) : ControllerBase
                 var fileContent = await System.IO.File.ReadAllTextAsync(filePath);
                 manuals.Add(new Manual
                 {
+                    Id = _help.EncodeToBase64(Path.GetFileName(filePath)),
                     Name = Path.GetFileNameWithoutExtension(filePath),
                     Html = fileContent
                 });
@@ -45,7 +46,8 @@ public class ManualController(IHelpService help) : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
-        string pathName = Path.Combine("wwwroot", "manual", id);
+        string filePath = _help.DecodeFromBase64(id);
+        string pathName = Path.Combine("wwwroot", "manual", filePath);
         var manual = await System.IO.File.ReadAllTextAsync(pathName);
         return Ok(manual);
     }
@@ -90,7 +92,8 @@ public class ManualController(IHelpService help) : ControllerBase
     {
         try
         {
-            var path = Path.Combine("wwwroot", "manual", id);
+            var filePath = _help.DecodeFromBase64(id);
+            var path = Path.Combine("wwwroot", "manual", filePath);
             System.IO.File.Delete(path);
             return Ok();
         }
