@@ -84,7 +84,7 @@ public class ManualController(IHelpService help) : ControllerBase
             if (System.IO.File.Exists(path))
                 return Conflict("File already exists");
 
-            await System.IO.File.WriteAllTextAsync(path, name);
+            await System.IO.File.WriteAllTextAsync(path, model.Html);
             return Ok();
         }
         catch (Exception ex)
@@ -103,11 +103,13 @@ public class ManualController(IHelpService help) : ControllerBase
 
         try
         {
-            var manual = await GetFile(id);
-            if (manual == null)
+            var filePath = await GetFilePath(id);
+            if (string.IsNullOrEmpty(filePath))
                 return Ok(_help.NotFound("Filen"));
 
-           
+
+            await System.IO.File.WriteAllTextAsync(filePath, model.Html);
+            return Ok();
         }
         catch (Exception ex)
         {
@@ -122,9 +124,11 @@ public class ManualController(IHelpService help) : ControllerBase
     {
         try
         {
-            var filePath = _help.DecodeFromBase64(id);
-            var path = Path.Combine("wwwroot", "manual", filePath);
-            System.IO.File.Delete(path);
+            var filePath = await GetFilePath(id);
+            if (string.IsNullOrEmpty(filePath))
+                return Ok(_help.NotFound("Filen"));
+
+            System.IO.File.Delete(filePath);
             return Ok();
         }
         catch (Exception ex)

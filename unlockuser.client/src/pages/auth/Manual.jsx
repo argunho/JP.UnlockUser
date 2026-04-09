@@ -2,8 +2,8 @@ import { useEffect, useState, use } from 'react';
 
 // Installed
 import { useLoaderData, useNavigate } from 'react-router-dom';
-import { Skeleton, Button, IconButton, Tooltip } from '@mui/material';
-import { Edit, EditSquare, Delete } from '@mui/icons-material';
+import { IconButton, Tooltip } from '@mui/material';
+import { Edit, EditDocument, Delete } from '@mui/icons-material';
 
 // Components
 import Message from '../../components/blocks/Message';
@@ -69,7 +69,7 @@ function Manual() {
         {/* New manual */}
         <Tooltip title="Skapa manual" color="secondary" classes={{ tooltip: "tooltip-white" }} arrow>
           <IconButton onClick={() => navigate("new")} style={{marginLeft: noFound ? 0 : "20px"}}>
-            <EditSquare />
+            <EditDocument />
           </IconButton>
         </Tooltip>
       </TabPanel>
