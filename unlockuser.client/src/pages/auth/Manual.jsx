@@ -60,7 +60,7 @@ function Manual() {
 
           {/*  Edit manual */}
           <Tooltip title="Redigera dokument" classes={{ tooltip: "tooltip-white" }} arrow>
-            <IconButton color="primary" onClick={() => navigate(`edit/${manual?.id}`)} style={{marginLeft: "20px"}}>
+            <IconButton color="primary" onClick={() => navigate(`edit/${manual ? manual?.id : manuals[0]?.id}`)} style={{marginLeft: "20px"}}>
               <Edit />
             </IconButton>
           </Tooltip>

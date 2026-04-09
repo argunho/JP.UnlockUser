@@ -68,14 +68,22 @@ const AppRoutes = () => [
       },
       {
         path: "manual",
-        element: <Manual />,
-        errorElement: <ErrorView />,
-        loader: loader("manual")
-      },
-      {
-        path: "manual/new",
-        element: <FormManual />,
-        errorElement: <ErrorView />
+        children: [
+          {
+            index: true,
+            element: <Manual />,
+            errorElement: <ErrorView />,
+            loader: loader("manual")
+          },
+          {
+            path: "new",
+            element: <FormManual />
+          },
+          {
+            path: "edit/:id",
+            element: <FormManual />
+          }
+        ]
       },
       {
         path: 'contact',

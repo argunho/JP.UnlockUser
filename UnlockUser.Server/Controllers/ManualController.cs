@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.CodeAnalysis;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -46,9 +47,19 @@ public class ManualController(IHelpService help) : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
-        string filePath = _help.DecodeFromBase64(id);
-        string pathName = Path.Combine("wwwroot", "manual", filePath);
-        var manual = await System.IO.File.ReadAllTextAsync(pathName);
+        var filePath = await GetFilePath(id);
+        if(string.IsNullOrEmpty(filePath))
+            return Ok(_help.NotFound("Filen"));
+
+        var foundFile = await System.IO.File.ReadAllTextAsync(filePath);
+
+        var manual = new Manual
+        {
+            Id = _help.EncodeToBase64(Path.GetFileName(filePath)),
+            Name = Path.GetFileNameWithoutExtension(filePath),
+            Html = foundFile
+        };
+
         return Ok(manual);
     }
     #endregion
@@ -67,8 +78,8 @@ public class ManualController(IHelpService help) : ControllerBase
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
-            var name = $"{_help.CleanString(model.Name)}.txt";
-            
+            var name = $"{_help.CleanString(model.Name!.Replace(" ", "_"))}.txt";
+
             path = Path.Combine(path, name);
             if (System.IO.File.Exists(path))
                 return Conflict("File already exists");
@@ -84,6 +95,25 @@ public class ManualController(IHelpService help) : ControllerBase
     #endregion
 
     #region PUT
+    [HttpPut]
+    public async Task<IActionResult> Put(string id, Manual model)
+    {
+        if (!ModelState.IsValid)
+            return Ok(_help.Warning());
+
+        try
+        {
+            var manual = await GetFile(id);
+            if (manual == null)
+                return Ok(_help.NotFound("Filen"));
+
+           
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(await _help.Error(ex));
+        }
+    }
     #endregion
 
     #region DELETE
@@ -101,6 +131,18 @@ public class ManualController(IHelpService help) : ControllerBase
         {
             return BadRequest(await _help.Error(ex));
         }
+    }
+    #endregion
+
+    #region Helper methods
+    public async Task<string?> GetFilePath(string id)
+    {
+        string filePath = _help.DecodeFromBase64(id);
+        string pathName = Path.Combine("wwwroot", "manual", filePath);
+        if (!System.IO.File.Exists(pathName))
+            return null;
+
+        return pathName;
     }
     #endregion
 }
