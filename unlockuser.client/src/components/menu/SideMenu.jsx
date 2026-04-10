@@ -44,4 +44,4 @@ function SideMenu({ label, list, disabled, clickHandle }) {
     )
 }
 
-export default SideMenu
+export default SideMenu;

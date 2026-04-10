@@ -1,13 +1,12 @@
 .d-row,
 .d-column,
 .d-column-jb .container {
-    display: flex !important;
-    display: -ms-flexbox !important;
     justify-content: center;
     align-items: center;
     display: -webkit-box;
     display: -webkit-flex;
-    display: -ms-flexbox;
+    display: -ms-flexbox !important;
+    display: flex !important;
 }
 
 .d-column {
@@ -82,7 +81,6 @@
 
 .editor-container {
     border: 1px solid #b8b8b880;
-    /* border-radius: 2px; */
     background-color: #FFFFFF;
     padding: 0 !important;
     height: auto;
@@ -91,8 +89,6 @@
 .editor-tools-panel,
 .editor-tools-panel>div {
     background-color: #FFFFFF !important;
-    /* overflow: hidden; */
-    /* border-bottom: 0.5px solid #b8b8b830 ; */
     box-shadow: none !important;
     height: max-content;
 }
@@ -104,13 +100,11 @@
 .editor-tools-panel>div {
     display: flex;
     flex-wrap: wrap !important;
-    /* padding: 5px 0; */
     width: 100%;
     justify-content: flex-start !important;
 }
 
 .editor-tools-panel button {
-    /* margin: 2px 3px !important; */
     border-radius: 0 !important;
 }
 
