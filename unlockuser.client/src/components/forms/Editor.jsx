@@ -53,8 +53,8 @@ const buttons = [
     { cmd: "insertUnorderedList", key: "ul", icon: <FormatListBulleted /> },
     { cmd: "backColor", icon: <FormatColorFill color="primary" />, title: "Bakgrund färg", models: colorCodes, skip: true, color: true },
     { cmd: "foreColor", icon: <FormatColorText color="secondary" />, title: "Text färg", models: colorCodes, skip: true, color: true },
-    { cmd: "image", icon: <Image color="info" />, title: "Bild 100% i bred", width: "100%", clickKey: "image" },
-    { cmd: "image", icon: <Compare color="inherit" />, title: "Bild 50% i bred", width: "50%", clickKey: "image" },
+    { cmd: "image", icon: <Image color="info" />, title: "Bild 100% i bred", width: "100%" },
+    { cmd: "image", icon: <Compare color="inherit" />, title: "Bild 50% i bred", width: "50%" },
     { cmd: "createLink", key: "a", icon: <Link color="success" />, title: "Länk" },
     { cmd: "clear", icon: <FormatClear color="inherit" />, title: "Rensa från formatering", skip: true },
     { cmd: "erase", icon: <Clear color="warning" />, title: "Radera markerad text", skip: true },
@@ -65,8 +65,9 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
 
     const [value, setValue] = useState(defaultValue ?? "");
     const [colorCommand, setColorCommand] = useState(null);
-    const [formats, setFormats] = useState([]);
+    // const [formats, setFormats] = useState([]);
     const [openIndex, setOpenIndex] = useState(-1);
+    const [imageWidth, setImageWidth] = useState(null)
 
     const refEditor = useRef(null);
     const refUpload = useRef();
@@ -121,21 +122,11 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
     // }
 
 
-    function clickHandle(key) {
-        switch (key) {
-            case "image":
-                refUpload?.current?.click();
-                break;
-            default:
-                break;
-        }
-    }
-
     // Action buttons handle
     function handleChange(key) {
 
         let selection = window.getSelection();
-        let str = selection?.toString() ?? null;
+        const str = (!selection || selection.rangeCount === 0) ? null : selection?.toString();
 
 
         // helper: use font size in px using execCommand + postprocess
@@ -183,10 +174,12 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                 break;
             case sizes.includes(key):
                 if (key) applyFontSizePx(Number(key))
-                // document.execCommand("fontSize", false, String(key));
                 break;
             case colorCodes.includes(key):
                 document.execCommand(colorCommand, false, key);
+                break;
+            case key === "image":
+                refUpload?.current?.click();
                 break;
             case headings.includes(key):
                 document.execCommand("formatBlock", false, key.toUpperCase());
@@ -199,7 +192,7 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                 refEditor.current.innerHTML = "";
                 if (defaultValue && onCancel)
                     onCancel();
-                setFormats([]);
+                // setFormats([]);
                 break;
             case key === "clear":
                 refEditor.current.innerHTML = refEditor.current.innerText;
@@ -221,7 +214,7 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
             const reader = new FileReader();
             reader.onload = (e) => {
                 const base64 = e.target.result;
-                const imgTag = `<img src="${base64}" style="max-width:${action?.width};height:auto;border-radius:8px;display:block;object-fit:contain;margin:8px 0;" />`;
+                const imgTag = `<img src="${base64}" style="max-width:${imageWidth};height:auto;border-radius:8px;display:block;object-fit:contain;margin:8px 0;" />`;
 
                 document.execCommand("insertHTML", false, imgTag);
                 // document.execCommand("insertImage", false, e.target.result);
@@ -233,25 +226,25 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
     function handleAction(item, index) {
         refEditor.current?.focus();
 
-        if (item?.clickKey) {
-            clickHandle(item?.clickKey);
-        }
-        else if (item?.models) {
+        if (item?.models) {
             if (item?.color)
                 setColorCommand(item?.cmd)
             setOpenIndex(openIndex == index ? -1 : index);
         }
-        else
+        else{
+            if(item?.width)
+                setImageWidth(item?.width);
             handleChange(item?.cmd);
+        }
     }
 
-    function onFormatsChange(ev, values) {
-        handleClickAway();
-        if (values[values.length - 1] === undefined)
-            return;
+    // function onFormatsChange(ev, values) {
+    //     handleClickAway();
+    //     if (values[values.length - 1] === undefined)
+    //         return;
 
-        setFormats(values);
-    }
+    //     setFormats(values);
+    // }
 
     function handleClickAway() {
         if (openIndex === -1)
@@ -269,8 +262,8 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                     <ClickAwayListener onClickAway={handleClickAway}>
                         <div className='d-row ai-start editor-tools-panel w-100'>
                             <ToggleButtonGroup
-                                value={formats}
-                                onChange={onFormatsChange}
+                                // value={formats}
+                                // onChange={onFormatsChange}
                                 aria-label="text formatting"
                             >
                                 {/* Loop buttons */}

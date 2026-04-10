@@ -9,7 +9,8 @@ import TabPanel from '../../components/blocks/TabPanel';
 import Editor from '../../components/forms/Editor';
 import FormButtons from '../../components/forms/FormButtons';
 import Loading from '../../components/blocks/Loading';
-import ModalSuccess from '../../components/modals/ModalSuccess'
+import ModalSuccess from '../../components/modals/ModalSuccess';
+import Message from '../../components/blocks/Message';
 
 // Storage
 import { FetchContext } from './../../storage/FetchContext';
@@ -18,7 +19,7 @@ import { FetchContext } from './../../storage/FetchContext';
 function FormManual() {
     const [loading, setLoading] = useState(false);
 
-    const { fetchData, pending: buffering, success, resData } = use(FetchContext);
+    const { fetchData, pending: buffering, response, success, resData, handleResponse } = use(FetchContext);
 
     const { id } = useParams();
     const navigate = useNavigate();
@@ -59,6 +60,9 @@ function FormManual() {
     return <>
         <TabPanel primary="Nya manual" />
 
+        {/* Error message */}
+        {response && <Message res={response} cancel={() => handleResponse()} />}
+
         {/* Loading */}
         {loading && <Loading msg="data hämtas..." />}
 
@@ -85,8 +89,8 @@ function FormManual() {
             <FormButtons loading={pending} disabled={disabled} confirmable={true} />
         </form>}
 
-              {/* Success modal */}
-      {(success && !resData) && <ModalSuccess onClose={() => navigate(-1)} />}
+        {/* Success modal */}
+        {(success && !resData) && <ModalSuccess onClose={() => navigate(-1)} />}
     </>;
 }
 

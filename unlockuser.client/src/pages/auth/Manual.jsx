@@ -13,6 +13,9 @@ import TabPanel from '../../components/blocks/TabPanel';
 import ModalSuccess from '../../components/modals/ModalSuccess';
 import LinearLoading from '../../components/blocks/LinearLoading';
 
+// Functions
+import { DecodedClaims } from '../../functions/DecodedToken';
+
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
 
@@ -20,6 +23,8 @@ function Manual() {
   const [manual, setManual] = useState(null);
   const [confirm, setConfirm] = useState(false);
 
+  
+  const { openAccess } = DecodedClaims()
   const manuals = useLoaderData();
   const navigate = useNavigate();  
   const revalidator = useRevalidator();
@@ -54,7 +59,7 @@ function Manual() {
       <TabPanel primary="Webbapp-manual" secondary={manual?.primary?.toUpperCase()}>
 
         {/* Delete manual */}
-        {!noFound && <>
+        {(!noFound && openAccess) && <>
           <Tooltip title="Radera dokument" classes={{ tooltip: "tooltip-white" }} arrow>
             <IconButton color="error" onClick={() => setConfirm(true)}>
               <Delete />
@@ -70,11 +75,11 @@ function Manual() {
         </>}
 
         {/* New manual */}
-        <Tooltip title="Skapa manual" color="secondary" classes={{ tooltip: "tooltip-white" }} arrow>
+        {openAccess && <Tooltip title="Skapa manual" color="secondary" classes={{ tooltip: "tooltip-white" }} arrow>
           <IconButton onClick={() => navigate("new")} style={{marginLeft: noFound ? 0 : "20px"}}>
             <EditDocument />
           </IconButton>
-        </Tooltip>
+        </Tooltip>}
       </TabPanel>
 
       {/* If manuals is not exists */}
