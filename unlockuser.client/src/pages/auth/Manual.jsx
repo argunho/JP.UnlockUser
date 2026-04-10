@@ -1,7 +1,7 @@
 import { useEffect, useState, use } from 'react';
 
 // Installed
-import { useLoaderData, useNavigate } from 'react-router-dom';
+import { useLoaderData, useNavigate, useRevalidator } from 'react-router-dom';
 import { IconButton, Tooltip } from '@mui/material';
 import { Edit, EditDocument, Delete } from '@mui/icons-material';
 
@@ -21,10 +21,11 @@ function Manual() {
   const [confirm, setConfirm] = useState(false);
 
   const manuals = useLoaderData();
-  const navigate = useNavigate();
+  const navigate = useNavigate();  
+  const revalidator = useRevalidator();
 
   const { pending, success, response, fetchData, handleResponse } = use(FetchContext);
-  console.log(manuals)
+
   useEffect(() => {
     document.title = "UnlockUser | Manual";
 
@@ -39,7 +40,9 @@ function Manual() {
 
   function closeModal() {
     handleResponse();
-    navigate("/manual", { replace: true });
+    revalidator.revalidate();
+    setManual();
+    // navigate("/manual", { replace: true });
   }
 
   const noFound = (!manuals || manuals?.length == 0);
@@ -48,7 +51,7 @@ function Manual() {
     <div className="d-column jc-start w-100 mh">
 
       {/* Tab menu */}
-      <TabPanel primary="Webbapp-manual" secondary={manual?.name?.replace(".txt", "")}>
+      <TabPanel primary="Webbapp-manual" secondary={manual?.primary?.toUpperCase()}>
 
         {/* Delete manual */}
         {!noFound && <>
@@ -83,11 +86,11 @@ function Manual() {
       <div className="d-row jc-between ai-start w-100">
 
         {/* Menu */}
-        <SideMenu label="Kunskapsartiklar" list={manuals} disabled={pending} clickHandle={setManual} />
+        <SideMenu key={success} label="Kunskapsartiklar" list={manuals} disabled={pending} clickHandle={setManual} />
 
         {/* Manual content view */}
         {manuals?.length > 0 &&
-          <div key={manual?.name} className="d-column ai-start jc-start wrapper-div fade-in w-100"
+          <div key={manual?.name} className="wrapper-div fade-in w-100"
             dangerouslySetInnerHTML={{ __html: (manual ?? manuals?.[0])?.html }}></div>}
 
       </div>
@@ -96,7 +99,7 @@ function Manual() {
       {confirm && <ModalConfirm onConfirm={deleteItem} onClose={() => setConfirm(false)} />}
 
       {/* Success modal */}
-      {success && <ModalSuccess close={closeModal} />}
+      {success && <ModalSuccess onClose={closeModal} />}
 
       {/* Loading */}
       {pending && <LinearLoading size={30} />}

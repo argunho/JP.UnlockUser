@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 
 // Installed
-import { AppBar, Box, InputLabel, Tooltip, Button, ToggleButtonGroup, ToggleButton, ClickAwayListener } from '@mui/material';
+import { Box, InputLabel, Button, ToggleButtonGroup, ToggleButton, ClickAwayListener } from '@mui/material';
 import {
     Clear, DeleteSweep, FormatAlignCenter, FormatAlignJustify, FormatAlignLeft, FormatAlignRight, FormatBold, FormatClear, Title, FormatSize,
     FormatItalic, FormatListBulleted, FormatListNumbered, Image, Compare, FormatStrikethrough, FormatColorText, Square, FormatColorFill,
@@ -34,8 +34,7 @@ const colorCodes = [
     "#800000",
     "#FF7F50"
 ];
-
-const paragraphs = ["h1", "h2", "h3", "h4", "h5", "h6"];
+const headings = ["h1", "h2", "h3", "h4", "h5", "h6"];
 const numbers = Array.from({ length: 27 }, (_, i) => i + 4);
 const sizes = [...numbers, ...[32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76]];
 
@@ -44,8 +43,8 @@ const buttons = [
     { cmd: "italic", key: "em", icon: <FormatItalic /> },
     { cmd: "underline", key: "u", icon: <FormatUnderlined /> },
     { cmd: "strikethrough", key: "del", icon: <FormatStrikethrough /> },
-    { cmd: "paragraph", key: "paragraph", icon: <Title />, title: "h1,h2,h3,h4,h5,h6", models: paragraphs, skip: true },
-    { cmd: "formatSize", key: "formatSize", icon: <FormatSize />, title: "Font size", models: sizes, skip: true },
+    { cmd: "paragraph", key: "paragraph", icon: <Title />, title: "h1,h2,h3,h4,h5,h6", models: headings, skip: true },
+    { cmd: "fontSize", key: "formatSize", icon: <FormatSize />, title: "Font size", models: sizes, skip: true },
     { cmd: "left", icon: <FormatAlignLeft /> },
     { cmd: "center", icon: <FormatAlignCenter /> },
     { cmd: "right", icon: <FormatAlignRight /> },
@@ -137,9 +136,43 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
 
         let selection = window.getSelection();
         let str = selection?.toString() ?? null;
-                console.log(key, colorCommand, colorCodes.includes(key))
+
+
+        // helper: use font size in px using execCommand + postprocess
+        const applyFontSizePx = (px) => {
+
+            if (!selection || selection.rangeCount === 0) return;
+
+            // Temporarily use fontSize (1–7), selecting the closest value (1–7) based on px.
+            const mapPxToHtmlSize = (pxVal) => {
+                if (pxVal <= 10) return 1;
+                if (pxVal <= 13) return 2;
+                if (pxVal <= 16) return 3;
+                if (pxVal <= 18) return 4;
+                if (pxVal <= 24) return 5;
+                if (pxVal <= 32) return 6;
+                return 7;
+            };
+
+            const htmlSize = mapPxToHtmlSize(px);
+            document.execCommand("fontSize", false, String(htmlSize));
+
+            // 2) Change <font size="X"> to <span style="font-size: ...px">
+            const editor = refEditor.current;
+            if (!editor) return;
+
+            // Only consider <font> elements created by the fontSize command.
+            const fonts = editor.querySelectorAll(`font[size="${htmlSize}"]`);
+            fonts.forEach((fontEl) => {
+                const span = document.createElement("span");
+                span.style.fontSize = `${px}px`;
+                span.innerHTML = fontEl.innerHTML; // Svae includen formats
+                fontEl.replaceWith(span);
+            });
+        };
+
         switch (true) {
-            case ["left","center","right","justify"].includes(key):
+            case ["left", "center", "right", "justify"].includes(key):
                 refEditor.current.style.textAlign = key;
                 break;
             case key === "createLink":
@@ -148,11 +181,14 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                     document.execCommand(key, false, url);
                 }
                 break;
+            case sizes.includes(key):
+                if (key) applyFontSizePx(Number(key))
+                // document.execCommand("fontSize", false, String(key));
+                break;
             case colorCodes.includes(key):
-                console.log(key, colorCommand)
                 document.execCommand(colorCommand, false, key);
                 break;
-            case paragraphs.includes(key):
+            case headings.includes(key):
                 document.execCommand("formatBlock", false, key.toUpperCase());
                 break;
             case key === "erase":
@@ -213,7 +249,7 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
         handleClickAway();
         if (values[values.length - 1] === undefined)
             return;
-        
+
         setFormats(values);
     }
 
@@ -224,17 +260,14 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
         setOpenIndex(-1);
     }
 
-
-    console.log(formats)
     return (
         <>
             <div className="w-100" ref={ref}>
                 <InputLabel className='editor-label' required={required}>{label ?? "TextEditor"}</InputLabel>
 
                 <Box className='w-100 editor-container'>
-                    <AppBar position='static' variant='elevation' color='default' className='d-row ai-start editor-tools-panel w-100'>
-                        <ClickAwayListener onClickAway={handleClickAway}>
-
+                    <ClickAwayListener onClickAway={handleClickAway}>
+                        <div className='d-row ai-start editor-tools-panel w-100'>
                             <ToggleButtonGroup
                                 value={formats}
                                 onChange={onFormatsChange}
@@ -266,9 +299,8 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                                     </ToggleButton>
                                 })}
                             </ToggleButtonGroup>
-
-                        </ClickAwayListener>
-                    </AppBar>
+                        </div>
+                    </ClickAwayListener>
 
                     {/* Editor */}
                     <div className="editor-wrapper">
@@ -312,63 +344,3 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
 }
 
 export default Editor;
-
-// {/* <div className={`d-row jc-start${sub ? " view-wrapper" : ""}`}> */}
-{/* Primary actions */ }
-// {!sub && buttons?.map((b, ind) => {
-//     return <Tooltip key={ind} title={b?.title ?? ""}
-//         classes={{
-//             tooltip: "tooltip-default",
-//         }}
-//         PopperProps={{
-//             sx: {
-//                 '& .MuiTooltip-tooltip': {
-//                     backgroundColor: colorsTooltip[b?.color]
-//                 },
-//                 '& .MuiTooltip-arrow': {
-//                     color: colorsTooltip[b?.color]
-//                 }
-//             }
-//         }}
-//         placement="right"
-//         disableHoverListener={!b?.title}
-//         enterDelay={1000}
-//         leaveDelay={0}
-//         arrow>
-//         <IconButton
-//             key={ind}
-//             type="button"
-//             color={b?.color ?? "inherit"}
-//             onClick={() => handleAction(b)}>
-//             {b.icon}
-//         </IconButton>
-//     </Tooltip>;
-// })}
-
-// {/* Secondary actions, sub action of primary actions */}
-// {sub && <>
-//     {sub?.colors && Object.keys(sub?.colors)?.map((key, ind) => {
-//         return <IconButton
-//             key={ind}
-//             type="button"
-//             className="d-row"
-//             style={{ color: colors[key] }}
-//             onClick={() => handleChange(key)}>
-//             <Square />
-//         </IconButton>;
-//     })}
-
-//     {sub?.models && sub?.models.map(key => (
-//         <IconButton
-//             key={key}
-//             type="button"
-//             style={{ fontSize: "14px" }}
-//             onClick={() => handleChange(key)}>
-//             {key}
-//         </IconButton>
-//     ))}
-//     <IconButton color="error" type="button" onClick={() => setSub()} style={{ alignSelf: "flex-end" }}>
-//         <Close />
-//     </IconButton>
-// </>}
-// {/* </div> */}

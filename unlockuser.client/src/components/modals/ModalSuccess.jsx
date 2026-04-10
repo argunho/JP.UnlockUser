@@ -8,11 +8,11 @@ import {
 } from "@mui/material";
 // import Confetti from 'react-confetti';
 
-function ModalSuccess({ open = true, msg, close }) {
+function ModalSuccess({ open = true, msg, onClose }) {
 
     useEffect(() => {
         let timer = setTimeout(() => {
-            close();
+            onClose();
         }, 5000)
 
         return () => {
@@ -23,7 +23,7 @@ function ModalSuccess({ open = true, msg, close }) {
 
     return (
         <Dialog open={open}
-            onClose={close}
+            onClose={onClose}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
             sx={{
@@ -47,7 +47,7 @@ function ModalSuccess({ open = true, msg, close }) {
 
             <DialogActions>
                 {/* Close modal */}
-                <IconButton onClick={close} color="inherit" autoFocus>
+                <IconButton onClick={onClose} color="inherit" autoFocus>
                     <Close fontSize="small" />
                 </IconButton>
             </DialogActions>

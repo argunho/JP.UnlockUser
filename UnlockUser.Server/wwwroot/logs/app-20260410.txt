@@ -23,3 +23,12 @@
 2026-04-10 10:55:19.864 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-10 10:55:19.
 2026-04-10 10:56:16.496 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-10 10:56:16.
 2026-04-10 10:56:16.573 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-10 10:56:16.
+2026-04-10 14:19:59.235 +02:00 [INF] Autentisering utförd vid: 2026-04-10 14:19. Department: IT avdelning. Office: IT avdelning.
+2026-04-10 14:20:15.295 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-10 14:20:15.
+2026-04-10 14:20:31.640 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-10 14:20:31.
+2026-04-10 14:20:44.279 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-10 14:20:44.
+2026-04-10 14:20:44.370 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-10 14:20:44.
+2026-04-10 14:37:10.436 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-10 14:37:10.
+2026-04-10 14:37:37.159 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-10 14:37:37.
+2026-04-10 14:38:01.195 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-10 14:38:01.
+2026-04-10 14:38:01.680 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-10 14:38:01.

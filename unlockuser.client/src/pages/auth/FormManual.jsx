@@ -2,27 +2,29 @@ import { useActionState, use, useEffect, useState } from 'react';
 
 // Installed
 import { TextField, FormControl } from '@mui/material';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 // Components
 import TabPanel from '../../components/blocks/TabPanel';
 import Editor from '../../components/forms/Editor';
 import FormButtons from '../../components/forms/FormButtons';
+import Loading from '../../components/blocks/Loading';
+import ModalSuccess from '../../components/modals/ModalSuccess'
 
 // Storage
 import { FetchContext } from './../../storage/FetchContext';
-import Loading from '../../components/blocks/Loading';
 
 
 function FormManual() {
     const [loading, setLoading] = useState(false);
 
-    const { fetchData, pending: buffering, resData } = use(FetchContext);
+    const { fetchData, pending: buffering, success, resData } = use(FetchContext);
 
     const { id } = useParams();
+    const navigate = useNavigate();
 
     async function getDataById() {
-            console.log(`manual/${id}`)
+
         setLoading(true)
         try {
             await fetchData({ api: `manual/${id}` });
@@ -54,8 +56,6 @@ function FormManual() {
     const disabled = pending || buffering;
     const formModel = formState?.data ?? resData;
 
-    console.log(formModel)
-
     return <>
         <TabPanel primary="Nya manual" />
 
@@ -84,6 +84,9 @@ function FormManual() {
 
             <FormButtons loading={pending} disabled={disabled} confirmable={true} />
         </form>}
+
+              {/* Success modal */}
+      {(success && !resData) && <ModalSuccess onClose={() => navigate(-1)} />}
     </>;
 }
 

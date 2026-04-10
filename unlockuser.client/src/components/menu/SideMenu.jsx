@@ -9,8 +9,6 @@ import './../../assets/css/side_menu.css';
 
 function SideMenu({ label, list, disabled, clickHandle }) {
 
-    console.log(list)
-
     const [index, setIndex] = useState(0);
 
     function onClick(index) {
