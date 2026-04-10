@@ -43,10 +43,12 @@ function FormManual() {
 
     async function onSubmit(previous, fd) {
         const data = {
-            name: fd.get("name"),
+            name: fd.get("name") ?? resData?.name,
             html: fd.get("html")
         }
 
+
+        // Request
         await fetchData({ api: id ? `manual/${id}` : "manual", method: id ? "put" : "post", data: data });
         return null;
 
@@ -74,9 +76,9 @@ function FormManual() {
                     required={true}
                     defaultValue={formModel?.name}
                     name="name"
-                    placeholder="Namn på manualen, minst length 10 karaktär"
+                    placeholder="Namn på manualen, minst length 5 karaktär"
                     inputProps={{
-                        minLength: 10
+                        minLength: 5
                     }}
                     disabled={disabled || id}
 

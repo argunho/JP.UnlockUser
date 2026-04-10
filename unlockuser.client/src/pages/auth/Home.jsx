@@ -216,7 +216,7 @@ function Home() {
                                     disabled={isClass}
                                     checked={isMatch}
                                     onClick={() => handleDispatch("isMatch", !isMatch)} />}
-                                label="Exact match" />}
+                                label="Exakt matchning" />}
 
                             {/* Reset form - button */}
                             <Button

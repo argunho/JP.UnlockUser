@@ -95,7 +95,7 @@ function Manual() {
 
         {/* Manual content view */}
         {manuals?.length > 0 &&
-          <div key={manual?.name} className="wrapper-div fade-in w-100"
+          <div key={manual?.name} className="box-wrapper fade-in w-100"
             dangerouslySetInnerHTML={{ __html: (manual ?? manuals?.[0])?.html }}></div>}
 
       </div>

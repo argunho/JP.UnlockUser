@@ -255,11 +255,12 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
 
     return (
         <>
-            <div className="w-100" ref={ref}>
+            <div className="w-100 editor-container" ref={ref}>
                 <InputLabel className='editor-label' required={required}>{label ?? "TextEditor"}</InputLabel>
 
-                <Box className='w-100 editor-container'>
+                <Box className='w-100 editor-box'>
                     <ClickAwayListener onClickAway={handleClickAway}>
+                        {/* Tools */}
                         <div className='d-row ai-start editor-tools-panel w-100'>
                             <ToggleButtonGroup
                                 // value={formats}
@@ -323,8 +324,7 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                         </div>}
                     </div>
                 </Box>
-
-            </div >
+            </div>
 
 
             {/* Hidden */}

@@ -121,11 +121,6 @@ main,
     align-self: stretch;
 }
 
-.wrapper-div {
-    margin: 10px 20px;
-    padding: 10px 8px;
-}
-
 /* #region Flex */
 .d-row,
 .d-column,

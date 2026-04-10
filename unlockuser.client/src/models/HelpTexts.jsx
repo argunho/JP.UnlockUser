@@ -1,6 +1,6 @@
 export const Tips = [
     {
-        primary: "Exact match",
+        primary: "Exakt matchning",
         secondary: "Markerad kryssruta: görs en exakt matchning av namn, efternamn eller användarnamn.\nEj markerad kryssruta: systemet söker  efter alla poster där namn, efternamn eller användarnamn innehåller den angivan sökordet.",
         value: "match"
     },

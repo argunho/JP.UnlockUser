@@ -36,3 +36,20 @@
 2026-04-10 15:52:14.792 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-10 15:52:14.
 2026-04-10 15:52:38.179 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-10 15:52:38.
 2026-04-10 15:52:38.352 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-10 15:52:38.
+2026-04-10 18:25:48.869 +02:00 [INF] Autentisering utförd vid: 2026-04-10 18:25. Department: IT avdelning. Office: IT avdelning.
+2026-04-10 18:26:02.573 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-10 18:26:02.
+2026-04-10 18:26:16.468 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-10 18:26:16.
+2026-04-10 18:26:28.475 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-10 18:26:28.
+2026-04-10 18:26:28.575 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-10 18:26:28.
+2026-04-10 20:09:42.287 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-10 20:09:42.
+2026-04-10 20:09:54.788 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-10 20:09:54.
+2026-04-10 20:10:03.832 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-10 20:10:03.
+2026-04-10 20:10:03.901 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-10 20:10:03.
+2026-04-10 20:13:05.698 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-10 20:13:05.
+2026-04-10 20:13:19.940 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-10 20:13:19.
+2026-04-10 20:13:29.505 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-10 20:13:29.
+2026-04-10 20:13:29.547 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-10 20:13:29.
+2026-04-10 20:16:19.731 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-10 20:16:19.
+2026-04-10 20:16:31.148 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-10 20:16:31.
+2026-04-10 20:16:39.910 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-10 20:16:39.
+2026-04-10 20:16:39.956 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-10 20:16:39.

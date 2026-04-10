@@ -94,7 +94,7 @@ public class ManualController(IHelpService help) : ControllerBase
     #endregion
 
     #region PUT
-    [HttpPut]
+    [HttpPut("{id}")]
     public async Task<IActionResult> Put(string id, Manual model)
     {
         if (!ModelState.IsValid)
