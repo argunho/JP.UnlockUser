@@ -82,7 +82,7 @@
 
 .editor-container {
     border: 1px solid #b8b8b880;
-    border-radius: 2px;
+    /* border-radius: 2px; */
     background-color: #FFFFFF;
     padding: 0 !important;
     height: auto;
@@ -91,8 +91,8 @@
 .editor-tools-panel,
 .editor-tools-panel>div {
     background-color: #FFFFFF !important;
-    overflow: hidden;
-    border-bottom: 0.5px solid #b8b8b830 ;
+    /* overflow: hidden; */
+    /* border-bottom: 0.5px solid #b8b8b830 ; */
     box-shadow: none !important;
     height: max-content;
 }
@@ -104,17 +104,30 @@
 .editor-tools-panel>div {
     display: flex;
     flex-wrap: wrap !important;
-    padding: 5px 0;
+    /* padding: 5px 0; */
     width: 100%;
     justify-content: flex-start !important;
 }
 
 .editor-tools-panel button {
-    margin: 2px 3px !important;
+    /* margin: 2px 3px !important; */
+    border-radius: 0 !important;
 }
 
 .editor-wrapper {
     position: relative;
+}
+
+.editor-dropdown {
+    position: absolute !important;
+    top: 50px !important;
+    height: 160px;
+    overflow: auto;
+    width: 100%;
+    background-color: #FFFFFF;
+    border: 1px solid var(--color-gray);
+    z-index: 3000;
+    padding: 3px 0;
 }
 
 .editor-textarea {

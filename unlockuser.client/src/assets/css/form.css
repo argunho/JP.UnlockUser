@@ -33,7 +33,7 @@ input[type="password"]:disabled {
 }
 
 .form-manual {
-  width: 1000px
+  width: auto !important;
 }
 
 .form-wrapper>* {

@@ -40,3 +40,7 @@
 2026-04-09 20:40:52.757 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-09 20:40:52.
 2026-04-09 20:41:09.978 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-09 20:41:09.
 2026-04-09 20:41:10.070 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-09 20:41:10.
+2026-04-09 21:29:36.327 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-04-09 21:29:36.
+2026-04-09 21:29:57.189 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-04-09 21:29:57.
+2026-04-09 21:30:21.411 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-04-09 21:30:21.
+2026-04-09 21:30:21.479 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-04-09 21:30:21.

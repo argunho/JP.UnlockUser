@@ -1,11 +1,11 @@
 import { useRef, useEffect, useState } from 'react';
 
 // Installed
-import { AppBar, Box, IconButton, InputLabel, Tooltip, Button } from '@mui/material';
+import { AppBar, Box, InputLabel, Tooltip, Button, ToggleButtonGroup, ToggleButton, ClickAwayListener } from '@mui/material';
 import {
     Clear, DeleteSweep, FormatAlignCenter, FormatAlignJustify, FormatAlignLeft, FormatAlignRight, FormatBold, FormatClear, Title, FormatSize,
-    FormatItalic, FormatListBulleted, FormatListNumbered, Image, Compare, FormatStrikethrough, FormatColorText, Square, Close, FormatColorFill,
-    FormatUnderlined, Link
+    FormatItalic, FormatListBulleted, FormatListNumbered, Image, Compare, FormatStrikethrough, FormatColorText, Square, FormatColorFill,
+    FormatUnderlined, Link, ArrowDropDown, ArrowDropUp
 } from '@mui/icons-material';
 
 // Components
@@ -13,37 +13,27 @@ import {
 // Css
 import './../../assets/css/editor.css';
 
-const colors = {
-    white: "#FFFFFF",
-    black: "#000000",
-    red: "#FF0000",
-    green: "#00FF00",
-    blue: "#0000FF",
-    yellow: "#FFFF00",
-    cyan: "#00FFFF",
-    magenta: "#FF00FF",
-    gray: "#808080",
-    lightGray: "#D3D3D3",
-    orange: "#FFA500",
-    pink: "#FFC0CB",
-    purple: "#800080",
-    brown: "#A52A2A",
-    navy: "#000080",
-    teal: "#008080",
-    lime: "#00FF00",
-    olive: "#808000",
-    maroon: "#800000",
-    coral: "#FF7F50"
-}
-
-const colorsTooltip = {
-    secondary: "#9c27b0",
-    primary: "#1976d2",
-    info: "#0288d1",
-    warning: "#ed6c02",
-    error: "#d32f2f",
-    success: "#2e7d32"
-}
+const colorCodes = [
+    "#FFFFFF",
+    "#000000",
+    "#FF0000",
+    "#00FF00",
+    "#0000FF",
+    "#FFFF00",
+    "#00FFFF",
+    "#FF00FF",
+    "#808080",
+    "#D3D3D3",
+    "#FFA500",
+    "#FFC0CB",
+    "#800080",
+    "#A52A2A",
+    "#000080",
+    "#008080",
+    "#808000",
+    "#800000",
+    "#FF7F50"
+];
 
 const paragraphs = ["h1", "h2", "h3", "h4", "h5", "h6"];
 const numbers = Array.from({ length: 27 }, (_, i) => i + 4);
@@ -54,29 +44,30 @@ const buttons = [
     { cmd: "italic", key: "em", icon: <FormatItalic /> },
     { cmd: "underline", key: "u", icon: <FormatUnderlined /> },
     { cmd: "strikethrough", key: "del", icon: <FormatStrikethrough /> },
-    { cmd: "paragraph", key: "paragraph", icon: <Title />, title: "h1,h2,h3,h4,h5,h6", models: paragraphs },
-    { cmd: "formatSize", key: "formatSize", icon: <FormatSize />, title: "Font size", models: sizes },
+    { cmd: "paragraph", key: "paragraph", icon: <Title />, title: "h1,h2,h3,h4,h5,h6", models: paragraphs, skip: true },
+    { cmd: "formatSize", key: "formatSize", icon: <FormatSize />, title: "Font size", models: sizes, skip: true },
     { cmd: "left", icon: <FormatAlignLeft /> },
     { cmd: "center", icon: <FormatAlignCenter /> },
     { cmd: "right", icon: <FormatAlignRight /> },
     { cmd: "justify", icon: <FormatAlignJustify /> },
     { cmd: "insertOrderedList", key: "ol", icon: <FormatListNumbered /> },
     { cmd: "insertUnorderedList", key: "ul", icon: <FormatListBulleted /> },
-    { cmd: "backColor", icon: <FormatColorFill />, color: "primary", title: "Bakgrund färg", colors: colors },
-    { cmd: "foreColor", icon: <FormatColorText />, color: "secondary", title: "Text färg", colors: colors },
-    { cmd: "image", color: "info", icon: <Image />, title: "Bild 100% i bred", width: "100%", clickKey: "image" },
-    { cmd: "image", color: "inherit", icon: <Compare />, title: "Bild 50% i bred", width: "50%", clickKey: "image" },
-    { cmd: "createLink", key: "a", icon: <Link />, color: "success", title: "Länk" },
-    { cmd: "clear", icon: <FormatClear />, color: "inherit", title: "Rensa från formatering" },
-    { cmd: "erase", icon: <Clear />, color: "warning", title: "Radera markerad text" },
-    { cmd: "remove", icon: <DeleteSweep />, color: "error", title: "Redera hela text" }
+    { cmd: "backColor", icon: <FormatColorFill color="primary" />, title: "Bakgrund färg", models: colorCodes, skip: true, color: true },
+    { cmd: "foreColor", icon: <FormatColorText color="secondary" />, title: "Text färg", models: colorCodes, skip: true, color: true },
+    { cmd: "image", icon: <Image color="info" />, title: "Bild 100% i bred", width: "100%", clickKey: "image" },
+    { cmd: "image", icon: <Compare color="inherit" />, title: "Bild 50% i bred", width: "50%", clickKey: "image" },
+    { cmd: "createLink", key: "a", icon: <Link color="success" />, title: "Länk" },
+    { cmd: "clear", icon: <FormatClear color="inherit" />, title: "Rensa från formatering", skip: true },
+    { cmd: "erase", icon: <Clear color="warning" />, title: "Radera markerad text", skip: true },
+    { cmd: "remove", icon: <DeleteSweep color="error" />, title: "Redera hela text", skip: true }
 ];
 
 function Editor({ label = "Text", name = "text", defaultValue, required, disabled: pending, onSave, onCancel, ref }) {
 
     const [value, setValue] = useState(defaultValue ?? "");
-    const [sub, setSub] = useState();
-    const [action, setAction] = useState();
+    const [colorCommand, setColorCommand] = useState(null);
+    const [formats, setFormats] = useState([]);
+    const [openIndex, setOpenIndex] = useState(-1);
 
     const refEditor = useRef(null);
     const refUpload = useRef();
@@ -146,61 +137,35 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
 
         let selection = window.getSelection();
         let str = selection?.toString() ?? null;
-
-        switch (key) {
-            case "left":
-            case "center":
-            case "right":
-            case "justify":
+                console.log(key, colorCommand, colorCodes.includes(key))
+        switch (true) {
+            case ["left","center","right","justify"].includes(key):
                 refEditor.current.style.textAlign = key;
                 break;
-            case "createLink":
+            case key === "createLink":
                 if (str) {
                     let url = prompt("Skriva din län här: ", "https://");
                     document.execCommand(key, false, url);
                 }
                 break;
-            case "white":
-            case "black":
-            case "red":
-            case "green":
-            case "blue":
-            case "yellow":
-            case "cyan":
-            case "magenta":
-            case "gray":
-            case "lightGray":
-            case "orange":
-            case "pink":
-            case "purple":
-            case "brown":
-            case "navy":
-            case "teal":
-            case "lime":
-            case "olive":
-            case "maroon":
-            case "coral":
-                if (sub && str?.length > 0)
-                    document.execCommand(sub?.cmd, false, colors[key]);
+            case colorCodes.includes(key):
+                console.log(key, colorCommand)
+                document.execCommand(colorCommand, false, key);
                 break;
-            case "h1":
-            case "h2":
-            case "h3":
-            case "h4":
-            case "h5":
-            case "h6":
+            case paragraphs.includes(key):
                 document.execCommand("formatBlock", false, key.toUpperCase());
                 break;
-            case "erase":
+            case key === "erase":
                 if (str?.length > 0)
                     selection.deleteFromDocument();
                 break;
-            case "remove":
+            case key === "remove":
                 refEditor.current.innerHTML = "";
                 if (defaultValue && onCancel)
                     onCancel();
+                setFormats([]);
                 break;
-            case "clear":
+            case key === "clear":
                 refEditor.current.innerHTML = refEditor.current.innerText;
                 break;
             default:
@@ -229,85 +194,80 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
         }
     }
 
-    function handleAction(item) {
+    function handleAction(item, index) {
         refEditor.current?.focus();
+
         if (item?.clickKey) {
             clickHandle(item?.clickKey);
-            setAction(item);
         }
-        else if (item?.colors) {
-            setSub(item);
-            setAction(item);
+        else if (item?.models) {
+            if (item?.color)
+                setColorCommand(item?.cmd)
+            setOpenIndex(openIndex == index ? -1 : index);
         }
         else
             handleChange(item?.cmd);
     }
 
+    function onFormatsChange(ev, values) {
+        handleClickAway();
+        if (values[values.length - 1] === undefined)
+            return;
+        
+        setFormats(values);
+    }
+
+    function handleClickAway() {
+        if (openIndex === -1)
+            return;
+
+        setOpenIndex(-1);
+    }
+
+
+    console.log(formats)
     return (
         <>
             <div className="w-100" ref={ref}>
                 <InputLabel className='editor-label' required={required}>{label ?? "TextEditor"}</InputLabel>
+
                 <Box className='w-100 editor-container'>
                     <AppBar position='static' variant='elevation' color='default' className='d-row ai-start editor-tools-panel w-100'>
-                        <div className={`d-row jc-start${sub ? " view-wrapper" : ""}`}>
-                            {/* Primary actions */}
-                            {!sub && buttons?.map((b, ind) => {
-                                return <Tooltip key={ind} title={b?.title ?? ""}
-                                    classes={{
-                                        tooltip: "tooltip-default",
-                                    }}
-                                    PopperProps={{
-                                        sx: {
-                                            '& .MuiTooltip-tooltip': {
-                                                backgroundColor: colorsTooltip[b?.color]
-                                            },
-                                            '& .MuiTooltip-arrow': {
-                                                color: colorsTooltip[b?.color]
-                                            }
-                                        }
-                                    }}
-                                    placement="right"
-                                    disableHoverListener={!b?.title}
-                                    enterDelay={1000}
-                                    leaveDelay={0}
-                                    arrow>
-                                    <IconButton
-                                        key={ind}
-                                        type="button"
-                                        color={b?.color ?? "inherit"}
-                                        onClick={() => handleAction(b)}>
-                                        {b.icon}
-                                    </IconButton>
-                                </Tooltip>;
-                            })}
+                        <ClickAwayListener onClickAway={handleClickAway}>
 
-                            {/* Secondary actions, sub action of primary actions */}
-                            {sub && <>
-                                {!Array.isArray(sub.models) && Object.keys(sub?.models)?.map((key, ind) => {
-                                    return <IconButton
-                                        key={ind}
-                                        type="button"
-                                        className="d-row"
-                                        style={{ color: colors[key] }}
-                                        onClick={() => handleChange(key)}>
-                                        <Square />
-                                    </IconButton>;
+                            <ToggleButtonGroup
+                                value={formats}
+                                onChange={onFormatsChange}
+                                aria-label="text formatting"
+                            >
+                                {/* Loop buttons */}
+                                {buttons.map((item, index) => {
+                                    return <ToggleButton
+                                        key={index}
+                                        {...(!item?.skip ? { value: item } : null)}
+                                        aria-label={item?.cmd}
+                                        style={{ position: "relative" }}
+                                        onClick={() => handleAction(item, index)}>
+                                        {item?.icon}
+                                        {item?.models && <>
+                                            {openIndex === index ? <ArrowDropUp /> : <ArrowDropDown />}
+                                            {openIndex === index && <div className="d-column jc-start editor-dropdown">
+                                                {item?.models?.map((m) => (
+                                                    <Button
+                                                        key={m}
+                                                        value={m}
+                                                        aria-label={m}
+                                                        onClick={() => handleChange(m)}>
+                                                        {item?.color ? <Square style={{ color: m }} /> : m}
+                                                    </Button>
+                                                ))}
+                                            </div>}
+                                        </>}
+                                    </ToggleButton>
                                 })}
+                            </ToggleButtonGroup>
 
-                                {Array.isArray(sub?.models) && sub?.models.map(key => (
-                                    <IconButton
-                                        key={key}
-                                        type="button"
-                                        style={{ fontSize: "14px" }}
-                                        onClick={() => handleChange(key)}>
-                                        {key}
-                                    </IconButton>
-                                ))}
-                                <IconButton color="error" type="button" onClick={() => setSub()} style={{ alignSelf: "flex-end"}}>
-                                    <Close />
-                                </IconButton>
-                            </>}
-                        </div>
+                        </ClickAwayListener>
                     </AppBar>
 
                     {/* Editor */}
@@ -338,7 +298,8 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                         </div>}
                     </div>
                 </Box>
-            </div>
+
+            </div >
 
 
             {/* Hidden */}
@@ -351,3 +312,63 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
 }
 
 export default Editor;
+
+// {/* <div className={`d-row jc-start${sub ? " view-wrapper" : ""}`}> */}
+{/* Primary actions */ }
+// {!sub && buttons?.map((b, ind) => {
+//     return <Tooltip key={ind} title={b?.title ?? ""}
+//         classes={{
+//             tooltip: "tooltip-default",
+//         }}
+//         PopperProps={{
+//             sx: {
+//                 '& .MuiTooltip-tooltip': {
+//                     backgroundColor: colorsTooltip[b?.color]
+//                 },
+//                 '& .MuiTooltip-arrow': {
+//                     color: colorsTooltip[b?.color]
+//                 }
+//             }
+//         }}
+//         placement="right"
+//         disableHoverListener={!b?.title}
+//         enterDelay={1000}
+//         leaveDelay={0}
+//         arrow>
+//         <IconButton
+//             key={ind}
+//             type="button"
+//             color={b?.color ?? "inherit"}
+//             onClick={() => handleAction(b)}>
+//             {b.icon}
+//         </IconButton>
+//     </Tooltip>;
+// })}
+
+// {/* Secondary actions, sub action of primary actions */}
+// {sub && <>
+//     {sub?.colors && Object.keys(sub?.colors)?.map((key, ind) => {
+//         return <IconButton
+//             key={ind}
+//             type="button"
+//             className="d-row"
+//             style={{ color: colors[key] }}
+//             onClick={() => handleChange(key)}>
+//             <Square />
+//         </IconButton>;
+//     })}
+
+//     {sub?.models && sub?.models.map(key => (
+//         <IconButton
+//             key={key}
+//             type="button"
+//             style={{ fontSize: "14px" }}
+//             onClick={() => handleChange(key)}>
+//             {key}
+//         </IconButton>
+//     ))}
+//     <IconButton color="error" type="button" onClick={() => setSub()} style={{ alignSelf: "flex-end" }}>
+//         <Close />
+//     </IconButton>
+// </>}
+// {/* </div> */}
