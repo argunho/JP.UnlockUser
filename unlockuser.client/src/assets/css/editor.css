@@ -72,7 +72,7 @@
 
 /* Editor */
 .editor-container {
-    max-width: 1100px;
+    max-width: unset;
 }
 
 .editor-label {
@@ -103,13 +103,15 @@
 
 .editor-tools-panel>div {
     display: flex;
-    flex-wrap: wrap !important;
+    /* flex-wrap: wrap !important; */
     width: 100%;
     justify-content: flex-start !important;
 }
 
 .editor-tools-panel button {
     border-radius: 0 !important;
+    width: -webkit-fill-available !important;
+    width: -moz-available !important;
 }
 
 .editor-wrapper {
