@@ -1,10 +1,10 @@
 import { useRef, useEffect, useState } from 'react';
 
 // Installed
-import { Box, InputLabel, Button, ToggleButtonGroup, ToggleButton, ClickAwayListener } from '@mui/material';
+import { Box, InputLabel, Button, ToggleButtonGroup, Tooltip, ToggleButton, ClickAwayListener } from '@mui/material';
 import {
     Clear, DeleteSweep, FormatAlignCenter, FormatAlignJustify, FormatAlignLeft, FormatAlignRight, FormatBold, FormatClear, Title, FormatSize,
-    FormatItalic, FormatListBulleted, FormatListNumbered, Image, Compare, FormatStrikethrough, FormatColorText, Square, FormatColorFill,
+    FormatItalic, FormatListBulleted, FormatListNumbered, ImageSearch, Image, Compare, FormatStrikethrough, FormatColorText, Square, FormatColorFill,
     FormatUnderlined, Link, ArrowDropDown, ArrowDropUp
 } from '@mui/icons-material';
 
@@ -34,31 +34,42 @@ const colorCodes = [
     "#800000",
     "#FF7F50"
 ];
+
 const headings = ["h1", "h2", "h3", "h4", "h5", "h6"];
 const numbers = Array.from({ length: 27 }, (_, i) => i + 4);
 const sizes = [...numbers, ...[32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76]];
+
+const colorsTooltip = {
+    secondary: "#9c27b0",
+    primary: "#1976d2",
+    info: "#0288d1",
+    warning: "#ed6c02",
+    error: "#d32f2f",
+    success: "#2e7d32"
+}
 
 const buttons = [
     { cmd: "bold", key: "strong", icon: <FormatBold /> },
     { cmd: "italic", key: "em", icon: <FormatItalic /> },
     { cmd: "underline", key: "u", icon: <FormatUnderlined /> },
     { cmd: "strikethrough", key: "del", icon: <FormatStrikethrough /> },
-    { cmd: "paragraph", key: "paragraph", icon: <Title />, title: "h1,h2,h3,h4,h5,h6", models: headings, skip: true },
-    { cmd: "fontSize", key: "formatSize", icon: <FormatSize />, title: "Font size", models: sizes, skip: true },
-    { cmd: "left", icon: <FormatAlignLeft /> },
-    { cmd: "center", icon: <FormatAlignCenter /> },
-    { cmd: "right", icon: <FormatAlignRight /> },
-    { cmd: "justify", icon: <FormatAlignJustify /> },
+    { cmd: "paragraph", key: "paragraph", icon: <Title />, tip: "h1,h2,h3,h4,h5,h6", models: headings, skip: true },
+    { cmd: "fontSize", key: "formatSize", icon: <FormatSize />, tip: "Font size", models: sizes, skip: true },
+    { cmd: "justifyLeft", icon: <FormatAlignLeft /> },
+    { cmd: "justifyCenter", icon: <FormatAlignCenter /> },
+    { cmd: "justifyRight", icon: <FormatAlignRight /> },
+    { cmd: "justifyFull", icon: <FormatAlignJustify /> },
     { cmd: "insertOrderedList", key: "ol", icon: <FormatListNumbered /> },
     { cmd: "insertUnorderedList", key: "ul", icon: <FormatListBulleted /> },
-    { cmd: "backColor", icon: <FormatColorFill color="primary" />, title: "Bakgrund färg", models: colorCodes, skip: true, color: true },
-    { cmd: "foreColor", icon: <FormatColorText color="secondary" />, title: "Text färg", models: colorCodes, skip: true, color: true },
-    { cmd: "image", icon: <Image color="info" />, title: "Bild 100% i bred", width: "100%" },
-    { cmd: "image", icon: <Compare color="inherit" />, title: "Bild 50% i bred", width: "50%" },
-    { cmd: "createLink", key: "a", icon: <Link color="success" />, title: "Länk" },
-    { cmd: "clear", icon: <FormatClear color="inherit" />, title: "Rensa från formatering", skip: true },
-    { cmd: "erase", icon: <Clear color="warning" />, title: "Radera markerad text", skip: true },
-    { cmd: "remove", icon: <DeleteSweep color="error" />, title: "Redera hela text", skip: true }
+    { cmd: "backColor", icon: <FormatColorFill color="primary" />, color: "primary", tip: "Bakgrund färg", models: colorCodes, skip: true, colors: true },
+    { cmd: "foreColor", icon: <FormatColorText color="secondary" />, color: "secondary", tip: "Text färg", models: colorCodes, skip: true, colors: true },
+    { cmd: "image", icon: <Image color="info" />, color: "info", tip: "Bild 100% i bred", width: "100%", },
+    { cmd: "image", icon: <Compare color="inherit" />, color: "inherit", tip: "Bild 50% i bred", width: "50%" },
+    { cmd: "image", icon: <ImageSearch color="secondary" />, color: "secondary", tip: "Bild max 300px i bred och zoombar", width: "300px" },
+    { cmd: "createLink", key: "a", icon: <Link color="success" />, color: "success", tip: "Länk" },
+    { cmd: "clear", icon: <FormatClear color="inherit" />, color: "inherit", tip: "Rensa från formatering", skip: true },
+    { cmd: "erase", icon: <Clear color="warning" />, color: "warning", tip: "Radera markerad text", skip: true },
+    { cmd: "remove", icon: <DeleteSweep color="error" />, color: "error", tip: "Redera hela text", skip: true }
 ];
 
 function Editor({ label = "Text", name = "text", defaultValue, required, disabled: pending, onSave, onCancel, ref }) {
@@ -77,19 +88,52 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
             refEditor.current.innerHTML = defaultValue;
     }, [defaultValue])
 
+    function cleanHtml(html) {
+        if (html === null || html === "") return;
+        console.log("html", html)
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        html = html.replaceAll("<div><p></p></div>", "<br/>").replaceAll("<p></p>", "<br/>");
+
+        // Remove empty divs, spans, etc.
+        doc.querySelectorAll('*').forEach(el => {
+            const isEmpty =
+                el.innerHTML.trim() === '' &&
+                el.tagName !== 'BR';
+
+            if (isEmpty) {
+                el.remove();
+            }
+        });
+
+        // Replace empty <p> with <br>
+
+        // doc.querySelectorAll('p').forEach(p => {
+        //     const text = p.textContent.replace(/\u00A0/g, '').trim(); // handles &nbsp;
+
+        //     if (!text && p.querySelectorAll('img,video,iframe').length === 0) {
+        //         p.replaceWith(document.createElement('br'));
+        //     }
+        // });
+
+        return doc.body.innerHTML;
+    }
+
     function saveItem() {
         const htmlValue = refEditor.current?.innerHTML?.replaceAll(/<span id="transmark"[^>]*><\/span>/g, "");
         if (htmlValue == null || htmlValue?.length === 0)
             return;
 
         refEditor.current.innerHTML = "";
-        onSave?.(htmlValue);
+        onSave?.(cleanHtml(htmlValue));
         setValue(null);
     }
 
     function onChange(e) {
         e.preventDefault();
         let htmlValue = e.target?.innerHTML;
+        console.log(htmlValue)
         let value = htmlValue?.replaceAll(/<span id="transmark"[^>]*><\/span>/g, "");
 
         if (!value || value === "<br/>" || value === "<br>")
@@ -132,7 +176,7 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
         // helper: use font size in px using execCommand + postprocess
         const applyFontSizePx = (px) => {
 
-            if (!selection || selection.rangeCount === 0) return;
+            if (!selection || !str) return;
 
             // Temporarily use fontSize (1–7), selecting the closest value (1–7) based on px.
             const mapPxToHtmlSize = (pxVal) => {
@@ -157,14 +201,40 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
             fonts.forEach((fontEl) => {
                 const span = document.createElement("span");
                 span.style.fontSize = `${px}px`;
-                span.innerHTML = fontEl.innerHTML; // Svae includen formats
+                span.innerHTML = fontEl.innerHTML; // Save included formats
                 fontEl.replaceWith(span);
             });
         };
 
+
+        function alignSelection(alignment) {
+            if (!str) return false;
+
+            const range = selection.getRangeAt(0);
+            let el = range.startContainer;
+
+            // Move up to element node
+            if (el.nodeType === 3) el = el.parentElement;
+
+            // Find closest block
+            let block = el.closest("p, div, h1, h2, h3, h4, h5, h6, li");
+
+            if (block) {
+                block.style.textAlign = alignment;
+                block.style.width = "100%";
+                return true;
+            }
+
+            return false;
+        }
+
         switch (true) {
-            case ["left", "center", "right", "justify"].includes(key):
-                refEditor.current.style.textAlign = key;
+            case ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull"].includes(key):
+                if (!alignSelection(key.replace("justify", "").toLowerCase())) {
+                    console.log(key)
+                    document.execCommand(key);
+                }
+                // refEditor.current.style.textAlign = key;
                 break;
             case key === "createLink":
                 if (str) {
@@ -214,7 +284,10 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
             const reader = new FileReader();
             reader.onload = (e) => {
                 const base64 = e.target.result;
-                const imgTag = `<img src="${base64}" style="max-width:${imageWidth};height:auto;border-radius:8px;display:block;object-fit:contain;margin:8px 0;" />`;
+                const imgTag = imageWidth === 300
+                    ? `<img src="${base64}" style="max-width:${imageWidth};display:block;object-fit:contain;margin:8px 0;" />`
+                    : `<div class="zoomable-img-wrap" style="max-width:${imageWidth}">
+                                    <img src="${base64}" width="100%" style="display:block;" tabindex="0"/></div>`;
 
                 document.execCommand("insertHTML", false, imgTag);
                 // document.execCommand("insertImage", false, e.target.result);
@@ -227,12 +300,12 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
         refEditor.current?.focus();
 
         if (item?.models) {
-            if (item?.color)
+            if (item?.colors)
                 setColorCommand(item?.cmd)
             setOpenIndex(openIndex == index ? -1 : index);
         }
-        else{
-            if(item?.width)
+        else {
+            if (item?.width)
                 setImageWidth(item?.width);
             handleChange(item?.cmd);
         }
@@ -253,6 +326,7 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
         setOpenIndex(-1);
     }
 
+
     return (
         <>
             <div className="w-100 editor-container" ref={ref}>
@@ -269,28 +343,48 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                             >
                                 {/* Loop buttons */}
                                 {buttons.map((item, index) => {
-                                    return <ToggleButton
-                                        key={index}
-                                        {...(!item?.skip ? { value: item } : null)}
-                                        aria-label={item?.cmd}
-                                        style={{ position: "relative" }}
-                                        onClick={() => handleAction(item, index)}>
-                                        {item?.icon}
-                                        {item?.models && <>
-                                            {openIndex === index ? <ArrowDropUp /> : <ArrowDropDown />}
-                                            {openIndex === index && <div className="d-column jc-start editor-dropdown">
-                                                {item?.models?.map((m) => (
-                                                    <Button
-                                                        key={m}
-                                                        value={m}
-                                                        aria-label={m}
-                                                        onClick={() => handleChange(m)}>
-                                                        {item?.color ? <Square style={{ color: m }} /> : m}
-                                                    </Button>
-                                                ))}
-                                            </div>}
-                                        </>}
-                                    </ToggleButton>
+                                    return <Tooltip key={index} title={item?.tip ?? ""}
+                                        classes={{
+                                            tooltip: "tooltip-default",
+                                        }}
+                                        PopperProps={{
+                                            sx: {
+                                                '& .MuiTooltip-tooltip': {
+                                                    backgroundColor: colorsTooltip[item?.color]
+                                                },
+                                                '& .MuiTooltip-arrow': {
+                                                    color: colorsTooltip[item?.color]
+                                                }
+                                            }
+                                        }}
+                                        placement="right"
+                                        disableHoverListener={!item?.tip}
+                                        enterDelay={1000}
+                                        leaveDelay={0}
+                                        arrow>
+                                        <ToggleButton
+                                            {...(!item?.skip ? { value: item } : null)}
+                                            aria-label={item?.cmd}
+                                            style={{ position: "relative" }}
+                                            onClick={() => handleAction(item, index)}>
+                                            {item?.icon}
+                                            {item?.models && <>
+                                                {openIndex === index ? <ArrowDropUp /> : <ArrowDropDown />}
+                                                {openIndex === index && <div className="d-column jc-start editor-dropdown">
+                                                    {item?.models?.map((m) => (
+                                                        <Button
+                                                            key={m}
+                                                            value={m}
+                                                            aria-label={m}
+                                                            className="w-100"
+                                                            onClick={() => handleChange(m)}>
+                                                            {item?.colors ? <Square style={{ color: m }} /> : m}
+                                                        </Button>
+                                                    ))}
+                                                </div>}
+                                            </>}
+                                        </ToggleButton>
+                                    </Tooltip>
                                 })}
                             </ToggleButtonGroup>
                         </div>
@@ -328,7 +422,7 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
 
 
             {/* Hidden */}
-            {!onSave && <input type="hidden" name={name} value={value} />}
+            {!onSave && <input type="hidden" name={name} value={cleanHtml(value)} />}
 
             {/* Image input */}
             <input type="file" accept="image/*" name="file" onChange={onFileChange} className="none" ref={refUpload} />

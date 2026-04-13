@@ -72,7 +72,7 @@
 
 /* Editor */
 .editor-container {
-    max-width: 1039px;
+    max-width: 1100px;
 }
 
 .editor-label {
@@ -163,4 +163,35 @@
 
 .button-wrapper>button {
     margin: 5px 7px;
+}
+
+/* Image wrapper*/
+.zoomable-img-wrap {
+    max-width: 300px !important;
+    border-radius: 8px;
+    cursor: zoom-in;
+    transition: transform 0.45s ease;
+    display: block;
+    border: 1px solid var(--color-gray);
+}
+
+/* Gray fullscreen background */
+.zoomable-img-wrap:active::before {
+    content: "" !important;
+    position: fixed !important;
+    inset: 0 !important;
+    background-color: rgba(0, 0, 0, 0.6) !important;
+    z-index: 3000 !important;
+}
+
+.zoomable-img-wrap:active img {
+    position: fixed !important;
+    top: 50%;
+    left: 50%;
+    z-index: 3000 !important;
+    transform: translate(-50%, -50%) !important;
+    max-width: 96vw !important;
+    height: 96vh !important;
+    z-index: 5000 !important;
+    cursor: zoom-out;
 }
