@@ -4,11 +4,9 @@ import { createContext, useRef, useReducer, useMemo, useCallback, useEffect } fr
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 
-// Functions
-import { ErrorHandle } from './../functions/ErrorHandle';
-
 // Services
 import { TokenConfig } from '../services/TokenConfig';
+import { ErrorHandle } from './../services/ErrorHandle';
 
 axios.defaults.baseURL = window.location.origin;
 

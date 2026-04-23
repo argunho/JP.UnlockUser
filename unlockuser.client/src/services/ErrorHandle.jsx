@@ -9,25 +9,19 @@ export function ErrorHandle(error) {
         console.error("error result", error?.result)
         return error?.result;
     } else if (error?.code === "ERR_BAD_RESPONSE") {
-        console.error("error bad response", error?.message)
+        console.error("error bad response", error.message)
         errorResponse.msg += "Servern svarade inte som förväntat.";
         errorResponse.msg += error?.message ? ` (${error.message})` : "Okänd serverfel.";
         return errorResponse;
-    }
-    else if (error?.response?.status !== undefined) {
-        console.error("error response", error?.response?.data)
-        return error?.response?.data;
     }
     else if (error?.msg) {
         console.error("error msg", error?.msg)
         return error;
     }
     else if ((error?.response && error?.response?.status === 401) || error?.status === 401) {
-        console.error("error 401", error?.response?.data)
-        localStorage.removeItem("token");
-        sessionStorage.removeItem("token");
+        console.error("error 401")
         window.location.pathname = "/session/expired";
-        return errorResponse;
+        return null;
     }
     else if (error?.code && error?.code === "ERR_CANCELED") {
         console.error("error canceled", error)
@@ -42,6 +36,10 @@ export function ErrorHandle(error) {
             errorResponse.msg += Array.isArray(err) ? err.join("<br/>") : `${err}<br/>`;
         });
         return errorResponse;
+    }
+    else if (error?.response?.status !== undefined) {
+        console.error("error response", error?.response?.data)
+        return error?.response?.data;
     }
     else {
         console.error("error unknown", error)
