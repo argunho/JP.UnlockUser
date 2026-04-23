@@ -10,7 +10,6 @@ import { ErrorHandle } from './../services/ErrorHandle';
 
 axios.defaults.baseURL = window.location.origin;
 
-
 // eslint-disable-next-line react-refresh/only-export-components
 export const FetchContext = createContext();
 

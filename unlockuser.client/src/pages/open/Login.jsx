@@ -11,10 +11,7 @@ import Message from '../../components/blocks/Message';
 import Logotype from '../../components/blocks/Logotype';
 import FormButtons from '../../components/forms/FormButtons';
 
-// Functions
-import { ErrorHandle } from './../../functions/ErrorHandle';
-
-// storage
+// Storage
 import { AuthContext } from '../../storage/AuthContext';
 import { FetchContext } from './../../storage/FetchContext';
 
@@ -68,7 +65,6 @@ function Login() {
       password: fd.get("password")
     }
 
-    try {
       const { token, timeLeft } = await fetchData({ api: "authentication", method: "post", data: data, action: "return" }) ?? {};
 
       if (timeLeft) {
@@ -80,10 +76,6 @@ function Login() {
 
 
       return data;
-    } catch (error) {
-      handleResponse(ErrorHandle(error));
-      return data;
-    }
   }
 
   function clearResponse() {
