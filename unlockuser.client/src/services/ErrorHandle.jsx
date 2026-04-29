@@ -20,7 +20,8 @@ export function ErrorHandle(error) {
     }
     else if ((error?.response && error?.response?.status === 401) || error?.status === 401) {
         console.error("error 401")
-        window.location.pathname = "/session/expired";
+        if (window.location.pathname !== "/session/expired")
+            window.location.pathname = "/session/expired";
         return null;
     }
     else if (error?.code && error?.code === "ERR_CANCELED") {
