@@ -7,6 +7,7 @@
     <SpaRoot>..\unlockuser.client</SpaRoot>
     <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
     <SpaProxyServerUrl>https://localhost:51173</SpaProxyServerUrl>
+	<AllowUntrustedCertificate>true</AllowUntrustedCertificate>
   </PropertyGroup>
 
   <ItemGroup>

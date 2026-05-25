@@ -242,6 +242,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor) : IActiveDirect
 
         return context;
     }
+
     public DirectorySearcher? UpdatedProparties(DirectorySearcher? result)
     {
         if (result == null)
