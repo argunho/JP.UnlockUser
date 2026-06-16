@@ -15,23 +15,21 @@ public class ManualController(IHelpService help) : ControllerBase
     public async Task<IActionResult> Get()
     {
         List<Manual> manuals = [];
-        string pathName = Path.Combine("wwwroot", "manual");
-
-        if (!Directory.Exists(pathName))
-            return Ok(manuals);
 
         try
         {
-            var files = Directory.EnumerateFiles(pathName, "*.txt");
+            var (pathName, files) = GetFiles();
 
             foreach (var filePath in files)
             {
                 var fileContent = await System.IO.File.ReadAllTextAsync(filePath);
+                var name = Path.GetFileNameWithoutExtension(filePath).ToString();
                 manuals.Add(new Manual
                 {
                     Id = _help.EncodeToBase64(Path.GetFileName(filePath)),
-                    Name = Path.GetFileNameWithoutExtension(filePath),
-                    Html = fileContent
+                    Name = name[(name.IndexOf('.') + 1)..],
+                    Html = fileContent,
+                    FileName = name
                 });
             }
         }
@@ -40,7 +38,7 @@ public class ManualController(IHelpService help) : ControllerBase
             await _help.Error(ex);
         }
 
-        return Ok(manuals);
+        return Ok(manuals.OrderBy(x => x.FileName).ToList());
     }
 
     [HttpGet("{id}")]
@@ -51,11 +49,12 @@ public class ManualController(IHelpService help) : ControllerBase
             return Ok(_help.NotFound("Filen"));
 
         var foundFile = await System.IO.File.ReadAllTextAsync(filePath);
+        var name = Path.GetFileNameWithoutExtension(filePath).ToString();
 
         var manual = new Manual
         {
             Id = _help.EncodeToBase64(Path.GetFileName(filePath)),
-            Name = Path.GetFileNameWithoutExtension(filePath),
+            Name = name[(name.IndexOf('.') + 1)..],
             Html = foundFile
         };
 
@@ -73,20 +72,52 @@ public class ManualController(IHelpService help) : ControllerBase
 
         try
         {
-            var path = Path.Combine("wwwroot", "manual");
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
+            var (pathName, files) = GetFiles();
+            int index = files.Count() - 1;
 
-            var name = $"{_help.CleanString(model.Name!.Replace(" ", "_"))}.txt";
+            var name = $"{index}.{_help.CleanString(model.Name!.Replace(" ", "_"))}.txt";
 
-            path = Path.Combine(path, name);
-            if (System.IO.File.Exists(path))
+            pathName = Path.Combine(pathName, name);
+            if (System.IO.File.Exists(pathName))
                 return Conflict("File already exists");
 
-            await System.IO.File.WriteAllTextAsync(path, model.Html);
+            await System.IO.File.WriteAllTextAsync(pathName, model.Html);
             return Ok();
         }
         catch (Exception ex)
+        {
+            return BadRequest(await _help.Error(ex));
+        }
+    }
+
+    [HttpPost("sorting")]
+    public async Task<IActionResult> PostSortByIndex(List<string> names)
+    {
+        try
+        {
+            var (pathName, files) = GetFiles();
+            for (int i = 0; i < names.Count; i++)
+            {
+                string name = names[i];
+                foreach(var file in files)
+                {
+                    string fileName = Path.GetFileName(file);
+                    if(fileName.Contains(name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        string newFileName = $"{i}.{fileName[(fileName.IndexOf('.') + 1)..]}";
+
+                        string directory = Path.GetDirectoryName(file)!;
+                        string newFullPath = Path.Combine(directory, newFileName);
+
+                        // rename file (content stays the same)
+                        System.IO.File.Move(file, newFullPath);
+                    }
+                }
+            }
+
+
+            return Ok();
+        } catch(Exception ex)
         {
             return BadRequest(await _help.Error(ex));
         }
@@ -146,6 +177,16 @@ public class ManualController(IHelpService help) : ControllerBase
             return null;
 
         return pathName;
+    }
+
+    private (string pathName, IEnumerable<string>) GetFiles()
+    {
+        var pathName = Path.Combine("wwwroot", "manual");
+        if (!Directory.Exists(pathName))
+            Directory.CreateDirectory(pathName);
+        var files = Directory.EnumerateFiles(pathName, "*.txt");
+
+        return (pathName, files);
     }
     #endregion
 }

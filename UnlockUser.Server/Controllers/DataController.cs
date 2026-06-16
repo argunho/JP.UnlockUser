@@ -183,22 +183,6 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         });
     }
 
-    // Get file to download
-    [HttpGet("read/file/{directory}/{id}")]
-    [Obsolete("No longer used.")]
-    public async Task<IActionResult> ReadTextFile(string directory, string id)
-    {
-        var path = Path.Combine($@"wwwroot/logs/{directory}", $"{id}.txt");
-        try
-        {
-            var content = System.IO.File.ReadAllText(path);
-            return Ok(content);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(await _helpService.Error(ex)); ;
-        }
-    }
 
     // Get statistics
     [HttpGet("statistics")]
@@ -305,6 +289,25 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
         }).ToList() ?? [];
 
         return schools;
+    }
+    #endregion
+
+    #region Obsolete
+    // Get file to download
+    [HttpGet("read/file/{directory}/{id}")]
+    [Obsolete("No longer used.")]
+    public async Task<IActionResult> ReadTextFile(string directory, string id)
+    {
+        var path = Path.Combine($@"wwwroot/logs/{directory}", $"{id}.txt");
+        try
+        {
+            var content = System.IO.File.ReadAllText(path);
+            return Ok(content);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(await _helpService.Error(ex)); ;
+        }
     }
     #endregion
 }

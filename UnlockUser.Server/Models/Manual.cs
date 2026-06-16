@@ -16,4 +16,7 @@ public class Manual
 
     [NotMapped]
     public string? Primary => string.IsNullOrEmpty(Name) ? null : Name!.Replace("_", " ");
+
+    [NotMapped]
+    public string? FileName { get; set; }
 }
