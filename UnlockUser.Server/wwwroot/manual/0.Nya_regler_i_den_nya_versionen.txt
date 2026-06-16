@@ -13,6 +13,21 @@ tr th {
 }
 </style><div style="font-family:'Segoe UI';font-size:14px;font-style:normal;font-weight:400;line-height:20px"><h1><b><font color="#ff0000">📝</font><font color="#000000">Nya regler</font></b></h1><div><br></div><h2><b><font color="#ff0000"><br></font></b></h2><h2><b><font color="#ff0000">Observera!&nbsp;</font></b>I den nya versionen V2 av UnlockUser har vissa regler införts som inte fanns i den gamla versionen V1.<br>
 För ökad säkerhet och för att förhindra att konton hackas har nya regler införts:</h2>
-<ol><li><h4 style="text-align: left; width: 100%;"><span style="font-size: 20px;"><span style="font-weight: normal;">En administratör (en person med rätt att ändra lösenord) kan inte ändra lösenordet för en annan administratör.</span></span></h4></li><li><h4><span style="font-size: 20px;"><span style="font-weight: normal;">En administratör kan inte ändra ett lösenord för annan personal&nbsp;om de har olika chefer eller skolor.</span></span></h4></li><li><h4><span style="font-size: 20px;"><span style="font-weight: normal;">Om ni har samma chef och ändå inte kan ändra lösenordet, betyder det att ni inte är godkända&nbsp;att redigera lösenordet. I detta fall kontakta din chef.</span></span></h4></li></ol></div><!--EndFragment-->
+<ol><li><h4 style="text-align: left; width: 100%;"><span style="font-size: 20px;"><span style="font-weight: normal;">En administratör (en person med rätt att ändra lösenord) kan inte ändra lösenordet för en annan administratör.</span></span></h4></li><li><h4><span style="font-size: 20px;"><span style="font-weight: normal;">En administratör kan inte ändra ett lösenord för annan personal&nbsp;om de har olika chefer eller skolor.</span></span></h4></li><li><h4><span style="font-size: 20px;"><span style="font-weight: normal;">Om ni har samma chef och ändå inte kan ändra lösenordet, betyder det att ni inte är godkända&nbsp;att redigera lösenordet. I detta fall kontakta din chef.</span></span></h4></li></ol><div><br></div><div>
+
+<!--StartFragment--><style>
+a {
+    text-decoration: none;
+    color: #464feb;
+}
+tr th, tr td {
+    border: 1px solid #e6e6e6;
+}
+tr th {
+    background-color: #f5f5f5;
+}
+</style><div style="font-family:'Segoe UI';font-size:14px;font-style:normal;font-weight:400;line-height:20px"><ul><li><font size="4">Dessa nya regler innebär dessutom att ni inte kan hitta en person i sökningen om ni inte har rätt att ändra personens lösenord.</font></li></ul></div><!--EndFragment-->
+
+<br></div></div><!--EndFragment-->
 
 <br></article>

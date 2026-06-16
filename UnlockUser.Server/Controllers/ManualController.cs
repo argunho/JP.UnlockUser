@@ -110,7 +110,11 @@ public class ManualController(IHelpService help) : ControllerBase
                         string newFullPath = Path.Combine(directory, newFileName);
 
                         // rename file (content stays the same)
-                        System.IO.File.Move(file, newFullPath);
+                        if (!System.IO.File.Exists(newFullPath))
+                        {
+                            System.IO.File.Move(file, newFullPath);
+                        }
+
                     }
                 }
             }

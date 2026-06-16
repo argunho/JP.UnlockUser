@@ -3,7 +3,7 @@ import { useEffect, useState, use } from 'react';
 // Installed
 import { useLoaderData, useNavigate, useRevalidator } from 'react-router-dom';
 import { IconButton, Tooltip } from '@mui/material';
-import { Edit, EditDocument, Delete } from '@mui/icons-material';
+import { Edit, EditDocument, Delete, Save, SwapVert } from '@mui/icons-material';
 
 // Components
 import Message from '../../components/blocks/Message';
@@ -22,11 +22,12 @@ import { FetchContext } from '../../storage/FetchContext';
 function Manual() {
   const [manual, setManual] = useState(null);
   const [confirm, setConfirm] = useState(false);
+  const [sortedNames, setSortedNames] = useState(null);
+  const [sortingMode, setSortingMode] = useState(false);
 
-  
   const { openAccess } = DecodedClaims()
   const manuals = useLoaderData();
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
   const revalidator = useRevalidator();
 
   const { pending, success, response, fetchData, handleResponse } = use(FetchContext);
@@ -50,7 +51,27 @@ function Manual() {
     // navigate("/manual", { replace: true });
   }
 
+  function toggleSortingMode() {
+    if (sortingMode) setSortedNames(null);
+    setSortingMode(prev => !prev);
+  }
+
+  function handleSortChange(newItems) {
+    setSortedNames(newItems.map(item => item?.name ?? item));
+  }
+
+  async function saveSorting() {
+    const res = await fetchData({ api: "manual/sorting", method: "post", data: sortedNames, action: "return" });
+    if (res !== undefined) {
+      setSortedNames(null);
+      setSortingMode(false);
+      revalidator.revalidate();
+    }
+  }
+
   const noFound = (!manuals || manuals?.length == 0);
+  const isDirty = sortedNames !== null &&
+    !sortedNames.every((name, i) => name === manuals[i]?.name);
 
   return (
     <div className="d-column jc-start w-100 mh">
@@ -59,7 +80,7 @@ function Manual() {
       <TabPanel primary="Webbapp-manual" secondary={manual?.primary?.toUpperCase()}>
 
         {/* Delete manual */}
-        {(!noFound && openAccess) && <>
+        {(!noFound && openAccess && !sortingMode) && <>
           <Tooltip title="Radera dokument" classes={{ tooltip: "tooltip-white" }} arrow>
             <IconButton color="error" onClick={() => setConfirm(true)}>
               <Delete />
@@ -73,6 +94,26 @@ function Manual() {
             </IconButton>
           </Tooltip>
         </>}
+
+        {/* Toggle sort mode */}
+        {(!noFound && openAccess) && (
+          <Tooltip title={sortingMode ? "Avsluta sortering" : "Sortera lista"} classes={{ tooltip: "tooltip-white" }} arrow>
+            <IconButton color={sortingMode ? "primary" : "default"} onClick={toggleSortingMode} style={{ marginLeft: "20px" }}>
+              <SwapVert />
+            </IconButton>
+          </Tooltip>
+        )}
+
+        {/* Save sort order — visible only in sorting mode, enabled only when order changed */}
+        {(!noFound && openAccess && sortingMode) && (
+          <Tooltip title="Spara sortering" classes={{ tooltip: "tooltip-white" }} arrow>
+            <span style={{ marginLeft: "8px" }}>
+              <IconButton color={isDirty ? "success" : "default"} onClick={saveSorting} disabled={pending || !isDirty}>
+                <Save />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
 
         {/* New manual */}
         {openAccess && <Tooltip title="Skapa manual" color="secondary" classes={{ tooltip: "tooltip-white" }} arrow>
@@ -91,7 +132,8 @@ function Manual() {
       <div className="d-row jc-between ai-start w-100">
 
         {/* Menu */}
-        <SideMenu key={success} label="Kunskapsartiklar" list={manuals} disabled={pending} clickHandle={setManual} />
+        <SideMenu key={success} label="Kunskapsartiklar" list={manuals} disabled={pending} clickHandle={setManual}
+          sortable={openAccess && !noFound && sortingMode} onSortChange={handleSortChange} />
 
         {/* Manual content view */}
         {manuals?.length > 0 &&
