@@ -71,22 +71,19 @@ function SideMenu({ label, list, disabled, clickHandle, sortable, onSortChange }
             {displayItems.map((item, ind) => (
                 <div
                     key={item?.id ?? item?.name ?? ind}
-                    className="d-row w-100"
+                    className="d-row w-100 p-rel"
                     draggable={sortable && !disabled}
                     onDragStart={() => handleDragStart(ind)}
                     onDragOver={(e) => handleDragOver(e, ind)}
                     onDragEnd={handleDragEnd}
                 >
-                    {sortable && (
-                        <DragIndicator style={{ color: 'var(--color-primary)', alignSelf: 'center', flexShrink: 0, cursor: 'grab' }} />
-                    )}
                     <Button
                         color="primary"
                         variant="text"
                         className={`sm-btn w-100${activeIndex === ind ? " active" : ""}`}
                         onClick={() => onClick(ind)}
                         disabled={disabled}
-                        startIcon={<Feed />}
+                        startIcon={sortable ? <DragIndicator className="sm-drag" /> : <Feed />}
                     >
                         <span className="sm-btn-label d-row jc-start">{item?.primary ?? item}</span>
                     </Button>

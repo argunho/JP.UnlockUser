@@ -9,7 +9,7 @@ function ExpiredSession() {
 
     return (
         <ModalMessage
-            msg="Sessionen har löpt ut"
+            label="Sessionen har löpt ut"
             content="Var vänlig och logga in igen."
             onClose={() => navigate("/session/logout")} />
     )

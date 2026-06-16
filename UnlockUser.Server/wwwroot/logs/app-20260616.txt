@@ -29,3 +29,19 @@
 2026-06-16 14:29:10.197 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-06-16 14:29:10.
 2026-06-16 14:29:10.201 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-06-16 14:29:10.
 2026-06-16 14:52:52.338 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-06-16 14:52:52.
+2026-06-16 14:53:11.500 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-06-16 14:53:11.
+2026-06-16 14:53:24.237 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-06-16 14:53:24.
+2026-06-16 14:53:24.280 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-06-16 14:53:24.
+2026-06-16 18:38:14.697 +02:00 [INF] Autentisering utförd vid: 2026-06-16 18:38. Department: IT avdelning. Office: IT avdelning.
+2026-06-16 18:38:24.122 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-06-16 18:38:24.
+2026-06-16 18:38:41.543 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-06-16 18:38:41.
+2026-06-16 18:38:52.630 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-06-16 18:38:52.
+2026-06-16 18:38:52.684 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-06-16 18:38:52.
+2026-06-16 19:17:23.071 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-06-16 19:17:23.
+2026-06-16 19:17:41.510 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-06-16 19:17:41.
+2026-06-16 19:17:53.777 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-06-16 19:17:53.
+2026-06-16 19:17:53.859 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-06-16 19:17:53.
+2026-06-16 19:54:08.145 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-06-16 19:54:08.
+2026-06-16 19:54:23.439 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-06-16 19:54:23.
+2026-06-16 19:54:35.397 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-06-16 19:54:35.
+2026-06-16 19:54:35.443 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-06-16 19:54:35.

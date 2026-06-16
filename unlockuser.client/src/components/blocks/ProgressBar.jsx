@@ -3,8 +3,6 @@ import { useEffect,  useState } from 'react';
 
 
 function ProgressBar({maxValue}) {
-    ProgressBar.displayName = "ProgressBar";
-
     const [remainingTime, setRemainingTime] = useState(maxValue)
 
     useEffect(() => {

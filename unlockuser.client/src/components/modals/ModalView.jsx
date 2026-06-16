@@ -12,8 +12,8 @@ import { HelpOutline } from '@mui/icons-material';
 import ListView from "../lists/ListView";
 
 
-function ModalView({ children, label, content }) {
-    const [open, setOpen] = useState(false);
+function ModalView({ children, isOpen, label, content }) {
+    const [open, setOpen] = useState(isOpen);
 
     function onClick() {
         setOpen(open => !open);

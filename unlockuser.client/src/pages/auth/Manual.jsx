@@ -95,15 +95,6 @@ function Manual() {
           </Tooltip>
         </>}
 
-        {/* Toggle sort mode */}
-        {(!noFound && openAccess) && (
-          <Tooltip title={sortingMode ? "Avsluta sortering" : "Sortera lista"} classes={{ tooltip: "tooltip-white" }} arrow>
-            <IconButton color={sortingMode ? "primary" : "default"} onClick={toggleSortingMode} style={{ marginLeft: "20px" }}>
-              <SwapVert />
-            </IconButton>
-          </Tooltip>
-        )}
-
         {/* Save sort order — visible only in sorting mode, enabled only when order changed */}
         {(!noFound && openAccess && sortingMode) && (
           <Tooltip title="Spara sortering" classes={{ tooltip: "tooltip-white" }} arrow>
@@ -112,6 +103,15 @@ function Manual() {
                 <Save />
               </IconButton>
             </span>
+          </Tooltip>
+        )}
+
+        {/* Toggle sort mode */}
+        {(!noFound && openAccess) && (
+          <Tooltip title={sortingMode ? "Avbryt sortering" : "Sortera lista"} classes={{ tooltip: "tooltip-white" }} arrow>
+            <IconButton color={sortingMode ? "primary" : "default"} onClick={toggleSortingMode} style={{ marginLeft: "20px" }}>
+              <SwapVert />
+            </IconButton>
           </Tooltip>
         )}
 

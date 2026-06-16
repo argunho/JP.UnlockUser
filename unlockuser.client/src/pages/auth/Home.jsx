@@ -1,4 +1,4 @@
-import { useEffect, use, useReducer, useRef, useActionState } from 'react';
+import { useEffect, useState, use, useReducer, useRef, useActionState } from 'react';
 import _ from "lodash";
 
 // Installed
@@ -25,6 +25,10 @@ import { FetchContext } from '../../storage/FetchContext';
 
 // Models
 import { AllTips, Tips } from '../../models/HelpTexts';
+
+// Services
+import { ApiRequest } from '../../services/ApiRequest';
+
 
 
 const radioChoices = [
@@ -72,10 +76,12 @@ function actionReducer(state, action) {
 
 // Css
 import './../../assets/css/home.css';
+import ModalMessage from '../../components/modals/ModalMessage';
 
 
 function Home() {
 
+    const [homeManual, setHomeManual] = useState(null);
     const [state, dispatch] = useReducer(actionReducer, initialState);
     const { isClass, isMatch, isChanged, isCleaned, users, group } = state;
 
@@ -92,6 +98,14 @@ function Home() {
     useEffect(() => {
         document.title = "UnlockUser | Sök";
     }, []);
+
+    useEffect(() => {
+        async function getMessage() {
+            const res = await ApiRequest("manual/byname/0.Nya_regler_i_den_nya_versionen");
+            setHomeManual(res?.html);
+        }
+        getMessage();
+    }, [])
 
     useEffect(() => {
         const currentGroup = groupName ? permissionGroups?.find(x => x?.toLowerCase() == groupName) : permissionGroups[0];
@@ -340,6 +354,9 @@ function Home() {
                     "\n• Du försöker ändra lösenordet för ett administratörskonto. Av säkerhetsskäl får administratörer inte ändra lösenord för andra administratörer." +
                     "\n\n Försök att justera din sökning eller kontrollera stavningen."
             }} cancel={onReset} />}
+
+            {/* Modal message */}
+            <ModalMessage label="<p style='font-size: 32px'>Välkommen tiil nya UnlockUser!</p>" isOpen={!!homeManual} content={homeManual} />
         </>
     )
 }

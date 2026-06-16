@@ -7,7 +7,7 @@ div[role="dialog"] {
 .modal-view div[role="dialog"],
 .modal-overview div[role="dialog"] {
   width: 95%;
-  max-width: 600px;
+  max-width: 900px;
 }
 
 .modal-view div[role="dialog"] {

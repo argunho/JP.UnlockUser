@@ -25,8 +25,14 @@
     margin-bottom: 20px !important;
 }
 
-.sm-label > svg {
+.sm-label>svg {
     margin-right: 20px;
+}
+
+.sm-drag {
+    flex-shrink: 0;
+    cursor: 'grab';
+    z-index: 3000;
 }
 
 button.sm-btn {
@@ -37,7 +43,7 @@ button.sm-btn {
     border: 1px solid transparent;
     width: 90% !important;
     clip-path: polygon(0% 0, 88% 0, 100% 50%, 89% 100%, 0% 100%);
-    background-color:  var(--color-light-gray) !important; 
+    background-color: var(--color-light-gray) !important;
     color: #000000 !important;
 }
 
@@ -48,18 +54,19 @@ button.sm-btn {
     text-overflow: ellipsis !important;
 }
 
+
 button.sm-btn.active {
     transform: scale(1.05, 1.1);
     z-index: 3000;
     letter-spacing: 1px;
     color: #FFFFFF !important;
     margin-left: 16px;
-    background-color:  var(--color-primary) !important; 
+    background-color: var(--color-primary) !important;
 }
 
 button.sm-btn:hover {
     color: #FFFFFF !important;
-    background-color:  var(--color-primary) !important; 
+    background-color: var(--color-primary) !important;
 }
 
 button.sm-btn svg {

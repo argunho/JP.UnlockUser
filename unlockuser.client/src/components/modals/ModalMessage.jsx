@@ -7,7 +7,7 @@ import {
     Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
 } from "@mui/material";
 
-function ModalMessage({ children, open = true, msg, content, onClose }) {
+function ModalMessage({ children, open = true, label, content, onClose }) {
 
     const ref = useRef(null);
 
@@ -26,14 +26,14 @@ function ModalMessage({ children, open = true, msg, content, onClose }) {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
             sx={{
-                zIndex: 3000
+                zIndex: 3000,
             }}
             ref={ref}
             className="modal-view"
         >
 
             <DialogTitle id="alert-dialog-title">
-                <span dangerouslySetInnerHTML={{ __html: msg ?? "Obs!" }}></span>
+                <span dangerouslySetInnerHTML={{ __html: label ?? "Obs!" }}></span>
             </DialogTitle>
             <DialogContent>
                 <DialogContentText className="modal-content-div" id="alert-dialog-description" sx={{ margin: "10px 15px 0 15px" }}>

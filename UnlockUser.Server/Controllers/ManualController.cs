@@ -41,6 +41,35 @@ public class ManualController(IHelpService help) : ControllerBase
         return Ok(manuals.OrderBy(x => x.FileName).ToList());
     }
 
+    [HttpGet("byname/{name}")]
+    public async Task<IActionResult> GetByName(string name)
+    {
+        try
+        {
+            var (_, files) = GetFiles();
+            var file = files.FirstOrDefault(f =>
+                Path.GetFileNameWithoutExtension(f).Contains(name, StringComparison.OrdinalIgnoreCase));
+
+            if (file == null)
+                return Ok(_help.NotFound("Filen"));
+
+            var fileContent = await System.IO.File.ReadAllTextAsync(file);
+            var fileName = Path.GetFileNameWithoutExtension(file);
+
+            return Ok(new Manual
+            {
+                Id = _help.EncodeToBase64(Path.GetFileName(file)),
+                Name = fileName[(fileName.IndexOf('.') + 1)..],
+                Html = fileContent,
+                FileName = fileName
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(await _help.Error(ex));
+        }
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
@@ -114,11 +143,9 @@ public class ManualController(IHelpService help) : ControllerBase
                         {
                             System.IO.File.Move(file, newFullPath);
                         }
-
                     }
                 }
             }
-
 
             return Ok();
         } catch(Exception ex)
