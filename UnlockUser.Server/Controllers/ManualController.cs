@@ -89,11 +89,8 @@ public class ManualController(IHelpService helpService, IFileService fileService
 
         bool shouldShow = false;
 
-
         string jsonFolder = Path.Combine(@"wwwroot", "json");
         string jsonPathName = Path.Combine(jsonFolder, "watched.json");
-
-
 
         lock (_lock)
         {

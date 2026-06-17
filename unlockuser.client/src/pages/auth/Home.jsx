@@ -106,6 +106,7 @@ function Home() {
         async function getMessage() {
             try {
                 const res = await ApiRequest("manual/message");
+                console.log(res)
                 if(res?.html)
                     setModalMessage(res);                
             }finally {
@@ -367,7 +368,7 @@ function Home() {
             }} cancel={onReset} />}
 
             {/* Modal message */}
-           {modalMessage &&  <ModalMessage label={`<p style='font-size: 32px'>${modalMessage.name}</p>`} isOpen={!!modalMessage.html} content={modalMessage} />}
+           {modalMessage &&  <ModalMessage label={`<p style='font-size: 32px'>${modalMessage?.name}</p>`} isOpen={!!modalMessage} content={modalMessage?.html} />}
         </>
     )
 }
