@@ -451,26 +451,26 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         var message = new StringBuilder();
 
         // Set password to class students
-        //foreach (var user in users!)
-        //{
-        //    try
-        //    {
-        //        _provider.ResetPassword(user);
-        //        if (_env.IsProduction())
-        //            sessionUserData.Users.Add(user?.Username ?? "");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        message?.Append($"Fel vid försök ändra lösenord till {user.Username}: {ex.Message}");
-        //    }
-        //}
+        foreach (var user in users!)
+        {
+            try
+            {
+                _provider.ResetPassword(user);
+                if (_env.IsProduction())
+                    sessionUserData.Users.Add(user?.Username ?? "");
+            }
+            catch (Exception ex)
+            {
+                message?.Append($"Fel vid försök ändra lösenord till {user.Username}: {ex.Message}");
+            }
+        }
 
         // Save/Update statistics
-        //if (!users[0].Check && _env.IsProduction())
-        //{
-        //    await SaveHistoryLogFile(sessionUserData);
-        //    await SaveUpdateStatitics("PasswordsChange", users.Count);
-        //}
+        if (!users[0].Check && _env.IsProduction())
+        {
+            await SaveHistoryLogFile(sessionUserData);
+            await SaveUpdateStatitics("PasswordsChange", users.Count);
+        }
 
         return (message?.Length > 0) ? message.ToString() : null;
     }
