@@ -134,7 +134,7 @@ public class ManualController(IHelpService helpService, IFileService fileService
         var messageFile = await System.IO.File.ReadAllTextAsync(jsonFile!);
         var messageModel = new MessageViewModel
         {
-            Name = Path.GetFileNameWithoutExtension(jsonFile).ToString().Replace("_", ""),
+            Name = Path.GetFileNameWithoutExtension(jsonFile).ToString().Replace("_", " "),
             Html = messageFile
         };
 
