@@ -1,14 +1,19 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace UnlockUser.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class ManualController(IHelpService help) : ControllerBase
+public class ManualController(IHelpService helpService, IFileService fileService, ICredentialsService credentialsService) : ControllerBase
 {
-    private readonly IHelpService _help = help;
+    private readonly IHelpService _help = helpService;
+    private readonly IFileService _fileService = fileService;
+    private readonly ICredentialsService _credentials = credentialsService;
+
+    private static readonly object _lock = new();
 
     #region GET
     [HttpGet]
@@ -70,11 +75,59 @@ public class ManualController(IHelpService help) : ControllerBase
         }
     }
 
+    [HttpGet("message")]
+    public async Task<IActionResult> GetMessage()
+    {
+        var (_, files) = GetFiles("message");
+        if (files == null || !files.Any())
+            return Ok();
+
+
+        string? username = _credentials.GetClaim("username");
+        if (string.IsNullOrEmpty(username))
+            return Ok();
+
+        bool shouldShow = false;
+
+        lock (_lock)
+        {
+            string jsonPathName = Path.Combine("wwwroot/json", "watched.json");
+            string json = System.IO.File.ReadAllText(jsonPathName);
+
+            HashSet<string> watched = string.IsNullOrEmpty(json)
+                ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                : System.Text.Json.JsonSerializer.Deserialize<HashSet<string>>(json)
+                  ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            if (!watched.Contains(username))
+            {
+                watched.Add(username);
+                shouldShow = true;
+
+                var updatedJson = System.Text.Json.JsonSerializer.Serialize(watched);
+                System.IO.File.WriteAllText(jsonPathName, updatedJson);
+            }
+        }
+
+        if (!shouldShow)
+            return Ok();
+
+        string? jsonFile = files.FirstOrDefault()!.ToString();
+        var messageFile = await System.IO.File.ReadAllTextAsync(jsonFile!);
+        var messageModel = new MessageViewModel
+        {
+            Name = Path.GetFileNameWithoutExtension(jsonFile).ToString().Replace("_", ""),
+            Html = messageFile
+        };
+
+        return Ok(messageModel);
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
         var filePath = await GetFilePath(id);
-        if(string.IsNullOrEmpty(filePath))
+        if (string.IsNullOrEmpty(filePath))
             return Ok(_help.NotFound("Filen"));
 
         var foundFile = await System.IO.File.ReadAllTextAsync(filePath);
@@ -128,10 +181,10 @@ public class ManualController(IHelpService help) : ControllerBase
             for (int i = 0; i < names.Count; i++)
             {
                 string name = names[i];
-                foreach(var file in files)
+                foreach (var file in files)
                 {
                     string fileName = Path.GetFileName(file);
-                    if(fileName.Contains(name, StringComparison.OrdinalIgnoreCase))
+                    if (fileName.Contains(name, StringComparison.OrdinalIgnoreCase))
                     {
                         string newFileName = $"{i}.{fileName[(fileName.IndexOf('.') + 1)..]}";
 
@@ -148,7 +201,8 @@ public class ManualController(IHelpService help) : ControllerBase
             }
 
             return Ok();
-        } catch(Exception ex)
+        }
+        catch (Exception ex)
         {
             return BadRequest(await _help.Error(ex));
         }
@@ -210,14 +264,14 @@ public class ManualController(IHelpService help) : ControllerBase
         return pathName;
     }
 
-    private (string pathName, IEnumerable<string>) GetFiles()
+    private (string pathName, IEnumerable<string>) GetFiles(string directory = "manual")
     {
-        var pathName = Path.Combine("wwwroot", "manual");
-        if (!Directory.Exists(pathName))
-            Directory.CreateDirectory(pathName);
-        var files = Directory.EnumerateFiles(pathName, "*.txt");
+        var source = Path.Combine("wwwroot", directory);
+        if (!Directory.Exists(source))
+            Directory.CreateDirectory(source);
+        var files = Directory.EnumerateFiles(source, "*.txt");
 
-        return (pathName, files);
+        return (source, files);
     }
     #endregion
 }
