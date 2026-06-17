@@ -165,23 +165,25 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
+            List<School> schools = [];
+            List<ViewModel> managers = [];
             var username = _credentialsService.GetClaim("username");
             var user = await _localService.GetUserFromFile(username!);
             if (user == null)
-                return NotFound(_helpService.NotFound("Användaren"));
+                return Ok(new { schools, managers });
 
-            var schools = (await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools"))?
-                         .Where(x => (bool)(user.Permissions?.Schools.Contains(x.Name, StringComparer.OrdinalIgnoreCase))!).ToList();
+            schools = [.. (await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools"))?
+                         .Where(x => (bool)(user.Permissions?.Schools.Contains(x.Name, StringComparer.OrdinalIgnoreCase))!) ?? []];
 
             var managersNames = user.Permissions?.Managers;
-            var managers = (await _localFileService.GetListFromEncryptedFile<Manager>("catalogs/managers"))
+            managers = [.. (await _localFileService.GetListFromEncryptedFile<Manager>("catalogs/managers"))
                                 .Where(x => managersNames!.Contains(x.Username, StringComparer.OrdinalIgnoreCase))
                          .Select(s => new ViewModel
                          {
                              Id = s.Username,
                              Primary = s.Office,
                              Secondary = s.Department == s.Office ? s.Division : s.Department
-                         }).ToList();
+                         }) ?? []];
 
             return Ok(new { groups = user.Permissions?.Groups, schools, managers });
         }

@@ -65,17 +65,20 @@ function Login() {
       password: fd.get("password")
     }
 
-      const { token, timeLeft } = await fetchData({ api: "authentication", method: "post", data: data, action: "return" }) ?? {};
+    const res = await fetchData({ api: "authentication", method: "post", data: data, action: "return" }) ?? {};
+    const { token, timeLeft, groupName } = res;
 
-      if (timeLeft) {
-        clear = false;
-        getTimeLeftToUnblock(timeLeft);
-      }
-      else if (token)
-        authorize(token);
+    if (timeLeft) {
+      clear = false;
+      getTimeLeftToUnblock(timeLeft);
+    }
+    else if (token){
+      navigate(`/search/${groupName}`);
+      authorize(token);
+    }
 
 
-      return data;
+    return data;
   }
 
   function clearResponse() {
@@ -94,7 +97,7 @@ function Login() {
 
     {/* Form */}
     <form className="d-column login-form" action={formAction}>
-      <h2>Logga in</h2>
+      <h2 className="login-label">Logga in</h2>
 
       {[
         { name: "username", type: "text", label: "Användarnamn", },

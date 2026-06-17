@@ -66,7 +66,7 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
 
     const { content: pagination, page, perPage } = usePagination(
         {
-            length: list.length,
+            length: list?.length,
             loading: loads,
             number: 20
         });

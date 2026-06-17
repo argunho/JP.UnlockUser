@@ -52,6 +52,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
             var groups = string.Join(",", permissionGroups!.Select(x => x.Name));
+
             var authorizedUser = _provider.FindUserByUsername(model!.Username!);
             if (authorizedUser == null)
                 return NotFound(_helpService.NotFound("Användaren"));
@@ -99,12 +100,18 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
             _logger.LogInformation("Autentisering utförd vid: {time}. Department: {department}. Office: {office}.", DateTime.Now.ToString("g"), authorizedUser.Department, authorizedUser.Office);
 
-            // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
-            return Ok(_credentials.GenerateJwtToken(
+            var jwtToken = JsonConvert.SerializeObject(_credentials.GenerateJwtToken(
                     claims,
                     _config["JwtSettings:Key"]!,
                     [.. roles.Distinct()],
                     false));
+
+            var authModel = JsonConvert.DeserializeObject<AuthViewModel>(jwtToken);
+
+            authModel.GroupName = (permissionGroups?.FirstOrDefault()?.Name ?? "Support").ToLower();
+
+            // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
+            return Ok(authModel);
         }
         catch (Exception ex)
         {

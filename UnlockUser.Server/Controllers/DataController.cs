@@ -34,10 +34,10 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             var claims = _credentials.GetClaims(["username", "openAccess", "permissions"]);
 
             // List of groups the current user is a member of
-            PermissionsViewModel claimPermissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permissions"])!;
+            PermissionsViewModel? claimPermissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permissions"])!;
 
             // List of groups the current user are member
-            List<string> sessionUserGroups = claimPermissions.Groups ?? [];
+            List<string> sessionUserGroups = claimPermissions?.Groups ?? [];
 
             // Employee groups where each group has its own password management permissions
             List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
@@ -94,13 +94,15 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
 
                 // Users model to view
                 var usersViewModel = users?.Select(s => new UserViewModel(s)).ToList();
+                if(usersViewModel != null)
+                {
+                    _ = usersViewModel!.ConvertAll(x => x.Group = group.Name).ToList();
 
-                _ = usersViewModel!.ConvertAll(x => x.Group = group.Name).ToList(); ;
+                    if (!isStudents)
+                        _ = usersViewModel.ConvertAll(x => x.PasswordLength = 12).ToList();
 
-                if (!isStudents)
-                    _ = usersViewModel!.ConvertAll(x => x.PasswordLength = 12).ToList();
-
-                data!.Add(group.Name?.ToLower()!, usersViewModel!);
+                    data!.Add(group.Name?.ToLower()!, usersViewModel!);
+                }
 
                 _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", group.Name, DateTime.Now.ToString("G"));
             }
@@ -109,7 +111,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
             data.Add("schools", schools);
             _logger.LogInformation("Gruppdata har laddats ner. Group: Skolor. Tid: {time}.", DateTime.Now.ToString("G"));
 
-            if (accessGroup)
+            if (accessGroup && passwordManageGroups.Count > 0)
                 data.Add("groups", passwordManageGroups.Select(s => s.Name).ToList());
 
             // Save to session memory

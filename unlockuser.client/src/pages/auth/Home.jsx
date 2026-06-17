@@ -116,6 +116,9 @@ function Home() {
     }, [])
 
     useEffect(() => {
+        if(!permissionGroups)
+            return;
+        
         const currentGroup = groupName ? permissionGroups?.find(x => x?.toLowerCase() == groupName) : permissionGroups[0];
         handleDispatch("group", currentGroup, "START");
         onReset();

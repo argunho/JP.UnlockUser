@@ -24,8 +24,9 @@
     padding: 15px 30px;
 }
 
-.login-form h2 {
+.login-label {
     width: 100%;
+    margin-bottom: 20px !important;
 }
 
 .login-input {
