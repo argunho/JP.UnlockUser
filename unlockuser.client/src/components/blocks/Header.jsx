@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, memo } from 'react';
 
 // Installed
-import { LiveHelp, Logout, Menu, Close, FactCheck, SettingsApplications, School, WorkHistory, ErrorOutline, BarChart, Home, MenuBook } from '@mui/icons-material';
+import { LiveHelp, Logout, Menu, Close, FactCheck, SettingsApplications, School, WorkHistory, ErrorOutline, BarChart, Home, MenuBook, Info } from '@mui/icons-material';
 import { Button, IconButton } from '@mui/material';
 import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 
@@ -25,6 +25,7 @@ const links = [
     { label: "Statistik", url: "/catalog/statistics", icon: <BarChart />, access: true, hidden: false },
     { label: "Loggfiler", url: "/catalog/logs/errors", icon: <ErrorOutline />, access: true, hidden: false },
     { label: "Webapp-manual", url: "/manual", icon: <MenuBook />, access: true, hidden: false, blink: true },
+    { label: "Informations artiklar", url: "/articles", icon: <Info />, access: false, hidden: false, blink: true },
     { label: "Kontakta support", url: "/contact", icon: <LiveHelp />, access: false, hidden: false },
     { label: "Logga ut", url: "/session/logout", icon: <Logout />, access: false, hidden: false }
 ];

@@ -19,7 +19,7 @@ import { DecodedClaims } from '../../functions/DecodedToken';
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
 
-function Manual() {
+function Manual({ label, menuLabel }) {
   const [manual, setManual] = useState(null);
   const [confirm, setConfirm] = useState(false);
   const [sortedNames, setSortedNames] = useState(null);
@@ -77,7 +77,7 @@ function Manual() {
     <div className="d-column jc-start w-100 mh">
 
       {/* Tab menu */}
-      <TabPanel primary="Webbapp-manual" secondary={manual?.primary?.toUpperCase()}>
+      <TabPanel primary={label} secondary={manual?.primary?.toUpperCase()}>
 
         {/* Delete manual */}
         {(!noFound && openAccess && !sortingMode) && <>
@@ -132,7 +132,7 @@ function Manual() {
       <div className="d-row jc-between ai-start w-100">
 
         {/* Menu */}
-        <SideMenu key={success} label="Kunskapsartiklar" list={manuals} disabled={pending} clickHandle={setManual}
+        <SideMenu key={success} label={menuLabel} list={manuals} disabled={pending} clickHandle={setManual}
           sortable={openAccess && !noFound && sortingMode} onSortChange={handleSortChange} />
 
         {/* Manual content view */}

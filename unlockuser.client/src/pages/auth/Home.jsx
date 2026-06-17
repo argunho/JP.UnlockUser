@@ -105,7 +105,7 @@ function Home() {
 
         async function getMessage() {
             try {
-                const res = await ApiRequest("manual/message");
+                const res = await ApiRequest("article/message");
                 console.log(res)
                 if(res?.html)
                     setModalMessage(res);                

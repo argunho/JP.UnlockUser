@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace UnlockUser.Server.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/article")]
+[Route("api/articles")]
 [ApiController]
 [Authorize]
-public class ManualController(IHelpService helpService, IFileService fileService, ICredentialsService credentialsService) : ControllerBase
+public class ArticlelController(IHelpService helpService, ICredentialsService credentialsService) : ControllerBase
 {
     private readonly IHelpService _help = helpService;
-    private readonly IFileService _fileService = fileService;
     private readonly ICredentialsService _credentials = credentialsService;
 
     private static readonly object _lock = new();
@@ -33,35 +33,71 @@ public class ManualController(IHelpService helpService, IFileService fileService
         return Ok(manuals.OrderBy(x => x.FileName).ToList());
     }
 
-    [HttpGet("byname/{name}")]
-    public async Task<IActionResult> GetByName(string name)
+    [HttpGet("message")]
+    public async Task<IActionResult> GetMessage()
     {
-        try
+        var (_, files) = GetFiles("message");
+        if (files == null || !files.Any())
+            return Ok();
+
+
+        string? username = _credentials.GetClaim("username");
+        if (string.IsNullOrEmpty(username))
+            return Ok();
+
+        bool shouldShow = false;
+
+        string jsonFolder = Path.Combine(@"wwwroot", "json");
+        string jsonPathName = Path.Combine(jsonFolder, "watched.json");
+
+        lock (_lock)
         {
-            var (_, files) = GetFiles();
-            var file = files.FirstOrDefault(f =>
-                Path.GetFileNameWithoutExtension(f).Contains(name, StringComparison.OrdinalIgnoreCase));
 
-            if (file == null)
-                return Ok(_help.NotFound("Filen"));
+            if (!Directory.Exists(jsonFolder))
+                Directory.CreateDirectory(jsonFolder);
 
-            var fileContent = await System.IO.File.ReadAllTextAsync(file);
-            var fileName = Path.GetFileNameWithoutExtension(file);
+            if (!System.IO.File.Exists(jsonPathName))
+                System.IO.File.WriteAllText(jsonPathName, "[]");
 
-            return Ok(new ManualArticleViewModel
+            string json = System.IO.File.ReadAllText(jsonPathName);
+
+            HashSet<string> watched;
+            try
             {
-                Id = _help.EncodeToBase64(Path.GetFileName(file)),
-                Name = fileName[(fileName.IndexOf('.') + 1)..],
-                Html = fileContent,
-                FileName = fileName
-            });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(await _help.Error(ex));
-        }
-    }
+                watched = string.IsNullOrEmpty(json)
+                ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                : System.Text.Json.JsonSerializer.Deserialize<HashSet<string>>(json)
+                  ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                watched = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            if (!watched.Contains(username))
+            {
+                watched.Add(username);
+                shouldShow = true;
+
+                var updatedJson = System.Text.Json.JsonSerializer.Serialize(watched);
+                System.IO.File.WriteAllText(jsonPathName, updatedJson);
+            }
+        }
+
+        if (!shouldShow)
+            return Ok();
+
+        string? jsonFile = files.FirstOrDefault()!.ToString();
+        var messageFile = await System.IO.File.ReadAllTextAsync(jsonFile!);
+        var messageModel = new MessageViewModel
+        {
+            Name = Path.GetFileNameWithoutExtension(jsonFile).ToString().Replace("_", " "),
+            Html = messageFile
+        };
+
+        return Ok(messageModel);
+    }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
@@ -197,14 +233,14 @@ public class ManualController(IHelpService helpService, IFileService fileService
     public async Task<string?> GetFilePath(string id)
     {
         string filePath = _help.DecodeFromBase64(id);
-        string pathName = Path.Combine("wwwroot", "manual", filePath);
+        string pathName = Path.Combine("wwwroot", "articles", filePath);
         if (!System.IO.File.Exists(pathName))
             return null;
 
         return pathName;
     }
 
-    private (string pathName, IEnumerable<string>) GetFiles(string directory = "manual")
+    private (string pathName, IEnumerable<string>) GetFiles(string directory = "articles")
     {
         var source = Path.Combine("wwwroot", directory);
         if (!Directory.Exists(source))

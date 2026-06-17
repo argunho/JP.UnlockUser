@@ -71,9 +71,28 @@ const AppRoutes = () => [
         children: [
           {
             index: true,
-            element: <Manual />,
+            element: <Manual label="Webbapp-manual" menuLabel="Kunskapsartiklar"/>,
             errorElement: <ErrorView />,
             loader: loader("manual")
+          },
+          {
+            path: "new",
+            element: <FormManual />
+          },
+          {
+            path: "edit/:id",
+            element: <FormManual />
+          }
+        ]
+      },
+      {
+        path: "articles",
+        children: [
+          {
+            index: true,
+            element: <Manual label="Information" menuLabel="Aritiklar" />,
+            errorElement: <ErrorView />,
+            loader: loader("articles")
           },
           {
             path: "new",

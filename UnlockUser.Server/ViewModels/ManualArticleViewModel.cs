@@ -2,9 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace UnlockUser.Server.Models;
+namespace UnlockUser.Server.ViewModels;
 
-public class Manual
+public class ManualArticleViewModel
 {
     public string? Id { get; set; }
 
