@@ -89,15 +89,36 @@ public class ManualController(IHelpService helpService, IFileService fileService
 
         bool shouldShow = false;
 
+
+        string jsonFolder = Path.Combine(_env.WebRootPath, "json");
+        string jsonPathName = Path.Combine(jsonFolder, "watched.json");
+
+
+
         lock (_lock)
         {
-            string jsonPathName = Path.Combine("wwwroot/json", "watched.json");
+
+            if (!Directory.Exists(jsonFolder))
+                Directory.CreateDirectory(jsonFolder);
+
+            if (!System.IO.File.Exists(jsonPathName))
+                System.IO.File.WriteAllText(jsonPathName, "[]");
+
             string json = System.IO.File.ReadAllText(jsonPathName);
 
-            HashSet<string> watched = string.IsNullOrEmpty(json)
+            HashSet<string> watched;
+            try
+            {
+                watched = string.IsNullOrEmpty(json)
                 ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
                 : System.Text.Json.JsonSerializer.Deserialize<HashSet<string>>(json)
                   ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                watched = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            }
 
             if (!watched.Contains(username))
             {
@@ -269,6 +290,7 @@ public class ManualController(IHelpService helpService, IFileService fileService
         var source = Path.Combine("wwwroot", directory);
         if (!Directory.Exists(source))
             Directory.CreateDirectory(source);
+
         var files = Directory.EnumerateFiles(source, "*.txt");
 
         return (source, files);
