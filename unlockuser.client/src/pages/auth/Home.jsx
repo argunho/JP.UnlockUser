@@ -16,6 +16,7 @@ import AutocompleteList from './../../components/lists/AutocompleteList';
 import ListLoading from './../../components/lists/ListLoading';
 import ListsView from './../../components/lists/ListsView';
 import Message from '../../components/blocks/Message';
+import ModalMessage from '../../components/modals/ModalMessage';
 
 // Functions
 import { Claim } from '../../functions/DecodedToken';
@@ -76,12 +77,11 @@ function actionReducer(state, action) {
 
 // Css
 import './../../assets/css/home.css';
-import ModalMessage from '../../components/modals/ModalMessage';
 
 
 function Home() {
 
-    const [homeManual, setHomeManual] = useState(null);
+    const [modalMessage, setModalMessage] = useState(null);
     const [state, dispatch] = useReducer(actionReducer, initialState);
     const { isClass, isMatch, isChanged, isCleaned, users, group } = state;
 
@@ -100,9 +100,17 @@ function Home() {
     }, []);
 
     useEffect(() => {
+        if(!!sessionStorage.getItem("checked"))
+            return;
+
         async function getMessage() {
-            const res = await ApiRequest("manual/byname/0.Nya_regler_i_den_nya_versionen");
-            setHomeManual(res?.html);
+            try {
+                const res = await ApiRequest("manual/message");
+                if(res?.html)
+                    setModalMessage(res);                
+            }finally {
+                sessionStorage.setItem("checked", "true");
+            }
         }
         getMessage();
     }, [])
@@ -356,7 +364,7 @@ function Home() {
             }} cancel={onReset} />}
 
             {/* Modal message */}
-            <ModalMessage label="<p style='font-size: 32px'>Välkommen tiil nya UnlockUser!</p>" isOpen={!!homeManual} content={homeManual} />
+           {modalMessage &&  <ModalMessage label={`<p style='font-size: 32px'>${modalMessage.name}</p>`} isOpen={!!modalMessage.html} content={modalMessage} />}
         </>
     )
 }
