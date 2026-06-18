@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Data;
 using System.DirectoryServices;
@@ -9,13 +10,15 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class SearchController(IActiveDirectory provider, ILocalUserService localUserService, 
-    IHelpService helpService, ICredentialsService credentialsService) : ControllerBase
+public class SearchController(IActiveDirectory provider, ILocalUserService localUserService,
+    IHelpService helpService, ICredentialsService credentialsService, IMemoryCache memoryCache, IConfiguration config) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider;
     private readonly ILocalUserService _localUserService = localUserService;
     private readonly IHelpService _helpService = helpService;
-    private ICredentialsService _credentialsService = credentialsService;
+    private readonly ICredentialsService _credentialsService = credentialsService;
+    private readonly IMemoryCache _memoryCache = memoryCache;
+    private readonly IConfiguration _config = config;
 
     #region GET
     // Search one user
@@ -23,11 +26,11 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
     public async Task<IActionResult> FindUser(string name, string group, bool match = false)
     {
         var usersToView = new List<User>();
-        var support = group == "Support";
+        bool supportModel = string.Equals(group.ToString(), "Support", StringComparison.OrdinalIgnoreCase);
 
         try
         {
-            List<string> groupNames = support ? ["Students", "Employees"] : [(group == "Studenter" ? "Students" : "Employees")];
+            List<string> groupNames = supportModel ? ["Students", "Employees"] : [(group == "Studenter" ? "Students" : "Employees")];
             var claims = _credentialsService.GetClaims(["roles", "username"]);
 
             foreach (string groupName in groupNames)
@@ -43,7 +46,7 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
                 }
 
                 var usersToManage = _provider.GetUsers(result!, group).ToList();
-                if (!support)
+                if (!supportModel)
                 {
                     usersToManage = await _localUserService.Filter(usersToManage, group, claims!["username"]);
                 }
@@ -64,6 +67,8 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
             return BadRequest(_helpService.Error(ex));
         }
     }
+
+
 
     // Search class students by class and school name
     [HttpGet("students/{school}/{class}")]

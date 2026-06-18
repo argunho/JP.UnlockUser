@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json;
+using System.Diagnostics.Metrics;
 using System.Security.Claims;
 using System.Text;
 
@@ -9,7 +11,7 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class AuthenticationController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache,
-    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, ILogger<AuthenticationController> logger) : ControllerBase
+    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, DashboardService dashboardService, IRefreshLockService lockService, ILogger<AuthenticationController> logger) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
@@ -18,7 +20,10 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
     private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentials = credentials;
     private readonly ILocalFileService _localFileService = localFileService;
+    private readonly DashboardService _dashboardService = dashboardService;
+    private readonly IRefreshLockService _lockService = lockService;
     private readonly ILogger<AuthenticationController> _logger = logger;
+
 
     #region POST   
     [HttpPost]
@@ -61,7 +66,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             if (_provider.MembershipCheck(authorizedUser, "Azure-Utvecklare Test"))
                 roles.Add("DevelopTeam");
 
-            if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning") 
+            if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning")
                     || roles.Contains("DevelopTeam", StringComparer.OrdinalIgnoreCase))
                 roles.Add("Support");
 
@@ -87,11 +92,12 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             claims.Add(new("Permissions", JsonConvert.SerializeObject(currentModerator?.Permissions)));
             claims.Add(new("Roles", string.Join(",", roles)));
 
-            if (roles.IndexOf("Support") > -1)
+            bool openAccess = roles.IndexOf("Support") > -1;
+            if(openAccess)
                 claims.Add(new("OpenAccess", "ok")); //
 
             // Save hashed credentials in session to validate user on other requests
-            if(_session != null)
+            if (_session != null)
             {
                 byte[] protectedPassword = DpapiProtector.Protect(model.Password);
                 _session.Set("AdminPassword", protectedPassword);
@@ -109,6 +115,26 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             var authModel = JsonConvert.DeserializeObject<AuthViewModel>(jwtToken);
 
             authModel.GroupName = (permissionGroups?.FirstOrDefault()?.Name ?? "Support").ToLower();
+
+            // Get users by groups 
+            if (_lockService.TryStart(model.Username, out var waitTask))
+            {
+                _logger.LogInformation("Starting asynchronous dashboard data setup.");
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _dashboardService.GetUsersByGroup(model.Username, openAccess, currentModerator?.Permissions);
+                        _logger.LogInformation("Dashboard data setup completed.");
+                    } catch (Exception ex) {
+                        _logger.LogError($"Failed to set up dashboard data. Error: {ex.Message}");
+                    }
+                    finally
+                    {
+                        _lockService.Finish(model.Username);
+                    }
+                });
+            }
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
             return Ok(authModel);

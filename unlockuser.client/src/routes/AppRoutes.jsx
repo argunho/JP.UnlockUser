@@ -90,7 +90,7 @@ const AppRoutes = () => [
         children: [
           {
             index: true,
-            element: <Manual label="Information" menuLabel="Aritiklar" />,
+            element: <Manual label="Information" menuLabel="Aritiklar" checkbox={true} />,
             errorElement: <ErrorView />,
             loader: loader("articles")
           },

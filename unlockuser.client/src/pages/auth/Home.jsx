@@ -81,45 +81,60 @@ import './../../assets/css/home.css';
 
 function Home() {
 
-    const [modalMessage, setModalMessage] = useState(null);
     const [state, dispatch] = useReducer(actionReducer, initialState);
     const { isClass, isMatch, isChanged, isCleaned, users, group } = state;
 
-    const groups = Claim("groups")?.split(",");
+    // const groups = Claim("groups")?.split(",");
     const permissionGroups = Claim("permissions")?.groups;
     const openAccess = Claim("openAccess");
 
-    const { collections, schools, group: groupName } = useOutletContext();
+    // const { collections, schools, group: groupName } = useOutletContext();
+    const { schools, group: groupName } = useOutletContext();
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
     const gn = group ? group?.toLowerCase() : groupName;
+
+    const [modalMessage, setModalMessage] = useState(null);
+    const [groupCollection, setGroupCollection] = useState([]);
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";
     }, []);
 
     useEffect(() => {
-        if(!!sessionStorage.getItem("checked"))
-            return;
-
-        async function getMessage() {
+        async function get() {
             try {
-                const res = await ApiRequest("article/message");
-                console.log(res)
-                if(res?.html)
-                    setModalMessage(res);                
-            }finally {
-                sessionStorage.setItem("checked", "true");
+
+                const shouldFetchMessage = !sessionStorage.getItem("checked");
+
+                const messagePromise = shouldFetchMessage
+                    ? ApiRequest("article/message")
+                    : Promise.resolve(null);
+
+                const [message, collection] = await Promise.all([
+                    messagePromise,
+                    ApiRequest(`data/groups/by/name${gn}`),
+                ]);
+
+                if (shouldFetchMessage) {
+                    sessionStorage.setItem("checked", "true");
+                }
+
+                setModalMessage(!!message?.html ? message : null);
+                setGroupCollection(Array.isArray(collection) ? collection : []);
+            } catch (error) {
+                console.error(error);
             }
         }
-        getMessage();
-    }, [])
+
+        get();
+    }, [gn])
 
     useEffect(() => {
-        if(!permissionGroups)
+        if (!permissionGroups)
             return;
-        
+
         const currentGroup = groupName ? permissionGroups?.find(x => x?.toLowerCase() == groupName) : permissionGroups[0];
         handleDispatch("group", currentGroup, "START");
         onReset();
@@ -161,9 +176,10 @@ function Home() {
         if (errors?.length > 0)
             return { ...data, errors };
 
-        const collection = (gn === "support"
-            ? groups.flatMap(g => collections[g.toLowerCase()])
-            : collections[gn])?.filter(Boolean);
+        // const collection = (gn === "support"
+        //     ? groups.flatMap(g => collections[g.toLowerCase()])
+        //     : collections[gn])?.filter(Boolean);
+        const collection = groupCollection;
 
         let res = null;
         if (collection?.length > 0) {
@@ -368,7 +384,7 @@ function Home() {
             }} cancel={onReset} />}
 
             {/* Modal message */}
-           {modalMessage &&  <ModalMessage label={`<p style='font-size: 32px'>${modalMessage?.name}</p>`} isOpen={!!modalMessage} content={modalMessage?.html} />}
+            {modalMessage && <ModalMessage label={`<p style='font-size: 32px'>${modalMessage?.name}</p>`} isOpen={!!modalMessage} content={modalMessage?.html} />}
         </>
     )
 }

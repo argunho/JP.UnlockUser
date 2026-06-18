@@ -64,6 +64,10 @@ builder.Services.AddSingleton<IHelp, HelpService>();
 builder.Services.AddSingleton<ILocalFileService, LocalFileService>();
 builder.Services.AddSingleton<ILocalUserService, LocalUserService>();
 builder.Services.AddSingleton<ILocalMailService, MailService>();
+builder.Services.AddScoped<DashboardService>();
+
+// Singleton (must not use Scoped services directly)
+builder.Services.AddSingleton<IRefreshLockService, RefreshLockService>();
 
 #region Help package library
 // Help library pacjage services

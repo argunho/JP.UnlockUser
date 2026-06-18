@@ -23,7 +23,7 @@ function AppLayout() {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
 
     async function getCollections(){
-      const res = await ApiRequest("data/dashboard");
+      const res = await ApiRequest("data/collections");
       setCollections(res ?? []);
     }
 
