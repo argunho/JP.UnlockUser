@@ -93,7 +93,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             claims.Add(new("Roles", string.Join(",", roles)));
 
             bool openAccess = roles.IndexOf("Support") > -1;
-            if(openAccess)
+            if (openAccess)
                 claims.Add(new("OpenAccess", "ok")); //
 
             // Save hashed credentials in session to validate user on other requests
@@ -117,24 +117,19 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             authModel.GroupName = (permissionGroups?.FirstOrDefault()?.Name ?? "Support").ToLower();
 
             // Get users by groups 
-            if (_lockService.TryStart(model.Username, out var waitTask))
+            _ = Task.Run(async () =>
             {
-                _logger.LogInformation("Starting asynchronous dashboard data setup.");
-                _ = Task.Run(async () =>
+                try
                 {
-                    try
-                    {
-                        await _dashboardService.GetUsersByGroup(model.Username, openAccess, currentModerator?.Permissions);
-                        _logger.LogInformation("Dashboard data setup completed.");
-                    } catch (Exception ex) {
-                        _logger.LogError($"Failed to set up dashboard data. Error: {ex.Message}");
-                    }
-                    finally
-                    {
-                        _lockService.Finish(model.Username);
-                    }
-                });
-            }
+                  _logger.LogInformation("Starting asynchronous dashboard data setup.");
+                    await _dashboardService.GetUsersByGroup(model.Username, openAccess, currentModerator?.Permissions?.Groups!);
+                    _logger.LogInformation("Dashboard data setup completed.");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Failed to set up dashboard data. Error: {ex.Message}");
+                }
+            });
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
             return Ok(authModel);

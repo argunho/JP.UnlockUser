@@ -98,36 +98,38 @@ function Home() {
     const [modalMessage, setModalMessage] = useState(null);
     const [groupCollection, setGroupCollection] = useState([]);
 
+    async function get(res = false) {
+        try {
+
+            const shouldFetchMessage = !sessionStorage.getItem("checked");
+
+            const messagePromise = shouldFetchMessage
+                ? ApiRequest("article/message")
+                : Promise.resolve(null);
+
+            const [message, collection] = await Promise.all([
+                messagePromise,
+                ApiRequest(`data/groups/by/name/${gn}`),
+            ]);
+
+            if (shouldFetchMessage) {
+                sessionStorage.setItem("checked", "true");
+            }
+
+            setModalMessage(!!message?.html ? message : null);
+            setGroupCollection(Array.isArray(collection) ? collection : []);
+            if(res)
+                return collection;
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     useEffect(() => {
         document.title = "UnlockUser | Sök";
     }, []);
 
     useEffect(() => {
-        async function get() {
-            try {
-
-                const shouldFetchMessage = !sessionStorage.getItem("checked");
-
-                const messagePromise = shouldFetchMessage
-                    ? ApiRequest("article/message")
-                    : Promise.resolve(null);
-
-                const [message, collection] = await Promise.all([
-                    messagePromise,
-                    ApiRequest(`data/groups/by/name${gn}`),
-                ]);
-
-                if (shouldFetchMessage) {
-                    sessionStorage.setItem("checked", "true");
-                }
-
-                setModalMessage(!!message?.html ? message : null);
-                setGroupCollection(Array.isArray(collection) ? collection : []);
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
         get();
     }, [gn])
 
@@ -179,7 +181,8 @@ function Home() {
         // const collection = (gn === "support"
         //     ? groups.flatMap(g => collections[g.toLowerCase()])
         //     : collections[gn])?.filter(Boolean);
-        const collection = groupCollection;
+
+        const collection = groupCollection?.length == 0 ? await get(true) : groupCollection;
 
         let res = null;
         if (collection?.length > 0) {

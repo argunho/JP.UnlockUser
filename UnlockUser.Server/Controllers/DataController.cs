@@ -62,6 +62,8 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
                     SlidingExpiration = TimeSpan.FromMinutes(15)
                 }
             );
+
+            return Ok(collections);
         }
         catch (Exception ex)
         {
@@ -74,12 +76,12 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     [HttpGet("groups/by/name/{name}")]
     public async Task<IActionResult> GetGroupsByName(string name)
     {
-        bool supportModel = string.Equals(name.ToString(), "Support", StringComparison.OrdinalIgnoreCase);
 
         var groupModels = new List<UserViewModel>();
 
-        if (_memoryCache.TryGetValue(name.ToLower(), out Dictionary<string, List<UserViewModel>>? cachedGroups))
+        if (_memoryCache.TryGetValue("groups", out Dictionary<string, List<UserViewModel>>? cachedGroups))
         {
+             bool supportModel = string.Equals(name.ToString(), "Support", StringComparison.OrdinalIgnoreCase);
             if (supportModel)
             {
                 List<string?> groups = [.. _config.

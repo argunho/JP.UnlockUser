@@ -1,13 +1,9 @@
 ﻿namespace UnlockUser.Server.Services;
 
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json;
-using System.Net;
 
 public class DashboardService(
         IMemoryCache memoryCache,
-        ICredentialsService credentialService,
         ILocalFileService localFileService,
         IConfiguration config,
         IActiveDirectory provider,
@@ -15,19 +11,17 @@ public class DashboardService(
     )
 {
     private readonly IMemoryCache _memoryCache = memoryCache;
-    private readonly ICredentialsService _credentials = credentialService;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IConfiguration _config = config;
     private readonly IActiveDirectory _provider = provider;
     private readonly ILogger<DashboardService> _logger = logger;
 
 
-    public async Task GetUsersByGroup(string username, bool openAccess, PermissionsViewModel? claimPermissions)
+    public async Task GetUsersByGroup(string username, bool openAccess, List<string> sessionUserGroups)
     {
         try
         {
-            // List of groups the current user are member
-            List<string> sessionUserGroups = claimPermissions?.Groups ?? [];
+            Dictionary<string, List<UserViewModel>> groups = [];
 
             // Employee groups where each group has its own password management permissions
             List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
@@ -88,34 +82,22 @@ public class DashboardService(
                     if (!isStudents)
                         _ = usersViewModel.ConvertAll(x => x.PasswordLength = 12).ToList();
 
+                    groups.Add(group.Name!.ToLower(), usersViewModel);
+                }
+
                     // Save to session memory
                     _memoryCache.Set(
-                        group.Name!.ToLower(),
-                        usersViewModel,
+                       "groups",
+                        groups,
                         new MemoryCacheEntryOptions
                         {
                             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60),
                             SlidingExpiration = TimeSpan.FromMinutes(60)
                         }
                     );
-                }
 
                 _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", group.Name, DateTime.Now.ToString("G"));
             }
-
-            var schools = await GetSchoolsFromFile();
-            // Save to session memory
-            _memoryCache.Set(
-                "schools",
-                schools,
-                new MemoryCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60),
-                    SlidingExpiration = TimeSpan.FromMinutes(60)
-                }
-            );
-            _logger.LogInformation("Gruppdata har laddats ner. Group: Skolor. Tid: {time}.", DateTime.Now.ToString("G"));
-
         }
         catch (Exception ex)
         {
