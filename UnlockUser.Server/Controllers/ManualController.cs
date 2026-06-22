@@ -76,7 +76,7 @@ public class ManualController(IHelpService helpService, IFileService fileService
         var manual = new ManualArticleViewModel
         {
             Id = _help.EncodeToBase64(Path.GetFileName(filePath)),
-            Name = name[(name.IndexOf('.') + 1)..],
+            Name = name[(name.IndexOf('.') + 1)..].Replace("_", " "),
             Html = foundFile
         };
 

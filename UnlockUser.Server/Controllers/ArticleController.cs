@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Xml.Linq;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -33,7 +34,7 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
         return Ok(manuals.OrderBy(x => x.FileName).ToList());
     }
 
-    [HttpGet("message")]
+    [HttpGet("popup/message")]
     public async Task<IActionResult> GetMessage()
     {
         var (_, files) = GetFiles("message");
@@ -77,11 +78,11 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
 
             if (!watched.Contains(username))
             {
-                watched.Add(username);
+                //watched.Add(username);
                 shouldShow = true;
 
-                var updatedJson = System.Text.Json.JsonSerializer.Serialize(watched);
-                System.IO.File.WriteAllText(jsonPathName, updatedJson);
+                //var updatedJson = System.Text.Json.JsonSerializer.Serialize(watched);
+                //System.IO.File.WriteAllText(jsonPathName, updatedJson);
             }
         }
 
@@ -109,11 +110,15 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
         var foundFile = await System.IO.File.ReadAllTextAsync(filePath);
         var name = Path.GetFileNameWithoutExtension(filePath).ToString();
 
+        var popupPathname = Path.Combine("wwwroot/popup", Path.GetFileName(filePath)!);
+        bool popup = System.IO.File.Exists(popupPathname);
+
         var manual = new ManualArticleViewModel
         {
             Id = _help.EncodeToBase64(Path.GetFileName(filePath)),
-            Name = name[(name.IndexOf('.') + 1)..],
-            Html = foundFile
+            Name = name[(name.IndexOf('.') + 1)..].Replace("_", " "),
+            Html = foundFile,
+            Popup = popup
         };
 
         return Ok(manual);
@@ -140,6 +145,14 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
                 return Conflict("File already exists");
 
             await System.IO.File.WriteAllTextAsync(pathName, model.Html);
+
+            if (model.Popup)
+            {
+                RemovePopupFiles();
+                pathName = Path.Combine("wwwroot/popup", name);
+                await System.IO.File.WriteAllTextAsync(pathName, model.Html);
+            }
+
             return Ok();
         }
         catch (Exception ex)
@@ -183,6 +196,52 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
             return BadRequest(await _help.Error(ex));
         }
     }
+
+
+    [HttpPost("hide/popup/message")]
+    public async Task<IActionResult> HideModalMessage()
+    {
+        string? username = _credentials.GetClaim("username");
+        if (string.IsNullOrEmpty(username))
+            return Ok();
+
+        string jsonFolder = Path.Combine(@"wwwroot", "json");
+        string jsonPathName = Path.Combine(jsonFolder, "watched.json");
+        lock (_lock)
+        {
+
+            if (!Directory.Exists(jsonFolder))
+                Directory.CreateDirectory(jsonFolder);
+
+            if (!System.IO.File.Exists(jsonPathName))
+                System.IO.File.WriteAllText(jsonPathName, "[]");
+
+            string json = System.IO.File.ReadAllText(jsonPathName);
+
+            HashSet<string> watched;
+            try
+            {
+                watched = string.IsNullOrEmpty(json)
+                ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                : System.Text.Json.JsonSerializer.Deserialize<HashSet<string>>(json)
+                  ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                watched = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            if (!watched.Contains(username))
+            {
+                watched.Add(username);
+                var updatedJson = System.Text.Json.JsonSerializer.Serialize(watched);
+                System.IO.File.WriteAllText(jsonPathName, updatedJson);
+            }
+        }
+
+        return Ok();
+    }
     #endregion
 
     #region PUT
@@ -200,6 +259,19 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
 
 
             await System.IO.File.WriteAllTextAsync(filePath, model.Html);
+
+            var name = _help.DecodeFromBase64(id);
+            var pathName = Path.Combine("wwwroot/popup", name);
+            if (model.Popup)
+            {
+                RemovePopupFiles();
+                await System.IO.File.WriteAllTextAsync(pathName, model.Html);
+            }
+            else if (System.IO.File.Exists(pathName))
+            {
+                RemovePopupFiles();
+            }
+
             return Ok();
         }
         catch (Exception ex)
@@ -227,13 +299,28 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
             return BadRequest(await _help.Error(ex));
         }
     }
+
+    [HttpDelete("popup")]
+    public async Task<IActionResult> DeletePopup()
+    {
+        try
+        {
+            RemovePopupFiles();
+            return Ok();
+
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(await _help.Error(ex));
+        }
+    }
     #endregion
 
     #region Helper methods
     public async Task<string?> GetFilePath(string id)
     {
-        string filePath = _help.DecodeFromBase64(id);
-        string pathName = Path.Combine("wwwroot", "articles", filePath);
+        string name = _help.DecodeFromBase64(id);
+        string pathName = Path.Combine("wwwroot", "articles", name);
         if (!System.IO.File.Exists(pathName))
             return null;
 
@@ -258,16 +345,36 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
         {
             var fileContent = await System.IO.File.ReadAllTextAsync(filePath);
             var name = Path.GetFileNameWithoutExtension(filePath).ToString();
+
+            var popupPathname = Path.Combine("wwwroot/popup", Path.GetFileName(filePath)!);
+            bool popup = System.IO.File.Exists(popupPathname);
+
             models.Add(new ManualArticleViewModel
             {
                 Id = _help.EncodeToBase64(Path.GetFileName(filePath)),
                 Name = name[(name.IndexOf('.') + 1)..],
                 Html = fileContent,
-                FileName = name
+                FileName = name,
+                Popup = popup
             });
         }
 
         return models;
+    }
+
+    private void RemovePopupFiles()
+    {
+        var (_, files) = GetFiles("popup");
+        if (files.Any())
+        {
+            foreach (var file in files)
+            {
+                System.IO.File.Delete(file);
+            }
+
+            var json = Path.Combine("wwwroot/json", "watched.json");
+            System.IO.File.Delete(json);
+        }
     }
     #endregion
 }

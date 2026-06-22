@@ -14,6 +14,8 @@ public class ManualArticleViewModel
     [Required]
     public string? Html { get; set; }
 
+    public bool Popup { get; set; }
+
     [NotMapped]
     public string? Primary => string.IsNullOrEmpty(Name) ? null : Name!.Replace("_", " ");
 

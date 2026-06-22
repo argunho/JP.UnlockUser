@@ -234,7 +234,6 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
-
             bool isFileEmpty = (file == null || file.Length == 0);
             data = Uri.UnescapeDataString(data);
             List<UserFormModel>? models = System.Text.Json.JsonSerializer.Deserialize<List<UserFormModel>>(
@@ -247,16 +246,6 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             var res = await SetPasswords(models!);
             if (string.IsNullOrEmpty(res) && !isFileEmpty)
             {
-                // Return and download file
-                //if (!isFileEmpty)
-                //{
-                //    using var ms = new MemoryStream();
-                //    await file!.CopyToAsync(ms);
-                //    var bytes = ms.ToArray();
-
-                //    return File(bytes, "application/pdf", file.FileName.Replace(" ", "_"));
-                //}
-
                 // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
                 var claims = _credentialsService.GetClaims(["email", "displayname"]) ?? [];
                 var pass = _helpService.DecodeFromBase64("HashedCredential").Replace(_config["JwtSettings:Key"]!, "") ?? "";

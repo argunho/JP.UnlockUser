@@ -7,7 +7,7 @@ import {
     Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
 } from "@mui/material";
 
-function ModalMessage({ children, open = true, label, content, onClose }) {
+function ModalMessage({ children, childrenButton, open = true, label, content, onClose }) {
 
     const ref = useRef(null);
 
@@ -37,12 +37,15 @@ function ModalMessage({ children, open = true, label, content, onClose }) {
             </DialogTitle>
             <DialogContent>
                 <DialogContentText className="modal-content-div" id="alert-dialog-description" sx={{ margin: "10px 15px 0 15px" }}>
-                   {children ||  <span dangerouslySetInnerHTML={{ __html: content }}></span>}
+                   {(!childrenButton && children) ||  <span dangerouslySetInnerHTML={{ __html: content }}></span>}
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
+                {/* Child button */}
+                {(childrenButton && children) && children}
+
                 {/* Close modal */}
-                <Button onClick={onClick} autoFocus>
+                <Button onClick={onClick} autoFocus color="error">
                     <Close fontSize="small" />
                 </Button>
             </DialogActions>

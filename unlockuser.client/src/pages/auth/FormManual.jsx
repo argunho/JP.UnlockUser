@@ -1,7 +1,7 @@
 import { useActionState, use, useEffect, useState } from 'react';
 
 // Installed
-import { TextField, FormControl } from '@mui/material';
+import { TextField, FormControl, FormControlLabel, Checkbox } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 
 // Components
@@ -15,8 +15,15 @@ import Message from '../../components/blocks/Message';
 // Storage
 import { FetchContext } from './../../storage/FetchContext';
 
+const checkboxes = {
+    popup: {
+        name: "popup",
+        label: "Popup-meddelande"
+    }
+}
 
-function FormManual() {
+
+function FormManual({ api, label, checkbox }) {
     const [loading, setLoading] = useState(false);
 
     const { fetchData, pending: buffering, response, success, resData, handleResponse } = use(FetchContext);
@@ -28,7 +35,7 @@ function FormManual() {
 
         setLoading(true)
         try {
-            await fetchData({ api: `manual/${id}` });
+            await fetchData({ api: `${api}/${id}` });
         } finally {
             setLoading(false);
         }
@@ -47,9 +54,12 @@ function FormManual() {
             html: fd.get("html")
         }
 
+        if(!!checkbox){
+            data[checkbox] = fd.get(checkbox) === "on";
+        }
 
         // Request
-        await fetchData({ api: id ? `manual/${id}` : "manual", method: id ? "put" : "post", data: data });
+        await fetchData({ api: id ? `${api}/${id}` : "manual", method: id ? "put" : "post", data: data });
         return null;
 
     }
@@ -60,13 +70,13 @@ function FormManual() {
     const formModel = formState?.data ?? resData;
 
     return <>
-        <TabPanel primary="Nya manual" />
+        <TabPanel primary={label ?? (id && (!formModel ? "Data hämtras..." : `Edit: ${formModel?.name}`))} />
 
         {/* Error message */}
         {response && <Message res={response} cancel={() => handleResponse()} />}
 
         {/* Loading */}
-        {loading && <Loading msg="data hämtas..." />}
+        {loading && <Loading msg="Data hämtas..." style={{ flex: 1 }} />}
 
         {!loading && <form className='form-manual fade-in' action={formAction}>
 
@@ -86,7 +96,17 @@ function FormManual() {
                 />
             </FormControl>
 
-            <Editor name="html" required={true} disabled={disabled} defaultValue={formModel?.html} />
+            <Editor name="html" required={true} disabled={disabled || (id && !resData)} defaultValue={formModel?.html} />
+
+            {/* Change the password input type */}
+            {!!checkbox && <FormControlLabel
+                className="checkbox margin"
+                control={<Checkbox
+                    color="success"
+                    name={checkboxes[checkbox]?.name}
+                    checked={formModel[checkbox]}
+                    disabled={disabled} />}
+                label={checkboxes[checkbox]?.label} />}
 
             <FormButtons loading={pending} disabled={disabled} confirmable={true} />
         </form>}

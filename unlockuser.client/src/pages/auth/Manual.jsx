@@ -3,7 +3,7 @@ import { useEffect, useState, use } from 'react';
 // Installed
 import { useLoaderData, useNavigate, useRevalidator } from 'react-router-dom';
 import { IconButton, Tooltip } from '@mui/material';
-import { Edit, EditDocument, Delete, Save, SwapVert } from '@mui/icons-material';
+import { Edit, EditDocument, Delete, Save, SwapVert, Campaign } from '@mui/icons-material';
 
 // Components
 import Message from '../../components/blocks/Message';
@@ -19,11 +19,11 @@ import { DecodedClaims } from '../../functions/DecodedToken';
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
 
-function Manual({ label, menuLabel }) {
+function Manual({ api, label, menuLabel }) {
   const [manual, setManual] = useState(null);
   const [confirm, setConfirm] = useState(false);
   const [sortedNames, setSortedNames] = useState(null);
-  const [sortingMode, setSortingMode] = useState(false);
+  const [sortingModel, setSortingMode] = useState(false);
 
   const { openAccess } = DecodedClaims()
   const manuals = useLoaderData();
@@ -41,7 +41,7 @@ function Manual({ label, menuLabel }) {
     setConfirm(false);
 
     const id = manual ? manual?.id : manuals[0]?.id;
-    await fetchData({ api: `manual/${id}`, method: "delete" });
+    await fetchData({ api: `${api}/${id}`, method: "delete" });
   }
 
   function closeModal() {
@@ -51,8 +51,8 @@ function Manual({ label, menuLabel }) {
     // navigate("/manual", { replace: true });
   }
 
-  function toggleSortingMode() {
-    if (sortingMode) setSortedNames(null);
+  function toggleSortingModel() {
+    if (sortingModel) setSortedNames(null);
     setSortingMode(prev => !prev);
   }
 
@@ -72,15 +72,20 @@ function Manual({ label, menuLabel }) {
   const noFound = (!manuals || manuals?.length == 0);
   const isDirty = sortedNames !== null &&
     !sortedNames.every((name, i) => name === manuals[i]?.name);
-
+console.log(manuals[0])
   return (
     <div className="d-column jc-start w-100 mh">
 
       {/* Tab menu */}
       <TabPanel primary={label} secondary={manual?.primary?.toUpperCase()}>
 
+        {/* If article is popup message */}
+        {manuals[0]?.popup && <Tooltip title="Popup meddelande" classes={{ tooltip: "tooltip-white" }} arrow>
+            <Campaign color="secondary"/>
+          </Tooltip>}
+
         {/* Delete manual */}
-        {(!noFound && openAccess && !sortingMode) && <>
+        {(!noFound && openAccess && !sortingModel) && <>
           <Tooltip title="Radera dokument" classes={{ tooltip: "tooltip-white" }} arrow>
             <IconButton color="error" onClick={() => setConfirm(true)}>
               <Delete />
@@ -96,7 +101,7 @@ function Manual({ label, menuLabel }) {
         </>}
 
         {/* Save sort order — visible only in sorting mode, enabled only when order changed */}
-        {(!noFound && openAccess && sortingMode) && (
+        {(!noFound && openAccess && sortingModel) && (
           <Tooltip title="Spara sortering" classes={{ tooltip: "tooltip-white" }} arrow>
             <span style={{ marginLeft: "8px" }}>
               <IconButton color={isDirty ? "success" : "default"} onClick={saveSorting} disabled={pending || !isDirty}>
@@ -108,8 +113,8 @@ function Manual({ label, menuLabel }) {
 
         {/* Toggle sort mode */}
         {(!noFound && openAccess) && (
-          <Tooltip title={sortingMode ? "Avbryt sortering" : "Sortera lista"} classes={{ tooltip: "tooltip-white" }} arrow>
-            <IconButton color={sortingMode ? "primary" : "default"} onClick={toggleSortingMode} style={{ marginLeft: "20px" }}>
+          <Tooltip title={sortingModel ? "Avbryt sortering" : "Sortera lista"} classes={{ tooltip: "tooltip-white" }} arrow>
+            <IconButton color={sortingModel ? "primary" : "default"} onClick={toggleSortingModel} style={{ marginLeft: "20px" }}>
               <SwapVert />
             </IconButton>
           </Tooltip>
@@ -133,7 +138,7 @@ function Manual({ label, menuLabel }) {
 
         {/* Menu */}
         <SideMenu key={success} label={menuLabel} list={manuals} disabled={pending} clickHandle={setManual}
-          sortable={openAccess && !noFound && sortingMode} onSortChange={handleSortChange} />
+          sortable={openAccess && !noFound && sortingModel} onSortChange={handleSortChange} />
 
         {/* Manual content view */}
         {manuals?.length > 0 &&

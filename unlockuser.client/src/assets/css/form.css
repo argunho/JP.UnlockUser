@@ -120,10 +120,14 @@ input[type="password"]:disabled {
 }
 
 .checkbox {
-  margin: 0 !important;
+  margin-top: 20px !important;
   padding: 0 !important;
   width: max-content !important;
   height: 40px !important;
+}
+
+.checkbox:not(.margin) {
+  margin: 0 !important;
 }
 
 .checkbox span {

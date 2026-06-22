@@ -124,7 +124,7 @@ function Home() {
 
             const shouldFetchMessage = !sessionStorage.getItem("checked");
             const messagePromise = shouldFetchMessage
-                ? ApiRequest("article/message")
+                ? ApiRequest("article/popup/message")
                 : Promise.resolve(null);
 
             const [message, collection] = await Promise.all([
@@ -238,6 +238,11 @@ function Home() {
             handleResponse();
 
         dispatch({ type: "RESET" });
+    }
+
+    async function hideMessage(){
+        setModalMessage(null);
+        await ApiRequest("article/hide/popup/message", "post");
     }
 
     const [formState, formAction, pending] = useActionState(onSubmit, {
@@ -413,7 +418,17 @@ function Home() {
             }} cancel={onReset} />}
 
             {/* Modal message */}
-            {modalMessage && <ModalMessage label={`<p style='font-size: 32px'>${modalMessage?.name}</p>`} isOpen={!!modalMessage} content={modalMessage?.html} />}
+            {modalMessage && 
+                <ModalMessage 
+                    label={`<p style='font-size: 32px'>${modalMessage?.name}</p>`} 
+                    isOpen={true} 
+                    content={modalMessage?.html}
+                    childrenButton={true} >
+                        <Button variant="contained" color="inherit" onClick={hideMessage} size="small">
+                            Visa inte meddelandet igen
+                        </Button>
+                </ModalMessage>
+            }
         </>
     )
 }

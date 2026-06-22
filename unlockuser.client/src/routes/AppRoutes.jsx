@@ -71,17 +71,17 @@ const AppRoutes = () => [
         children: [
           {
             index: true,
-            element: <Manual label="Webbapp-manual" menuLabel="Kunskapsartiklar"/>,
+            element: <Manual api="manual" label="Webbapp-manual" menuLabel="Kunskapsartiklar"/>,
             errorElement: <ErrorView />,
             loader: loader("manual")
           },
           {
             path: "new",
-            element: <FormManual />
+            element: <FormManual api="manual" label="Nya manual" />
           },
           {
             path: "edit/:id",
-            element: <FormManual />
+            element: <FormManual api="manual" />
           }
         ]
       },
@@ -90,17 +90,17 @@ const AppRoutes = () => [
         children: [
           {
             index: true,
-            element: <Manual label="Information" menuLabel="Aritiklar" checkbox={true} />,
+            element: <Manual api="articles" label="Information" menuLabel="Aritiklar" checkbox={true} />,
             errorElement: <ErrorView />,
             loader: loader("articles")
           },
           {
             path: "new",
-            element: <FormManual />
+            element: <FormManual api="articles" label="Nya artikel" checkbox="popup" />
           },
           {
             path: "edit/:id",
-            element: <FormManual />
+            element: <FormManual api="articles" checkbox="popup" />
           }
         ]
       },
