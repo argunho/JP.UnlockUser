@@ -1,0 +1,2 @@
+2026-06-19 15:18:33.664 +02:00 [INF] Autentisering utförd vid: 2026-06-19 15:18. Department: IT avdelning. Office: IT avdelning.
+2026-06-19 15:18:33.829 +02:00 [INF] Starting asynchronous dashboard data setup.

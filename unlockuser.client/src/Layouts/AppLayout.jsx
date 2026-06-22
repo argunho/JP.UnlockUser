@@ -24,7 +24,6 @@ function AppLayout() {
 
     async function getCollections(){
       const res = await ApiRequest("data/collections");
-      console.log(res)
       setCollections(res ?? []);
     }
 

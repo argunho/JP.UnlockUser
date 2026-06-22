@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.VisualBasic;
 using Newtonsoft.Json;
-using System.Diagnostics.Metrics;
 using System.Security.Claims;
 using System.Text;
 
@@ -119,15 +117,21 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             // Get users by groups 
             _ = Task.Run(async () =>
             {
-                try
+                if (_lockService.TryStart(model.Username, out var waitTask))
                 {
-                  _logger.LogInformation("Starting asynchronous dashboard data setup.");
-                    await _dashboardService.GetUsersByGroup(model.Username, openAccess, currentModerator?.Permissions?.Groups!);
-                    _logger.LogInformation("Dashboard data setup completed.");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Failed to set up dashboard data. Error: {ex.Message}");
+                    try
+                    {
+                        _logger.LogInformation("Starting asynchronous dashboard data setup.");
+                        await _dashboardService.StoreUsersByGroup(model.Username, openAccess, currentModerator?.Permissions?.Groups!);
+                        _logger.LogInformation("Dashboard data setup completed.");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Failed to set up dashboard data. Error: {ex.Message}");
+                    } finally
+                    {
+                        _lockService.Finish(model.Username);
+                    }
                 }
             });
 

@@ -90,7 +90,6 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
 
     function cleanHtml(html) {
         if (html === null || html === "") return;
-        console.log("html", html)
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
@@ -133,7 +132,7 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
     function onChange(e) {
         e.preventDefault();
         let htmlValue = e.target?.innerHTML;
-        console.log(htmlValue)
+
         let value = htmlValue?.replaceAll(/<span id="transmark"[^>]*><\/span>/g, "");
 
         if (!value || value === "<br/>" || value === "<br>")
@@ -231,7 +230,6 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
         switch (true) {
             case ["justifyLeft", "justifyCenter", "justifyRight", "justifyFull"].includes(key):
                 if (!alignSelection(key.replace("justify", "").toLowerCase())) {
-                    console.log(key)
                     document.execCommand(key);
                 }
                 // refEditor.current.style.textAlign = key;

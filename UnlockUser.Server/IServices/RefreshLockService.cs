@@ -31,4 +31,9 @@ public class RefreshLockService : IRefreshLockService
         }
     }
 
+    public bool IsLocked(string key) => _locks.ContainsKey(key);
+
+    public Task GetWaitTask(string key) =>
+        _locks.TryGetValue(key, out var tcs) ? tcs.Task : Task.CompletedTask;
+
 }   

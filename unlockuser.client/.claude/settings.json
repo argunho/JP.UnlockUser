@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/790822asla/Desktop/Jobb/WebApps/UnlockUser/UnlockUser.Server/**)"
+    ]
+  }
+}

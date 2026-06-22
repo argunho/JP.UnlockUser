@@ -4,5 +4,7 @@ public interface IRefreshLockService
 {
     bool TryStart(string key, out Task waitTask);
     void Finish(string key);
+    bool IsLocked(string key);
+    Task GetWaitTask(string key);
 
 }

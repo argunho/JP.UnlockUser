@@ -41,7 +41,7 @@ const initialState = {
     group: "",
     users: null,
     isClass: false,
-    isMatch: true,
+    isMatch: false,
     isChanged: false,
     isCleaned: null
 }
@@ -91,18 +91,38 @@ function Home() {
     // const { collections, schools, group: groupName } = useOutletContext();
     const { schools, group: groupName } = useOutletContext();
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
-    const refSubmit = useRef(null);
-    const refAutocomplete = useRef(null);
     const gn = group ? group?.toLowerCase() : groupName;
 
-    const [modalMessage, setModalMessage] = useState(null);
-    const [groupCollection, setGroupCollection] = useState([]);
+    const refSubmit = useRef(null);
+    const refAutocomplete = useRef(null);
+    const groupCollectionRef = useRef(null);
 
+    const [modalMessage, setModalMessage] = useState(null);
+    const [groupCollection, setGroupCollection] = useState(null);
+    const [searching, setSearching] = useState(false);
+
+    useEffect(() => {
+        groupCollectionRef.current = groupCollection;
+    }, [groupCollection]);
+
+    function waitForCollection(timeout = 60000) {
+        return new Promise((resolve) => {
+            if (groupCollectionRef.current !== null) return resolve(groupCollectionRef.current);
+            const start = Date.now();
+            const interval = setInterval(() => {
+                if (groupCollectionRef.current !== null || Date.now() - start >= timeout) {
+                    clearInterval(interval);
+                    resolve(groupCollectionRef.current);
+                }
+            }, 100);
+        });
+    }
+
+    // Get collection by group name
     async function get(res = false) {
         try {
 
             const shouldFetchMessage = !sessionStorage.getItem("checked");
-
             const messagePromise = shouldFetchMessage
                 ? ApiRequest("article/message")
                 : Promise.resolve(null);
@@ -118,7 +138,7 @@ function Home() {
 
             setModalMessage(!!message?.html ? message : null);
             setGroupCollection(Array.isArray(collection) ? collection : []);
-            if(res)
+            if (res)
                 return collection;
         } catch (error) {
             console.error(error);
@@ -158,53 +178,59 @@ function Home() {
 
     // Function - submit form
     async function onSubmit(previous, fd) {
-        const name = fd.get("name")?.toLowerCase();
-        const match = fd.get("match") === "on" ? true : false;
-        const school = fd.get("school") ?? "";
+        try {
+            setSearching(true);
+            const name = fd.get("name")?.toLowerCase();
+            const match = fd.get("match") === "on" ? true : false;
+            const school = fd.get("school") ?? "";
 
-        const data = { name, match, school };
+            const data = { name, match, school };
 
-        let errors = [];
-        let error = null;
+            let errors = [];
+            let error = null;
 
-        if (_.isEqual({ name: "", school: "" }, { name, school })) {
-            error = "Begäran avvisades. Inga ändringar gjordes i formulärets data."
-            return {
-                ...data,
-                error
+            if (_.isEqual({ name: "", school: "" }, { name, school })) {
+                error = "Begäran avvisades. Inga ändringar gjordes i formulärets data."
+                return {
+                    ...data,
+                    error
+                }
             }
-        }
 
-        if (errors?.length > 0)
-            return { ...data, errors };
+            if (errors?.length > 0)
+                return { ...data, errors };
 
-        // const collection = (gn === "support"
-        //     ? groups.flatMap(g => collections[g.toLowerCase()])
-        //     : collections[gn])?.filter(Boolean);
+            // const collection = groups.flatMap(g => collections[g.toLowerCase()])?.filter(Boolean);
+            if (groupCollectionRef.current === null)
+                await waitForCollection(60000);
 
-        const collection = groupCollection?.length == 0 ? await get(true) : groupCollection;
+            const collection = groupCollection ?? groupCollectionRef.current;
 
-        let res = null;
-        if (collection?.length > 0) {
-            if (gn === "support")
-                res = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)));
-            else {
-                res = (isClass)
-                    ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)
-                    : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name))
-                        && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
+            let res = null;
+            if (collection?.length > 0) {
+                if (gn === "support")
+                    res = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)));
+                else {
+                    res = (isClass)
+                        ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)
+                        : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name))
+                            && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
+                }
+            } else {
+                // API parameters by chosen searching alternative
+                let options = isClass
+                    ? `students${fd.get("school")}/${name}`
+                    : `person/${name}/${group}/${match}`;
+
+                res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
             }
-        } else {
-            // API parameters by chosen searching alternative
-            let options = isClass
-                ? `students${fd.get("school")}/${name}`
-                : `person/${name}/${group}/${match}`;
 
-            res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
+            handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
+            return Array.isArray(res) ? null : data;
+
+        } finally {
+            setSearching(false);
         }
-
-        handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
-        return Array.isArray(res) ? null : data;
     }
 
     function onReset() {
@@ -330,7 +356,7 @@ function Home() {
             <div className='d-row jc-between w-100 view-list-result'>
                 {/* Result info */}
                 <div className="vlr-info d-column ai-start">
-                    <span>Resultat</span>
+                    <span>{searching ? "Sökning pågår..." : "Resultat"}</span>
                     <span className="d-row jc-start" style={{ color: users ? "var(--color-active)" : "var(--color-gray)" }}>
                         {users?.length > 0 && <List size="small" color="primary" style={{ marginRight: 10 }} />}
                         {users ? `${users?.length} användare` : "*****************"}
@@ -364,7 +390,7 @@ function Home() {
             </div>
 
             {/* List loading */}
-            {!users && <ListLoading rows={5} pending={pending} />}
+            {(!users || searching) && <ListLoading rows={5} pending={pending || searching} />}
 
             {/* Result of search */}
             {users?.length > 0 && <ListsView

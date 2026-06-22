@@ -10,7 +10,7 @@ namespace UnlockUser.Server.Controllers;
 [ApiController]
 [Authorize]
 public class DataController(IHelpService helpService, IActiveDirectory provider, IMemoryCache memoryCache, ICredentialsService credentials,
-                                ILocalFileService localFileService, IConfiguration config, ILogger<DataController> logger) : ControllerBase
+                                ILocalFileService localFileService, IConfiguration config, IRefreshLockService lockService, ILogger<DataController> logger) : ControllerBase
 {
     private readonly IHelpService _helpService = helpService;
     private readonly IActiveDirectory _provider = provider;
@@ -18,6 +18,7 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IConfiguration _config = config;
+    private readonly IRefreshLockService _lockService = lockService;
     private readonly ILogger<DataController> _logger = logger;
 
     #region GET
@@ -76,12 +77,17 @@ public class DataController(IHelpService helpService, IActiveDirectory provider,
     [HttpGet("groups/by/name/{name}")]
     public async Task<IActionResult> GetGroupsByName(string name)
     {
-
         var groupModels = new List<UserViewModel>();
+        var username = _credentials.GetClaim("username");
+
+        bool isLoading = _lockService.IsLocked(username);
+
+        if (isLoading)
+            await Task.WhenAny(_lockService.GetWaitTask(username), Task.Delay(60000));
 
         if (_memoryCache.TryGetValue("groups", out Dictionary<string, List<UserViewModel>>? cachedGroups))
         {
-             bool supportModel = string.Equals(name.ToString(), "Support", StringComparison.OrdinalIgnoreCase);
+            bool supportModel = string.Equals(name.ToString(), "Support", StringComparison.OrdinalIgnoreCase);
             if (supportModel)
             {
                 List<string?> groups = [.. _config.

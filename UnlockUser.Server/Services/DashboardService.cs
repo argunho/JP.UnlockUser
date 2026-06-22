@@ -17,7 +17,7 @@ public class DashboardService(
     private readonly ILogger<DashboardService> _logger = logger;
 
 
-    public async Task GetUsersByGroup(string username, bool openAccess, List<string> sessionUserGroups)
+    public async Task StoreUsersByGroup(string username, bool openAccess, List<string> sessionUserGroups)
     {
         try
         {
@@ -75,6 +75,7 @@ public class DashboardService(
 
                 // Users model to view
                 var usersViewModel = users?.Select(s => new UserViewModel(s)).ToList();
+
                 if (usersViewModel != null)
                 {
                     _ = usersViewModel!.ConvertAll(x => x.Group = group.Name).ToList();
@@ -85,19 +86,22 @@ public class DashboardService(
                     groups.Add(group.Name!.ToLower(), usersViewModel);
                 }
 
-                    // Save to session memory
-                    _memoryCache.Set(
-                       "groups",
-                        groups,
-                        new MemoryCacheEntryOptions
-                        {
-                            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60),
-                            SlidingExpiration = TimeSpan.FromMinutes(60)
-                        }
-                    );
 
                 _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", group.Name, DateTime.Now.ToString("G"));
             }
+
+            // Save to session memory
+            _memoryCache.Set(
+               "groups",
+                groups,
+                new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60),
+                    SlidingExpiration = TimeSpan.FromMinutes(60)
+                }
+            );
+
+            _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", groups.Count, DateTime.Now.ToString("G"));
         }
         catch (Exception ex)
         {
