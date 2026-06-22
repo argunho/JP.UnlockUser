@@ -424,7 +424,7 @@ function Home() {
                     isOpen={true} 
                     content={modalMessage?.html}
                     childrenButton={true} >
-                        <Button variant="contained" color="inherit" onClick={hideMessage} size="small">
+                        <Button variant="contained" color="default" onClick={hideMessage} >
                             Visa inte meddelandet igen
                         </Button>
                 </ModalMessage>

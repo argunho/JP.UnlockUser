@@ -46,7 +46,7 @@ function ModalMessage({ children, childrenButton, open = true, label, content, o
 
                 {/* Close modal */}
                 <Button onClick={onClick} autoFocus color="error">
-                    <Close fontSize="small" />
+                    <Close />
                 </Button>
             </DialogActions>
         </Dialog>

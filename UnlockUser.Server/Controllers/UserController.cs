@@ -195,7 +195,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     #endregion
 
     #region POST
-    [HttpPost("reset/single/password")] // Reset class students passwords
+    [HttpPost("reset/single/password")] // Reset password
     public async Task<IActionResult> SetSinglePassword(UserFormModel model)
     {
         try
@@ -385,6 +385,82 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
 
     // Set multiple passwords
+    private async Task<string?> SetPassword(UserFormModel user)
+    {
+        // Check model is valid or not and return warning is true or false
+        if (user == null)
+            return "Användare för lösenordsåterställning har inte specificerats."; // Password reset user not specified
+
+        // If password needs to confirm
+        if (!string.IsNullOrEmpty(user.ConfirmPassword))
+        {
+            if (!string.Equals(user.Password, user.ConfirmPassword))
+                return "Lösenord och bekräftelse av lösenord matchar inte.";
+        }
+
+        // Managed user credentials
+        string? group = user.GroupName;
+        string? office = user.Office;
+        string? department = user.Department;
+
+        // CUrrent moderator claims
+        var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permission"]);
+
+
+        // Check permission for the managed users group
+        var groups = claims != null && claims.TryGetValue("groups", out var g) && !string.IsNullOrEmpty(g)
+                        ? g.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
+
+        if (!groups.Contains(group, StringComparer.OrdinalIgnoreCase))
+            return "Behörigheter saknas!"; // Warning!
+
+
+        // Check current moderators role
+        var roles = claims != null && claims.TryGetValue("roles", out var r) && !string.IsNullOrEmpty(r)
+                                ? r.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
+
+        if (!roles.Contains("Support", StringComparer.OrdinalIgnoreCase))
+        {
+            var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permission"])!;
+
+            string warningMessage = "Du saknar behörigheter att ändra lösenord till";
+
+                var manager = user.Manager;
+
+                string? userManager = (!string.IsNullOrEmpty(manager) && manager.Contains(',')) ? manager.Trim()?[3..manager!.IndexOf(',')] : null;
+                if (string.IsNullOrEmpty(userManager) || !permissions.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase))
+                    return $"{warningMessage} {user.Username}";
+        }
+
+        Data sessionUserData = await GetLogData(group!, office!, department!);
+        var message = new StringBuilder();
+
+        // Set password to class students
+
+            try
+            {
+                _provider.ResetPassword(user);
+                if (_env.IsProduction())
+                    sessionUserData.Users.Add(user?.Username ?? "");
+            }
+            catch (Exception ex)
+            {
+                message?.Append($"Fel vid försök ändra lösenord till {user.Username}: {ex.Message}");
+            }
+       
+
+        // Save/Update statistics
+        if (!user.Check && _env.IsProduction())
+        {
+            await SaveHistoryLogFile(sessionUserData);
+            await SaveUpdateStatitics("PasswordsChange", 1);
+        }
+
+        return (message?.Length > 0) ? message.ToString() : null;
+    }
+
+
+    // Set multiple passwords
     private async Task<string?> SetPasswords(List<UserFormModel> users)
     {
         // Check model is valid or not and return warning is true or false
@@ -406,6 +482,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         // CUrrent moderator claims
         var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permission"]);
 
+
         // Check permission for the managed users group
         var groups = claims != null && claims.TryGetValue("groups", out var g) && !string.IsNullOrEmpty(g)
                         ? g.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
@@ -416,6 +493,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         // Check current moderators role
         var roles = claims != null && claims.TryGetValue("roles", out var r) && !string.IsNullOrEmpty(r)
                                 ? r.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
+
         if (!roles.Contains("Support", StringComparer.OrdinalIgnoreCase))
         {
             var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permission"])!;

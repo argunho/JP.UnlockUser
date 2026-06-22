@@ -3,7 +3,7 @@ import { useEffect, useState, use } from 'react';
 // Installed
 import { useLoaderData, useNavigate, useRevalidator } from 'react-router-dom';
 import { IconButton, Tooltip } from '@mui/material';
-import { Edit, EditDocument, Delete, Save, SwapVert, Campaign } from '@mui/icons-material';
+import { Edit, EditDocument, Delete, Save, SwapVert } from '@mui/icons-material';
 
 // Components
 import Message from '../../components/blocks/Message';
@@ -72,33 +72,30 @@ function Manual({ api, label, menuLabel }) {
   const noFound = (!manuals || manuals?.length == 0);
   const isDirty = sortedNames !== null &&
     !sortedNames.every((name, i) => name === manuals[i]?.name);
-console.log(manuals[0])
+
   return (
     <div className="d-column jc-start w-100 mh">
 
       {/* Tab menu */}
-      <TabPanel primary={label} secondary={manual?.primary?.toUpperCase()}>
+      <TabPanel primary={label} secondary={manuals[0]?.popup ? "Popup meddelande" : manual?.primary?.toUpperCase()}>
 
-        {/* If article is popup message */}
-        {manuals[0]?.popup && <Tooltip title="Popup meddelande" classes={{ tooltip: "tooltip-white" }} arrow>
-            <Campaign color="secondary"/>
-          </Tooltip>}
 
         {/* Delete manual */}
         {(!noFound && openAccess && !sortingModel) && <>
           <Tooltip title="Radera dokument" classes={{ tooltip: "tooltip-white" }} arrow>
-            <IconButton color="error" onClick={() => setConfirm(true)}>
+            <IconButton color="error" onClick={() => setConfirm(true)} >
               <Delete />
             </IconButton>
           </Tooltip>
 
           {/*  Edit manual */}
           <Tooltip title="Redigera dokument" classes={{ tooltip: "tooltip-white" }} arrow>
-            <IconButton color="primary" onClick={() => navigate(`edit/${manual ? manual?.id : manuals[0]?.id}`)} style={{marginLeft: "20px"}}>
+            <IconButton color="primary" onClick={() => navigate(`edit/${manual ? manual?.id : manuals[0]?.id}`)} >
               <Edit />
             </IconButton>
           </Tooltip>
         </>}
+
 
         {/* Save sort order — visible only in sorting mode, enabled only when order changed */}
         {(!noFound && openAccess && sortingModel) && (
@@ -114,7 +111,7 @@ console.log(manuals[0])
         {/* Toggle sort mode */}
         {(!noFound && openAccess) && (
           <Tooltip title={sortingModel ? "Avbryt sortering" : "Sortera lista"} classes={{ tooltip: "tooltip-white" }} arrow>
-            <IconButton color={sortingModel ? "primary" : "default"} onClick={toggleSortingModel} style={{ marginLeft: "20px" }}>
+            <IconButton color={sortingModel ? "primary" : "default"} onClick={toggleSortingModel} >
               <SwapVert />
             </IconButton>
           </Tooltip>
@@ -122,7 +119,7 @@ console.log(manuals[0])
 
         {/* New manual */}
         {openAccess && <Tooltip title="Skapa manual" color="secondary" classes={{ tooltip: "tooltip-white" }} arrow>
-          <IconButton onClick={() => navigate("new")} style={{marginLeft: noFound ? 0 : "20px"}}>
+          <IconButton onClick={() => navigate("new")} style={{ marginLeft: noFound ? 0 : "20px" }}>
             <EditDocument />
           </IconButton>
         </Tooltip>}

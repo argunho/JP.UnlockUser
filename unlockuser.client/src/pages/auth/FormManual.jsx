@@ -104,7 +104,7 @@ function FormManual({ api, label, checkbox }) {
                 control={<Checkbox
                     color="success"
                     name={checkboxes[checkbox]?.name}
-                    checked={formModel[checkbox]}
+                    checked={formModel?.[checkbox]}
                     disabled={disabled} />}
                 label={checkboxes[checkbox]?.label} />}
 

@@ -305,6 +305,10 @@ pre {
   letter-spacing: 1px;
 }
 
+.menu-div > .d-row > button {
+  margin-left: 20px;
+}
+
 .menu-div .link-group {
   text-transform: uppercase;
   margin-right: 20px;
