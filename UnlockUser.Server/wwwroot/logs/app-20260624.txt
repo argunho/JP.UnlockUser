@@ -149,3 +149,7 @@
 2026-06-24 14:26:34.103 +02:00 [INF] Starting asynchronous dashboard data setup.
 2026-06-24 14:26:34.536 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-06-24 14:26:34.
 2026-06-24 14:26:50.060 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-06-24 14:26:50.
+2026-06-24 14:27:13.312 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-06-24 14:27:13.
+2026-06-24 14:27:22.562 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-06-24 14:27:22.
+2026-06-24 14:27:22.565 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-06-24 14:27:22.
+2026-06-24 14:27:22.573 +02:00 [INF] Dashboard data setup completed.

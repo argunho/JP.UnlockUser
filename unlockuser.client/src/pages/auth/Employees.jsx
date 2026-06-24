@@ -18,13 +18,13 @@ import '../../assets/css/list-view.css';
 
 function Employees() {
 
-    const { loading, moderators, onReset } = useOutletContext();
+    const { moderators, onReset } = useOutletContext();
     const navigate = useNavigate();
 
     const { content: pagination, page, perPage } = usePagination(
         {
             length: moderators.length,
-            loading,
+            loading: false,
             number: 20
         });
 
@@ -43,7 +43,7 @@ function Employees() {
                     cancel={onReset} styles={{ marginTop: "32px" }} />}
 
             {/* Result list */}
-            {(moderators?.length > 0 && !loading) && <List className="d-row list-container w-100">
+            {(moderators?.length > 0 && <List className="d-row list-container w-100">
 
                 {/* Loop of result list */}
                 {moderators?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, index) => {

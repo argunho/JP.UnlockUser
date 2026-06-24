@@ -15,6 +15,7 @@ import Header from '../components/blocks/Header';
 
 // Functions
 import { Capitalize } from '../functions/Helpers';
+import LinearLoading from '../components/blocks/LinearLoading';
 
 function UsersLayout() {
 
@@ -57,7 +58,6 @@ function UsersLayout() {
 
     return (
         <>
-
             <Header disabled={loading} />
 
             <div className="container d-column jc-start w-100">
@@ -91,31 +91,20 @@ function UsersLayout() {
                     </div>}
                 </TabPanel>
 
-                <Outlet key={`${group}_${searchWord}_${id}`} context={!id
-                    ? {
-                        loading,
-                        moderators: (searchWord
-                            ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase()))
-                            : moderatorsByGroup),
-                        onReset: () => setSearchWord(null)
-                    } : { groups, moderator, managers, politicians }} />
+                {/* Loading */}
+                {loading && <LinearLoading size={30} cls="curtain" />}
 
-                {/* 
-                <Outlet key={`${group}_${searchWord}_${id}`}
-                    context={{
-                        id,
-                        loading,
-                        group,
+                {!loading && <Outlet key={`${group}_${searchWord}_${id}`} context={!id
+                    ? {
                         moderators: (searchWord
                             ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase()))
                             : moderatorsByGroup),
-                        moderator,
-                        managers,
-                        politicians,
-                        groups,
                         onReset: () => setSearchWord(null)
-                    }} /> */}
+                    } : { groups, moderator, managers, politicians }} />}
+
             </div>
+
+
         </>
     )
 }

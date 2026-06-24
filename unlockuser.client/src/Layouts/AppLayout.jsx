@@ -72,8 +72,7 @@ function AppLayout() {
       </div>
 
       {/* Modal message */}
-      {open &&
-        <ModalMessage
+      {open && <ModalMessage
           label={`<p style='font-size: 32px'>${modalMessage?.name}</p>`}
           content={modalMessage?.html}
           childrenButton={true}>

@@ -21,11 +21,11 @@ const links = [
     { label: "Mina behörigheter", url: "/view/my/permissions", icon: <FactCheck />, access: false, hidden: false },
     { label: "Skolor", url: "/catalog/schools", icon: <School />, access: true, hidden: false },
     { label: "Behöriga användare", url: "/moderators", icon: <SettingsApplications />, access: true, hidden: false },
+    { label: "Webapp-manual", url: "/manual", icon: <MenuBook />, access: true, hidden: false, blink: true },
+    { label: "Informations artiklar", url: "/articles", icon: <Info />, access: false, hidden: false, blink: true },
     { label: "Historia", url: "/catalog/logs/history", icon: <WorkHistory />, access: true, hidden: false },
     { label: "Statistik", url: "/catalog/statistics", icon: <BarChart />, access: true, hidden: false },
     { label: "Loggfiler", url: "/catalog/logs/errors", icon: <ErrorOutline />, access: true, hidden: false },
-    { label: "Webapp-manual", url: "/manual", icon: <MenuBook />, access: true, hidden: false, blink: true },
-    { label: "Informations artiklar", url: "/articles", icon: <Info />, access: false, hidden: false, blink: true },
     { label: "Kontakta support", url: "/contact", icon: <LiveHelp />, access: false, hidden: false },
     { label: "Logga ut", url: "/session/logout", icon: <Logout />, access: false, hidden: false }
 ];
@@ -76,12 +76,17 @@ const Header = memo(function Header({ disabled }) {
 
                         <div className="hml-wrapper">
                             <span>{displayName}</span>
+
+                            {/* Menu */}
                             <span className="d-row">
+                                {/* Support */}
                                 {openAccess && <Button component={NavLink}
                                     disabled={disabled}
                                     className="header-link"
                                     to="/search/support"
                                 >Support</Button>}
+
+                                {/* Groups */}
                                 {groups?.map((name, ind) => {
                                     return <Button
                                         key={ind}
