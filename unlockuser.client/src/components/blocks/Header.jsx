@@ -69,7 +69,7 @@ const Header = memo(function Header({ disabled }) {
                         <IconButton
                             className={`home-link${loc.pathname === "/" ? " selected" : ""}`}
                             disabled={disabled}
-                            onClick={() => navigate("/")}
+                            onClick={() => navigate(`/search/${groups[0]?.toLowerCase()}`)}
                         >
                             <Home />
                         </IconButton>

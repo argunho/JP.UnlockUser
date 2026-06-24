@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, use } from 'react'; //, use
 
 // Installed
-import { Outlet, useNavigation, useParams, useLoaderData } from 'react-router-dom';
+import { Outlet, useNavigation, useParams, useLoaderData, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
 
 // Components
@@ -9,31 +9,37 @@ import Header from "../components/blocks/Header";
 import LinearLoading from './../components/blocks/LinearLoading';
 import ModalMessage from './../components/modals/ModalMessage';
 
-// Services
-import { ApiRequest } from '../services/ApiRequest';
-
 // Storage
 import { FetchContext } from './../storage/FetchContext';
+
+// Functions
+import { Claim } from '../functions/DecodedToken';
 
 
 function AppLayout() {
 
-
   const refContainer = useRef();
   const navigation = useNavigation();
+  const navigate = useNavigate();
   const params = useParams();
-  const { fetchData } = use(FetchContext);
+  const { group } = params;
+  const { fetchData, resData: collections } = use(FetchContext);
 
   const modalMessage = useLoaderData();
+
   const [open, setOpen] = useState(!!modalMessage);
-  const [collections, setCollections] = useState();
+
+  const permissions = Claim("permissions")?.split(',');
 
   useEffect(() => {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
 
+    if(!group){
+      navigate(`search/${permissions[0]?.toLowerCase()}`, { replace: true });
+    }
+
     async function getCollections() {
-      const res = await ApiRequest("data/collections");
-      setCollections(res ?? []);
+      await fetchData({ api: "data/collections" });
     }
 
     getCollections()

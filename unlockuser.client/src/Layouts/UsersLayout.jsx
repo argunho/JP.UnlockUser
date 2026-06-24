@@ -1,7 +1,7 @@
-import { useState, use } from 'react';
+import { useState, useEffect, use } from 'react';
 
 // Installed
-import { Outlet, useNavigation, useOutletContext, useLoaderData, NavLink } from 'react-router-dom';
+import { Outlet, useNavigation, useLoaderData, NavLink, useParams } from 'react-router-dom';
 import { IconButton, Tooltip } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
 
@@ -11,25 +11,23 @@ import { FetchContext } from '../storage/FetchContext';
 // Components
 import TabPanel from './../components/blocks/TabPanel';
 import SearchFilter from '../components/forms/SearchFilter';
+import Header from '../components/blocks/Header';
 
 // Functions
 import { Capitalize } from '../functions/Helpers';
-import { useEffect } from 'react';
 
 function UsersLayout() {
-    const [searchWord, setSearchWord] = useState(null);
 
     const { fetchData, response } = use(FetchContext);
+    const { moderators, managers, politicians, groups } = useLoaderData();
 
     const navigation = useNavigation();
+    const { group, id } = useParams();
 
-    const context = useOutletContext();
-    context.loading = navigation.state === "loading";
-    const { group, loading, id, collections } = context;
-    const groups = collections["groups"];
-
-    const { moderators, managers, politicians } = useLoaderData();
+    const loading = navigation.state === "loading";
     const groupName = Capitalize(group);
+
+    const [searchWord, setSearchWord] = useState(null);
 
     useEffect(() => {
         document.title = "UnlockUser | Moderators";
@@ -45,7 +43,7 @@ function UsersLayout() {
         await fetchData({ api: "user/renew/saved", method: "post" });
         sessionStorage.setItem("updated", "true");
     }
-console.log(groups)
+
     const groupsLinks = groups?.map((name, index) => (
         <NavLink className="link-group" to={`/moderators/${name?.toLowerCase()}`} key={index} >{name}</NavLink>
     ));
@@ -58,50 +56,67 @@ console.log(groups)
         : groupsLinks;
 
     return (
-        <div className="d-column jc-start w-100">
+        <>
 
-            {/* Tab menu */}
-            <TabPanel
-                primary={id ? `Behörighetslista` : "Moderators"}
-                secondary={secondaryRow} >
+            <Header disabled={loading} />
 
-                {/* Refresh list */}
-                {!id && <div className="d-row">
-                    {/* Search filter */}
-                    <SearchFilter key={group} label="anställda" disabled={loading || response}
-                        onSearch={(value) => setSearchWord(value)} onReset={() => setSearchWord(null)} />
+            <div className="container d-column jc-start w-100">
 
-                    {/* Refresh button */}
-                    <Tooltip title="Uppdatera listan" classes={{
-                        tooltip: "tooltip-default"
-                    }} arrow>
-                        <span>
-                            <IconButton
-                                size='large'
-                                variant='outlined'
-                                disabled={loading || !!sessionStorage.getItem("updated")}
-                                onClick={renewList}>
-                                <Refresh />
-                            </IconButton>
+                {/* Tab menu */}
+                <TabPanel
+                    primary={id ? `Behörighetslista` : "Moderators"}
+                    secondary={secondaryRow} >
 
-                        </span>
-                    </Tooltip>
-                </div>}
-            </TabPanel>
+                    {/* Refresh list */}
+                    {!id && <div className="d-row">
+                        {/* Search filter */}
+                        <SearchFilter key={group} label="anställda" disabled={loading || response}
+                            onSearch={(value) => setSearchWord(value)} onReset={() => setSearchWord(null)} />
 
-            <Outlet key={`${group}_${searchWord}_${id}`}
-                context={{
-                    ...context,
-                    moderators: (searchWord
-                        ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase()))
-                        : moderatorsByGroup),
-                    moderator,
-                    managers,
-                    politicians,
-                    groups,
-                    onReset: () => setSearchWord(null)
-                }} />
-        </div>
+                        {/* Refresh button */}
+                        <Tooltip title="Uppdatera listan" classes={{
+                            tooltip: "tooltip-default"
+                        }} arrow>
+                            <span>
+                                <IconButton
+                                    size='large'
+                                    variant='outlined'
+                                    disabled={loading || !!sessionStorage.getItem("updated")}
+                                    onClick={renewList}>
+                                    <Refresh />
+                                </IconButton>
+
+                            </span>
+                        </Tooltip>
+                    </div>}
+                </TabPanel>
+
+                <Outlet key={`${group}_${searchWord}_${id}`} context={!id
+                    ? {
+                        loading,
+                        moderators: (searchWord
+                            ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase()))
+                            : moderatorsByGroup),
+                        onReset: () => setSearchWord(null)
+                    } : { groups, moderator, managers, politicians }} />
+
+                {/* 
+                <Outlet key={`${group}_${searchWord}_${id}`}
+                    context={{
+                        id,
+                        loading,
+                        group,
+                        moderators: (searchWord
+                            ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase()))
+                            : moderatorsByGroup),
+                        moderator,
+                        managers,
+                        politicians,
+                        groups,
+                        onReset: () => setSearchWord(null)
+                    }} /> */}
+            </div>
+        </>
     )
 }
 

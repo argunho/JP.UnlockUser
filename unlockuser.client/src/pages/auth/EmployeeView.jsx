@@ -1,7 +1,7 @@
 import { useEffect, useState, use } from 'react';
 
 // Installed
-import { useOutletContext, useRevalidator } from 'react-router-dom';
+import { useOutletContext, useRevalidator, useLoaderData } from 'react-router-dom';
 import { IconButton } from '@mui/material';
 import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt } from '@mui/icons-material';
 import _ from 'lodash';
@@ -21,7 +21,8 @@ import './../../assets/css/view.css';
 function EmployeeView() {
 
     const revalidator = useRevalidator();
-    const { schools, groups, moderator: userData, managers, politicians } = useOutletContext();
+    const schools = useLoaderData();
+    const { groups, moderator: userData, managers, politicians } = useOutletContext();
     const { permissions } = userData;
 
     const columns = ["Närmaste chefer", ...groups];
@@ -116,7 +117,7 @@ function EmployeeView() {
             </div>
 
             <div className="w-100 d-row jc-start ai-start ai-stretch">
-                {columns.map((column, index) => {
+                {columns?.map((column, index) => {
                     const disabled = !permissions.groups?.includes(column) && index > 0;
                     return <div key={column} className="view-body w-100">
 

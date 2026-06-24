@@ -186,7 +186,9 @@ const AppRoutes = () => [
   },
   {
     path: "/moderators",
-    element: <UsersLayout />,
+    element: <FetchContextProvider>
+      <UsersLayout />
+    </FetchContextProvider>,
     errorElement: <NotFound isAuthorized={true} />,
     loader: loader("user/principal"),
     // shouldRevalidate: () => false,
@@ -204,7 +206,8 @@ const AppRoutes = () => [
       {
         path: "view/:id",
         element: <EmployeeView />,
-        errorElement: <ErrorView />
+        errorElement: <ErrorView />,
+        loader: loader("data/schools")
       }
     ]
   },

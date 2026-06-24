@@ -77,11 +77,14 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
+
             // Saved employees who have permission to manage employee passwords
             var moderators = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
             var managers = await _localFileService.GetListFromEncryptedFile<Manager>("catalogs/managers") ?? [];
             var politicians = (await _localFileService.GetListFromEncryptedFile<User>("catalogs/politicians")).Select(s => new UserViewModel(s)) ?? [];
-            return Ok(new { moderators, managers, politicians });
+            var groups = _config.GetSection("Groups").Get<List<GroupModel>>()?.Select(s => s.Name).ToList();
+
+            return Ok(new { moderators, managers, politicians, groups });
         }
         catch (Exception ex)
         {
