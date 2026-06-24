@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using System.Text;
@@ -9,7 +10,7 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class AuthenticationController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache,
-    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, DashboardService dashboardService, IRefreshLockService lockService, ILogger<AuthenticationController> logger) : ControllerBase
+    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, IRefreshLockService lockService, IMemoryCache memoryCache, DashboardService dashboardService, ILogger<AuthenticationController> logger) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
@@ -18,8 +19,9 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
     private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentials = credentials;
     private readonly ILocalFileService _localFileService = localFileService;
-    private readonly DashboardService _dashboardService = dashboardService;
     private readonly IRefreshLockService _lockService = lockService;
+    private readonly IMemoryCache _memoryCache = memoryCache;
+    private readonly DashboardService _dashboardService = dashboardService;
     private readonly ILogger<AuthenticationController> _logger = logger;
 
 
@@ -77,8 +79,12 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
                 return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
 
             var moderators = await _localFileService.GetListFromEncryptedFile<User>("catalogs/moderators");
-            var currentModerator = moderators.FirstOrDefault(x => x.Name == authorizedUser.Name);
+            var currentModerator = moderators.FirstOrDefault(x => x.Name != null && x.Name.Equals(authorizedUser.Name!, StringComparison.OrdinalIgnoreCase));
+            if (currentModerator != null)
+                _session!.SetString("permissions", JsonConvert.SerializeObject(currentModerator?.Permissions));
 
+
+            //var userModel = new 
             List<Claim> claims = [];
             claims.Add(new("Email", authorizedUser.EmailAddress));
             claims.Add(new("DisplayName", authorizedUser.DisplayName));
@@ -86,8 +92,9 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             claims.Add(new("Manager", authorizedUser.Manager));
             claims.Add(new("Office", authorizedUser.Office));
             claims.Add(new("Department", authorizedUser.Department));
+            //claims.Add(new("User", JsonConvert.SerializeObject(authorizedUser)));
             claims.Add(new("Groups", groups));
-            claims.Add(new("Permissions", JsonConvert.SerializeObject(currentModerator?.Permissions)));
+            claims.Add(new("Permissions", string.Join(',', currentModerator?.Permissions?.Groups ?? [])));
             claims.Add(new("Roles", string.Join(",", roles)));
 
             bool openAccess = roles.IndexOf("Support") > -1;
@@ -98,8 +105,8 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             if (_session != null)
             {
                 byte[] protectedPassword = DpapiProtector.Protect(model.Password);
-                _session.Set("AdminPassword", protectedPassword);
-                _session.SetString("AdminUsername", model.Username);
+                _session.Set("adminPassword", protectedPassword);
+                _session.SetString("adminUsername", model.Username);
             }
 
             _logger.LogInformation("Autentisering utförd vid: {time}. Department: {department}. Office: {office}.", DateTime.Now.ToString("g"), authorizedUser.Department, authorizedUser.Office);
@@ -108,7 +115,8 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
                     claims,
                     _config["JwtSettings:Key"]!,
                     [.. roles.Distinct()],
-                    false));
+                    false)
+                );
 
             var authModel = JsonConvert.DeserializeObject<AuthViewModel>(jwtToken);
 
@@ -128,7 +136,8 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
                     catch (Exception ex)
                     {
                         _logger.LogError($"Failed to set up dashboard data. Error: {ex.Message}");
-                    } finally
+                    }
+                    finally
                     {
                         _lockService.Finish(model.Username);
                     }
@@ -156,6 +165,10 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             _session.Remove("HashedCredential");
             _session.Remove("LoginAttempt");
             _session.Remove("LoginBlockTime");
+            _session.Remove("collection");
+            _session.Remove("adminPassword");
+            _session.Remove("adminUsername");
+            _session.Remove("permisions");
 
             var authHeader = HttpContext.Request.Headers.Authorization.ToString();
             if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
@@ -168,6 +181,9 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             {
                 AbsoluteExpiration = DateTimeOffset.UtcNow
             });
+
+            _memoryCache.Remove($"groups_{_session.Id}");
+            _session.Clear();
         }
         catch (Exception ex)
         {

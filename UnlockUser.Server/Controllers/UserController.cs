@@ -7,7 +7,9 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Channels;
 using UnlockUser.Server.FormModels;
+using static System.Net.WebRequestMethods;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -16,7 +18,7 @@ namespace UnlockUser.Server.Controllers;
 [Authorize]
 public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localService,
-    ICredentialsService credinalService, ILocalMailService localMailService) : ControllerBase
+    ICredentialsService credinalService, ILocalMailService localMailService, ILogger<UserController> logger) : ControllerBase
 {
 
     private readonly IActiveDirectory _provider = provider;
@@ -27,6 +29,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     private readonly ILocalUserService _localService = localService;
     private readonly ICredentialsService _credentialsService = credinalService;
     private readonly ILocalMailService _localMailService = localMailService;
+    private readonly ILogger<UserController> _logger = logger;
 
     #region GET
     // Get user information by username
@@ -384,27 +387,35 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         return data;
     }
 
+
     // Set multiple passwords
-    private async Task<string?> SetPassword(UserFormModel user)
+    private async Task<string?> SetPasswords(List<UserFormModel> userModels)
     {
+        var userModel = userModels[0];
         // Check model is valid or not and return warning is true or false
-        if (user == null)
-            return "Användare för lösenordsåterställning har inte specificerats."; // Password reset user not specified
+        if (userModel == null)
+            return "Person för lösenordsåterställning har inte specificerats."; // Password reset user not specified
+
+        // CUrrent moderator claims
+        var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permission"]);
+        if(claims == null || userModels == null)
+            return "Ingen användare med behörighet för lösenordsåterställning har specificerats.";
+
+
+        claims!.TryGetValue("username", out string? username);
+
 
         // If password needs to confirm
-        if (!string.IsNullOrEmpty(user.ConfirmPassword))
+        if (!string.IsNullOrEmpty(userModel.ConfirmPassword))
         {
-            if (!string.Equals(user.Password, user.ConfirmPassword))
+            if (!string.Equals(userModel.Password, userModel.ConfirmPassword))
                 return "Lösenord och bekräftelse av lösenord matchar inte.";
         }
 
         // Managed user credentials
-        string? group = user.GroupName;
-        string? office = user.Office;
-        string? department = user.Department;
-
-        // CUrrent moderator claims
-        var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permission"]);
+        string? group = userModel.GroupName;
+        string? office = userModel.Office;
+        string? department = userModel.Department;
 
 
         // Check permission for the managed users group
@@ -414,111 +425,48 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         if (!groups.Contains(group, StringComparer.OrdinalIgnoreCase))
             return "Behörigheter saknas!"; // Warning!
 
-
         // Check current moderators role
         var roles = claims != null && claims.TryGetValue("roles", out var r) && !string.IsNullOrEmpty(r)
                                 ? r.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
 
-        if (!roles.Contains("Support", StringComparer.OrdinalIgnoreCase))
+        _logger.LogInformation("Password change initiated at {dateTime}. Moderator: {user}", DateTime.Now.ToString("g"), username);
+        _logger.LogInformation("Permission validation for the admin role.");
+ 
+        // Check current user permission
+        if (roles.Contains("Support", StringComparer.OrdinalIgnoreCase))
         {
-            var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permission"])!;
+            var permissionsJson = HttpContext.Session.GetString("permissions");
 
-            string warningMessage = "Du saknar behörigheter att ändra lösenord till";
-
-                var manager = user.Manager;
-
-                string? userManager = (!string.IsNullOrEmpty(manager) && manager.Contains(',')) ? manager.Trim()?[3..manager!.IndexOf(',')] : null;
-                if (string.IsNullOrEmpty(userManager) || !permissions.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase))
-                    return $"{warningMessage} {user.Username}";
-        }
-
-        Data sessionUserData = await GetLogData(group!, office!, department!);
-        var message = new StringBuilder();
-
-        // Set password to class students
-
-            try
-            {
-                _provider.ResetPassword(user);
-                if (_env.IsProduction())
-                    sessionUserData.Users.Add(user?.Username ?? "");
-            }
-            catch (Exception ex)
-            {
-                message?.Append($"Fel vid försök ändra lösenord till {user.Username}: {ex.Message}");
-            }
-       
-
-        // Save/Update statistics
-        if (!user.Check && _env.IsProduction())
-        {
-            await SaveHistoryLogFile(sessionUserData);
-            await SaveUpdateStatitics("PasswordsChange", 1);
-        }
-
-        return (message?.Length > 0) ? message.ToString() : null;
-    }
-
-
-    // Set multiple passwords
-    private async Task<string?> SetPasswords(List<UserFormModel> users)
-    {
-        // Check model is valid or not and return warning is true or false
-        if (users == null || users.Count == 0)
-            return "Användare för lösenordsåterställning har inte specificerats."; // Password reset user not specified
-
-        // If password needs to confirm
-        if (!string.IsNullOrEmpty(users?[0]?.ConfirmPassword))
-        {
-            if (!string.Equals(users[0]?.Password, users[0]?.ConfirmPassword))
-                return "Lösenord och bekräftelse av lösenord matchar inte.";
-        }
-
-        // Managed user credentials
-        string? group = users?[0].GroupName;
-        string? office = users?[0].Office;
-        string? department = users?[0].Department;
-
-        // CUrrent moderator claims
-        var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permission"]);
-
-
-        // Check permission for the managed users group
-        var groups = claims != null && claims.TryGetValue("groups", out var g) && !string.IsNullOrEmpty(g)
-                        ? g.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
-        if (!groups.Contains(group, StringComparer.OrdinalIgnoreCase))
-            return "Behörigheter saknas!"; // Warning!
-
-
-        // Check current moderators role
-        var roles = claims != null && claims.TryGetValue("roles", out var r) && !string.IsNullOrEmpty(r)
-                                ? r.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
-
-        if (!roles.Contains("Support", StringComparer.OrdinalIgnoreCase))
-        {
-            var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permission"])!;
+            var permissions = permissionsJson is null
+                ? null
+                : JsonConvert.DeserializeObject<PermissionsViewModel>(permissionsJson);
 
             string warningMessage = "Du saknar behörigheter att ändra lösenord till";
             if (group!.Equals("Students", StringComparison.OrdinalIgnoreCase))
             {
-                if (!permissions.Schools.Contains(office, StringComparer.OrdinalIgnoreCase))
+                if (!permissions!.Schools.Contains(office, StringComparer.OrdinalIgnoreCase))
                     return $"{warningMessage} {department} {office}";
             }
             else
             {
-                var manager = users?[0].Manager;
+                var manager = userModel.Manager;
 
                 string? userManager = (!string.IsNullOrEmpty(manager) && manager.Contains(',')) ? manager.Trim()?[3..manager!.IndexOf(',')] : null;
-                if (string.IsNullOrEmpty(userManager) || !permissions.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase))
-                    return $"{warningMessage} {users?[0].Username}";
+
+                if (string.IsNullOrEmpty(userManager) || (!permissions!.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase) 
+                    && !userManager.Equals(username, StringComparison.OrdinalIgnoreCase)))
+                    return $"{warningMessage} {userModel.Username}";
             }
         }
 
         Data sessionUserData = await GetLogData(group!, office!, department!);
         var message = new StringBuilder();
 
+
+        _logger.LogInformation("Permissions validated. Starting to set a new password for {users} at {dateTime}.", string.Join(",", userModels), DateTime.Now.ToString("g"));
+
         // Set password to class students
-        foreach (var user in users!)
+        foreach (var user in userModels!)
         {
             try
             {
@@ -528,17 +476,22 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             }
             catch (Exception ex)
             {
+                _logger.LogError("Failed to change the password for {person}.", user.Username);
                 message?.Append($"Fel vid försök ändra lösenord till {user.Username}: {ex.Message}");
             }
         }
 
         // Save/Update statistics
-        if (!users[0].Check && _env.IsProduction())
+        if (!userModel.Check && _env.IsProduction())
         {
-            await SaveHistoryLogFile(sessionUserData);
-            await SaveUpdateStatitics("PasswordsChange", users.Count);
+            _ = Task.Run(async () =>
+            {
+                await SaveHistoryLogFile(sessionUserData);
+                await SaveUpdateStatitics("PasswordsChange", userModels.Count);
+            });
         }
 
+        _logger.LogInformation("Password change finished at {dateTime}. Moderator: {user}", DateTime.Now.ToString("g"), username);
         return (message?.Length > 0) ? message.ToString() : null;
     }
 
@@ -643,3 +596,78 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
     #endregion
 }
+
+//// Set multiple passwords
+//private async Task<string?> SetPassword(UserFormModel user)
+//{
+//    // Check model is valid or not and return warning is true or false
+//    if (user == null)
+//        return "Användare för lösenordsåterställning har inte specificerats."; // Password reset user not specified
+
+//    // If password needs to confirm
+//    if (!string.IsNullOrEmpty(user.ConfirmPassword))
+//    {
+//        if (!string.Equals(user.Password, user.ConfirmPassword))
+//            return "Lösenord och bekräftelse av lösenord matchar inte.";
+//    }
+
+//    // Managed user credentials
+//    string? group = user.GroupName;
+//    string? office = user.Office;
+//    string? department = user.Department;
+
+//    // CUrrent moderator claims
+//    var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permission"]);
+
+
+//    // Check permission for the managed users group
+//    var groups = claims != null && claims.TryGetValue("groups", out var g) && !string.IsNullOrEmpty(g)
+//                    ? g.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
+
+//    if (!groups.Contains(group, StringComparer.OrdinalIgnoreCase))
+//        return "Behörigheter saknas!"; // Warning!
+
+
+//    // Check current moderators role
+//    var roles = claims != null && claims.TryGetValue("roles", out var r) && !string.IsNullOrEmpty(r)
+//                            ? r.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
+
+//    if (!roles.Contains("Support", StringComparer.OrdinalIgnoreCase))
+//    {
+//        var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permission"])!;
+
+//        string warningMessage = "Du saknar behörigheter att ändra lösenord till";
+
+//        var manager = user.Manager;
+
+//        string? userManager = (!string.IsNullOrEmpty(manager) && manager.Contains(',')) ? manager.Trim()?[3..manager!.IndexOf(',')] : null;
+//        if (string.IsNullOrEmpty(userManager) || !permissions.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase))
+//            return $"{warningMessage} {user.Username}";
+//    }
+
+//    Data sessionUserData = await GetLogData(group!, office!, department!);
+//    var message = new StringBuilder();
+
+//    // Set password to class students
+
+//    try
+//    {
+//        _provider.ResetPassword(user);
+//        if (_env.IsProduction())
+//            sessionUserData.Users.Add(user?.Username ?? "");
+//    }
+//    catch (Exception ex)
+//    {
+//        message?.Append($"Fel vid försök ändra lösenord till {user.Username}: {ex.Message}");
+//    }
+
+
+//    // Save/Update statistics
+//    if (!user.Check && _env.IsProduction())
+//    {
+//        await SaveHistoryLogFile(sessionUserData);
+//        await SaveUpdateStatitics("PasswordsChange", 1);
+//    }
+
+//    return (message?.Length > 0) ? message.ToString() : null;
+//}

@@ -37,10 +37,9 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
     [HttpGet("popup/message")]
     public async Task<IActionResult> GetMessage()
     {
-        var (_, files) = GetFiles("message");
+        var (_, files) = GetFiles("popup");
         if (files == null || !files.Any())
             return Ok();
-
 
         string? username = _credentials.GetClaim("username");
         if (string.IsNullOrEmpty(username))
@@ -53,7 +52,6 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
 
         lock (_lock)
         {
-
             if (!Directory.Exists(jsonFolder))
                 Directory.CreateDirectory(jsonFolder);
 
@@ -197,7 +195,6 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
         }
     }
 
-
     [HttpPost("hide/popup/message")]
     public async Task<IActionResult> HideModalMessage()
     {
@@ -209,7 +206,6 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
         string jsonPathName = Path.Combine(jsonFolder, "watched.json");
         lock (_lock)
         {
-
             if (!Directory.Exists(jsonFolder))
                 Directory.CreateDirectory(jsonFolder);
 

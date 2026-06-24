@@ -63,7 +63,7 @@ function Overview() {
     const user = collection ? collection.find(x => x.name === id) : reqUser;
     const { groups, schools, managers, politicians } = user?.permissions ?? {};
 
-    const accessToPasswordManage = JSON.parse(permissions).Groups.find(x => x === user.group) != null;
+    const accessToPasswordManage = permissions.split(',').find(x => x === user.group) != null;
     
     const navigate = useNavigate();
     const ref = useRef(null);

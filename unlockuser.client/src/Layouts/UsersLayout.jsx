@@ -45,9 +45,9 @@ function UsersLayout() {
         await fetchData({ api: "user/renew/saved", method: "post" });
         sessionStorage.setItem("updated", "true");
     }
-
+console.log(groups)
     const groupsLinks = groups?.map((name, index) => (
-        <NavLink className="link-group" to={`/moderators/${name.toLowerCase()}`} key={index} >{name}</NavLink>
+        <NavLink className="link-group" to={`/moderators/${name?.toLowerCase()}`} key={index} >{name}</NavLink>
     ));
 
     const moderatorsByGroup = group ? moderators?.filter(x => x.permissions?.groups?.includes(groupName)) : moderators;
@@ -55,7 +55,7 @@ function UsersLayout() {
 
     const secondaryRow = id
         ? `${moderator?.primary} | <span class="secondary-span">${moderator?.office}</span> | <span class="secondary-span">${moderator?.title}</span>`
-        : groupsLinks
+        : groupsLinks;
 
     return (
         <div className="d-column jc-start w-100">

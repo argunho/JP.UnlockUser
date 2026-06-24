@@ -234,8 +234,8 @@ public class ADService(IHttpContextAccessor httpContextAccessor) : IActiveDirect
     public PrincipalContext PContexAccessCheck()
     {
         var _session = httpContextAccessor.HttpContext!.Session;
-        var username = _session.GetString("AdminUsername");
-        var protectedPassword = _session.Get("AdminPassword");
+        var username = _session.GetString("adminUsername");
+        var protectedPassword = _session.Get("adminPassword");
 
         string password = DpapiProtector.Unprotect(protectedPassword);
         PrincipalContext context = new(ContextType.Domain, domain, defaultOU, username, password);

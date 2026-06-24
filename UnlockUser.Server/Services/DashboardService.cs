@@ -1,19 +1,22 @@
 ﻿namespace UnlockUser.Server.Services;
 
 using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 
 public class DashboardService(
-        IMemoryCache memoryCache,
+        IHttpContextAccessor contextAccessor,
         ILocalFileService localFileService,
         IConfiguration config,
         IActiveDirectory provider,
+        IMemoryCache memoryCache,
         ILogger<DashboardService> logger
     )
 {
-    private readonly IMemoryCache _memoryCache = memoryCache;
+    private readonly ISession? _session = contextAccessor.HttpContext!.Session;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IConfiguration _config = config;
     private readonly IActiveDirectory _provider = provider;
+    private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly ILogger<DashboardService> _logger = logger;
 
 
@@ -30,7 +33,7 @@ public class DashboardService(
             var savedEmployees = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
 
             // Currentsession user permissions
-            var sessionUserPermissions = savedEmployees.FirstOrDefault(x => x.Name == username)?.Permissions; // claims["username"])?.Permissions;
+            var sessionUserPermissions = savedEmployees.FirstOrDefault(x => x.Name == username)?.Permissions;
 
             // Lopp of all employees groups
             foreach (var group in passwordManageGroups)
@@ -57,7 +60,19 @@ public class DashboardService(
                 }
 
                 // All users who are members of the current password management group
-                var users = (_provider.GetUsersByGroupName(group, alternativeParams)).ToList();
+                if (!_memoryCache.TryGetValue(group.Name!, out List<User>? users))
+                {
+                    users = [.. (_provider.GetUsersByGroupName(group, alternativeParams))];
+
+                    if (users?.Count > 0)
+                    {
+                        _memoryCache.Set(
+                            group.Name!,
+                            users,
+                            TimeSpan.FromHours(6)
+                         );
+                    }
+                }
 
                 if (!isStudents)
                 {
@@ -86,19 +101,14 @@ public class DashboardService(
                     groups.Add(group.Name!.ToLower(), usersViewModel);
                 }
 
-
                 _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", group.Name, DateTime.Now.ToString("G"));
             }
 
-            // Save to session memory
+            var id = _session!.Id;
             _memoryCache.Set(
-               "groups",
+                $"groups_{id}", 
                 groups,
-                new MemoryCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(60),
-                    SlidingExpiration = TimeSpan.FromMinutes(60)
-                }
+                TimeSpan.FromHours(1)
             );
 
             _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", groups.Count, DateTime.Now.ToString("G"));

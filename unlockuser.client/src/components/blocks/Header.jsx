@@ -38,7 +38,7 @@ const Header = memo(function Header({ disabled }) {
     const loc = useLocation();
     const refMenu = useRef();
     const { permissions, displayName, openAccess } = DecodedClaims();
-    const groups = permissions != null ? JSON.parse(permissions)?.Groups : [];<h2>Log</h2>
+    const groups = permissions != null ? permissions?.split(",") : [];
 
     useEffect(() => {
         let clickHandler = (event) => {

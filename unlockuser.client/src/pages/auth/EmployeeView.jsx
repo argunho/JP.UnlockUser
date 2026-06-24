@@ -20,9 +20,6 @@ import './../../assets/css/view.css';
 
 function EmployeeView() {
 
-    const [approved, setApproved] = useState([]);
-    const [isChanged, setChanged] = useState(false);
-
     const revalidator = useRevalidator();
     const { schools, groups, moderator: userData, managers, politicians } = useOutletContext();
     const { permissions } = userData;
@@ -36,27 +33,17 @@ function EmployeeView() {
 
     const { fetchData, pending, response, success, handleResponse } = use(FetchContext);
 
-    useEffect(() => {
-        setApproved({
-            managers: approvedManagers,
-            politicians: approvedPoliticians,
-            schools: permissions?.schools
-        })
-    }, [])
+    const [approved, setApproved] = useState({
+        managers: approvedManagers,
+        politicians: approvedPoliticians,
+        schools: permissions?.schools
+    });
+
 
     useEffect(() => {
-        const isChanged = !_.isEqual(permissions?.managers, approved?.managers?.sort((a, b) => a.username?.localeCompare(b.username))?.map(x => x.username))
-            || !_.isEqual(approvedPoliticians?.sort((a, b) => a.name?.localeCompare(b.name))?.map(x => x.name), approved?.politicians?.sort((a, b) => a.name?.localeCompare(b.name))?.map(x => x.name))
-            || !_.isEqual(permissions?.schools, approved?.schools?.sort((a, b) => a?.localeCompare(b)))
-
-        setChanged(isChanged)
-    }, [approved])
-
-    useEffect(() => {
-        setChanged(false);
         if (success)
-           revalidator.revalidate();
-    }, [success])
+            revalidator.revalidate();
+    }, [success, revalidator])
 
     function onChange(value, group, multiple) {
 
@@ -107,6 +94,10 @@ function EmployeeView() {
         await fetchData({ api: `user/update/permissions/${userData?.name}`, method: "put", data: data, action: "success" });
     }
 
+    const isChanged = !_.isEqual(permissions?.managers, [...(approved?.managers ?? [])].sort((a, b) => a.username?.localeCompare(b.username)).map(x => x.username))
+        || !_.isEqual([...(approvedPoliticians ?? [])].sort((a, b) => a.name?.localeCompare(b.name)).map(x => x.name), [...(approved?.politicians ?? [])].sort((a, b) => a.name?.localeCompare(b.name)).map(x => x.name))
+        || !_.isEqual(permissions?.schools, [...(approved?.schools ?? [])].sort((a, b) => a?.localeCompare(b)));
+        
     return (
         <>
             <ActionButtons pending={pending} disabled={!isChanged} onConfirm={onSubmit} />

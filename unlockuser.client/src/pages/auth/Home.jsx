@@ -16,7 +16,6 @@ import AutocompleteList from './../../components/lists/AutocompleteList';
 import ListLoading from './../../components/lists/ListLoading';
 import ListsView from './../../components/lists/ListsView';
 import Message from '../../components/blocks/Message';
-import ModalMessage from '../../components/modals/ModalMessage';
 
 // Functions
 import { Claim } from '../../functions/DecodedToken';
@@ -28,9 +27,7 @@ import { FetchContext } from '../../storage/FetchContext';
 import { AllTips, Tips } from '../../models/HelpTexts';
 
 // Services
-import { ApiRequest } from '../../services/ApiRequest';
-
-
+// import { ApiRequest } from '../../services/ApiRequest';
 
 const radioChoices = [
     { label: "Användare", value: "user" },
@@ -84,21 +81,19 @@ function Home() {
     const [state, dispatch] = useReducer(actionReducer, initialState);
     const { isClass, isMatch, isChanged, isCleaned, users, group } = state;
 
-    // const groups = Claim("groups")?.split(",");
-    const permissionGroups = Claim("permissions")?.groups;
+    const permissionGroups = Claim("permissions")?.split(",");
     const openAccess = Claim("openAccess");
 
-    // const { collections, schools, group: groupName } = useOutletContext();
     const { schools, group: groupName } = useOutletContext();
-    const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
+    const { response, pending: loading, fetchData, resData: groupCollection,  handleResponse } = use(FetchContext);
     const gn = group ? group?.toLowerCase() : groupName;
 
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
     const groupCollectionRef = useRef(null);
 
-    const [modalMessage, setModalMessage] = useState(null);
-    const [groupCollection, setGroupCollection] = useState(null);
+    // const [modalMessage, setModalMessage] = useState(null);
+    // const [groupCollection, setGroupCollection] = useState(null);
     const [searching, setSearching] = useState(false);
 
     useEffect(() => {
@@ -119,27 +114,28 @@ function Home() {
     }
 
     // Get collection by group name
-    async function get(res = false) {
+    async function get() {
         try {
 
-            const shouldFetchMessage = !sessionStorage.getItem("checked");
-            const messagePromise = shouldFetchMessage
-                ? ApiRequest("article/popup/message")
-                : Promise.resolve(null);
+            // const shouldFetchMessage = !sessionStorage.getItem("checked");
+            // const messagePromise = shouldFetchMessage
+            //     ? ApiRequest("article/popup/message")
+            //     : Promise.resolve(null);
 
-            const [message, collection] = await Promise.all([
-                messagePromise,
-                ApiRequest(`data/groups/by/name/${gn}`),
-            ]);
+            // const [message, collection] = await Promise.all([
+            //     messagePromise,
+            //     ApiRequest(`data/groups/by/name/${gn}`),
+            // ]);
 
-            if (shouldFetchMessage) {
-                sessionStorage.setItem("checked", "true");
-            }
+            // if (shouldFetchMessage) {
+            //     sessionStorage.setItem("checked", "true");
+            // }
 
-            setModalMessage(!!message?.html ? message : null);
-            setGroupCollection(Array.isArray(collection) ? collection : []);
-            if (res)
-                return collection;
+            // setModalMessage(!!message?.html ? message : null);
+            // setGroupCollection(Array.isArray(collection) ? collection : []);
+
+            await fetchData({ api:`data/groups/by/name/${gn}` });
+            
         } catch (error) {
             console.error(error);
         }
@@ -240,10 +236,10 @@ function Home() {
         dispatch({ type: "RESET" });
     }
 
-    async function hideMessage(){
-        setModalMessage(null);
-        await ApiRequest("article/hide/popup/message", "post");
-    }
+    // async function hideMessage(){
+    //     setModalMessage(null);
+    //     await ApiRequest("article/hide/popup/message", "post");
+    // }
 
     const [formState, formAction, pending] = useActionState(onSubmit, {
         name: "",
@@ -416,19 +412,6 @@ function Home() {
                     "\n• Du försöker ändra lösenordet för ett administratörskonto. Av säkerhetsskäl får administratörer inte ändra lösenord för andra administratörer." +
                     "\n\n Försök att justera din sökning eller kontrollera stavningen."
             }} cancel={onReset} />}
-
-            {/* Modal message */}
-            {modalMessage && 
-                <ModalMessage 
-                    label={`<p style='font-size: 32px'>${modalMessage?.name}</p>`} 
-                    isOpen={true} 
-                    content={modalMessage?.html}
-                    childrenButton={true} >
-                        <Button variant="contained" color="default" onClick={hideMessage} >
-                            Visa inte meddelandet igen
-                        </Button>
-                </ModalMessage>
-            }
         </>
     )
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Data;
 using System.DirectoryServices;
@@ -11,13 +10,12 @@ namespace UnlockUser.Server.Controllers;
 [ApiController]
 [Authorize]
 public class SearchController(IActiveDirectory provider, ILocalUserService localUserService,
-    IHelpService helpService, ICredentialsService credentialsService, IMemoryCache memoryCache, IConfiguration config) : ControllerBase
+    IHelpService helpService, ICredentialsService credentialsService, IConfiguration config) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider;
     private readonly ILocalUserService _localUserService = localUserService;
     private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentialsService = credentialsService;
-    private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly IConfiguration _config = config;
 
     #region GET

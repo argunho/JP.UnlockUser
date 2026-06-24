@@ -25,7 +25,7 @@ import NotFound from "../pages/NotFound";
 import ErrorView from '../pages/ErrorView';
 
 // Services
-import { loader, loaderById, loaderByParams } from '../services/LoadFunctions';
+import { loader, loaderById, loaderByParams, loaderBySession } from '../services/LoadFunctions';
 
 // Storage
 import FetchContextProvider from '../storage/FetchContext';
@@ -45,6 +45,7 @@ const AppRoutes = () => [
       <AppLayout />
     </FetchContextProvider>,
     errorElement: <NotFound isAuthorized={true} />,
+    loader: loaderBySession("article/popup/message", "popup", true),
     children: [
       {
         index: true,
@@ -71,7 +72,7 @@ const AppRoutes = () => [
         children: [
           {
             index: true,
-            element: <Manual api="manual" label="Webbapp-manual" menuLabel="Kunskapsartiklar"/>,
+            element: <Manual api="manual" label="Webbapp-manual" menuLabel="Kunskapsartiklar" />,
             errorElement: <ErrorView />,
             loader: loader("manual")
           },
@@ -180,31 +181,31 @@ const AppRoutes = () => [
             loader: loader("data/schools")
           },
         ]
+      }
+    ]
+  },
+  {
+    path: "/moderators",
+    element: <UsersLayout />,
+    errorElement: <NotFound isAuthorized={true} />,
+    loader: loader("user/principal"),
+    // shouldRevalidate: () => false,
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/moderators/personal" replace />,
+        errorElement: <ErrorView />
       },
       {
-        path: "/moderators",
-        element: <UsersLayout />,
-        errorElement: <NotFound isAuthorized={true} />,
-        loader: loader("user/principal"),
-        // shouldRevalidate: () => false,
-        children: [
-          {
-            index: true,
-            element: <Navigate to="/moderators/personal" replace />,
-            errorElement: <ErrorView />
-          },
-          {
-            path: ":group",
-            element: <Employees />,
-            errorElement: <ErrorView />
-          },
-          {
-            path: "view/:id",
-            element: <EmployeeView />,
-            errorElement: <ErrorView />
-          }
-        ]
+        path: ":group",
+        element: <Employees />,
+        errorElement: <ErrorView />
       },
+      {
+        path: "view/:id",
+        element: <EmployeeView />,
+        errorElement: <ErrorView />
+      }
     ]
   },
   {
