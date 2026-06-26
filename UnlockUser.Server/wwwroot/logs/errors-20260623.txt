@@ -1,2 +1,0 @@
-2026-06-23 16:34:58.169 +02:00 [ERR] DashboardService. Felmeddelande: IFeatureCollection has been disposed.
-Object name: 'Collection'.

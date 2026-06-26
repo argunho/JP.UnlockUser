@@ -7,9 +7,8 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Channels;
 using UnlockUser.Server.FormModels;
-using static System.Net.WebRequestMethods;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -17,7 +16,7 @@ namespace UnlockUser.Server.Controllers;
 [ApiController]
 [Authorize]
 public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
-    ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localService,
+    ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localService, IMemoryCache memoryCahce,
     ICredentialsService credinalService, ILocalMailService localMailService, ILogger<UserController> logger) : ControllerBase
 {
 
@@ -26,6 +25,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     private readonly IHelpService _helpService = helpService;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IWebHostEnvironment _env = env;
+    private readonly IMemoryCache _memoryCache = memoryCahce;
     private readonly ILocalUserService _localService = localService;
     private readonly ICredentialsService _credentialsService = credinalService;
     private readonly ILocalMailService _localMailService = localMailService;
@@ -33,12 +33,42 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
     #region GET
     // Get user information by username
-    [HttpGet("{group}/{name}")]
+    [HttpGet("by/{group}/{name}")]
     public async Task<IActionResult> GetUserForPasswordManage(string group, string name)
     {
-        UserViewModel? user = null; ;
+        var groupModels = new List<UserViewModel>();
+        var username = _credentialsService.GetClaim("username");
+        UserViewModel? user = null;
+
         try
         {
+            var id = HttpContext.Session.Id;
+            if (_memoryCache.TryGetValue(
+                $"groups_{id}",
+                out Dictionary<string, List<UserViewModel>>? cachedGroups))
+            {
+                bool supportModel = string.Equals(name.ToString(), "Support", StringComparison.OrdinalIgnoreCase);
+                if (supportModel)
+                {
+                    List<string?> groups = [.. _config.
+                   GetSection("Groups")
+                   .Get<List<GroupModel>>()?
+                   .Select(s => s.Name)!
+                   .Where(x => !string.IsNullOrWhiteSpace(x))
+                   .Cast<string>()!
+                     ];
+
+                    groupModels = [.. groups.SelectMany(g => cachedGroups!.TryGetValue(g.ToLower(), out var value) ? value : [])];
+                }
+                else
+                {
+                    groupModels = cachedGroups!.TryGetValue(name.ToLower(), out var value) ? value : [];
+                }
+
+                user = groupModels.FirstOrDefault(x => x.Name == name);
+                return Ok(user);
+            }
+
             var groupName = group == "Studenter" ? "Students" : "Employees";
             DirectorySearcher? members = _provider.GetMembers(groupName);
 
@@ -401,7 +431,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
         // CUrrent moderator claims
         var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permission"]);
-        if(claims == null || userModels == null)
+        if (claims == null || userModels == null)
             return "Ingen användare med behörighet för lösenordsåterställning har specificerats.";
 
 
@@ -434,7 +464,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
         _logger.LogInformation("Password change initiated at {dateTime}. Moderator: {user}", DateTime.Now.ToString("g"), username);
         _logger.LogInformation("Permission validation for the admin role.");
- 
+
         // Check current user permission
         if (roles.Contains("Support", StringComparer.OrdinalIgnoreCase))
         {
@@ -456,7 +486,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
                 string? userManager = (!string.IsNullOrEmpty(manager) && manager.Contains(',')) ? manager.Trim()?[3..manager!.IndexOf(',')] : null;
 
-                if (string.IsNullOrEmpty(userManager) || (!permissions!.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase) 
+                if (string.IsNullOrEmpty(userManager) || (!permissions!.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase)
                     && !userManager.Equals(username, StringComparison.OrdinalIgnoreCase)))
                     return $"{warningMessage} {userModel.Username}";
             }

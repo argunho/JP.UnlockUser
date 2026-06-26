@@ -59,7 +59,7 @@ function Employees() {
                             secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }} />} />
                     </ListItem>
                 })}
-            </List>}
+            </List>)}
         </>
     )
 }
