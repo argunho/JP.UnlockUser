@@ -116,7 +116,7 @@ const AppRoutes = () => [
             path: "user/:id",
             element: <UserManager />,
             errorElement: <ErrorView />,
-            loader: loaderByParams("user/by/", ["group", "id"]),
+            loader: loaderByParams("user/by", ["group", "id"]),
             // shouldRevalidate: () => false
           },
           {
