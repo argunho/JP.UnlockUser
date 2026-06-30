@@ -62,7 +62,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                 }
                 else
                 {
-                    groupModels = cachedGroups!.TryGetValue(name.ToLower(), out var value) ? value : [];
+                    groupModels = cachedGroups!.TryGetValue(group.ToLower(), out var value) ? value : [];
                 }
 
                 user = groupModels.FirstOrDefault(x => x.Name == name);

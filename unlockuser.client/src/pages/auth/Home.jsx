@@ -198,7 +198,7 @@ function Home() {
 
             // const collection = groups.flatMap(g => collections[g.toLowerCase()])?.filter(Boolean);
             if (groupCollectionRef.current === null)
-                await waitForCollection(60000);
+                await waitForCollection(120000);
 
             const collection = groupCollection ?? groupCollectionRef.current;
 
@@ -247,6 +247,8 @@ function Home() {
         school: "",
         errors: null
     });
+
+    console.log(isCleaned, isChanged, groupCollectionRef.current)
 
     return (
         <>

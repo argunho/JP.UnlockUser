@@ -75,10 +75,10 @@ function FetchContextProvider({ children }) {
         dispatch({ type: 'CLEAR' });
     }, []);
 
-    const fetchData = useCallback(async ({ api, method = 'get', data = null, action = null, responseType = null }) => {
+    const fetchData = useCallback(async ({ api, method = 'get', data = null, action = null, responseType = null, loadDisabled = false }) => {
         controllerRef.current = new AbortController();
 
-        dispatch({ type: 'LOAD_START', isMutation: method !== "get" });
+        dispatch({ type: 'LOAD_START', isMutation: method !== "get" && !loadDisabled });
 
         try {
             const config = {

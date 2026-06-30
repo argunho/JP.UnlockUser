@@ -48,7 +48,7 @@ function AppLayout() {
 
   async function hideMessage() {
     setOpen(false);
-    await fetchData({ api: "article/hide/popup/message", method: "post" });
+    await fetchData({ api: "article/hide/popup/message", method: "post", loadDisabled: true});
   }
 
   const loads = !collections;

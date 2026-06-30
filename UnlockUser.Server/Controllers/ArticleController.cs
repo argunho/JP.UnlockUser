@@ -204,37 +204,42 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
 
         string jsonFolder = Path.Combine(@"wwwroot", "json");
         string jsonPathName = Path.Combine(jsonFolder, "watched.json");
-        lock (_lock)
-        {
-            if (!Directory.Exists(jsonFolder))
-                Directory.CreateDirectory(jsonFolder);
 
-            if (!System.IO.File.Exists(jsonPathName))
-                System.IO.File.WriteAllText(jsonPathName, "[]");
-
-            string json = System.IO.File.ReadAllText(jsonPathName);
-
-            HashSet<string> watched;
-            try
+        _ = Task.Run(async () =>
             {
-                watched = string.IsNullOrEmpty(json)
-                ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-                : System.Text.Json.JsonSerializer.Deserialize<HashSet<string>>(json)
-                  ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                lock (_lock)
+                {
 
-            }
-            catch (System.Text.Json.JsonException)
-            {
-                watched = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            }
+                    if (!Directory.Exists(jsonFolder))
+                        Directory.CreateDirectory(jsonFolder);
 
-            if (!watched.Contains(username))
-            {
-                watched.Add(username);
-                var updatedJson = System.Text.Json.JsonSerializer.Serialize(watched);
-                System.IO.File.WriteAllText(jsonPathName, updatedJson);
-            }
-        }
+                    if (!System.IO.File.Exists(jsonPathName))
+                        System.IO.File.WriteAllText(jsonPathName, "[]");
+
+                    string json = System.IO.File.ReadAllText(jsonPathName);
+
+                    HashSet<string> watched;
+                    try
+                    {
+                        watched = string.IsNullOrEmpty(json)
+                        ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                        : System.Text.Json.JsonSerializer.Deserialize<HashSet<string>>(json)
+                          ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                    }
+                    catch (System.Text.Json.JsonException)
+                    {
+                        watched = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    }
+
+                    if (!watched.Contains(username))
+                    {
+                        watched.Add(username);
+                        var updatedJson = System.Text.Json.JsonSerializer.Serialize(watched);
+                        System.IO.File.WriteAllText(jsonPathName, updatedJson);
+                    }
+                }
+            });
 
         return Ok();
     }
