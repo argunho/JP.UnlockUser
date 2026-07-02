@@ -68,6 +68,12 @@ const AppRoutes = () => [
         errorElement: <ErrorView />
       },
       {
+        path: "search/support/view/user/:id",
+        element: <Overview />,
+        errorElement: <ErrorView />,
+        loader: loaderById("user/by")
+      },
+      {
         path: "manual",
         children: [
           {
@@ -127,26 +133,10 @@ const AppRoutes = () => [
         ]
       },
       {
-        path: "/view",
-        children: [
-          {
-            path: 'user/:id',
-            element: <Overview />,
-            errorElement: <ErrorView />
-          },
-          {
-            path: 'user/by/:id',
-            element: <Overview />,
-            errorElement: <ErrorView />,
-            loader: loaderById("user/by")
-          },
-          {
-            path: 'my/permissions',
-            element: <Permissions />,
-            errorElement: <ErrorView />,
-            loader: loader("user/permissions")
-          },
-        ]
+        path: "view/my/permissions",
+        element: <Permissions />,
+        errorElement: <ErrorView />,
+        loader: loader("user/permissions")
       },
       {
         path: "/catalog",

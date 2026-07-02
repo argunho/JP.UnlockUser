@@ -85,20 +85,14 @@ function Home() {
     const openAccess = Claim("openAccess");
 
     const { schools, group: groupName } = useOutletContext();
-    const { response, pending: loading, fetchData, resData: groupCollection,  handleResponse } = use(FetchContext);
+    const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
     const gn = group ? group?.toLowerCase() : groupName;
 
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
     const groupCollectionRef = useRef(null);
 
-    // const [modalMessage, setModalMessage] = useState(null);
-    // const [groupCollection, setGroupCollection] = useState(null);
     const [searching, setSearching] = useState(false);
-
-    useEffect(() => {
-        groupCollectionRef.current = groupCollection;
-    }, [groupCollection]);
 
     function waitForCollection(timeout = 60000) {
         return new Promise((resolve) => {
@@ -134,7 +128,7 @@ function Home() {
             // setModalMessage(!!message?.html ? message : null);
             // setGroupCollection(Array.isArray(collection) ? collection : []);
 
-            await fetchData({ api:`data/groups/by/name/${gn}` });
+            groupCollectionRef.current = await fetchData({ api:`data/groups/by/name/${gn}`, action: "return" });
             
         } catch (error) {
             console.error(error);
@@ -200,7 +194,8 @@ function Home() {
             if (groupCollectionRef.current === null)
                 await waitForCollection(120000);
 
-            const collection = groupCollection ?? groupCollectionRef.current;
+            // const collection = groupCollection ?? groupCollectionRef.current;
+            const collection = groupCollectionRef.current;
 
             let res = null;
             if (collection?.length > 0) {
@@ -236,19 +231,12 @@ function Home() {
         dispatch({ type: "RESET" });
     }
 
-    // async function hideMessage(){
-    //     setModalMessage(null);
-    //     await ApiRequest("article/hide/popup/message", "post");
-    // }
-
     const [formState, formAction, pending] = useActionState(onSubmit, {
         name: "",
         match: false,
         school: "",
         errors: null
     });
-
-    console.log(isCleaned, isChanged, groupCollectionRef.current)
 
     return (
         <>
@@ -399,6 +387,7 @@ function Home() {
             {users?.length > 0 && <ListsView
                 list={users}
                 grouped="office"
+                openAccess={openAccess}
                 group={gn}
                 multiple={isClass}
             />}

@@ -5,14 +5,14 @@ import {
   List, ListItemButton, ListItemText, Typography, ListItemSecondaryAction,
   ListItemAvatar, Avatar, Checkbox
 } from '@mui/material';
-import { WysiwygSharp } from '@mui/icons-material';
+import { WysiwygSharp, ArrowForward } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 // Components
 import ListPanel from './ListPanel';
 
 
-function ListsView({ list, grouped, group, multiple }) {
+function ListsView({ list, grouped, group, multiple, openAccess }) {
 
   const [selected, setSelected] = useState([]);
 
@@ -31,7 +31,7 @@ function ListsView({ list, grouped, group, multiple }) {
       return;
 
     if(group === "support")
-      navigate(`/view/user/` + (user?.name ? user?.name : selected[0]));
+      navigate(`view/user/` + (user?.name ? user?.name : selected[0]));
     else if (user && !multiple)
       navigate(`/manage/${group}/user/` + (user?.name ? user?.name : selected[0]));
     else
@@ -69,9 +69,11 @@ function ListsView({ list, grouped, group, multiple }) {
 
             return <ListItemButton key={index} component="li" className="loop-li" onClick={() => onClick(item)}>
 
-              {item?.isLocked && <ListItemSecondaryAction>
-                <span className="unlock-span locked-account">Kontot är låst</span>
-              </ListItemSecondaryAction>}
+              <ListItemSecondaryAction>
+                {item?.isLocked 
+                ? <span className="unlock-span locked-account">Kontot är låst</span>
+                : (openAccess && <ArrowForward />)}
+              </ListItemSecondaryAction>
 
               <ListItemAvatar>
                 {multiple
@@ -84,7 +86,9 @@ function ListsView({ list, grouped, group, multiple }) {
                     }}
                     onClick={(e) => e.stopPropagation()}
                   />
-                  : <Avatar sx={{ backgroundColor: "transparent !important" }}> <WysiwygSharp color="success" /></Avatar>}
+                  : <Avatar sx={{ backgroundColor: "transparent !important" }}> 
+                      <WysiwygSharp color="success" />
+                    </Avatar>}
               </ListItemAvatar>
 
               {/* Data */}

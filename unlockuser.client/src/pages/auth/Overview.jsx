@@ -44,37 +44,38 @@ const messages = {
     same: {
         color: "warning",
         msg: "Den valda personen och {name}, samma personen."
+    },
+    noPermission: {
+        color: "default",
+        msg: "{name} saknar behörighet att ändra lösenord för någon annan person."
     }
 }
 
 
 function Overview() {
-
-    const [message, setMessage] = useState(messages?.info);
-    const [checked, setChecked] = useState(null);
-
-    const reqUser = useLoaderData();
-    const { id, collections, loading } = useOutletContext();
-
+    const { collections, loading } = useOutletContext();
+    const user = useLoaderData();
+console.log(user)
     const { permissions, groups: groupNames, openAccess } = DecodedClaims();
     const { fetchData, response } = use(FetchContext)
 
     const collection = collections ? groupNames.split(",").flatMap(g => collections[g.toLowerCase()]) : [];
-    const user = collection ? collection.find(x => x.name === id) : reqUser;
     const { groups, schools, managers, politicians } = user?.permissions ?? {};
 
     const accessToPasswordManage = permissions.split(',').find(x => x === user.group) != null;
-    
+    const hasPermission = groups?.length > 0;
+
     const navigate = useNavigate();
     const ref = useRef(null);
+
+    const [message, setMessage] = useState(hasPermission ? messages?.info : messages?.noPermission);
+    const [checked, setChecked] = useState(null);
 
     useEffect(() => {
         if (loading) return;
 
         if (!openAccess)
             navigate(-1);
-        else if (!user && !reqUser)
-            navigate(`view/user/by/${id}`);
     }, [loading])
 
     async function onSubmit() {
@@ -153,7 +154,7 @@ function Overview() {
             </section>
 
             {/* IIf the user is a member of any password management group. */}
-            {groups?.length > 0 && <section className="d-column jc-start ai-start search w-100 swing-in-right-bck">
+            <section className="d-column jc-start ai-start search w-100 swing-in-right-bck">
                 <TextField
                     fullWidth
                     key={message.msg}
@@ -180,6 +181,7 @@ function Overview() {
                             </IconButton>
                         </InputAdornment>
                     }}
+                    disabled={!accessToPasswordManage || !hasPermission}
                     onKeyDown={(e) => {
                         if (e.key === "Enter")
                             onSubmit();
@@ -214,9 +216,9 @@ function Overview() {
                             ?.replace(/\{group\}/g, `<span style="color: red">${checked?.group}</span>`)
                     }} />
                 </Alert>}
-            </section>}
+            </section>
 
-        </div >
+        </div>
     </>
 }
 

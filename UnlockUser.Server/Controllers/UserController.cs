@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.DirectoryServices;
@@ -7,8 +9,8 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Xml.Linq;
 using UnlockUser.Server.FormModels;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -36,38 +38,11 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     [HttpGet("by/{group}/{name}")]
     public async Task<IActionResult> GetUserForPasswordManage(string group, string name)
     {
-        var groupModels = new List<UserViewModel>();
-        var username = _credentialsService.GetClaim("username");
-        UserViewModel? user = null;
-
         try
         {
-            var id = HttpContext.Session.Id;
-            if (_memoryCache.TryGetValue(
-                $"groups_{id}",
-                out Dictionary<string, List<UserViewModel>>? cachedGroups))
-            {
-                bool supportModel = string.Equals(name.ToString(), "Support", StringComparison.OrdinalIgnoreCase);
-                if (supportModel)
-                {
-                    List<string?> groups = [.. _config.
-                   GetSection("Groups")
-                   .Get<List<GroupModel>>()?
-                   .Select(s => s.Name)!
-                   .Where(x => !string.IsNullOrWhiteSpace(x))
-                   .Cast<string>()!
-                     ];
-
-                    groupModels = [.. groups.SelectMany(g => cachedGroups!.TryGetValue(g.ToLower(), out var value) ? value : [])];
-                }
-                else
-                {
-                    groupModels = cachedGroups!.TryGetValue(group.ToLower(), out var value) ? value : [];
-                }
-
-                user = groupModels.FirstOrDefault(x => x.Name == name);
+            var (user, continueSearch) = await GetUserFromCache(group, name);
+            if (!continueSearch)
                 return Ok(user);
-            }
 
             var groupName = group == "Studenter" ? "Students" : "Employees";
             DirectorySearcher? members = _provider.GetMembers(groupName);
@@ -92,13 +67,12 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                 if (_provider.MembershipCheck(_provider.FindUserByUsername(name), "Password Twelve Characters"))
                     user!.PasswordLength = 12;
             }
+            return Ok(user);
         }
         catch (Exception ex)
         {
             return BadRequest(_helpService.Error(ex));
         }
-
-        return Ok(new { user });
     }
 
     // Get stored  employees who have permission to manage employee passwords nby group name
@@ -147,29 +121,33 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
-            var user = _provider.FindUserByUsername(username);
-            if (user == null)
+            var (user, continueSearch) = await GetUserFromCache("support", username);
+            if (!continueSearch)
+                return Ok(user);
+
+            var userPrincipal = _provider.FindUserByUsername(username);
+            if (userPrincipal == null)
                 return NotFound(_helpService.NotFound("Användaren"));
 
             var cachedUser = await _localService.GetUserFromFile(username);
             var modifiedUser = new UserViewModel(new User
             {
-                Name = user.SamAccountName,
-                DisplayName = user.DisplayName,
-                Title = user.Title,
-                Email = user.EmailAddress,
-                Office = user.Office,
-                Department = user.Department,
-                Division = user.Division,
-                Manager = user.Manager,
-                IsLocked = user.AccountLockoutTime != null,
+                Name = userPrincipal.SamAccountName,
+                DisplayName = userPrincipal.DisplayName,
+                Title = userPrincipal.Title,
+                Email = userPrincipal.EmailAddress,
+                Office = userPrincipal.Office,
+                Department = userPrincipal.Department,
+                Division = userPrincipal.Division,
+                Manager = userPrincipal.Manager,
+                IsLocked = userPrincipal.AccountLockoutTime != null,
                 Permissions = cachedUser != null ? cachedUser?.Permissions : null
             });
 
-            if (user.DistinguishedName!.Contains("OU=Employees", StringComparison.OrdinalIgnoreCase))
+            if (userPrincipal.DistinguishedName!.Contains("OU=Employees", StringComparison.OrdinalIgnoreCase))
             {
                 var userByGroups = _provider.GetSecurityGroupMembers("Ciceron-Assistentanvändare");
-                if (userByGroups != null && userByGroups.FirstOrDefault(x => x == user.SamAccountName) != null)
+                if (userByGroups != null && userByGroups.FirstOrDefault(x => x == userPrincipal.SamAccountName) != null)
                     modifiedUser.Group = "Politeker";
                 else
                     modifiedUser.Group = "Personal";
@@ -420,7 +398,6 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         return data;
     }
 
-
     // Set multiple passwords
     private async Task<string?> SetPasswords(List<UserFormModel> userModels)
     {
@@ -526,6 +503,41 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
         _logger.LogInformation("Password change finished at {dateTime}. Moderator: {user}", DateTime.Now.ToString("g"), username);
         return (message?.Length > 0) ? message.ToString() : null;
+    }
+
+    private async Task<(UserViewModel?, bool)> GetUserFromCache(string group, string name)
+    {
+        var groupModels = new List<UserViewModel>();
+        var username = _credentialsService.GetClaim("username");
+
+        var id = HttpContext.Session.Id;
+        if (_memoryCache.TryGetValue(
+            $"groups_{id}",
+            out Dictionary<string, List<UserViewModel>>? cachedGroups))
+        {
+            bool supportModel = string.Equals(group.ToString(), "Support", StringComparison.OrdinalIgnoreCase);
+            if (supportModel)
+            {
+                List<string?> groups = [.. _config.
+                   GetSection("Groups")
+                   .Get<List<GroupModel>>()?
+                   .Select(s => s.Name)!
+                   .Where(x => !string.IsNullOrWhiteSpace(x))
+                   .Cast<string>()!
+                 ];
+
+                groupModels = [.. groups.SelectMany(g => cachedGroups!.TryGetValue(g.ToLower(), out var value) ? value : [])];
+            }
+            else
+            {
+                groupModels = cachedGroups!.TryGetValue(group.ToLower(), out var value) ? value : [];
+            }
+
+            var user = groupModels.FirstOrDefault(x => x.Name == name);
+            return (user, false);
+        }
+
+        return (null, true);
     }
 
     // Save update statistik

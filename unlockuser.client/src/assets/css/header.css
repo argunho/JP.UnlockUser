@@ -28,6 +28,10 @@
   position: relative;
 }
 
+.menu-container.support-view {
+  background-color: var(--color-support-view);
+}
+
 .menu-wrapper {
   padding: 0 15px;
   height: 100%;
