@@ -411,9 +411,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         if (claims == null || userModels == null)
             return "Ingen användare med behörighet för lösenordsåterställning har specificerats.";
 
-
         claims!.TryGetValue("username", out string? username);
-
 
         // If password needs to confirm
         if (!string.IsNullOrEmpty(userModel.ConfirmPassword))
