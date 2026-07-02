@@ -49,7 +49,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
             members.Filter = $"(&(objectClass=User)(|(cn={name})(sAMAccountname={name})))";
 
-            var claims = _credentialsService.GetClaims(["roles", "permission"]);
+            var claims = _credentialsService.GetClaims(["roles", "permissions"]);
 
             if (members.FindOne() != null)
             {
@@ -59,7 +59,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                     return NotFound(_helpService.NotFound("Användaren"));
                 }
                 else if (!claims!["roles"].Contains("Suppport", StringComparison.OrdinalIgnoreCase)
-                        && ((await _localService.Filter([user], groupName, claims!["permission"]))?.Count == 0))
+                        && ((await _localService.Filter([user], groupName, claims!["permissions"]))?.Count == 0))
                 {
                     return Ok(_helpService.Warning($"Du saknar behörigheter att ändra lösenord till {user.DisplayName}!"));
                 }
@@ -407,7 +407,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             return "Person för lösenordsåterställning har inte specificerats."; // Password reset user not specified
 
         // CUrrent moderator claims
-        var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permission"]);
+        var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permissions"]);
         if (claims == null || userModels == null)
             return "Ingen användare med behörighet för lösenordsåterställning har specificerats.";
 
@@ -662,7 +662,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 //    string? department = user.Department;
 
 //    // CUrrent moderator claims
-//    var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permission"]);
+//    var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permissions"]);
 
 
 //    // Check permission for the managed users group
@@ -679,7 +679,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
 //    if (!roles.Contains("Support", StringComparer.OrdinalIgnoreCase))
 //    {
-//        var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permission"])!;
+//        var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permissions"])!;
 
 //        string warningMessage = "Du saknar behörigheter att ändra lösenord till";
 
