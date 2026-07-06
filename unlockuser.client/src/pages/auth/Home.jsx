@@ -7,7 +7,7 @@ import {
     Button, FormControl, FormControlLabel, Tooltip, IconButton,
     Radio, RadioGroup, TextField, Checkbox, InputAdornment
 } from '@mui/material';
-import { useOutletContext, NavLink } from 'react-router-dom';
+import { useOutletContext, NavLink, useSearchParams, useNavigate } from 'react-router-dom';
 
 // Components
 import ModalView from '../../components/modals/ModalView';
@@ -87,6 +87,10 @@ function Home() {
     const { schools, group: groupName } = useOutletContext();
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
     const gn = group ? group?.toLowerCase() : groupName;
+
+    const navigate = useNavigate();
+    const [ searchParams ] = useSearchParams();
+    const query = searchParams.get('q') ?? null;
 
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
@@ -172,9 +176,18 @@ function Home() {
             setSearching(true);
             const name = fd.get("name")?.toLowerCase();
             const match = fd.get("match") === "on" ? true : false;
-            const school = fd.get("school") ?? "";
+            const school = fd.get("school") ?? null;
 
             const data = { name, match, school };
+
+            // Navigate to search query page
+            let navLink = `/search/${gn}?name=${name.replaceAll(" ", "%20")}`;
+            if(match)
+                navLink += "&match=on";
+            if(school)
+                navLink += `&school=${school}`;
+
+            navigate(navLink, { replace: true });
 
             let errors = [];
             let error = null;
