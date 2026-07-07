@@ -1,4 +1,4 @@
-import { useState, use, Fragment, useRef } from "react";
+import { useState, use, Fragment, useRef, useEffect } from "react";
 
 // Installed
 import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText, Skeleton, Tooltip } from "@mui/material";
@@ -71,6 +71,17 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
             number: 20
         });
 
+    useEffect(() => {
+
+        function resetConfirmId() {
+            setConfirmId(null);
+        }
+
+        if (confirmId)
+            resetConfirmId();
+    }, [loading]);
+
+
     function handleDropdown(index) {
         setCollapsedIndex(index === collapsedIndex ? null : index);
     }
@@ -90,7 +101,7 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
     }
 
 
-    // Download serie log file
+    // Download series log file
     async function downloadFile(e) {
         const blob = await fetchData({ api: `logs/download/logs/by/${e.target.value}`, method: "get", action: "return", responseType: "blob" });
         DownloadFile(blob, `logs-${e.target.value.replaceAll("-", "")}.zip`);
@@ -153,6 +164,7 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
                 {!!confirmId && <ConfirmButtons
                     question="Radera?"
                     onConfirm={removeConfirmedItem}
+                    disabled={pending}
                     onCancel={() => setConfirmId(null)} />}
 
                 {/* Response */}

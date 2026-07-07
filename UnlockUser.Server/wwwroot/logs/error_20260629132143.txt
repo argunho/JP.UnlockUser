@@ -1,1 +1,0 @@
-﻿{"Id":"error_20260629132143","Source":"Error: System.Private.CoreLib","Description":"Error: The given key \u0027permission\u0027 was not present in the dictionary.\n\nPath to file: Controllers\\UserController.cs\n\nLine number: 86\n\nMethod: MoveNext\n","Opened":false,"Date":"2026.06.29 13:21:43"}

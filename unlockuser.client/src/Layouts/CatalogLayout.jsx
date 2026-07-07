@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react'; //, use
 
 // Installed
-import { Outlet, useNavigation, useParams, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigation, useParams, useNavigate, useLocation } from 'react-router-dom';
 
 // Components
 import Header from "../components/blocks/Header";
@@ -19,20 +19,18 @@ function CatalogLayout() {
   const navigation = useNavigation();
   const params = useParams();
   const refContainer = useRef();
+  const loc = useLocation();
 
   const openAccess = Claim("openAccess");
-
-  console.log(openAccess)
 
   useEffect(() => {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
 
     if (!openAccess)
       navigate("/")
-  }, [])
+  }, [loc])
 
   const loading = navigation.state == "loading";
-  console.log(loading)
   return (
     <>
       <Header disabled={loading} />
@@ -41,6 +39,7 @@ function CatalogLayout() {
 
         <Outlet context={{
           ...params,
+          loading
         }} />
 
         {/* Loading */}
