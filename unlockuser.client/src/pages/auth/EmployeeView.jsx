@@ -22,10 +22,10 @@ function EmployeeView() {
 
     const revalidator = useRevalidator();
     const schools = useLoaderData();
-    const { groups, moderator: userData, managers, politicians } = useOutletContext();
-    const { permissions } = userData;
+    const { groups, moderator, managers, politicians } = useOutletContext();
+    const { permissions } = moderator;
 
-    const columns = ["Närmaste chefer", ...groups];
+    const columns = moderator?.managers?.length > 0 ? ["Närmaste chefer", ...groups] : groups;
 
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
     const approvedPoliticians = permissions.groups.includes("Politiker") ?
@@ -39,7 +39,6 @@ function EmployeeView() {
         politicians: approvedPoliticians,
         schools: permissions?.schools
     });
-
 
     useEffect(() => {
         if (success)
@@ -92,13 +91,13 @@ function EmployeeView() {
             schools: approved?.schools
         };
 
-        await fetchData({ api: `user/update/permissions/${userData?.name}`, method: "put", data: data, action: "success" });
+        await fetchData({ api: `user/update/permissions/${moderator?.name}`, method: "put", data: data, action: "success" });
     }
 
     const isChanged = !_.isEqual(permissions?.managers, [...(approved?.managers ?? [])].sort((a, b) => a.username?.localeCompare(b.username)).map(x => x.username))
         || !_.isEqual([...(approvedPoliticians ?? [])].sort((a, b) => a.name?.localeCompare(b.name)).map(x => x.name), [...(approved?.politicians ?? [])].sort((a, b) => a.name?.localeCompare(b.name)).map(x => x.name))
         || !_.isEqual(permissions?.schools, [...(approved?.schools ?? [])].sort((a, b) => a?.localeCompare(b)));
-        
+
     return (
         <>
             <ActionButtons pending={pending} disabled={!isChanged} onConfirm={onSubmit} />
@@ -106,6 +105,7 @@ function EmployeeView() {
             {/* Response message */}
             {response && <Message res={response} cancel={() => handleResponse()} />}
 
+            {/* Row of titles */}
             <div className="w-100 view-header d-row jc-between">
                 {columns?.map((column, index) => {
                     const disabled = !permissions.groups?.includes(column) && index > 0;
@@ -116,9 +116,11 @@ function EmployeeView() {
                 })}
             </div>
 
+            {/* Row of permissions */}
             <div className="w-100 d-row jc-start ai-start ai-stretch">
                 {columns?.map((column, index) => {
                     const disabled = !permissions.groups?.includes(column) && index > 0;
+
                     return <div key={column} className="view-body w-100">
 
                         {/* Personals managers dropdown list */}
@@ -156,7 +158,7 @@ function EmployeeView() {
                         <ul className="view-list-wrapper w-100">
 
                             {/* Managers list */}
-                            {(column === "Närmaste chefer" && !disabled) && userData?.managers?.map((manager, index) => {
+                            {(column === "Närmaste chefer" && !disabled && moderator?.managers?.length> 0) && moderator?.managers?.map((manager, index) => {
                                 const checked = approved?.managers?.find(x => x?.username === manager?.username);
                                 return <li className="w-100 d-row jc-between" key={index}>
                                     {manager?.displayName}

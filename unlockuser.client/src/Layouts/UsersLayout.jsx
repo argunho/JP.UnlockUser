@@ -12,10 +12,10 @@ import { FetchContext } from '../storage/FetchContext';
 import TabPanel from './../components/blocks/TabPanel';
 import SearchFilter from '../components/forms/SearchFilter';
 import Header from '../components/blocks/Header';
+import LinearLoading from '../components/blocks/LinearLoading';
 
 // Functions
 import { Capitalize } from '../functions/Helpers';
-import LinearLoading from '../components/blocks/LinearLoading';
 
 function UsersLayout() {
 
@@ -51,7 +51,6 @@ function UsersLayout() {
 
     const moderatorsByGroup = group ? moderators?.filter(x => x.permissions?.groups?.includes(groupName)) : moderators;
     const moderator = id ? moderatorsByGroup?.find(x => x.name === id) : null;
-
     const secondaryRow = id
         ? `${moderator?.primary} | <span class="secondary-span">${moderator?.office}</span> | <span class="secondary-span">${moderator?.title}</span>`
         : groupsLinks;
@@ -89,6 +88,7 @@ function UsersLayout() {
                             </span>
                         </Tooltip>
                     </div>}
+
                 </TabPanel>
 
                 <Outlet key={`${group}_${searchWord}_${id}`} context={!id

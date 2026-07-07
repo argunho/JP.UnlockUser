@@ -155,7 +155,6 @@ function Home() {
     }, []);
 
     useEffect(() => {
-        console.log(gn)
         get();
     }, [gn])
 
