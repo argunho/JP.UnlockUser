@@ -83,3 +83,4 @@
 2026-07-07 14:47:52.262 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-07 14:47:52.
 2026-07-07 14:47:52.264 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-07 14:47:52.
 2026-07-07 14:47:52.269 +02:00 [INF] Dashboard data setup completed.
+2026-07-07 17:46:58.818 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-07 17:46:58.
