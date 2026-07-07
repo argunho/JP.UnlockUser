@@ -59,11 +59,6 @@ const AppRoutes = () => [
         errorElement: <ErrorView />
       },
       {
-        path: "search",
-        element: <Home />,
-        errorElement: <ErrorView />
-      },
-      {
         path: "search/:group",
         element: <Home />,
         errorElement: <ErrorView />
@@ -114,7 +109,8 @@ const AppRoutes = () => [
       },
       {
         path: 'contact',
-        element: <Contacts isAuthorized={true} />
+        element: <Contacts isAuthorized={true} />,
+        errorElement: <ErrorView />
       },
       {
         path: "manage/:group",

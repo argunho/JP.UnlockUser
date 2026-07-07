@@ -39,9 +39,8 @@ function CatalogLayout() {
         <Outlet context={{ loading }} />
 
         {/* Loading */}
-        {loading && <div className="d-column curtain">
-          <LinearLoading size={30} cls="curtain" />
-        </div>}
+        {loading && <LinearLoading size={30} />}
+        
       </div>
     </>
   )

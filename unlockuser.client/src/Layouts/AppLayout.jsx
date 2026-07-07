@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, use } from 'react'; //, use
 
 // Installed
-import { Outlet, useNavigation, useParams, useLoaderData, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigation, useParams, useLoaderData, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@mui/material';
 
 // Components
@@ -21,6 +21,7 @@ function AppLayout() {
   const refContainer = useRef();
   const navigation = useNavigation();
   const navigate = useNavigate();
+  const loc = useLocation();
   const params = useParams();
   const { group } = params;
   const { fetchData, resData: collections } = use(FetchContext);
@@ -34,16 +35,18 @@ function AppLayout() {
   useEffect(() => {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
 
-    if(!group){
-      navigate(`search/${permissions[0]?.toLowerCase()}`, { replace: true });
-    }
-
     async function getCollections() {
       await fetchData({ api: "data/collections" });
     }
 
     getCollections()
   }, []);
+
+  useEffect(() => {
+    if(loc.pathname === "/search" && !group){
+      navigate(`/search/${permissions[0]?.toLowerCase()}`, { replace: true });
+    }
+  }, [loc])
 
 
   async function hideMessage() {
@@ -66,9 +69,7 @@ function AppLayout() {
         }} />
 
         {/* Loading */}
-        {loading && <div className="d-column curtain">
-           <LinearLoading size={30} cls="curtain" />
-        </div>}
+        {loading && <LinearLoading size={30} />}
       </div>
 
       {/* Modal message */}
@@ -76,7 +77,7 @@ function AppLayout() {
           label={`<p style='font-size: 32px'>${modalMessage?.name}</p>`}
           content={modalMessage?.html}
           childrenButton={true}>
-          <Button variant="contained" color="default" onClick={hideMessage} >
+          <Button variant="contained" color="default" onClick={hideMessage}>
             Visa inte meddelandet igen
           </Button>
         </ModalMessage>}

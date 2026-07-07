@@ -91,17 +91,16 @@ function UsersLayout() {
                     </div>}
                 </TabPanel>
 
-                {/* Loading */}
-                {loading && <LinearLoading size={30} cls="curtain" />}
-
-                {!loading && <Outlet key={`${group}_${searchWord}_${id}`} context={!id
+                <Outlet key={`${group}_${searchWord}_${id}`} context={!id
                     ? {
                         moderators: (searchWord
                             ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase()))
                             : moderatorsByGroup),
                         onReset: () => setSearchWord(null)
-                    } : { groups, moderator, managers, politicians }} />}
+                    } : { groups, moderator, managers, politicians }} />
 
+                {/* Loading */}
+                {loading && <LinearLoading size={30} />}
             </div>
 
 
