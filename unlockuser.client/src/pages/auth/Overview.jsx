@@ -1,9 +1,9 @@
 import { useEffect, useState, use, useRef } from 'react';
 
 // Installed
-import { useOutletContext, useNavigate, useLoaderData } from 'react-router-dom';
+import { useNavigate, useLoaderData } from 'react-router-dom';
 import { IconButton, TextField, InputAdornment, Alert, List, ListItem, ListItemIcon, ListItemText, Avatar } from '@mui/material';
-import { Edit, SearchSharp, SearchOffSharp, Person, AlternateEmail, Business, AccountBalance } from '@mui/icons-material';
+import { Edit, SearchSharp, SearchOffSharp, Label, AlternateEmail, Business, AccountBalance, Shield, ArrowForward } from '@mui/icons-material';
 
 // Components
 import TabPanel from '../../components/blocks/TabPanel';
@@ -14,7 +14,6 @@ import { DecodedClaims } from './../../functions/DecodedToken';
 
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
-import { Button } from '@mui/material';
 
 const messages = {
     info: {
@@ -53,13 +52,10 @@ const messages = {
 
 
 function Overview() {
-    const { loading } = useOutletContext();
     const { user, collection } = useLoaderData();
 
-    const { permissions, openAccess } = DecodedClaims(); // , groups: groupNames,
-    const { fetchData, response } = use(FetchContext)
-
-    // const collection = collections ? groupNames.split(",").flatMap(g => collections[g.toLowerCase()]) : [];
+    const { permissions, openAccess } = DecodedClaims();
+    const { fetchData, response } = use(FetchContext);
     const { groups, schools, managers, politicians } = user?.permissions ?? {};
 
     const accessToPasswordManage = permissions.split(',').find(x => x === user.group) != null;
@@ -67,10 +63,16 @@ function Overview() {
     const isEmployee = user?.passwordLength > 8;
 
     const profileFields = [
-        { label: "Användarnamn", value: user?.name, icon: Person },
+        { label: "Användarnamn", value: user?.name, icon: Label },
         { label: "Email", value: user?.email, icon: AlternateEmail },
         { label: isEmployee ? "Arbetsplats" : "Plats", value: [user?.office, user?.office !== user?.department ? user?.department : null].filter(Boolean).join(" "), icon: Business },
-        ...(isEmployee ? [{ label: "Förvaltning", value: user?.division, icon: AccountBalance }] : [])
+        ...(isEmployee ? [{ label: "Förvaltning", value: user?.division, icon: AccountBalance }] : []),
+        ...(groups ? [{
+            label: "Behörigheter", value: "", icon: Shield,
+            secondaryAction: <IconButton onClick={() => navigate(`/moderators/view/${user?.name}`)} sx={{ marginRight: "20px" }} >
+                <ArrowForward />
+            </IconButton>
+        }] : [])
     ];
 
     const initials = (user?.displayName ?? user?.name ?? "")
@@ -87,11 +89,9 @@ function Overview() {
     const [checked, setChecked] = useState(null);
 
     useEffect(() => {
-        if (loading) return;
-
         if (!openAccess)
             navigate(-1);
-    }, [loading])
+    }, [openAccess])
 
     async function onSubmit() {
         const value = ref.current.value;
@@ -104,7 +104,7 @@ function Overview() {
             ? collection.find(x => x.name === value || x.email === value)
             : await fetchData({ api: `user/by/${value}`, method: "get", action: "return" });
 
-        const userManager =  userToCheck?.manager ? userToCheck.manager?.trim()?.substring(3, userToCheck.manager.indexOf(',')) : null;
+        const userManager = userToCheck?.manager ? userToCheck.manager?.trim()?.substring(3, userToCheck.manager.indexOf(',')) : null;
 
         setChecked(userToCheck);
 
@@ -117,8 +117,8 @@ function Overview() {
         else if (!groups?.includes(userToCheck?.group))
             setMessage(messages.error);
         else if ((userToCheck?.group === "Studenter" && !schools?.includes(userToCheck.office))
-                || (userToCheck?.group === "Personal" && !managers?.includes(userManager))
-                || (userToCheck?.group === "Politiker" && !politicians?.includes(userToCheck?.name)))
+            || (userToCheck?.group === "Personal" && !managers?.includes(userManager))
+            || (userToCheck?.group === "Politiker" && !politicians?.includes(userToCheck?.name)))
             setMessage(messages.warning);
         else
             setMessage(messages.success)
@@ -130,14 +130,14 @@ function Overview() {
     }
 
     // If user not found
-    if (!loading && !user)
+    if (!user)
         return <Message res={response ?? messages.none} cancel={() => navigate(-1)} />;
 
     return <>
         {/* Tab menu */}
-        <TabPanel primary={user.primary ?? "Anvädarprofil"} secondary={
-            `<span class="secondary-span view">${user?.title ? user?.title : (isEmployee ? "Anställd" : "Student")}</span>`
-        } initials={initials}>
+        <TabPanel primary="Anvädarprofil" secondary={
+            `<span class="secondary-span view">${isEmployee ? "Anställd" : "Student"}</span>`
+        }>
             {/* If account is blocked */}
             <div className="d-row">
                 {user?.isLocked && <span className="unlock-span locked-account">Kontot är låst</span>}
@@ -158,25 +158,24 @@ function Overview() {
                 <div className="profile-card-header d-row jc-start ai-center w-100">
                     <Avatar className="profile-avatar">{initials}</Avatar>
                     <div className="d-column ai-start">
-                        {/* <h2>{user?.displayName ?? user?.name}</h2> */}
-                        <h2>Personlig data</h2>
+                        <h2>{user?.displayName ?? user?.name}</h2>
                         <span className="profile-subtitle">{user?.title ? user?.title : (isEmployee ? "Anställd" : "Student")}</span>
                     </div>
                 </div>
 
                 <List className="profile-list" disablePadding>
-                    {profileFields.map(({ label, value, icon: Icon }, index) => <ListItem
+                    {profileFields.map(({ label, value, icon: Icon, secondaryAction }, index) => <ListItem
                         key={label}
                         divider={index < profileFields.length - 1}
-                        disableGutters>
+                        disableGutters
+                        secondaryAction={secondaryAction}
+                    >
                         <ListItemIcon className="profile-list-icon">
                             <Icon />
                         </ListItemIcon>
                         <ListItemText primary={value} secondary={label} />
                     </ListItem>)}
                 </List>
-
-                {groups && <Button variant="outlined" onClick={() => navigate(`/moderators/view/${user?.name}`)} sx={{ marginTop: "30px" }}>Behörigheter</Button>}
             </section>
 
             {/* IIf the user is a member of any password management group. */}
