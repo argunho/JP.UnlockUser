@@ -144,6 +144,61 @@ div.view h3:last-of-type {
   margin-bottom: 5px !important;
 }
 
+.profile-card-header {
+  gap: 16px;
+  margin-bottom: 25px;
+  padding-bottom: 25px;
+  border-bottom: var(--border-secondary);
+}
+
+.profile-card-header h2 {
+  font-size: 20px !important;
+}
+
+.profile-subtitle {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-dark-gray);
+}
+
+.profile-avatar {
+  width: 56px !important;
+  height: 56px !important;
+  font-size: 20px !important;
+  background-color: var(--color-primary) !important;
+  margin-right: 20px;
+}
+
+.profile-list {
+  width: 100%;
+}
+
+.profile-list .MuiListItemIcon-root {
+  min-width: 44px;
+  color: var(--color-primary);
+}
+
+.profile-list .MuiListItemText-root {
+  margin: 0 !important;
+}
+
+.profile-list .MuiListItem-root {
+  padding: 12px 24px !important;
+}
+
+.profile-list .MuiListItemText-primary {
+  font-size: 16px;
+  color: #202020;
+}
+
+.profile-list .MuiListItemText-secondary {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-dark-gray);
+}
+
 section.search {
   max-width: 450px;
   height: 100%;

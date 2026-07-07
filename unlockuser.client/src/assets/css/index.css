@@ -18,7 +18,7 @@
     --color-success: #1db822 !important;
     --color-info: #729bee !important;
     --color-active: #1976D2 !important;
-    --color-disabled: #c4c4c4 !important;
+    --color-disabled: #c4c4c4d0 !important;
     --color-link: #828181 !important;
     --color-link-hover: #000000 !important;
     --color-light-link: #dce5f6 !important;
@@ -311,7 +311,7 @@ main,
 }
 
 .curtain {
-    background-color: rgba(255, 255, 255, 0.582);
+    background-color: rgba(255, 255, 255, 0.692);
 }
 
 .curtain-gray {

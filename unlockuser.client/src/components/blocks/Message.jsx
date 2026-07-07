@@ -30,8 +30,8 @@ function Message({ res, cancel, ref, message, styles }) {
 
     return <Alert color={color}
             variant="standard"
-            severity={color}
-            className="message-box d-row w-100"
+            severity={color == "disabled" ? "info" : color}
+            className={`message-box d-row w-100 ${color}`}
             style={styles}
             {...props}
             ref={ref ?? refMessage}>

@@ -56,7 +56,7 @@ const Header = memo(function Header({ disabled }) {
         if (open)
             setOpen(false);
     }, [loc])
-console.log(loc.pathname.toLowerCase()?.endsWith("support"))
+
     return (
         <header className='header-container w-100 d-column'>
             <section className='header-wrapper d-row jc-start w-100' id="logotype">

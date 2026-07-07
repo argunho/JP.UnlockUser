@@ -7,7 +7,7 @@ import {
     Button, FormControl, FormControlLabel, Tooltip, IconButton,
     Radio, RadioGroup, TextField, Checkbox, InputAdornment
 } from '@mui/material';
-import { useOutletContext, NavLink, useSearchParams, useNavigate } from 'react-router-dom';
+import { useOutletContext, NavLink, useNavigate } from 'react-router-dom'; //, useSearchParams
 
 // Components
 import ModalView from '../../components/modals/ModalView';
@@ -25,9 +25,6 @@ import { FetchContext } from '../../storage/FetchContext';
 
 // Models
 import { AllTips, Tips } from '../../models/HelpTexts';
-
-// Services
-// import { ApiRequest } from '../../services/ApiRequest';
 
 const radioChoices = [
     { label: "Användare", value: "user" },
@@ -89,8 +86,8 @@ function Home() {
     const gn = group ? group?.toLowerCase() : groupName;
 
     const navigate = useNavigate();
-    const [ searchParams ] = useSearchParams();
-    const query = searchParams.get('q') ?? null;
+    // const [ searchParams ] = useSearchParams();
+    // const name = searchParams.get('name') ?? null;
 
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
@@ -132,8 +129,22 @@ function Home() {
             // setModalMessage(!!message?.html ? message : null);
             // setGroupCollection(Array.isArray(collection) ? collection : []);
 
-            groupCollectionRef.current = await fetchData({ api:`data/groups/by/name/${gn}`, action: "return" });
-            
+            groupCollectionRef.current = await fetchData({ api: `data/groups/by/name/${gn}`, action: "return" });
+            if (groupCollectionRef.current?.length == 0) {
+
+                const logged = sessionStorage.getItem("logged");
+
+                if (logged) {
+                    const loginTime = Number(logged);
+                    const now = Date.now();
+
+                    const minutesPassed = (now - loginTime) / (1000 * 60);
+
+                    if (minutesPassed >= 90)
+                        navigate("/session/expired");
+                }
+            }
+
         } catch (error) {
             console.error(error);
         }
@@ -144,6 +155,7 @@ function Home() {
     }, []);
 
     useEffect(() => {
+        console.log(gn)
         get();
     }, [gn])
 
@@ -155,6 +167,10 @@ function Home() {
         handleDispatch("group", currentGroup, "START");
         onReset();
     }, [groupName])
+
+    // useEffect(() => {
+    //     console.log("searchparams", name)
+    // }, [searchParams])
 
     function handleDispatch(name, value, type = "PARAM") {
         dispatch({ type: type, name: name, payload: value });
@@ -181,13 +197,13 @@ function Home() {
             const data = { name, match, school };
 
             // Navigate to search query page
-            let navLink = `/search/${gn}?name=${name.replaceAll(" ", "%20")}`;
-            if(match)
-                navLink += "&match=on";
-            if(school)
-                navLink += `&school=${school}`;
+            // let navLink = `/search/${gn}?name=${name.replaceAll(" ", "%20")}`;
+            // if(match)
+            //     navLink += "&match=on";
+            // if(school)
+            //     navLink += `&school=${school}`;
 
-            navigate(navLink, { replace: true });
+            // navigate(navLink, { replace: true });
 
             let errors = [];
             let error = null;
@@ -203,11 +219,9 @@ function Home() {
             if (errors?.length > 0)
                 return { ...data, errors };
 
-            // const collection = groups.flatMap(g => collections[g.toLowerCase()])?.filter(Boolean);
             if (groupCollectionRef.current === null)
                 await waitForCollection(120000);
 
-            // const collection = groupCollection ?? groupCollectionRef.current;
             const collection = groupCollectionRef.current;
 
             let res = null;
@@ -231,7 +245,6 @@ function Home() {
 
             handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
             return Array.isArray(res) ? null : data;
-
         } finally {
             setSearching(false);
         }
@@ -256,7 +269,7 @@ function Home() {
             {/* Search form */}
             <form key={isCleaned} className='d-row search-form w-100' action={formAction}>
 
-                {/* collections lust to choose */}
+                {/* Collections list to choose */}
                 {isClass && <AutocompleteList
                     label="Skolnamn"
                     name="school"
@@ -414,7 +427,9 @@ function Home() {
                     "\n• Personen, skolan eller klassen finns inte i databasen.." +
                     "\n• Du saknar behörighet att hantera personens/classens konto." +
                     "\n• Du försöker ändra lösenordet för ett administratörskonto. Av säkerhetsskäl får administratörer inte ändra lösenord för andra administratörer." +
-                    "\n\n Försök att justera din sökning eller kontrollera stavningen."
+                    "\n\n Försök att justera din sökning eller kontrollera stavningen." +
+                    "\n\n\n <span style='color: #cc0000;font-style: normal;font-weight:bold'>Observera!</span> Om du tidigare under den pågående sessionen kunde hitta personen men inte längre kan göra det, kan det bero på att tiden för personsökningen har löpt ut." +
+                    "\n<a href='/session/logout' style='color: var(--color-active)'>Logga ut</a> och logga in igen för att fortsätta använda webbplatsen."
             }} cancel={onReset} />}
         </>
     )

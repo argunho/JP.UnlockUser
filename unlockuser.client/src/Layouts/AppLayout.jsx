@@ -51,24 +51,24 @@ function AppLayout() {
     await fetchData({ api: "article/hide/popup/message", method: "post", loadDisabled: true});
   }
 
-  const loads = !collections;
-
+  const loading = !collections || navigation.state == "loading";
   return (
     <>
-      <Header disabled={loads} />
+      <Header disabled={loading} />
 
       <div className="container d-column jc-start fade-in" ref={refContainer}>
 
-        {!loads && <Outlet context={{
+        <Outlet context={{
           ...params,
           collections,
           groups: collections?.groups,
-          schools: collections?.schools,
-          loading: navigation.state === "loading"
-        }} />}
+          schools: collections?.schools
+        }} />
 
         {/* Loading */}
-        {loads && <LinearLoading size={30} cls="curtain" />}
+        {loading && <div className="d-column curtain">
+           <LinearLoading size={30} cls="curtain" />
+        </div>}
       </div>
 
       {/* Modal message */}

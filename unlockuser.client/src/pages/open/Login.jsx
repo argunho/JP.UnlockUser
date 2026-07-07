@@ -73,6 +73,7 @@ function Login() {
       getTimeLeftToUnblock(timeLeft);
     }
     else if (token){
+      sessionStorage.setItem("logged", new Date().toISOString());
       navigate(`/search/${groupName}`);
       authorize(token);
     }

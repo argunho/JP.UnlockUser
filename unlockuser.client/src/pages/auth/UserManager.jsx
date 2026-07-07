@@ -3,7 +3,7 @@ import { use, useState } from 'react';
 
 // Installed
 import { Button, CircularProgress } from '@mui/material';
-import { useParams, useLoaderData } from 'react-router-dom';
+import { useLoaderData } from 'react-router-dom';
 
 // Components
 import Form from '../../components/forms/Form';
@@ -15,11 +15,9 @@ import { FetchContext } from '../../storage/FetchContext';
 
 function UserManager() {
 
-    const { group, id } = useParams();
-    console.log(group, id)
-
     const { pending, fetchData } = use(FetchContext)
     const user = useLoaderData();
+
     const [locked, setLocked] = useState(user?.isLocked);
 
     // Unlock user
@@ -28,8 +26,6 @@ function UserManager() {
         const res = await fetchData({ api: "api/user/unlock/" + user?.name, method: "put", action: "success" });
         setLocked(res ? true : false);
     }
-
-    console.log(group, user)
 
     return <>
         {/* Tab menu */}
@@ -48,7 +44,7 @@ function UserManager() {
         </TabPanel>
 
         {/* Change password */}
-        {(user && !user?.isLocked) && <Form
+        {user && <Form
             key={locked?.toString()}
             label="Återställa lösenord"
             users={[user]}

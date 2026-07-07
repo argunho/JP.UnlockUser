@@ -9,7 +9,6 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using System.Xml.Linq;
 using UnlockUser.Server.FormModels;
 
 namespace UnlockUser.Server.Controllers;
@@ -121,9 +120,15 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
+            var collection = new List<UserViewModel>();
             var (user, continueSearch) = await GetUserFromCache("support", username);
             if (!continueSearch)
-                return Ok(user);
+            {
+                if (user != null && user.Permissions?.Groups.Count > 0)
+                    collection = GetGroupsCachedUsers();
+
+                return Ok(new { user, collection });
+            }
 
             var userPrincipal = _provider.FindUserByUsername(username);
             if (userPrincipal == null)
@@ -155,7 +160,8 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             else
                 modifiedUser.Group = "Stundeter";
 
-            return Ok(modifiedUser);
+
+            return Ok(new { user = modifiedUser, collection });
         }
         catch (Exception ex)
         {
@@ -536,6 +542,26 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         }
 
         return (null, true);
+    }
+
+    private List<UserViewModel> GetGroupsCachedUsers()
+    {
+        var id = HttpContext.Session.Id;
+        if (_memoryCache.TryGetValue(
+            $"groups_{id}",
+            out Dictionary<string, List<UserViewModel>>? cachedGroups))
+        {
+            List<string?> groups = [.. _config.
+                   GetSection("Groups")
+                   .Get<List<GroupModel>>()?
+                   .Select(s => s.Name)!
+                   .Where(x => !string.IsNullOrWhiteSpace(x))
+                   .Cast<string>()!];
+
+            return [.. groups.SelectMany(g => cachedGroups!.TryGetValue(g.ToLower(), out var value) ? value : [])];
+        }
+        else
+            return [];
     }
 
     // Save update statistik

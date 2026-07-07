@@ -2,8 +2,8 @@ import { useEffect, useState, use, useRef } from 'react';
 
 // Installed
 import { useOutletContext, useNavigate, useLoaderData } from 'react-router-dom';
-import { IconButton, TextField, InputAdornment, Alert } from '@mui/material';
-import { Edit, SearchSharp, SearchOffSharp } from '@mui/icons-material';
+import { IconButton, TextField, InputAdornment, Alert, List, ListItem, ListItemIcon, ListItemText, Avatar } from '@mui/material';
+import { Edit, SearchSharp, SearchOffSharp, Person, AlternateEmail, Business, AccountBalance } from '@mui/icons-material';
 
 // Components
 import TabPanel from '../../components/blocks/TabPanel';
@@ -19,7 +19,7 @@ import { Button } from '@mui/material';
 const messages = {
     info: {
         color: "info",
-        msg: `Sök efter en anställd eller student här för att kontrollera om {name} har rätt att ändra lösenordet för den valda personen.`
+        msg: `Sök efter en anställd eller student här för att kontrollera om {name} har behörighet att ändra lösenordet för den valda personen.`
     },
     success: {
         color: "success",
@@ -46,24 +46,39 @@ const messages = {
         msg: "Den valda personen och {name}, samma personen."
     },
     noPermission: {
-        color: "default",
+        color: "disabled",
         msg: "{name} saknar behörighet att ändra lösenord för någon annan person."
     }
 }
 
 
 function Overview() {
-    const { collections, loading } = useOutletContext();
-    const user = useLoaderData();
-console.log(user)
-    const { permissions, groups: groupNames, openAccess } = DecodedClaims();
+    const { loading } = useOutletContext();
+    const { user, collection } = useLoaderData();
+
+    const { permissions, openAccess } = DecodedClaims(); // , groups: groupNames,
     const { fetchData, response } = use(FetchContext)
 
-    const collection = collections ? groupNames.split(",").flatMap(g => collections[g.toLowerCase()]) : [];
+    // const collection = collections ? groupNames.split(",").flatMap(g => collections[g.toLowerCase()]) : [];
     const { groups, schools, managers, politicians } = user?.permissions ?? {};
 
     const accessToPasswordManage = permissions.split(',').find(x => x === user.group) != null;
     const hasPermission = groups?.length > 0;
+    const isEmployee = user?.passwordLength > 8;
+
+    const profileFields = [
+        { label: "Användarnamn", value: user?.name, icon: Person },
+        { label: "Email", value: user?.email, icon: AlternateEmail },
+        { label: isEmployee ? "Arbetsplats" : "Plats", value: [user?.office, user?.office !== user?.department ? user?.department : null].filter(Boolean).join(" "), icon: Business },
+        ...(isEmployee ? [{ label: "Förvaltning", value: user?.division, icon: AccountBalance }] : [])
+    ];
+
+    const initials = (user?.displayName ?? user?.name ?? "")
+        .split(/[\s,]+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(word => word[0]?.toUpperCase())
+        .join("");
 
     const navigate = useNavigate();
     const ref = useRef(null);
@@ -121,8 +136,8 @@ console.log(user)
     return <>
         {/* Tab menu */}
         <TabPanel primary={user.primary ?? "Anvädarprofil"} secondary={
-            `<span class="secondary-span view">${user?.title ? user?.title : (user?.passwordLength > 8 ? "Anställd" : "Student")}</span>`
-        }>
+            `<span class="secondary-span view">${user?.title ? user?.title : (isEmployee ? "Anställd" : "Student")}</span>`
+        } initials={initials}>
             {/* If account is blocked */}
             <div className="d-row">
                 {user?.isLocked && <span className="unlock-span locked-account">Kontot är låst</span>}
@@ -140,16 +155,27 @@ console.log(user)
 
             {/* User profile info */}
             <section className="d-column jc-start ai-start w-100 view">
-                <h3>Användarnamn</h3>
-                <span> - {user?.name}</span>
-                <h3>Email</h3>
-                <span> - {user?.email}</span>
-                <h3>{user?.passwordLength > 8 ? "Arbetspalts" : "Plats"}</h3>
-                <span> - {user?.office} {(user?.office != user?.department) ? user.department : ""}</span>
-                {user?.passwordLength > 8 && <>
-                    <h3>Förvaltning</h3>
-                    <span> - {user?.division}</span>
-                </>}
+                <div className="profile-card-header d-row jc-start ai-center w-100">
+                    <Avatar className="profile-avatar">{initials}</Avatar>
+                    <div className="d-column ai-start">
+                        {/* <h2>{user?.displayName ?? user?.name}</h2> */}
+                        <h2>Personlig data</h2>
+                        <span className="profile-subtitle">{user?.title ? user?.title : (isEmployee ? "Anställd" : "Student")}</span>
+                    </div>
+                </div>
+
+                <List className="profile-list" disablePadding>
+                    {profileFields.map(({ label, value, icon: Icon }, index) => <ListItem
+                        key={label}
+                        divider={index < profileFields.length - 1}
+                        disableGutters>
+                        <ListItemIcon className="profile-list-icon">
+                            <Icon />
+                        </ListItemIcon>
+                        <ListItemText primary={value} secondary={label} />
+                    </ListItem>)}
+                </List>
+
                 {groups && <Button variant="outlined" onClick={() => navigate(`/moderators/view/${user?.name}`)} sx={{ marginTop: "30px" }}>Behörigheter</Button>}
             </section>
 

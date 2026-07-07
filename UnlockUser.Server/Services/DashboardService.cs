@@ -108,7 +108,7 @@ public class DashboardService(
             _memoryCache.Set(
                 $"groups_{id}", 
                 groups,
-                TimeSpan.FromHours(1)
+                TimeSpan.FromMinutes(90)
             );
 
             _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", groups.Count, DateTime.Now.ToString("G"));

@@ -94,7 +94,16 @@
     width: 100% !important;
 }
 
+/* .message-wrapper:has(> .disabled) */
+.message-wrapper:has(.disabled){
+    background-color: var(--color-disabled) !important;
+}
+
 .message-wrapper .message-box {
     margin: 0 !important;
+}
+
+.message-box.disabled {
+    opacity: 1 !important;
 }
 /* #endregion */
