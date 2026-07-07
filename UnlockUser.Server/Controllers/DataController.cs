@@ -190,7 +190,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     }
 
     // Download history file
-    [HttpGet("download/by/{id}")]
+    [HttpGet("history/download/by/{id}")]
     public async Task<IActionResult> DownloadFile(string id)
     {
         var items = await _localFileService.GetListFromEncryptedFile<FileViewModel>("catalogs/histories");

@@ -178,18 +178,6 @@ const AppRoutes = () => [
     errorElement: <NotFound isAuthorized={true} />,
     children: [
       {
-        path: ':api/errors',
-        element: <Catalog label="Loggfiler" search={true} download="logs/download/by" />,
-        errorElement: <ErrorView />,
-        loader: loader("logs")
-      },
-      {
-        path: ':api/history',
-        element: <Catalog label="Historik" api="data/history" search={true} download="data/download/by" modal={true} disabled={true} />,
-        errorElement: <ErrorView />,
-        loader: loader("data/logs/history")
-      },
-      {
         path: 'statistics',
         element: <Catalog label="Statistik" fullWidth={true} dropdown={true} />,
         errorElement: <ErrorView />,
@@ -201,6 +189,24 @@ const AppRoutes = () => [
         errorElement: <ErrorView />,
         loader: loader("data/schools")
       },
+      {
+        path: 'history',
+        element: <Catalog
+          label="Historik"
+          api="data/history"
+          search={true}
+          download={true}
+          modal={true}
+          disabled={true} />,
+        errorElement: <ErrorView />,
+        loader: loader("data/logs/history")
+      },
+      {
+        path: 'errors',
+        element: <Catalog label="Loggfiler" api="logs" download={true} />,
+        errorElement: <ErrorView />,
+        loader: loader("logs")
+      }
     ]
   },
   {

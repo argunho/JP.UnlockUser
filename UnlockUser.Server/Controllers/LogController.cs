@@ -58,7 +58,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         }
     }
 
-    [HttpGet("download/by/{id}")]
+    [HttpGet("download/by/id/{id}")]
     public async Task<IActionResult> DownloadFile(string id)
     {
         try
@@ -81,7 +81,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
     }
 
     // Download Serielog
-    [HttpGet("download/logs/by/{date}")]
+    [HttpGet("download/by/date/{date}")]
     public async Task<IActionResult> DownloadLogs(string date)
     {
         if (!DateTime.TryParse(date, out DateTime res))

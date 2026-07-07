@@ -26,7 +26,7 @@ import { FetchContext } from "../../storage/FetchContext";
 
 
 // { loc, includedList, label, fullWidth, api, id, fields, labels, navigate }
-function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, download, dropdown, disabled }) {
+function Catalog({ label, api, fields, fullWidth, search, modal, download, dropdown, disabled }) {
 
     const [open, setOpen] = useState(false);
     const [confirmId, setConfirmId] = useState(null);
@@ -34,11 +34,10 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
     const [searchWord, setSearchWord] = useState(null);
     const [model, setModel] = useState();
 
-    const { api: urlApi, loading } = useOutletContext();
+    const { loading } = useOutletContext();
     const catalogLoading = useMatch("/catalog/*");
     const moderatorsLoading = useMatch("/moderators/*");
     const loads = loading && (catalogLoading || moderatorsLoading);
-    const api = urlApi ?? propsApi;
 
     const loaded = useLoaderData();
     const list = loaded?.list ?? loaded;
@@ -96,14 +95,14 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
 
     async function onDownload(id) {
         if (model) setModel();
-        const blob = await fetchData({ api: `${download}/${id}`, method: "get", action: "return", responseType: "blob" });
-        DownloadFile(blob, `${api}_${id}.txt`);
+        const blob = await fetchData({ api: `${api}/download/by/id/${id}`, method: "get", action: "return", responseType: "blob" });
+        DownloadFile(blob, `${label.toLowerCase()}_${id}.txt`);
     }
 
 
     // Download series log file
     async function downloadFile(e) {
-        const blob = await fetchData({ api: `logs/download/logs/by/${e.target.value}`, method: "get", action: "return", responseType: "blob" });
+        const blob = await fetchData({ api: `logs/download/by/date/${e.target.value}`, method: "get", action: "return", responseType: "blob" });
         DownloadFile(blob, `logs-${e.target.value.replaceAll("-", "")}.zip`);
     }
 
@@ -125,13 +124,15 @@ function Catalog({ label, api: propsApi, fields, fullWidth, search, modal, downl
                     </Button>}
 
                     {/* Search filter */}
-                    {search && <SearchFilter label="anställda" disabled={loads || response}
-                        onSearch={(value) => setSearchWord(value)} onReset={() => setSearchWord(null)} />}
+                    {search && <SearchFilter
+                        disabled={loads || response}
+                        onSearch={(value) => setSearchWord(value)}
+                        onReset={() => setSearchWord(null)} />}
                 </div>}
 
 
                 {/* Button to download app log by date */}
-                {api === "logs" && <>
+                {download && <>
                     <input
                         type="date"
                         className="none"

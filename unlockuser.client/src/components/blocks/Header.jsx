@@ -23,8 +23,8 @@ const links = [
     { label: "Informations artiklar", url: "/articles", icon: <Info />, access: false, hidden: false, blink: true },
     { label: "Behöriga användare", url: "/moderators", icon: <SettingsApplications />, access: true, hidden: false },
     { label: "Skolor", url: "/catalog/schools", icon: <School />, access: true, hidden: false },
-    { label: "Historik", url: "/catalog/logs/history", icon: <WorkHistory />, access: true, hidden: false },
     { label: "Statistik", url: "/catalog/statistics", icon: <BarChart />, access: true, hidden: false },
+    { label: "Historik", url: "/catalog/logs/history", icon: <WorkHistory />, access: true, hidden: false },
     { label: "Loggfiler", url: "/catalog/logs/errors", icon: <ErrorOutline />, access: true, hidden: false },
     { label: "Kontakta support", url: "/contact", icon: <LiveHelp />, access: false, hidden: false },
     { label: "Logga ut", url: "/session/logout", icon: <Logout />, access: false, hidden: false }

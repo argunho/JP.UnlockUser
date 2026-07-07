@@ -25,7 +25,7 @@ function SearchFilter({ label, disabled, onSearch, onReset }) {
 
     return (
         <TextField
-            label={`Sök ${label} ...`}
+            label={`Sök ${label ?? "här"} ...`}
             className="search-bar"
             disabled={disabled}
             value={value}
