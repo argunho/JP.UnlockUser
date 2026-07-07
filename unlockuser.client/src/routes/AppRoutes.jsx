@@ -5,6 +5,7 @@ import { Navigate } from 'react-router-dom';
 import AppLayout from '../layouts/AppLayout';
 import SessionLayout from './../layouts/SessionLayout';
 import UsersLayout from './../layouts/UsersLayout';
+import CatalogLayout from '../layouts/CatalogLayout';
 
 // Pages
 import Employees from "../pages/auth/Employees";
@@ -137,38 +138,11 @@ const AppRoutes = () => [
         element: <Permissions />,
         errorElement: <ErrorView />,
         loader: loader("user/permissions")
-      },
-      {
-        path: "/catalog",
-        children: [
-          {
-            path: ':api/errors',
-            element: <Catalog label="Loggfiler" search={true} download="logs/download/by" />,
-            errorElement: <ErrorView />,
-            loader: loader("logs")
-          },
-          {
-            path: ':api/history',
-            element: <Catalog label="Historik" api="data/history" search={true} download="data/download/by" modal={true} disabled={true} />,
-            errorElement: <ErrorView />,
-            loader: loader("data/logs/history")
-          },
-          {
-            path: 'statistics',
-            element: <Catalog label="Statistik" fullWidth={true} dropdown={true} />,
-            errorElement: <ErrorView />,
-            loader: loader("data/statistics")
-          },
-          {
-            path: 'schools',
-            element: <Catalog label="Skolor" api="data/school" fields="school" />,
-            errorElement: <ErrorView />,
-            loader: loader("data/schools")
-          },
-        ]
       }
     ]
   },
+
+
   {
     path: "/moderators",
     element: <FetchContextProvider>
@@ -194,6 +168,39 @@ const AppRoutes = () => [
         errorElement: <ErrorView />,
         loader: loader("data/schools")
       }
+    ]
+  },
+  {
+    path: "/catalog",
+    element: <FetchContextProvider>
+      <CatalogLayout />
+    </FetchContextProvider>,
+    errorElement: <NotFound isAuthorized={true} />,
+    children: [
+      {
+        path: ':api/errors',
+        element: <Catalog label="Loggfiler" search={true} download="logs/download/by" />,
+        errorElement: <ErrorView />,
+        loader: loader("logs")
+      },
+      {
+        path: ':api/history',
+        element: <Catalog label="Historik" api="data/history" search={true} download="data/download/by" modal={true} disabled={true} />,
+        errorElement: <ErrorView />,
+        loader: loader("data/logs/history")
+      },
+      {
+        path: 'statistics',
+        element: <Catalog label="Statistik" fullWidth={true} dropdown={true} />,
+        errorElement: <ErrorView />,
+        loader: loader("data/statistics")
+      },
+      {
+        path: 'schools',
+        element: <Catalog label="Skolor" api="data/school" fields="school" />,
+        errorElement: <ErrorView />,
+        loader: loader("data/schools")
+      },
     ]
   },
   {
