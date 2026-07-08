@@ -26,7 +26,7 @@ import NotFound from "../pages/NotFound";
 import ErrorView from '../pages/ErrorView';
 
 // Services
-import { loader, loaderById, loaderByParams, loaderBySession } from '../services/LoadFunctions';
+import { loader, loaderApiGroups, loaderById, loaderByParams, loaderBySession } from '../services/LoadFunctions';
 
 // Storage
 import FetchContextProvider from '../storage/FetchContext';
@@ -160,7 +160,7 @@ const AppRoutes = () => [
         path: "view/:id",
         element: <EmployeeView />,
         errorElement: <ErrorView />,
-        loader: loader("data/schools")
+        loader: loaderApiGroups(["data/schools", "data/groups/by/name/personal"])
       }
     ]
   },

@@ -2,7 +2,7 @@ import { useEffect, useState, use } from 'react';
 
 // Installed
 import { useOutletContext, useRevalidator, useLoaderData } from 'react-router-dom';
-import { IconButton } from '@mui/material';
+import { IconButton, Collapse } from '@mui/material';
 import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt } from '@mui/icons-material';
 import _ from 'lodash';
 
@@ -21,8 +21,8 @@ import './../../assets/css/view.css';
 function EmployeeView() {
 
     const revalidator = useRevalidator();
-    const schools = useLoaderData();
-    const { groups, moderator, managers, politicians } = useOutletContext();
+    const { schools, employees } = useLoaderData();
+    const { groups, moderator, managers, politicians, searchValue } = useOutletContext();
     const { permissions } = moderator;
 
     const columns = moderator?.managers?.length > 0 ? ["Närmaste chefer", ...groups] : groups;
@@ -40,6 +40,7 @@ function EmployeeView() {
         schools: permissions?.schools
     });
 
+console.log(schools, employees)
     useEffect(() => {
         if (success)
             revalidator.revalidate();
@@ -98,9 +99,16 @@ function EmployeeView() {
         || !_.isEqual([...(approvedPoliticians ?? [])].sort((a, b) => a.name?.localeCompare(b.name)).map(x => x.name), [...(approved?.politicians ?? [])].sort((a, b) => a.name?.localeCompare(b.name)).map(x => x.name))
         || !_.isEqual(permissions?.schools, [...(approved?.schools ?? [])].sort((a, b) => a?.localeCompare(b)));
 
+    const employee = employees?.find(x => x?.email?.toLowerCase() === searchValue);
+
     return (
         <>
-            <ActionButtons pending={pending} disabled={!isChanged} onConfirm={onSubmit} />
+            <ActionButtons label="Behörighetslista" pending={pending} disabled={!isChanged} onConfirm={onSubmit} />
+
+            {/* Hidden collapse block */}
+            <Collapse in={employee} className='d-row w-100' timeout="auto" unmountOnExit>
+
+            </Collapse>
 
             {/* Response message */}
             {response && <Message res={response} cancel={() => handleResponse()} />}
@@ -158,7 +166,7 @@ function EmployeeView() {
                         <ul className="view-list-wrapper w-100">
 
                             {/* Managers list */}
-                            {(column === "Närmaste chefer" && !disabled && moderator?.managers?.length> 0) && moderator?.managers?.map((manager, index) => {
+                            {(column === "Närmaste chefer" && !disabled && moderator?.managers?.length > 0) && moderator?.managers?.map((manager, index) => {
                                 const checked = approved?.managers?.find(x => x?.username === manager?.username);
                                 return <li className="w-100 d-row jc-between" key={index}>
                                     {manager?.displayName}

@@ -50,6 +50,16 @@ button.reset-button {
   letter-spacing: 0.5px;
 }
 
+.actions-wrapper button {
+  height: 40px;
+}
+
+.label {
+    text-transform: uppercase;
+    font-size: 18px !important;
+    margin-left: 15px;
+}
+
 .link-files {
   float: left !important;
   width: calc(100% / 4) !important;

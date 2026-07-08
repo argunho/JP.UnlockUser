@@ -52,7 +52,7 @@ function UsersLayout() {
     const moderatorsByGroup = group ? moderators?.filter(x => x.permissions?.groups?.includes(groupName)) : moderators;
     const moderator = id ? moderatorsByGroup?.find(x => x.name === id) : null;
     const secondaryRow = id
-        ? `${moderator?.primary} | <span class="secondary-span">${moderator?.office}</span> | <span class="secondary-span">${moderator?.title}</span>`
+        ? `${moderator?.office} | <span class="secondary-span">${moderator?.title}</span>`
         : groupsLinks;
 
     return (
@@ -63,14 +63,18 @@ function UsersLayout() {
 
                 {/* Tab menu */}
                 <TabPanel
-                    primary={id ? `Behörighetslista` : "Moderators"}
-                    secondary={secondaryRow} >
+                    primary={id ? moderator.displayName : "Moderators"}
+                    secondary={secondaryRow} initialsView ={!!id}>
 
                     {/* Refresh list */}
-                    {!id && <div className="d-row">
+                    <div className="d-row">
                         {/* Search filter */}
-                        <SearchFilter key={group} label="anställda" disabled={loading || response}
-                            onSearch={(value) => setSearchWord(value)} onReset={() => setSearchWord(null)} />
+                        <SearchFilter 
+                            key={group} 
+                            label="anställda" 
+                            disabled={loading || response}
+                            onSearch={(value) => setSearchWord(value)} 
+                            onReset={() => setSearchWord(null)} />
 
                         {/* Refresh button */}
                         <Tooltip title="Uppdatera listan" classes={{
@@ -84,11 +88,9 @@ function UsersLayout() {
                                     onClick={renewList}>
                                     <Refresh />
                                 </IconButton>
-
                             </span>
                         </Tooltip>
-                    </div>}
-
+                    </div>
                 </TabPanel>
 
                 <Outlet key={`${group}_${searchWord}_${id}`} context={!id
@@ -97,7 +99,7 @@ function UsersLayout() {
                             ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase()))
                             : moderatorsByGroup),
                         onReset: () => setSearchWord(null)
-                    } : { groups, moderator, managers, politicians }} />
+                    } : { groups, moderator, managers, politicians, searchValue: searchWord }} />
 
                 {/* Loading */}
                 {loading && <LinearLoading size={30} />}

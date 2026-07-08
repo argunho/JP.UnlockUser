@@ -220,7 +220,7 @@ function Home() {
                 await waitForCollection(120000);
 
             const collection = groupCollectionRef.current;
-console.log(collection?.length, collection[0])
+
             let res = null;
             if (collection?.length > 0) {
                 if (gn === "support")

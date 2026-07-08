@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
 import { TextField, IconButton } from '@mui/material';
 
-function SearchFilter({ label, disabled, onSearch, onReset }) {
+function SearchFilter({ label, disabled, styles, onSearch, onReset }) {
 
     const [value, setValue] = useState("");
 
@@ -29,6 +29,7 @@ function SearchFilter({ label, disabled, onSearch, onReset }) {
             className="search-bar"
             disabled={disabled}
             value={value}
+            style={styles ? styles : null}
             onChange={changeHandle}
             placeholder="Anvädarnamn, school, klass, datum, gruppnamn ..."
             InputProps={{

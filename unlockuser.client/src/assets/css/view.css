@@ -34,13 +34,6 @@
     padding: 0 5px !important;
 }
 
-/* .view-list-wrapper::after {
-    background: linear-gradient(to top,
-            rgba(255, 255, 255, 0.9),
-            rgba(0, 0, 0, 0)) !important;
-} */
-
-
 .view-list-wrapper>li {
     height: 50px !important;
     text-transform: uppercase;

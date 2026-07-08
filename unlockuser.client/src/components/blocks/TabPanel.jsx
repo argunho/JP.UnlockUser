@@ -6,10 +6,16 @@ import { IconButton, Avatar } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
+// Functions
+import { Initials } from '../../functions/Helpers';
 
-function TabPanel({ children, primary, secondary, initials }) {
+
+function TabPanel({ children, primary, secondary, initialsView }) {
 
     const navigate = useNavigate();
+
+    
+    const initials = initialsView ? Initials(primary) : null;
 
     return <div className="d-row jc-between menu-div w-100">
 
