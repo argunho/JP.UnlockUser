@@ -220,14 +220,14 @@ function Home() {
                 await waitForCollection(120000);
 
             const collection = groupCollectionRef.current;
-
+console.log(collection?.length, collection[0])
             let res = null;
             if (collection?.length > 0) {
                 if (gn === "support")
                     res = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)));
                 else {
                     res = (isClass)
-                        ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)
+                        ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)?.sort((a,b) => a.name?.toLowerCase().localeCompare(b.name?.toLowerCase()))
                         : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name))
                             && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
                 }
@@ -239,6 +239,8 @@ function Home() {
 
                 res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
             }
+
+            
 
             handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
             return Array.isArray(res) ? null : data;

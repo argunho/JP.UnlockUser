@@ -62,6 +62,7 @@ public class DashboardService(
                 // All users who are members of the current password management group
                 if (!_memoryCache.TryGetValue(group.Name!, out List<User>? users))
                 {
+                    // Get user from AD by group name and current user permissions parameters
                     users = [.. (_provider.GetUsersByGroupName(group, alternativeParams))];
 
                     if (users?.Count > 0)
