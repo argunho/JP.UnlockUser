@@ -188,6 +188,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
     const error = formState?.error;
     const disabled = load || response || pending || locked;
 
+    // Manage children params
     const modifiedChildren = children ? Children.map(children, child =>
         cloneElement(child, {
             pending: load || pending,
@@ -213,7 +214,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
                     </h2>
 
                     {/* Generate password */}
-                    {!multiple && <PasswordGeneration
+                    {!hidden && <PasswordGeneration
                         key={isCleaned}
                         passwordLength={passwordLength}
                         disabled={disabled}

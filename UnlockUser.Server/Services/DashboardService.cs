@@ -110,7 +110,7 @@ public class DashboardService(
                 groups,
                 TimeSpan.FromMinutes(90)
             );
-
+            _logger.LogInformation("Memory chached. {0}", $"groups_{id}");
             _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", groups.Count, DateTime.Now.ToString("G"));
         }
         catch (Exception ex)

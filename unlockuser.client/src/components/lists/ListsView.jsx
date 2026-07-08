@@ -35,7 +35,7 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
     else if (user && !multiple)
       navigate(`/manage/${group}/user/` + (user?.name ? user?.name : selected[0]));
     else
-      navigate(`/manage/${group}/school/${list[0].office}/class/${list[0].department}`, { state: { selected } })
+      navigate(`/manage/${group}/school/${list[0].office}/class/${list[0].department}`, { state: { selected, list } })
   }
 
   function onSelected(value) {

@@ -17,14 +17,14 @@ function ClassManager() {
     const [removed, setRemoved] = useState([]);
     const [hidden, setHidden] = useState(false);
 
-    const { collections, classId, school } = useOutletContext();
+    const { classId, school } = useOutletContext();
 
     const navigate = useNavigate();
 
     const loc = useLocation();
-    const { selected } = loc.state;
+    const { selected, list } = loc.state;
 
-    const users = collections.studenter?.map((user) => {
+    const users = list?.map((user) => {
         if (selected.includes(user?.name))
             return user;
         return null;
@@ -43,12 +43,12 @@ function ClassManager() {
 
     const classMembers = users.filter(x => !removed.includes(x.name));
     const lgh = classMembers?.length;
-
-
+    const slgh = selected?.length - removed?.length;
+    
     return (
         <>
             {/* Tab menu */}
-            <TabPanel primary={`${school} ${classId}`} secondary={`${selected?.length} student(er)`}>
+            <TabPanel primary={`${school} ${classId}`} secondary={`${slgh} student${slgh > 1 ? "(er)" : ""}`}>
                 {/* Edit class members list */}
                 <Button
                     color={dropdown ? "primary" : "inherit"}

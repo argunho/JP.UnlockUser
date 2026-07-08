@@ -137,8 +137,6 @@ const AppRoutes = () => [
       }
     ]
   },
-
-
   {
     path: "/moderators",
     element: <FetchContextProvider>

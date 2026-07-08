@@ -133,14 +133,12 @@ function Home() {
             if (groupCollectionRef.current?.length == 0) {
 
                 const logged = sessionStorage.getItem("logged");
-
                 if (logged) {
-                    const loginTime = Number(logged);
+                    const loginTime = new Date(logged).getTime();
                     const now = Date.now();
-
                     const minutesPassed = (now - loginTime) / (1000 * 60);
 
-                    if (minutesPassed >= 90)
+                    if (minutesPassed >= 60)
                         navigate("/session/expired");
                 }
             }
