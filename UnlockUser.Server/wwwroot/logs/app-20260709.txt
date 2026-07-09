@@ -157,3 +157,7 @@
 2026-07-09 18:51:58.859 +02:00 [INF] Memory chached. groups_f2875d3e-dcb5-b157-f2a0-f13486031481
 2026-07-09 18:51:58.860 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-09 18:51:58.
 2026-07-09 18:51:58.867 +02:00 [INF] Dashboard data setup completed.
+2026-07-09 19:48:10.513 +02:00 [INF] Autentisering utförd vid: 2026-07-09 19:48. Department: IT avdelning. Office: IT avdelning.
+2026-07-09 19:48:43.209 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-09 19:48:43.603 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-09 19:48:43.
+2026-07-09 19:48:43.603 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-09 19:48:43.
