@@ -30,7 +30,7 @@ const links = [
     { label: "Logga ut", url: "/session/logout", icon: <Logout />, access: false, hidden: false }
 ];
 
-const Header = memo(function Header({ disabled }) {
+const Header = memo(function Header({ disabled, switchColor }) {
 
     const [open, setOpen] = useState(false);
 
@@ -57,13 +57,15 @@ const Header = memo(function Header({ disabled }) {
             setOpen(false);
     }, [loc])
 
+    const switchMenuColor = loc.pathname.toLowerCase().includes("support") || switchColor;
+
     return (
         <header className='header-container w-100 d-column'>
             <section className='header-wrapper d-row jc-start w-100' id="logotype">
                 <Logotype />
             </section>
 
-            <section className={`menu-container${loc.pathname.toLowerCase().includes("support") ? " support-view" : ""} w-100`} id="menu-container">
+            <section className={`menu-container${switchMenuColor ? " support-view" : ""} w-100`} id="menu-container">
                 <div className='menu-wrapper d-row jc-between'>
                     <div className="d-row" id="header-home">
                         <IconButton

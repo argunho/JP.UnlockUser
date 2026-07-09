@@ -58,7 +58,7 @@ function UsersLayout() {
 
     return (
         <>
-            <Header disabled={loading} />
+            <Header disabled={loading} switchColor={true} />
 
             <div className="container d-column jc-start w-100">
 

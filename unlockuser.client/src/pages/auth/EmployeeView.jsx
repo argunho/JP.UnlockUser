@@ -16,6 +16,7 @@ import { FetchContext } from '../../storage/FetchContext';
 
 // Css
 import './../../assets/css/view.css';
+import { GetCnValue } from '../../functions/Helpers';
 
 
 function EmployeeView() {
@@ -25,7 +26,6 @@ function EmployeeView() {
     const { groups, moderator, managers, politicians, approvedEmployees, searchValue } = useOutletContext();
     const { permissions } = moderator;
 
-    const approvedUsernames = approvedEmployees?.filter(x => x.moderators?.includes(moderator.username)).map((emp) => emp.username) ?? [];
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
     const approvedPoliticians = permissions.groups.includes("Politiker") ?
         (permissions?.politicians?.length > 0 ? politicians.filter(x => permissions?.politicians?.includes(x?.name ?? x?.username)) : politicians) : [];
@@ -41,8 +41,10 @@ function EmployeeView() {
     });
     const [collapsed, setCollapsed] = useState(false);
 
+    const approvedUsernames = approved.employees?.filter(x => x.moderators?.includes(moderator.username)).map((emp) => emp.username) ?? [];
 
     useEffect(() => {
+        console.log(success)
         if (success)
             revalidator.revalidate();
     }, [success, revalidator])
@@ -123,7 +125,6 @@ function EmployeeView() {
         }
     }
 
-
     async function onSubmit() {
         const data = {
             groups: permissions.groups,
@@ -142,11 +143,11 @@ function EmployeeView() {
         || !_.isEqual(approvedEmployees ?? [], [...(approved?.employees ?? [])].sort((a, b) => a.username?.localeCompare(b.username)).map(x => x.username));
 
     const employeesToChoose = searchValue?.length >= 3
-        ? groupModels?.filter(x => !approvedUsernames.includes(moderator?.username) && JSON.stringify(x).includes(searchValue))
+        ? groupModels?.filter(x => x.username != moderator.username && !approvedUsernames.includes(x?.username) && JSON.stringify(x).includes(searchValue))
         : groupModels?.filter(x => approvedUsernames.includes(x.username));
 
     const collapseBlock = permissions.groups?.includes("Personal");
-
+console.log(moderator, approvedManagers)
     return (
         <>
             <ActionButtons label="Behörighetslista" pending={pending} disabled={!isChanged} onConfirm={onSubmit}>
@@ -164,11 +165,16 @@ function EmployeeView() {
             {collapseBlock && <Collapse in={searchValue?.length >= 3 || collapsed} className='d-row w-100' timeout="auto" unmountOnExit>
                 <List className="collapse-wrapper d-row jc-start w-100">
                     {employeesToChoose?.map((emp, index) => {
-                        const checked = approved.employees.find(x => x?.username === emp?.username);
                         const secondary = `<span class="secondary-span no-l-margin">${emp?.department}</span> <span class="secondary-span">${emp?.office}</span>`;
+                        const managerUsername = GetCnValue(emp.manager);
+                        const disabled = approved.managers.find(x => x.username === managerUsername) != null;
+                        const checked = approved.employees.find(x => x?.username === emp?.username) || disabled;
+                        console.log(managerUsername, disabled)
                         return <ListItem key={index} className="li-collapse"
                             secondaryAction={
-                                <IconButton onClick={() => checked ? onDelete(emp?.username, "employees", "username") : onChange(emp?.username, "employees")}>
+                                <IconButton 
+                                    disabled={disabled}
+                                    onClick={() => checked ? onDelete(emp?.username, "employees", "username") : onChange(emp?.username, "employees")}>
                                     {checked ? <CheckBox color="success" /> : <CheckBoxOutlineBlank />}
                                 </IconButton>
                             }>

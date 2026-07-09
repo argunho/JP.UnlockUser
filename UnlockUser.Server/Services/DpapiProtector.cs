@@ -2,7 +2,7 @@
 Pseudocode / Plan (detailed):
 1. Goal: Fix CA1416 warning that ProtectedData.Protect/Unprotect are Windows-only.
 2. Strategy:
-   - Mark API surface as Windows-only with [SupportedOSPlatform("windows")] so the analyzer knows intent.
+   - Mark API surface as Windows-only with [ModeratoredOSPlatform("windows")] so the analyzer knows intent.
    - At runtime, explicitly check the current OS using RuntimeInformation.IsOSPlatform(OSPlatform.Windows).
      - If not Windows, throw PlatformNotSupportedException with a clear message so callers fail fast and predictably.
    - Keep existing behavior on Windows: convert secret to UTF8 bytes, call ProtectedData.Protect/Unprotect with DataProtectionScope.LocalMachine.

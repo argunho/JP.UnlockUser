@@ -20,5 +20,8 @@ export function Initials(name) {
     .slice(0, 2)
     .map(word => word[0]?.toUpperCase())
     .join("");
+}
 
+export function GetCnValue(dn) {
+    return dn.match(/^CN=([^,]+)/)?.[1] ?? null;
 }

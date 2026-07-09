@@ -98,7 +98,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
 
     [HttpGet("saved/{username}")]
-    [Authorize(Roles = "Support, DevelopTeam")]
+    [Authorize(Roles = "Moderator, DevelopTeam")]
     public async Task<IActionResult> GetCachedUser(string username)
     {
         try
@@ -116,7 +116,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
 
     [HttpGet("by/{username}")]
-    [Authorize(Roles = "Support, DevelopTeam")]
+    [Authorize(Roles = "Moderator, DevelopTeam")]
     public async Task<IActionResult> GetUserByUsername(string username)
     {
         try
@@ -171,7 +171,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
 
     [HttpGet("groups")]
-    [Authorize(Roles = "DevelopTeam,Manager,Support")]
+    [Authorize(Roles = "DevelopTeam,Manager,Moderator")]
     public List<string?> GetGrous()
     {
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
@@ -287,7 +287,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
 
     [HttpPost("renew/saved")]
-    [Authorize(Roles = "DevelopTeam,Manager,Support")]
+    [Authorize(Roles = "DevelopTeam,Manager,Moderator")]
     public async Task<IActionResult> RenewSavedEmployeesList()
     {
         try
@@ -325,7 +325,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
 
     [HttpPut("update/permissions/{username}")]
-    [Authorize(Roles = "DevelopTeam,Manager,Support")]
+    [Authorize(Roles = "DevelopTeam,Manager,Moderator")]
     public async Task<IActionResult> PutUpdateEmployeeSchool(string username, PermissionsViewModel model)
     {
         try
@@ -449,7 +449,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         _logger.LogInformation("Permission validation for the admin role.");
 
         // Check current user permission
-        if (roles.Contains("Support", StringComparer.OrdinalIgnoreCase))
+        if (roles.Contains("Moderator", StringComparer.OrdinalIgnoreCase))
         {
             var permissionsJson = HttpContext.Session.GetString("permissions");
 
@@ -703,7 +703,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 //    var roles = claims != null && claims.TryGetValue("roles", out var r) && !string.IsNullOrEmpty(r)
 //                            ? r.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
 
-//    if (!roles.Contains("Support", StringComparer.OrdinalIgnoreCase))
+//    if (!roles.Contains("Moderator", StringComparer.OrdinalIgnoreCase))
 //    {
 //        var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permissions"])!;
 
