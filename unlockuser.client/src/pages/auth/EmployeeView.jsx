@@ -2,8 +2,8 @@ import { useEffect, useState, use } from 'react';
 
 // Installed
 import { useOutletContext, useRevalidator, useLoaderData } from 'react-router-dom';
-import { IconButton, Collapse, List, ListItem, ListItemText } from '@mui/material';
-import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt } from '@mui/icons-material';
+import { IconButton, Collapse, List, ListItem, ListItemText, Button } from '@mui/material';
+import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt, Checklist } from '@mui/icons-material';
 import _ from 'lodash';
 
 // Components
@@ -24,14 +24,12 @@ function EmployeeView() {
     const { groupModels, schools } = useLoaderData();
     const { groups, moderator, managers, politicians, approvedEmployees, searchValue } = useOutletContext();
     const { permissions } = moderator;
+
     const approvedUsernames = approvedEmployees?.filter(x => x.moderators?.includes(moderator.username)).map((emp) => emp.username) ?? [];
-
-    const columns = moderator?.managers?.length > 0 ? ["Närmaste chefer", ...groups] : groups;
-
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
     const approvedPoliticians = permissions.groups.includes("Politiker") ?
-        (permissions?.politicians?.length > 0 ? politicians.filter(x => permissions?.politicians?.includes(x?.name ?? x?.username))
-            : politicians) : [];
+        (permissions?.politicians?.length > 0 ? politicians.filter(x => permissions?.politicians?.includes(x?.name ?? x?.username)) : politicians) : [];
+    const columns = moderator?.managers?.length > 0 ? ["Närmaste chefer", ...groups] : groups;
 
     const { fetchData, pending, response, success, handleResponse } = use(FetchContext);
 
@@ -41,6 +39,7 @@ function EmployeeView() {
         schools: permissions?.schools,
         employees: approvedEmployees ?? []
     });
+    const [collapsed, setCollapsed] = useState(false);
 
 
     useEffect(() => {
@@ -142,14 +141,27 @@ function EmployeeView() {
         || !_.isEqual(permissions?.schools, [...(approved?.schools ?? [])].sort((a, b) => a?.localeCompare(b)))
         || !_.isEqual(approvedEmployees ?? [], [...(approved?.employees ?? [])].sort((a, b) => a.username?.localeCompare(b.username)).map(x => x.username));
 
-    const employeesToChoose = searchValue?.length >= 3 ? groupModels?.filter(x => !approvedUsernames.includes(moderator?.username) && JSON.stringify(x).includes(searchValue)) : [];
+    const employeesToChoose = searchValue?.length >= 3
+        ? groupModels?.filter(x => !approvedUsernames.includes(moderator?.username) && JSON.stringify(x).includes(searchValue))
+        : groupModels?.filter(x => approvedUsernames.includes(x.username));
+
+    const collapseBlock = permissions.groups?.includes("Personal");
 
     return (
         <>
-            <ActionButtons label="Behörighetslista" pending={pending} disabled={!isChanged} onConfirm={onSubmit} />
+            <ActionButtons label="Behörighetslista" pending={pending} disabled={!isChanged} onConfirm={onSubmit}>
+                {(collapseBlock && approvedUsernames?.length > 0) &&
+                    <Button
+                        startIcon={collapsed ? <Close /> : <Checklist />}
+                        color={collapsed ? "default" : "primary"}
+                        disabled={!!searchValue}
+                        onClick={() => setCollapsed((collapsed) => !collapsed)}>
+                        Godkända enskilda anställda
+                    </Button>}
+            </ActionButtons>
 
             {/* Hidden collapse block. Result of employee search */}
-            {permissions.groups?.includes("Personal") && <Collapse in={searchValue?.length >= 3} className='d-row w-100' timeout="auto" unmountOnExit>
+            {collapseBlock && <Collapse in={searchValue?.length >= 3 || collapsed} className='d-row w-100' timeout="auto" unmountOnExit>
                 <List className="collapse-wrapper d-row jc-start w-100">
                     {employeesToChoose?.map((emp, index) => {
                         const checked = approved.employees.find(x => x?.username === emp?.username);

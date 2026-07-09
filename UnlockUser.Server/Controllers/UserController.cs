@@ -341,6 +341,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
             employee.Permissions = model;
             await _localFileService.SaveUpdateEncryptedFile(employees, "catalogs/moderators");
+            await _localFileService.SaveUpdateEncryptedFile(model.ApprovedEmployees, "catalogs/approved-employees");
         }
         catch (Exception ex)
         {
