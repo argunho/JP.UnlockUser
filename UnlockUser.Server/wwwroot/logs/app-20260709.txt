@@ -139,3 +139,21 @@
 2026-07-09 15:11:01.242 +02:00 [INF] Dashboard data setup completed.
 2026-07-09 15:49:00.229 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-09 15:49:00.
 2026-07-09 16:08:49.499 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-09 16:08:49.
+2026-07-09 16:10:50.844 +02:00 [INF] Autentisering utförd vid: 2026-07-09 16:10. Department: IT avdelning. Office: IT avdelning.
+2026-07-09 16:10:50.876 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-09 16:11:03.218 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-09 16:11:03.
+2026-07-09 16:11:13.477 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-09 16:11:13.
+2026-07-09 16:11:22.889 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-09 16:11:22.
+2026-07-09 16:11:22.891 +02:00 [INF] Memory chached. groups_7efc0ea1-da3f-7e31-a9f1-0e3e51b471d0
+2026-07-09 16:11:22.893 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-09 16:11:22.
+2026-07-09 16:11:22.899 +02:00 [INF] Dashboard data setup completed.
+2026-07-09 18:51:24.307 +02:00 [INF] Autentisering utförd vid: 2026-07-09 18:51. Department: IT avdelning. Office: IT avdelning.
+2026-07-09 18:51:24.462 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-09 18:51:24.971 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-09 18:51:24.
+2026-07-09 18:51:24.971 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-09 18:51:24.
+2026-07-09 18:51:37.311 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-09 18:51:37.
+2026-07-09 18:51:47.569 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-09 18:51:47.
+2026-07-09 18:51:58.856 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-09 18:51:58.
+2026-07-09 18:51:58.859 +02:00 [INF] Memory chached. groups_f2875d3e-dcb5-b157-f2a0-f13486031481
+2026-07-09 18:51:58.860 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-09 18:51:58.
+2026-07-09 18:51:58.867 +02:00 [INF] Dashboard data setup completed.

@@ -1,7 +1,7 @@
 import { useState, useEffect, use } from 'react';
 
 // Installed
-import { Outlet, useNavigation, useLoaderData, NavLink, useParams } from 'react-router-dom';
+import { Outlet, useNavigation, useLoaderData, NavLink, useParams, useRevalidator } from 'react-router-dom';
 import { IconButton, Tooltip } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
 
@@ -19,14 +19,14 @@ import { Capitalize } from '../functions/Helpers';
 
 function UsersLayout() {
 
-    const { fetchData, response } = use(FetchContext);
+    const { fetchData, response, loading: pending, success } = use(FetchContext);
     const loaded = useLoaderData();
     const { moderators, groups } = loaded;
 
     const navigation = useNavigation();
     const { group, id } = useParams();
+    const revalidator = useRevalidator();
 
-    const loading = navigation.state === "loading";
     const groupName = Capitalize(group);
 
     const [searchValue, setSearchValue] = useState(null);
@@ -40,10 +40,17 @@ function UsersLayout() {
             setSearchValue(null);
     }, [group])
 
+    useEffect(() => {
+        if (!success) return;
+console.log("success here", success)
+
+        revalidator.revalidate();
+    }, [success, revalidator])
+
 
     async function renewList() {
-        await fetchData({ api: "user/renew/saved", method: "post" });
-        sessionStorage.setItem("updated", "true");
+        await fetchData({ api: "user/renew/saved", method: "post", action: "success" });
+        sessionStorage.setItem("updated", "ok");
     }
 
     const groupsLinks = groups?.map((name, index) => (
@@ -55,6 +62,9 @@ function UsersLayout() {
     const secondaryRow = id
         ? `${moderator?.office} | <span class="secondary-span">${moderator?.title}</span>`
         : groupsLinks;
+    const showSearch = !id || moderator?.permissions.groups?.includes("Personal");
+
+    const loading = navigation.state === "loading" || pending;
 
     return (
         <>
@@ -65,16 +75,16 @@ function UsersLayout() {
                 {/* Tab menu */}
                 <TabPanel
                     primary={id ? moderator.displayName : "Moderators"}
-                    secondary={secondaryRow} initialsView ={!!id}>
+                    secondary={secondaryRow} initialsView={!!id}>
 
                     {/* Refresh list */}
-                    <div className="d-row">
+                    {showSearch && <div className="d-row">
                         {/* Search filter */}
-                        <SearchFilter 
-                            key={group} 
-                            label="anställda" 
+                        <SearchFilter
+                            key={group}
+                            label="anställda"
                             disabled={loading || response}
-                            onSearch={(value) => setSearchValue(value)} 
+                            onSearch={(value) => setSearchValue(value)}
                             onReset={() => setSearchValue(null)} />
 
                         {/* Refresh button */}
@@ -91,7 +101,7 @@ function UsersLayout() {
                                 </IconButton>
                             </span>
                         </Tooltip>
-                    </div>
+                    </div>}
                 </TabPanel>
 
                 <Outlet key={`${group}_${searchValue}_${id}`} context={!id
