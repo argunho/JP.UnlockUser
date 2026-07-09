@@ -25,7 +25,7 @@ function ClassManager() {
     const { selected, list } = loc.state;
 
     const users = list?.map((user) => {
-        if (selected.includes(user?.name))
+        if (selected.includes(user?.username))
             return user;
         return null;
     })?.filter(Boolean) ?? [];
@@ -41,7 +41,7 @@ function ClassManager() {
         setRemoved(previous => [...previous, id]);
     }
 
-    const classMembers = users.filter(x => !removed.includes(x.name));
+    const classMembers = users.filter(x => !removed.includes(x.username));
     const lgh = classMembers?.length;
     const slgh = selected?.length - removed?.length;
     
@@ -68,11 +68,11 @@ function ClassManager() {
                 {/* List of students */}
                 {classMembers?.map((user) => (
                     <Button
-                        key={user.name}
+                        key={user.username}
                         variant='outlined'
                         color="inherit"
                         endIcon={<Close color="error" />}
-                        onClick={() => spliceUsersList(user.name)}>
+                        onClick={() => spliceUsersList(user.username)}>
                         {user.displayName}
                     </Button>
                 ))}

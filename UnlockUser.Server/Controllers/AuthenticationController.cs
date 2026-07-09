@@ -79,7 +79,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
                 return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
 
             var moderators = await _localFileService.GetListFromEncryptedFile<User>("catalogs/moderators");
-            var currentModerator = moderators.FirstOrDefault(x => x.Name != null && x.Name.Equals(authorizedUser.Name!, StringComparison.OrdinalIgnoreCase));
+            var currentModerator = moderators.FirstOrDefault(x => x.Username != null && x.Username.Equals(authorizedUser.Name!, StringComparison.OrdinalIgnoreCase));
             if (currentModerator != null)
                 _session!.SetString("permissions", JsonConvert.SerializeObject(currentModerator?.Permissions));
 

@@ -31,13 +31,13 @@ public class LocalUserService(ILocalFileService localFileService,
             var user = new UserViewModel(_provider.GetUserParams(res.Properties)!);
             if (user.Title != null && _provider.CheckManager(user.Title))
                 managers.Add(user);
-            if (_politicians.Contains(user.Name, StringComparer.OrdinalIgnoreCase))
+            if (_politicians.Contains(user.Username, StringComparer.OrdinalIgnoreCase))
                 politicians.Add(user);
         }
 
         var managersToSave = managers.Select(s => new Manager
         {
-            Username = s.Name,
+            Username = s.Username,
             DisplayName = s.DisplayName,
             Office = s.Office,
             Department = s.Department,
@@ -65,7 +65,7 @@ public class LocalUserService(ILocalFileService localFileService,
             {
                 string username = membersUsernames[i];
 
-                User? newUser = users.FirstOrDefault(x => x.Name == username);
+                User? newUser = users.FirstOrDefault(x => x.Username == username);
                 PermissionsViewModel? permissions = newUser != null ? newUser.Permissions : new();
 
                 permissions!.Groups.Add(group.Name!);
@@ -75,7 +75,7 @@ public class LocalUserService(ILocalFileService localFileService,
                 else
                     newUser ??= new();
 
-                var savedUser = currentSavedList?.FirstOrDefault(x => x.Name == username);
+                var savedUser = currentSavedList?.FirstOrDefault(x => x.Username == username);
                 var userPermissions = savedUser?.Permissions;
 
                 // Get user
@@ -105,7 +105,7 @@ public class LocalUserService(ILocalFileService localFileService,
                 if (isSchool && !string.IsNullOrWhiteSpace(user!.Office) && !permissions.Schools.Contains(user!.Office, StringComparer.OrdinalIgnoreCase))
                     permissions.Schools.Add(user.Office);
 
-                newUser.Name = user.SamAccountName;
+                newUser.Username = user.SamAccountName;
                 newUser.DisplayName = user.DisplayName;
                 newUser.Email = user.EmailAddress;
                 newUser.Office = user.Office;
@@ -142,7 +142,7 @@ public class LocalUserService(ILocalFileService localFileService,
     public async Task<User?> GetUserFromFile(string username)
     {
         List<UserViewModel> employees = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
-        UserViewModel? user = employees?.FirstOrDefault(x => x.Name == username);
+        UserViewModel? user = employees?.FirstOrDefault(x => x.Username == username);
         return user;
     }
 

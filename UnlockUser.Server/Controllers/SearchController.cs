@@ -58,7 +58,7 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
             if (usersToView.Count == 0)
                 return Ok(_helpService.Warning("Inga användarkonto hittades."));
 
-            return Ok(new { users = usersToView.OrderBy(x => x.Name) });
+            return Ok(new { users = usersToView.OrderBy(x => x.Username) });
         }
         catch (Exception ex)
         {
@@ -85,7 +85,7 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
             users = await _localUserService.Filter(users, "Students", claims!["username"]);
 
             if (users.Count > 0)
-                return Ok(new { users = users.Distinct().OrderBy(x => x.Department).ThenBy(x => x.Name) });
+                return Ok(new { users = users.Distinct().OrderBy(x => x.Department).ThenBy(x => x.Username) });
 
             return BadRequest(_helpService.Warning("Inga användarkonto hittades. Var vänlig kontrollera klass- och skolnamn."));
         }

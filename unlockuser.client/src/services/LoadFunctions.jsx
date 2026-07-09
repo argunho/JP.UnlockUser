@@ -59,11 +59,17 @@ export function loaderByParams(api, keys = null) {
     }
 }
 
-// Loader groups 
-export async function loaderApiGroups(apier) {
-    return await Promise.all(
-        apier.map(api => ApiRequest(api))
-    );
+// Loader groups
+export function loaderApiGroups(apier) {
+    return async function load() {
+        const entries = await Promise.all(
+            Object.entries(apier).map(async ([key, api]) => {
+                const res = await ApiRequest(api);
+                return [key, res?.[key] ?? res];
+            })
+        );
+        return Object.fromEntries(entries);
+    }
 }
 
 // Dynamic loader function

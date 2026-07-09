@@ -143,7 +143,7 @@ const AppRoutes = () => [
       <UsersLayout />
     </FetchContextProvider>,
     errorElement: <NotFound isAuthorized={true} />,
-    loader: loader("user/principal"),
+    loader: loader("user/catalogs"),
     // shouldRevalidate: () => false,
     children: [
       {
@@ -160,7 +160,7 @@ const AppRoutes = () => [
         path: "view/:id",
         element: <EmployeeView />,
         errorElement: <ErrorView />,
-        loader: loaderApiGroups(["data/schools", "data/groups/by/name/personal"])
+        loader: loaderApiGroups({ schools: "data/schools", groupModels: "data/groups/by/name/personal" })
       }
     ]
   },

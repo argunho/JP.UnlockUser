@@ -98,7 +98,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             }
         }
 
-        return Ok(groupModels);
+        return Ok(new { groupModels });
     }
 
     // Get schools list
@@ -106,7 +106,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     public async Task<IActionResult> GetSchools()
     {
         var schools = await GetSchoolsFromFile();
-        return Ok(schools);
+        return Ok( new { schools });
     }
 
     // Get all history files
@@ -152,7 +152,6 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             Secondary = history.Description
         });
     }
-
 
     // Get statistics
     [HttpGet("statistics")]

@@ -20,7 +20,8 @@ import { Capitalize } from '../functions/Helpers';
 function UsersLayout() {
 
     const { fetchData, response } = use(FetchContext);
-    const { moderators, managers, politicians, groups } = useLoaderData();
+    const loaded = useLoaderData();
+    const { moderators, groups } = loaded;
 
     const navigation = useNavigation();
     const { group, id } = useParams();
@@ -28,15 +29,15 @@ function UsersLayout() {
     const loading = navigation.state === "loading";
     const groupName = Capitalize(group);
 
-    const [searchWord, setSearchWord] = useState(null);
+    const [searchValue, setSearchValue] = useState(null);
 
     useEffect(() => {
         document.title = "UnlockUser | Moderators";
     }, [])
 
     useEffect(() => {
-        if (searchWord)
-            setSearchWord(null);
+        if (searchValue)
+            setSearchValue(null);
     }, [group])
 
 
@@ -50,7 +51,7 @@ function UsersLayout() {
     ));
 
     const moderatorsByGroup = group ? moderators?.filter(x => x.permissions?.groups?.includes(groupName)) : moderators;
-    const moderator = id ? moderatorsByGroup?.find(x => x.name === id) : null;
+    const moderator = id ? moderatorsByGroup?.find(x => x.username === id) : null;
     const secondaryRow = id
         ? `${moderator?.office} | <span class="secondary-span">${moderator?.title}</span>`
         : groupsLinks;
@@ -73,8 +74,8 @@ function UsersLayout() {
                             key={group} 
                             label="anställda" 
                             disabled={loading || response}
-                            onSearch={(value) => setSearchWord(value)} 
-                            onReset={() => setSearchWord(null)} />
+                            onSearch={(value) => setSearchValue(value)} 
+                            onReset={() => setSearchValue(null)} />
 
                         {/* Refresh button */}
                         <Tooltip title="Uppdatera listan" classes={{
@@ -93,13 +94,13 @@ function UsersLayout() {
                     </div>
                 </TabPanel>
 
-                <Outlet key={`${group}_${searchWord}_${id}`} context={!id
+                <Outlet key={`${group}_${searchValue}_${id}`} context={!id
                     ? {
-                        moderators: (searchWord
-                            ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase()))
+                        moderators: (searchValue
+                            ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchValue?.toLowerCase()))
                             : moderatorsByGroup),
-                        onReset: () => setSearchWord(null)
-                    } : { groups, moderator, managers, politicians, searchValue: searchWord }} />
+                        onReset: () => setSearchValue(null)
+                    } : { ...loaded, moderator, searchValue }} />
 
                 {/* Loading */}
                 {loading && <LinearLoading size={30} />}

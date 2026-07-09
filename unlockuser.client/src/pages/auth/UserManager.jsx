@@ -23,7 +23,7 @@ function UserManager() {
     // Unlock user
     async function unlockUser() {
         // Request
-        const res = await fetchData({ api: "api/user/unlock/" + user?.name, method: "put", action: "success" });
+        const res = await fetchData({ api: "api/user/unlock/" + user?.username, method: "put", action: "success" });
         setLocked(res ? true : false);
     }
 

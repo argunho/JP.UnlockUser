@@ -20,7 +20,7 @@ function SearchFilter({ label, disabled, styles, onSearch, onReset }) {
 
     function clickHandle() {
         onSearch(value);
-        setValue("");
+        // setValue("");
     }
 
     return (

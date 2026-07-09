@@ -2,7 +2,7 @@ import { useEffect, useState, use } from 'react';
 
 // Installed
 import { useOutletContext, useRevalidator, useLoaderData } from 'react-router-dom';
-import { IconButton, Collapse } from '@mui/material';
+import { IconButton, Collapse, List, ListItem, ListItemText } from '@mui/material';
 import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt } from '@mui/icons-material';
 import _ from 'lodash';
 
@@ -21,15 +21,16 @@ import './../../assets/css/view.css';
 function EmployeeView() {
 
     const revalidator = useRevalidator();
-    const { schools, employees } = useLoaderData();
-    const { groups, moderator, managers, politicians, searchValue } = useOutletContext();
+    const { groupModels, schools } = useLoaderData();
+    const { groups, moderator, managers, politicians, approvedEmployees, searchValue } = useOutletContext();
     const { permissions } = moderator;
+    const approvedUsernames = approvedEmployees?.filter(x => x.moderators?.includes(moderator.username)).map((emp) => emp.username) ?? [];
 
     const columns = moderator?.managers?.length > 0 ? ["Närmaste chefer", ...groups] : groups;
 
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
     const approvedPoliticians = permissions.groups.includes("Politiker") ?
-        (permissions?.politicians?.length > 0 ? politicians.filter(x => permissions?.politicians?.includes(x.name))
+        (permissions?.politicians?.length > 0 ? politicians.filter(x => permissions?.politicians?.includes(x?.name ?? x?.username))
             : politicians) : [];
 
     const { fetchData, pending, response, success, handleResponse } = use(FetchContext);
@@ -37,17 +38,18 @@ function EmployeeView() {
     const [approved, setApproved] = useState({
         managers: approvedManagers,
         politicians: approvedPoliticians,
-        schools: permissions?.schools
+        schools: permissions?.schools,
+        employees: approvedEmployees ?? []
     });
 
-console.log(schools, employees)
+
     useEffect(() => {
         if (success)
             revalidator.revalidate();
     }, [success, revalidator])
 
     function onChange(value, group, multiple) {
-
+        console.log(value, group)
         if (!value || !group)
             return;
 
@@ -62,6 +64,27 @@ console.log(schools, employees)
             newValues = politicians?.filter(x => x.name === value);
         } else if (group === "schools") {
             newValues = [value];
+        } else if (group === "employees") {
+            let values = approved.employees;
+            let existing = values.find(x => x.username === value)
+            if (existing) {
+                existing?.moderators?.push(moderator.username);
+                setApproved(previous => {
+                    return {
+                        ...previous,
+                        [group]: values
+                    }
+                })
+
+                return;
+            }
+
+            const newValue = {
+                username: value,
+                moderators: [moderator?.username]
+            }
+
+            newValues = [newValue];
         }
 
         setApproved(previous => {
@@ -76,45 +99,80 @@ console.log(schools, employees)
         if (!value || !group)
             return;
 
-        setApproved(previous => {
-            return {
-                ...previous,
-                [group]: previous[group]?.filter(x => id ? x[id] !== value : x !== value)
+        if (group !== "employees") {
+            setApproved(previous => {
+                return {
+                    ...previous,
+                    [group]: previous[group]?.filter(x => id ? x[id] !== value : x !== value)
+                }
+            })
+        } else {
+            let values = approved.employees;
+            let existing = values.find(x => x.username === value);
+            if (existing != null) {
+                existing.moderators = existing.moderators?.filter(x => x !== moderator?.username);
+                if (existing?.moderators?.length === 0) {
+                    values = values.filter(x => x.username !== value)
+                }
+                setApproved(previous => {
+                    return {
+                        ...previous,
+                        [group]: values
+                    }
+                })
             }
-        })
+        }
     }
+
 
     async function onSubmit() {
         const data = {
             groups: permissions.groups,
             managers: approved?.managers?.map(x => x.username),
             politicians: approved?.politicians?.map(x => x.name),
+            approvedEmployees: approved?.employees,
             schools: approved?.schools
         };
 
-        await fetchData({ api: `user/update/permissions/${moderator?.name}`, method: "put", data: data, action: "success" });
+        await fetchData({ api: `user/update/permissions/${moderator?.username}`, method: "put", data: data, action: "success" });
     }
 
     const isChanged = !_.isEqual(permissions?.managers, [...(approved?.managers ?? [])].sort((a, b) => a.username?.localeCompare(b.username)).map(x => x.username))
         || !_.isEqual([...(approvedPoliticians ?? [])].sort((a, b) => a.name?.localeCompare(b.name)).map(x => x.name), [...(approved?.politicians ?? [])].sort((a, b) => a.name?.localeCompare(b.name)).map(x => x.name))
-        || !_.isEqual(permissions?.schools, [...(approved?.schools ?? [])].sort((a, b) => a?.localeCompare(b)));
+        || !_.isEqual(permissions?.schools, [...(approved?.schools ?? [])].sort((a, b) => a?.localeCompare(b)))
+        || !_.isEqual(approvedEmployees ?? [], [...(approved?.employees ?? [])].sort((a, b) => a.username?.localeCompare(b.username)).map(x => x.username));
 
-    const employee = employees?.find(x => x?.email?.toLowerCase() === searchValue);
+    const employeesToChoose = searchValue?.length >= 3 ? groupModels?.filter(x => !approvedUsernames.includes(moderator?.username) && JSON.stringify(x).includes(searchValue)) : [];
 
     return (
         <>
             <ActionButtons label="Behörighetslista" pending={pending} disabled={!isChanged} onConfirm={onSubmit} />
 
-            {/* Hidden collapse block */}
-            <Collapse in={employee} className='d-row w-100' timeout="auto" unmountOnExit>
-
-            </Collapse>
+            {/* Hidden collapse block. Result of employee search */}
+            {permissions.groups?.includes("Personal") && <Collapse in={searchValue?.length >= 3} className='d-row w-100' timeout="auto" unmountOnExit>
+                <List className="collapse-wrapper d-row jc-start w-100">
+                    {employeesToChoose?.map((emp, index) => {
+                        const checked = approved.employees.find(x => x?.username === emp?.username);
+                        const secondary = `<span class="secondary-span no-l-margin">${emp?.department}</span> <span class="secondary-span">${emp?.office}</span>`;
+                        return <ListItem key={index} className="li-collapse"
+                            secondaryAction={
+                                <IconButton onClick={() => checked ? onDelete(emp?.username, "employees", "username") : onChange(emp?.username, "employees")}>
+                                    {checked ? <CheckBox color="success" /> : <CheckBoxOutlineBlank />}
+                                </IconButton>
+                            }>
+                            <ListItemText
+                                primary={emp?.primary}
+                                secondary={<span dangerouslySetInnerHTML={{ __html: secondary }}></span>} />
+                        </ListItem>
+                    })}
+                </List>
+            </Collapse>}
 
             {/* Response message */}
             {response && <Message res={response} cancel={() => handleResponse()} />}
 
             {/* Row of titles */}
-            <div className="w-100 view-header d-row jc-between">
+            {!searchValue && <div className="w-100 view-header d-row jc-between">
                 {columns?.map((column, index) => {
                     const disabled = !permissions.groups?.includes(column) && index > 0;
                     return <p key={index} className={`w-100 d-row jc-between${disabled ? " p-disabled" : ""}`}>
@@ -122,10 +180,10 @@ console.log(schools, employees)
                         {(index > 0 && disabled) && <Lock color="default" fontSize="small" />}
                     </p>
                 })}
-            </div>
+            </div>}
 
             {/* Row of permissions */}
-            <div className="w-100 d-row jc-start ai-start ai-stretch">
+            {!searchValue && <div className="w-100 d-row jc-start ai-start ai-stretch">
                 {columns?.map((column, index) => {
                     const disabled = !permissions.groups?.includes(column) && index > 0;
 
@@ -215,7 +273,7 @@ console.log(schools, employees)
                         </ul>
                     </div>
                 })}
-            </div>
+            </div>}
         </>
     )
 }

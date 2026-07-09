@@ -1228,3 +1228,4 @@ System.FormatException: The input string 'is' was not in a correct format.
    at Microsoft.WebTools.BrowserLink.Net.BrowserLinkMiddleware.InvokeAsync(HttpContext context)
    at Microsoft.AspNetCore.Watch.BrowserRefresh.BrowserRefreshMiddleware.InvokeAsync(HttpContext context) in /_3/BrowserRefreshMiddleware.cs:line 84
    at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.HttpProtocol.ProcessRequests[TContext](IHttpApplication`1 application)
+2026-07-08 22:34:06.528 +02:00 [ERR] Couldn't start the SPA development server with command 'npm run dev'.

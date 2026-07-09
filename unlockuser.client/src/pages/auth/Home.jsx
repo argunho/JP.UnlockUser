@@ -129,7 +129,8 @@ function Home() {
             // setModalMessage(!!message?.html ? message : null);
             // setGroupCollection(Array.isArray(collection) ? collection : []);
 
-            groupCollectionRef.current = await fetchData({ api: `data/groups/by/name/${gn}`, action: "return" });
+            const res = await fetchData({ api: `data/groups/by/name/${gn}`, action: "return" });
+            groupCollectionRef.current = res.groupModels;
             if (groupCollectionRef.current?.length == 0) {
 
                 const logged = sessionStorage.getItem("logged");
@@ -310,7 +311,7 @@ function Home() {
                                 color="error"
                                 className="search-reset"
                                 type="reset"
-                                disabled={loading || !isChanged}
+                                disabled={loading || !isChanged || searching}
                                 onClick={() => dispatch({ type: "RESET" })}
                                 edge="end">
                                 <SearchOffSharp />
@@ -321,7 +322,7 @@ function Home() {
                                 color={isChanged ? "primary" : "inherit"}
                                 className="search-button"
                                 type="submit"
-                                disabled={!isChanged || loading}
+                                disabled={!isChanged || loading || searching}
                                 ref={refSubmit}
                                 edge="end">
                                 <SearchSharp />

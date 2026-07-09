@@ -75,7 +75,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
 
     // Get stored  employees who have permission to manage employee passwords nby group name
-    [HttpGet("principal")]
+    [HttpGet("catalogs")]
     public async Task<IActionResult> GetUsersByGroupName()
     {
         try
@@ -85,9 +85,10 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             var moderators = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
             var managers = await _localFileService.GetListFromEncryptedFile<Manager>("catalogs/managers") ?? [];
             var politicians = (await _localFileService.GetListFromEncryptedFile<User>("catalogs/politicians")).Select(s => new UserViewModel(s)) ?? [];
+            var approvedEmployees = await _localFileService.GetListFromEncryptedFile<ApprovedEmployee>("catalogs/approved-employees") ?? [];
             var groups = _config.GetSection("Groups").Get<List<GroupModel>>()?.Select(s => s.Name).ToList();
 
-            return Ok(new { moderators, managers, politicians, groups });
+            return Ok(new { moderators, managers, politicians, approvedEmployees, groups });
         }
         catch (Exception ex)
         {
@@ -137,7 +138,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             var cachedUser = await _localService.GetUserFromFile(username);
             var modifiedUser = new UserViewModel(new User
             {
-                Name = userPrincipal.SamAccountName,
+                Username = userPrincipal.SamAccountName,
                 DisplayName = userPrincipal.DisplayName,
                 Title = userPrincipal.Title,
                 Email = userPrincipal.EmailAddress,
@@ -330,7 +331,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         try
         {
             var employees = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
-            var employee = employees.FirstOrDefault(x => x.Name == username);
+            var employee = employees.FirstOrDefault(x => x.Username == username);
             if (employee == null)
                 return NotFound(_helpService.NotFound("Anställd"));
 
@@ -537,7 +538,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                 groupModels = cachedGroups!.TryGetValue(group.ToLower(), out var value) ? value : [];
             }
 
-            var user = groupModels.FirstOrDefault(x => x.Name == name);
+            var user = groupModels.FirstOrDefault(x => x.Username == name);
             return (user, false);
         }
 

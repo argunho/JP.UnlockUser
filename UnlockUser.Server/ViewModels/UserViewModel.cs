@@ -5,14 +5,14 @@ public class UserViewModel : User
     public int PasswordLength { get; set; } = 8;
     public string? Group { get; set; }
     public string? Primary => DisplayName;
-    public string? Secondary => $"{Name},\t{Email} | <span class=\"secondary-span\">{Office + (Office != Department ? (" " + Department) : "")}</span>";
+    public string? Secondary => $"{Username},\t{Email} | <span class=\"secondary-span\">{Office + (Office != Department ? (" " + Department) : "")}</span>";
     //public int Year => Name != null ? int.Parse(Name[..2]) : 0;
 
     public UserViewModel(User user)
     {
         if (user != null)
         {
-            Name = user?.Name;
+            Username = user?.Username;
             DisplayName = user?.DisplayName;
             Email = user?.Email;
             Manager = user?.Manager;

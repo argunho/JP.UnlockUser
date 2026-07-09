@@ -118,7 +118,7 @@ function MultiplePassword({ users, label, subLabel, pending, disabled, onSwitch 
 
             preview.push({
                 name: users[i].displayName,
-                username: users[i].name,
+                username: users[i].username,
                 password: password
             })
         }
