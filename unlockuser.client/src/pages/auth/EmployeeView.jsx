@@ -57,14 +57,19 @@ function EmployeeView() {
         employees: approvedEmployees ?? []
     });
     const [collapsed, setCollapsed] = useState(false);
+    const [officeManager, setOfficeManager] = useState(null);
 
     function onChange(value, group, multiple) {
+
         if (!value || !group)
             return;
 
         let newValues;
 
         if (group === "managers") {
+            if(typeof value === "string" && !multiple){
+                value = managers.find(x => x.username == value);
+            }
             newValues = multiple
                 ? managers.filter(x => (x.managerName === value || x.username === value)
                     && !approved?.managers?.some(y => y.username === x.username))
@@ -143,42 +148,59 @@ function EmployeeView() {
         await fetchData({ api: `user/update/permissions/${moderator?.username}`, method: "put", data: data, action: "success" });
     }
 
+    function handleShowByOffice(username) {
+        setOfficeManager(username);
+        setCollapsed((collapsed) => !collapsed);
+    }
+
     const isChanged = !_.isEqual(permissions?.managers, sortedValues(approved?.managers, "username"))
         || !_.isEqual(sortedValues(approvedPoliticians, "username"), sortedValues(approved?.politicians, "username"))
         || !_.isEqual(permissions?.schools, sortedValues(approved?.schools))
         || !_.isEqual(normalizedEmployees(approvedEmployees), normalizedEmployees(approved?.employees));
 
     const searchTerm = searchValue?.toLowerCase();
-    const employeesToChoose = searchValue?.length >= 3
+    const employeesToView = searchValue?.length >= 3
         ? groupModels?.filter(x => x.username != moderator.username && !approvedUsernames.includes(x?.username)
             && [x?.primary, x?.username, x?.department, x?.office].some(field => field?.toLowerCase().includes(searchTerm)))
-        : groupModels?.filter(x => approvedUsernames.includes(x.username));
+        : groupModels?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedUsernames.includes(x.username));
 
-    const collapseBlock = permissions.groups?.includes("Personal");
+    const personalPermissions = permissions.groups?.includes("Personal");
 
     return (
         <>
             <ActionButtons label="Behörighetslista" pending={pending} disabled={!isChanged} onConfirm={onSubmit}>
-                {(collapseBlock && approvedUsernames?.length > 0) &&
+                {(personalPermissions && approvedUsernames?.length > 0 && !officeManager) &&
                     <Button
+                        className="fade-in"
                         startIcon={collapsed ? <Close /> : <Checklist />}
                         color={collapsed ? "default" : "primary"}
                         disabled={!!searchValue}
                         onClick={() => setCollapsed((collapsed) => !collapsed)}>
                         Godkända enskilda anställda
                     </Button>}
+
+                {(collapsed && officeManager) && <Button
+                    startIcon={<Close />}
+                    color="error"
+                    className="fade-in"
+                    onClick={() => handleShowByOffice(null)}>
+                    Stänga
+                </Button>}
             </ActionButtons>
 
             {/* Hidden collapse block. Result of employee search */}
-            {collapseBlock && <Collapse in={searchValue?.length >= 3 || collapsed} className='d-row w-100' timeout="auto" unmountOnExit>
-                <List className="collapse-wrapper d-row jc-start w-100">
-                    {employeesToChoose?.map((emp, index) => {
+            {personalPermissions && <Collapse in={searchValue?.length >= 3 || collapsed} className='d-row w-100' timeout="auto" unmountOnExit>
+
+                {/* List of employees */}
+                {employeesToView?.length > 0 && <List className="collapse-wrapper d-row jc-start w-100">
+                    {employeesToView?.map((emp, index) => {
                         const managerUsername = GetCnValue(emp.manager);
                         const disabled = approved.managers.find(x => x.username === managerUsername) != null;
                         const checked = approved.employees.find(x => x?.username === emp?.username) || disabled;
+
                         return <ListItem key={index} className="li-collapse"
                             secondaryAction={
-                                <IconButton 
+                                <IconButton
                                     disabled={disabled}
                                     onClick={() => checked ? onDelete(emp?.username, "employees", "username") : onChange(emp?.username, "employees")}>
                                     {checked ? <CheckBox color="success" /> : <CheckBoxOutlineBlank />}
@@ -187,121 +209,133 @@ function EmployeeView() {
                             <ListItemText
                                 primary={emp?.primary}
                                 secondary={<>
-                                    <span className="secondary-span no-l-margin">{emp?.department}</span>{" "}
-                                    <span className="secondary-span">{emp?.office}</span>
+                                    <span className="secondary-span no-l-margin">{emp.department === emp?.office ? emp?.division : emp?.department}</span>{" "}
+                                    <span className="secondary-span">{emp?.office}</span>{" "}
+                                    <span className="secondary-span">{emp?.title}</span>
                                 </>} />
                         </ListItem>
                     })}
-                </List>
+                </List>}
+
+                {/* Message if is none employees to view */}
+                {employeesToView?.length == 0 && <Message res={{ color: "warning", msg: "Inga anställda kunde hittas." }} />}
             </Collapse>}
 
             {/* Response message */}
             {response && <Message res={response} cancel={() => handleResponse()} />}
 
-            {/* Row of titles */}
-            {!searchValue && <div className="w-100 view-header d-row jc-between">
-                {columns?.map((column, index) => {
-                    const disabled = !permissions.groups?.includes(column) && index > 0;
-                    return <p key={index} className={`w-100 d-row jc-between${disabled ? " p-disabled" : ""}`}>
-                        {column}
-                        {(index > 0 && disabled) && <Lock color="default" fontSize="small" />}
-                    </p>
-                })}
-            </div>}
+            {(!searchValue && !collapsed) && <>
 
-            {/* Row of permissions */}
-            {!searchValue && <div className="w-100 d-row jc-start ai-start ai-stretch">
-                {columns?.map((column, index) => {
-                    const disabled = !permissions.groups?.includes(column) && index > 0;
-                    const hierarchy = column === "Närmaste chefer";
+                {/* Row of titles */}
+                <div className="w-100 view-header d-row jc-between">
+                    {columns?.map((column, index) => {
+                        const disabled = !permissions.groups?.includes(column) && index > 0;
+                        return <p key={index} className={`w-100 d-row jc-between${disabled ? " p-disabled" : ""}`}>
+                            {column}
+                            {(index > 0 && disabled) && <Lock color="default" fontSize="small" />}
+                        </p>
+                    })}
+                </div>
 
-                    return <div key={column} className="view-body w-100" style={hierarchy ? { marginTop: 0 } : null}>
+                {/* Row of permissions */}
+                <div className="w-100 d-row jc-start ai-start ai-stretch">
+                    {columns?.map((column, index) => {
+                        const disabled = !permissions.groups?.includes(column) && index > 0;
+                        const hierarchy = column === "Närmaste chefer";
 
-                        {/* Personals managers dropdown list */}
-                        {(column === "Personal" && !disabled) && <AutocompleteList
-                            key={approved.managers?.length}
-                            label="Managers"
-                            collection={managers.filter(x => !approved?.managers?.some(s => s?.username === x?.username))}
-                            shrink={true}
-                            disabled={pending}
-                            onClick={(value) => onChange(value, "managers")}
-                        />}
+                        return <div key={column} className="view-body w-100" style={hierarchy ? { marginTop: 0 } : null}>
 
-                        {/* Politician dropdown list */}
-                        {(column === "Politiker" && !disabled) && <AutocompleteList
-                            key={approved.politicians?.length}
-                            label="Politiker"
-                            collection={politicians?.filter(x => !approved.politicians?.some(s => s?.username === x?.username))}
-                            shrink={true}
-                            keyword="username"
-                            disabled={pending}
-                            onClick={(value) => onChange(value, "politicians")}
-                        />}
+                            {/* Personals managers dropdown list */}
+                            {(column === "Personal" && !disabled) && <AutocompleteList
+                                key={approved.managers?.length}
+                                label="Managers"
+                                collection={managers.filter(x => !approved?.managers?.some(s => s?.username === x?.username))}
+                                shrink={true}
+                                disabled={pending}
+                                onClick={(value) => onChange(value, "managers")}
+                            />}
 
-                        {/* School dropdown list */}
-                        {(column === "Studenter" && !disabled) && <AutocompleteList
-                            key={approved.schools?.length}
-                            label="Skolnamn"
-                            collection={schools?.filter(x => !approved.schools?.some(s => s === x?.id))}
-                            shrink={true}
-                            keyword="id"
-                            disabled={pending}
-                            onClick={(value) => onChange(value, "schools")}
-                        />}
+                            {/* Politician dropdown list */}
+                            {(column === "Politiker" && !disabled) && <AutocompleteList
+                                key={approved.politicians?.length}
+                                label="Politiker"
+                                collection={politicians?.filter(x => !approved.politicians?.some(s => s?.username === x?.username))}
+                                shrink={true}
+                                keyword="username"
+                                disabled={pending}
+                                onClick={(value) => onChange(value, "politicians")}
+                            />}
 
-                        <ul className="view-list-wrapper w-100">
+                            {/* School dropdown list */}
+                            {(column === "Studenter" && !disabled) && <AutocompleteList
+                                key={approved.schools?.length}
+                                label="Skolnamn"
+                                collection={schools?.filter(x => !approved.schools?.some(s => s === x?.id))}
+                                shrink={true}
+                                keyword="id"
+                                disabled={pending}
+                                onClick={(value) => onChange(value, "schools")}
+                            />}
 
-                            {/* Managers list */}
-                            {(hierarchy && !disabled && moderator?.managers?.length > 0) && moderator?.managers?.map((manager, index) => {
-                                const checked = approved?.managers?.find(x => x?.username === manager?.username);
-                                return <li className="w-100 d-row jc-between" key={index}>
-                                    {manager?.displayName}
+                            <ul className="view-list-wrapper w-100">
 
-                                    {permissions.groups?.includes("Personal") && <IconButton disabled={checked} onClick={() => onChange(manager?.username, "managers", true)}>
-                                        {checked ? <CheckBox /> : <CheckBoxOutlineBlank />}
-                                    </IconButton>}
-                                </li>
-                            })}
+                                {/* Managers list */}
+                                {(hierarchy && !disabled && moderator?.managers?.length > 0) && moderator?.managers?.map((manager, index) => {
+                                    const checked = approved?.managers?.find(x => x?.username === manager?.username);
+                                    return <li className="w-100 d-row jc-between" key={index}>
+                                        {manager?.displayName}
 
-                            {/* Personals managers list */}
-                            {(column === "Personal" && !disabled) && approved?.managers?.map((item, index) => (
-                                <li className="w-100 d-row jc-between" key={index}>
-                                    <span>{item?.displayName} | <span className="secondary-span">{item?.office}</span></span>
-                                    <IconButton onClick={() => onDelete(item?.username, "managers", "username")} color="error">
-                                        <Close />
-                                    </IconButton>
-                                </li>
-                            ))}
-
-                            {/* Politicians list */}
-                            {(column === "Politiker" && !disabled) && approved?.politicians?.sort((a, b) =>
-                                a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase()))?.map((item, index) => (
+                                        {personalPermissions &&
+                                            <IconButton
+                                                color={checked ? "success" : "default"}
+                                                onClick={() => checked
+                                                    ? onDelete(manager?.username, "managers", "username")
+                                                    : onChange(manager?.username, "managers", false)}>
+                                                {checked ? <CheckBox /> : <CheckBoxOutlineBlank />}
+                                            </IconButton>}
+                                    </li>
+                                })}
+                                {/* Personals managers list */}
+                                {(column === "Personal" && !disabled) && approved?.managers?.map((item, index) => (
                                     <li className="w-100 d-row jc-between" key={index}>
-                                        <span>{item?.displayName} | <span className="secondary-span">{item?.office}</span></span>
-                                        <IconButton onClick={() => onDelete(item?.username, "politicians", "username")} color="error">
+                                        <span>{item?.displayName} | <span className="secondary-span" onClick={() => handleShowByOffice(item.username)}>{item?.office}</span></span>
+                                        <IconButton onClick={() => onDelete(item?.username, "managers", "username")} color="error">
                                             <Close />
                                         </IconButton>
                                     </li>
                                 ))}
 
-                            {/* Schools list */}
-                            {column === "Studenter" && approved?.schools?.map((item, index) => (
-                                <li className="w-100 d-row jc-between" key={index}>
-                                    {item}
-                                    <IconButton onClick={() => onDelete(item, "schools")} color="error">
-                                        <Close />
-                                    </IconButton>
-                                </li>
-                            ))}
+                                {/* Politicians list */}
+                                {(column === "Politiker" && !disabled) && approved?.politicians?.sort((a, b) =>
+                                    a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase()))?.map((item, index) => (
+                                        <li className="w-100 d-row jc-between" key={index}>
+                                            <span>{item?.displayName} | <span className="secondary-span">{item?.office}</span></span>
+                                            <IconButton onClick={() => onDelete(item?.username, "politicians", "username")} color="error">
+                                                <Close />
+                                            </IconButton>
+                                        </li>
+                                    ))}
 
-                            {/* If permissions missed */}
-                            {disabled && <li className="w-100 d-row jc-start li-disabled">
-                                <DoNotDisturbAlt /> Behörighet saknas
-                            </li>}
-                        </ul>
-                    </div>
-                })}
-            </div>}
+                                {/* Schools list */}
+                                {column === "Studenter" && approved?.schools?.map((item, index) => (
+                                    <li className="w-100 d-row jc-between" key={index}>
+                                        {item}
+                                        <IconButton onClick={() => onDelete(item, "schools")} color="error">
+                                            <Close />
+                                        </IconButton>
+                                    </li>
+                                ))}
+
+                                {/* If permissions missed */}
+                                {disabled && <li className="w-100 d-row jc-start li-disabled">
+                                    <DoNotDisturbAlt /> Behörighet saknas
+                                </li>}
+                            </ul>
+                        </div>
+                    })}
+                </div>
+
+            </>}
         </>
     )
 }
