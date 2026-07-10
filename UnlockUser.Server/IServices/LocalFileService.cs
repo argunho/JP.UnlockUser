@@ -5,9 +5,10 @@ using System.Text;
 
 namespace UnlockUser.Server.IServices;
 
-public class LocalFileService(IConfiguration config) : ILocalFileService
+public class LocalFileService(IConfiguration config, ILogger<LocalFileService> logger) : ILocalFileService
 {
     private readonly IConfiguration _config = config;
+    private readonly ILogger<LocalFileService> _logger = logger;
 
     public async Task<List<T>> GetListFromEncryptedFile<T>(string fileName) where T : class
     {
@@ -25,7 +26,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.Message);
+            _logger.LogError(ex.Message);
             return [];
         }
     }
@@ -95,12 +96,12 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
         return encrypted;
     }
 
-    public async Task<string?> SaveUpdateEncryptedFile<T>(List<T> list, string fileName) where T : class
+    public async Task<string?> SaveUpdateEncryptedFile<T>(List<T> list, string pathName, string fileName) where T : class
     {
         string? error = String.Empty;
         try
         {
-            var directory = @"wwwroot/";
+            var directory = Path.Combine(@"wwwroot", pathName);
             CheckDirectory(directory);
 
             var path = Path.Combine(directory, $"{fileName}.txt");
@@ -112,6 +113,8 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
 
             await Task.Delay(1000);
 
+            _logger.LogInformation("Starting process to save file [0}", fileName);
+
             // Encrypt file
             var encryptedValue = JsonConvert.SerializeObject(list, Formatting.None);
 
@@ -120,11 +123,14 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
             string exryotedText = Convert.ToBase64String(encrypted);
             File.WriteAllText(path, exryotedText, Encoding.UTF8);
 
+
+            _logger.LogInformation("End save process. [0}", fileName);
+
             //await using FileStream lockStream = new(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"{nameof(SaveUpdateEncryptedFile)} => Error: ${ex.Message}");
+            _logger.LogError($"{nameof(SaveUpdateEncryptedFile)} => Error: ${ex.Message}");
             error = ex.Message;
         }
 
@@ -152,7 +158,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.Message);
+            _logger.LogError(ex.Message);
         }
     }
 
@@ -184,9 +190,6 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
                 var json = System.Text.Json.JsonSerializer.Serialize(models);
                 await File.WriteAllTextAsync(path, json, Encoding.UTF8);
             }
-
-
-
 
             //fileNem += string.Concat(Guid.NewGuid().ToString().AsSpan(10), "_", DateTime.Now.ToString("yyyyMMddHHmmss"));
 
@@ -227,7 +230,7 @@ public class LocalFileService(IConfiguration config) : ILocalFileService
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.Message);
+            _logger.LogError(ex.Message);
             return false;
         }
     }

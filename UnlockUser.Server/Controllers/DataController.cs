@@ -217,7 +217,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             schools.Add(school);
             await Task.Delay(1000);
 
-            await _localFileService.SaveUpdateEncryptedFile(schools, "catalogs/schools");
+            await _localFileService.SaveUpdateEncryptedFile(schools, "catalogs", "schools");
 
             return Ok();
         }
@@ -237,7 +237,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             var schools = await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools");
             schools = [.. schools.Where(x => !string.Equals(x.Name!.Trim(), name.Trim(), StringComparison.OrdinalIgnoreCase))];
             await Task.Delay(1000);
-            await _localFileService.SaveUpdateEncryptedFile(schools, "catalogs/schools");
+            await _localFileService.SaveUpdateEncryptedFile(schools, "catalogs", "schools");
             return Ok();
         }
         catch (Exception ex)
