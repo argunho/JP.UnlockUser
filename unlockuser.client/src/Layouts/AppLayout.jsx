@@ -23,8 +23,7 @@ function AppLayout() {
   const navigate = useNavigate();
   const loc = useLocation();
   const params = useParams();
-  const { group } = params;
-  const { fetchData, resData: collections } = use(FetchContext);
+  const { fetchData, data: collections } = use(FetchContext);
 
   const modalMessage = useLoaderData();
 
@@ -43,7 +42,8 @@ function AppLayout() {
   }, []);
 
   useEffect(() => {
-    if(loc.pathname === "/search" && !group){
+    console.log(loc.pathname)
+    if (loc.pathname === "/search" || loc.pathname === "/") {
       navigate(`/search/${permissions[0]?.toLowerCase()}`, { replace: true });
     }
   }, [loc])
@@ -51,10 +51,11 @@ function AppLayout() {
 
   async function hideMessage() {
     setOpen(false);
-    await fetchData({ api: "article/hide/popup/message", method: "post", loadDisabled: true});
+    await fetchData({ api: "article/hide/popup/message", method: "post", action: "clean" });
   }
 
   const loading = !collections || navigation.state == "loading";
+
   return (
     <>
       <Header disabled={loading} />
@@ -74,13 +75,13 @@ function AppLayout() {
 
       {/* Modal message */}
       {open && <ModalMessage
-          label={`<p style='font-size: 32px'>${modalMessage?.name}</p>`}
-          content={modalMessage?.html}
-          childrenButton={true}>
-          <Button variant="contained" color="default" onClick={hideMessage}>
-            Visa inte meddelandet igen
-          </Button>
-        </ModalMessage>}
+        label={`<p style='font-size: 32px'>${modalMessage?.name}</p>`}
+        content={modalMessage?.html}
+        childrenButton={true}>
+        <Button variant="contained" color="default" onClick={hideMessage}>
+          Visa inte meddelandet igen
+        </Button>
+      </ModalMessage>}
     </>
 
   )

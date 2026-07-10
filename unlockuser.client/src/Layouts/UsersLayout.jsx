@@ -42,7 +42,6 @@ function UsersLayout() {
 
     useEffect(() => {
         if (!success) return;
-console.log("success here", success)
 
         revalidator.revalidate();
     }, [success, revalidator])
@@ -68,7 +67,7 @@ console.log("success here", success)
 
     return (
         <>
-            <Header disabled={loading} switchColor={true} />
+            <Header disabled={loading} supportMode={true} />
 
             <div className="container d-column jc-start w-100">
 

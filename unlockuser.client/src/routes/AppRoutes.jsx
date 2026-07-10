@@ -59,6 +59,11 @@ const AppRoutes = () => [
         errorElement: <ErrorView />
       },
       {
+        path: "search",
+        element: <Home />,
+        errorElement: <ErrorView />
+      },
+      {
         path: "search/:group",
         element: <Home />,
         errorElement: <ErrorView />

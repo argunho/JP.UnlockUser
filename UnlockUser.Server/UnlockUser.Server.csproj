@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
@@ -6,7 +6,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 
 		<!-- Trim publish output: host is Windows x64, English only -->
-		<!-- <RuntimeIdentifier>win-x64</RuntimeIdentifier> -->
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 
 		<!-- Skip precompressed .br/.gz static web assets: FTP publish uploads them anyway despite ExcludeFilesFromDeployment -->

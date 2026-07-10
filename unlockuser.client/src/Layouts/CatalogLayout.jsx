@@ -32,11 +32,11 @@ function CatalogLayout() {
   const loading = navigation.state == "loading";
   return (
     <>
-      <Header disabled={loading} />
+      <Header disabled={loading} supportMode={true}/>
 
       <div className="container d-column jc-start fade-in" ref={refContainer}>
 
-        <Outlet context={{ loading }} />
+        <Outlet context={{ loading, name: loc.pathname.split("/").filter(Boolean).pop() }} />
 
         {/* Loading */}
         {loading && <LinearLoading size={30} />}

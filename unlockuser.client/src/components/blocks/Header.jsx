@@ -30,7 +30,7 @@ const links = [
     { label: "Logga ut", url: "/session/logout", icon: <Logout />, access: false, hidden: false }
 ];
 
-const Header = memo(function Header({ disabled, switchColor }) {
+const Header = memo(function Header({ disabled, supportMode }) {
 
     const [open, setOpen] = useState(false);
 
@@ -57,7 +57,7 @@ const Header = memo(function Header({ disabled, switchColor }) {
             setOpen(false);
     }, [loc])
 
-    const switchMenuColor = loc.pathname.toLowerCase().includes("support") || switchColor;
+    const switchMenuColor = loc.pathname.toLowerCase().includes("support") || supportMode;
 
     return (
         <header className='header-container w-100 d-column'>

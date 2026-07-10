@@ -3,7 +3,7 @@ import { useState, use, Fragment, useRef, useEffect } from "react";
 // Installed
 import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText, Skeleton, Tooltip } from "@mui/material";
 import { ArrowDropDown, ArrowDropUp, CalendarMonth, Delete, Download, Pageview } from "@mui/icons-material";
-import { useLoaderData, useNavigate, useRevalidator, useOutletContext, useMatch } from 'react-router-dom';
+import { useLoaderData, useNavigate, useRevalidator, useOutletContext } from 'react-router-dom'; //, useMatch
 
 // Components
 import TabPanel from './../../components/blocks/TabPanel';
@@ -28,19 +28,12 @@ import { FetchContext } from "../../storage/FetchContext";
 // { loc, includedList, label, fullWidth, api, id, fields, labels, navigate }
 function Catalog({ label, api, fields, fullWidth, search, modal, download, dropdown, disabled }) {
 
-    const [open, setOpen] = useState(false);
-    const [confirmId, setConfirmId] = useState(null);
-    const [collapsedIndex, setCollapsedIndex] = useState(null);
-    const [searchWord, setSearchWord] = useState(null);
-    const [model, setModel] = useState();
+    const { loading, name } = useOutletContext();
+    // const catalogLoading = useMatch("/catalog/*");
 
-    const { loading } = useOutletContext();
-    const catalogLoading = useMatch("/catalog/*");
-    const moderatorsLoading = useMatch("/moderators/*");
-    const loads = loading && (catalogLoading || moderatorsLoading);
 
     const loaded = useLoaderData();
-    const list = loaded?.list ?? loaded;
+    const list = loaded[name] ?? loaded?.list ?? loaded;
     const { fetchData, response, pending, handleResponse } = use(FetchContext);
 
     const inputDate = useRef();
@@ -50,6 +43,12 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
 
     const minDateObj = new Date();
     minDateObj.setDate(today.getDate() - 30);
+
+    const [open, setOpen] = useState(false);
+    const [confirmId, setConfirmId] = useState(null);
+    const [collapsedIndex, setCollapsedIndex] = useState(null);
+    const [searchWord, setSearchWord] = useState(null);
+    const [model, setModel] = useState();
 
     // const yesterday = new Date(today);
     // yesterday.setDate(today.getDate() - 1);
@@ -66,7 +65,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
     const { content: pagination, page, perPage } = usePagination(
         {
             length: list?.length,
-            loading: loads,
+            loading: loading,
             number: 20
         });
 
@@ -108,24 +107,24 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
 
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
 
-    if (loading && !loads)
+    if (loading && !loading)
         return <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain" />
 
     return (
         <>
             {/* Tab menu */}
-            <TabPanel primary={loads ? <Skeleton variant="rectangular" animation="wave" width={200} height={30} /> : label}
-                secondary={loads ? "Data hämtning pågår ..." : loaded?.secondaryLabel} >
+            <TabPanel primary={loading ? <Skeleton variant="rectangular" animation="wave" width={200} height={30} /> : label}
+                secondary={loading ? "Data hämtning pågår ..." : loaded?.secondaryLabel} >
 
                 {/* If account is blocked */}
-                {!loads && <div className="d-row">
-                    {!!fields && <Button style={{ minWidth: "120px" }} variant='outlined' color={open ? "error" : "primary"} disabled={loads} onClick={() => setOpen((open) => !open)}>
+                {!loading && <div className="d-row">
+                    {!!fields && <Button style={{ minWidth: "120px" }} variant='outlined' color={open ? "error" : "primary"} disabled={loading} onClick={() => setOpen((open) => !open)}>
                         {open ? "Avryt" : "Lägg till ny"}
                     </Button>}
 
                     {/* Search filter */}
                     {search && <SearchFilter
-                        disabled={loads || response}
+                        disabled={loading || response}
                         onSearch={(value) => setSearchWord(value)}
                         onReset={() => setSearchWord(null)} />}
                 </div>}
@@ -172,7 +171,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                 {!!response && <Message res={response} cancel={() => handleResponse()} />}
             </Collapse>
 
-            {(!open && (items?.length > 0 && !loads)) && <List className="d-row list-container w-100">
+            {(!open && (items?.length > 0 && !loading)) && <List className="d-row list-container w-100">
                 {/* Loop of result list */}
                 {items?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, ind) => {
                     const onClickProps = !!item?.link ? { onClick: () => navigate(item?.link) } : null;
@@ -200,7 +199,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                                         ? <IconButton onClick={() => handleDropdown(ind)} disabled={item?.values?.length === 0}>
                                             {collapsedIndex === ind ? <ArrowDropUp /> : <ArrowDropDown />}
                                         </IconButton>
-                                        : <IconButton onClick={() => setConfirmId(item?.id)} color="error" disabled={confirmId || open || loads || pending || disabled}>
+                                        : <IconButton onClick={() => setConfirmId(item?.id)} color="error" disabled={confirmId || open || loading || pending || disabled}>
                                             {(confirmId == item?.id && pending) ? <CircularProgress size={20} /> : <Delete />}
                                         </IconButton>}
                                 </div>
@@ -234,7 +233,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
             </List>}
 
             {/* If list is empty */}
-            {(!open && (!list || list?.length == 0 || loads)) && <ListLoading rows={1} pending={loads} />}
+            {(!open && (!list || list?.length == 0 || loading)) && <ListLoading rows={1} pending={loading} />}
 
             {/* Modal overview */}
             {modal && <ModalOverview item={{ ...model, secondary: model?.hidden ?? model?.secondary }} open={!!model} onClose={() => setModel()}>

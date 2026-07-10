@@ -26,7 +26,7 @@ const checkboxes = {
 function FormManual({ api, label, checkbox }) {
     const [loading, setLoading] = useState(false);
 
-    const { fetchData, pending: buffering, response, success, resData, handleResponse } = use(FetchContext);
+    const { fetchData, pending: buffering, response, success, data: resData, handleResponse } = use(FetchContext);
 
     const { id } = useParams();
     const navigate = useNavigate();
