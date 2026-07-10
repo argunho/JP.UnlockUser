@@ -5,10 +5,13 @@ using UnlockUser.Server.FormModels;
 
 namespace UnlockUser.Server.IServices;
 
-public class ADService(IHttpContextAccessor httpContextAccessor) : IActiveDirectory // Help class inherit an interface and this class is a provider to use interface methods into another controller
+public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileService localFileService) : IActiveDirectory // Help class inherit an interface and this class is a provider to use interface methods into another controller
 {
     private readonly string domain = "alvesta";
     private readonly string defaultOU = "DC=alvesta,DC=local";
+
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+    private readonly ILocalFileService _localFileService = localFileService;
 
     #region Find user   
     // Method to get a user with extension parameters from Active Dericotry
@@ -60,7 +63,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor) : IActiveDirect
     }
 
     // Get users by group name
-    public List<User> GetUsersByGroupName(GroupModel group, List<string>? alternativeParams = null)
+    public async Task<List<User>> GetUsersByGroupName(GroupModel group, List<string>? alternativeParams = null, string? username = null)
     {
         List<User> users = [];
         using DirectoryEntry entry = new($"LDAP://OU={group.Group!},OU=Users,OU=Kommun,DC=alvesta,DC=local");
@@ -77,35 +80,54 @@ public class ADService(IHttpContextAccessor httpContextAccessor) : IActiveDirect
         res.SizeLimit = 0;
 
         bool isEmployeeGroup = string.Equals(group.Group, "Employees", StringComparison.OrdinalIgnoreCase);
+        bool isPolitician = string.Equals(group.Name, "Politiker", StringComparison.OrdinalIgnoreCase);
+        bool isEmployee = string.Equals(group.Name, "Personal", StringComparison.OrdinalIgnoreCase);
+        List<string> approvedEmployeeUsernames = [];
+        if (isEmployee)
+        {
+            var approvedEmployees = await _localFileService.GetListFromEncryptedFile<ApprovedEmployeeViewModel>("catalogs/approved-employees") ?? [];
+            if (approvedEmployees?.Count > 0)
+            {
+                approvedEmployees.RemoveAll(x => !x.Moderators!.Contains(username!));
+                approvedEmployeeUsernames.AddRange([.. approvedEmployees.Select(s => s.Username!)]);
+            }
+        }
 
         // Get all users by search group parameters
         foreach (SearchResult? result in res.FindAll().OfType<SearchResult>())
         {
             ResultPropertyCollection? props = result.Properties!;
             var user = GetUserParams(props);
+            if (user == null)
+                continue;
+
             if (isEmployeeGroup)
             {
                 var properties = props["memberOf"].OfType<string>() ?? [];
                 bool isMatch = properties.Any(x => x.Contains("Ciceron-Assistentanvändare", StringComparison.OrdinalIgnoreCase));
 
-                bool isPolitician = string.Equals(group.Name, "Politiker", StringComparison.OrdinalIgnoreCase);
-                bool isEmployee = string.Equals(group.Name, "Personal", StringComparison.OrdinalIgnoreCase);
                 if (isPolitician && !isMatch)
                     continue;
                 else if (isEmployee && isMatch)
                     continue;
 
-                if ((alternativeParams?.Count == 0))
+                if (alternativeParams == null || alternativeParams?.Count == 0)
                     users.Add(user!);
-                else if (isEmployee && alternativeParams!.Contains(user!.Manager!.Trim()?[3..user.Manager.IndexOf(',')], StringComparer.OrdinalIgnoreCase))
-                    users.Add(user!);
-                else if (isPolitician && alternativeParams!.Contains(user!.Username, StringComparer.OrdinalIgnoreCase))
-                    users.Add(user!);
+                else if (isEmployee && !users.Exists(x => x.Username == user.Username!))
+                {
+                    if (alternativeParams!.Contains(user.Manager!.Trim()?[3..user.Manager.IndexOf(',')], StringComparer.OrdinalIgnoreCase) &&
+                        (approvedEmployeeUsernames.Count > 0 && approvedEmployeeUsernames.Contains(user.Username!)))
+                    {
+                        users.Add(user);
+                    }
+                }
+                else if (isPolitician && alternativeParams!.Contains(user.Username, StringComparer.OrdinalIgnoreCase))
+                    users.Add(user);
             }
             else if ((alternativeParams?.Count == 0))
-                users.Add(user!);
+                users.Add(user);
             else if (alternativeParams!.Contains(user!.Office!, StringComparer.OrdinalIgnoreCase))
-                users.Add(user!);
+                users.Add(user);
         }
         entry.Close();
 
@@ -233,7 +255,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor) : IActiveDirect
     // Context to build a connection with credentials to local host
     public PrincipalContext PContexAccessCheck()
     {
-        var _session = httpContextAccessor.HttpContext!.Session;
+        var _session = _httpContextAccessor.HttpContext!.Session;
         var username = _session.GetString("adminUsername");
         var protectedPassword = _session.Get("adminPassword");
 

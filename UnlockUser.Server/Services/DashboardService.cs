@@ -48,12 +48,12 @@ public class DashboardService(
                 // Verify whether the current password management group is the student group
                 bool isStudents = string.Equals(group.Group, "Students", StringComparison.OrdinalIgnoreCase);
 
-                // If the user is a member of the support group
+                // If the user is not a member of the support group set limited params
                 if (!openAccess)
                 {
                     if (isStudents)
                         alternativeParams = sessionUserPermissions!.Schools;
-                    else if (group.Name == "Politeker")
+                    else if (string.Equals(group.Group, "Politiker", StringComparison.OrdinalIgnoreCase))
                         alternativeParams = sessionUserPermissions!.Politicians;
                     else
                         alternativeParams = sessionUserPermissions!.Managers;
@@ -63,7 +63,7 @@ public class DashboardService(
                 if (!_memoryCache.TryGetValue(group.Name!, out List<User>? users))
                 {
                     // Get user from AD by group name and current user permissions parameters
-                    users = [.. (_provider.GetUsersByGroupName(group, alternativeParams))];
+                    users = [.. (await _provider.GetUsersByGroupName(group, alternativeParams, username))];
 
                     if (users?.Count > 0)
                     {
@@ -107,7 +107,7 @@ public class DashboardService(
 
             var id = _session!.Id;
             _memoryCache.Set(
-                $"groups_{id}", 
+                $"groups_{id}",
                 groups,
                 TimeSpan.FromMinutes(90)
             );

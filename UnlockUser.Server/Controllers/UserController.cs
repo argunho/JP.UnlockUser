@@ -85,7 +85,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             var moderators = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
             var managers = await _localFileService.GetListFromEncryptedFile<Manager>("catalogs/managers") ?? [];
             var politicians = (await _localFileService.GetListFromEncryptedFile<User>("catalogs/politicians")).Select(s => new UserViewModel(s)) ?? [];
-            var approvedEmployees = await _localFileService.GetListFromEncryptedFile<ApprovedEmployee>("catalogs/approved-employees") ?? [];
+            var approvedEmployees = await _localFileService.GetListFromEncryptedFile<ApprovedEmployeeViewModel>("catalogs/approved-employees") ?? [];
             var groups = _config.GetSection("Groups").Get<List<GroupModel>>()?.Select(s => s.Name).ToList();
 
             return Ok(new { moderators, managers, politicians, approvedEmployees, groups });
