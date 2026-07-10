@@ -19,7 +19,7 @@ import { Capitalize } from '../functions/Helpers';
 
 function UsersLayout() {
 
-    const { fetchData, response, loading: pending, success } = use(FetchContext);
+    const { fetchData, response, pending, success } = use(FetchContext);
     const loaded = useLoaderData();
     const { moderators, groups } = loaded;
 
@@ -49,7 +49,7 @@ function UsersLayout() {
 
     async function renewList() {
         await fetchData({ api: "user/renew/saved", method: "post", action: "success" });
-        sessionStorage.setItem("updated", "ok");
+        sessionStorage.setItem("updated", new Date().toISOString());
     }
 
     const groupsLinks = groups?.map((name, index) => (
@@ -63,7 +63,9 @@ function UsersLayout() {
         : groupsLinks;
     const showSearch = !id || moderator?.permissions.groups?.includes("Personal");
 
-    const loading = navigation.state === "loading" || pending;
+    const loading = navigation.state === "loading";
+    const renewDisabled = sessionStorage.getItem("updated");
+    const renewTime = new Date(renewDisabled).toLocaleDateString() + " " + new Date(renewDisabled).toLocaleTimeString();
 
     return (
         <>
@@ -87,14 +89,14 @@ function UsersLayout() {
                             onReset={() => setSearchValue(null)} />
 
                         {/* Refresh button */}
-                        <Tooltip title="Uppdatera listan" classes={{
+                        <Tooltip title={!!renewDisabled ? `Uppdaterad ${renewTime}` : "Uppdatera listan"} classes={{
                             tooltip: "tooltip-default"
                         }} arrow>
                             <span>
                                 <IconButton
                                     size='large'
                                     variant='outlined'
-                                    disabled={loading || !!sessionStorage.getItem("updated")}
+                                    disabled={loading || !!renewDisabled}
                                     onClick={renewList}>
                                     <Refresh />
                                 </IconButton>
@@ -113,6 +115,8 @@ function UsersLayout() {
 
                 {/* Loading */}
                 {loading && <LinearLoading size={30} />}
+                {pending && <LinearLoading loading="progress" />}
+
             </div>
 
 

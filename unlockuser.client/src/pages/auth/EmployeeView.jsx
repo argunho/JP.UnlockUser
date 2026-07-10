@@ -11,13 +11,14 @@ import AutocompleteList from '../../components/lists/AutocompleteList';
 import ActionButtons from './../../components/blocks/ActionButtons';
 import Message from './../../components/blocks/Message';
 
+// Functions
+import { GetCnValue } from '../../functions/Helpers';
+
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
 
 // Css
 import './../../assets/css/view.css';
-import { GetCnValue } from '../../functions/Helpers';
-import LinearLoading from '../../components/blocks/LinearLoading';
 
 function sortedValues(arr, key) {
     return [...(arr ?? [])]
@@ -301,9 +302,6 @@ function EmployeeView() {
                     </div>
                 })}
             </div>}
-
-            {/* Pending */}
-            {pending && <LinearLoading loading="progress" />}
         </>
     )
 }

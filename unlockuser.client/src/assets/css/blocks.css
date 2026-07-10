@@ -422,6 +422,10 @@ pre {
   margin-bottom: 20px;
 }
 
+.progress-loading {
+  min-width: 300px;
+}
+
 .loading-message {
   font-family: var(--fonr-primary);
   text-transform: uppercase;

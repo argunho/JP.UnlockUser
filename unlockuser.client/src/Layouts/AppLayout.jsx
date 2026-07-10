@@ -42,7 +42,6 @@ function AppLayout() {
   }, []);
 
   useEffect(() => {
-    console.log(loc.pathname)
     if (loc.pathname === "/search" || loc.pathname === "/") {
       navigate(`/search/${permissions[0]?.toLowerCase()}`, { replace: true });
     }
@@ -75,7 +74,7 @@ function AppLayout() {
 
       {/* Modal message */}
       {open && <ModalMessage
-        label={`<p style='font-size: 32px'>${modalMessage?.name}</p>`}
+        label={`<p style='font-size: 32px'>${modalMessage?.primary}</p>`}
         content={modalMessage?.html}
         childrenButton={true}>
         <Button variant="contained" color="default" onClick={hideMessage}>

@@ -84,7 +84,7 @@ function Home() {
     const { schools, group: groupName } = useOutletContext();
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
     const gn = group ? group?.toLowerCase() : groupName;
-console.log("pending", loading)
+
     const navigate = useNavigate();
     // const [ searchParams ] = useSearchParams();
     // const name = searchParams.get('name') ?? null;

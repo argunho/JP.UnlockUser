@@ -40,7 +40,7 @@ function LinearLoading({ msg = "Var vänlig vänta ...", color = "inherit", load
         <div className="d-column curtain" style={styles}>
 
             {/* Progress loading */}
-            {loading === "progress" && <Box className="progress-loading">          
+            {loading === "progress" && <Box className="d-column progress-loading">          
                 <p className="loading-message">{msg}</p>
                 <LinearProgress color={color} />
             </Box>}
