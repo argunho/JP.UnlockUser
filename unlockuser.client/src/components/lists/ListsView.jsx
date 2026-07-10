@@ -31,11 +31,11 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
       return;
 
     if(group === "support")
-      navigate(`view/user/` + (user?.name ? user?.name : selected[0]));
+      navigate(`view/user/` + (user?.username ? user?.username : selected[0]));
     else if (user && !multiple)
-      navigate(`/manage/${group}/user/` + (user?.name ? user?.name : selected[0]));
+      navigate(`/manage/${group}/user/` + (user?.username ? user?.username : selected[0]));
     else
-      navigate(`/manage/${group}/school/${list[0].office}/class/${list[0].department}`, { state: { selected } })
+      navigate(`/manage/${group}/school/${list[0].office}/class/${list[0].department}`, { state: { selected, list } })
   }
 
   function onSelected(value) {
@@ -54,7 +54,7 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
       {/* View panel */}
       {multiple && <ListPanel
         selected={selected}
-        ids={list?.map(x => x.name)}
+        ids={list?.map(x => (x?.name ?? x?.username))} // Maybe username
         onSelected={onSelected}
         onClick={() => onClick()} />}
 
@@ -65,7 +65,7 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
 
           {/* Loop of list */}
           {items.map((item, index) => {
-            const checked = selected?.includes(item?.name);
+            const checked = selected?.includes(item?.username);
 
             return <ListItemButton key={index} component="li" className="loop-li" onClick={() => onClick(item)}>
 
@@ -82,7 +82,7 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
                     checked={checked}
                     onChange={(e) => {
                       e.stopPropagation();
-                      onSelected(item?.name)
+                      onSelected(item?.username)
                     }}
                     onClick={(e) => e.stopPropagation()}
                   />

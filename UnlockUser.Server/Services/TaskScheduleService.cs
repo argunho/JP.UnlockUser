@@ -33,17 +33,18 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
             _ = Task.Run(async () =>
             {
                 var appConfig = AppConfiguration.Load();
-                var updated = Convert.ToDateTime(appConfig.LastUpdatedDate);
+                //var lastUpdated = Convert.ToDateTime(appConfig.LastUpdatedDate);
+                DateTime? lastUpdated = DateTime.TryParse(appConfig.LastUpdatedDate, out var parsed) ? parsed : null;
 
                 // Update employees in txt file
 
-                if (updated.Date != currentDate.Date && currentHour >= 6)
+                if (currentHour >= 6 && (lastUpdated == null || currentDate.Date != lastUpdated?.Date))
                 {
                     // Renew users saved list
                     await _localUserService.RenewUsersCachedList();
 
                     // Remove old files
-                    if (updated.DayOfWeek == DayOfWeek.Monday)
+                    if (currentDate.DayOfWeek == DayOfWeek.Monday)
                     {
                         var cutOffDate = currentDate.AddMonths(-3);
 
@@ -51,7 +52,6 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
                         var histories = await _localFileService.GetListFromEncryptedFile<FileViewModel>("catalogs/histories");
                         histories = [.. histories.Where(x => Convert.ToDateTime(x.Date) >= cutOffDate)];
                         await _localFileService.SaveUpdateEncryptedFile(histories, "catalogs/histories");
-
 
                         // Remove old files
                         var logs = Directory.GetFiles(@"wwwroot/logs", "*.txt", SearchOption.AllDirectories).ToList();
@@ -68,6 +68,7 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
                             }
                         }
                     }
+
                     // Update app config
                     _localFileService.UpdateConfigFile("appconfig", "LastUpdatedDate", currentDate.ToString("yyyy.MM.dd HH:mm:ss"));
                 }

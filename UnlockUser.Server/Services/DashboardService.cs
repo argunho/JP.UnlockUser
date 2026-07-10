@@ -33,7 +33,7 @@ public class DashboardService(
             var savedEmployees = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
 
             // Currentsession user permissions
-            var sessionUserPermissions = savedEmployees.FirstOrDefault(x => x.Name == username)?.Permissions;
+            var sessionUserPermissions = savedEmployees.FirstOrDefault(x => x.Username == username)?.Permissions;
 
             // Lopp of all employees groups
             foreach (var group in passwordManageGroups)
@@ -62,6 +62,7 @@ public class DashboardService(
                 // All users who are members of the current password management group
                 if (!_memoryCache.TryGetValue(group.Name!, out List<User>? users))
                 {
+                    // Get user from AD by group name and current user permissions parameters
                     users = [.. (_provider.GetUsersByGroupName(group, alternativeParams))];
 
                     if (users?.Count > 0)
@@ -80,7 +81,7 @@ public class DashboardService(
                     // Update permissions in all users of the current password management group based on the filtered saved users
                     foreach (var employee in savedEmployees)
                     {
-                        var user = users?.FirstOrDefault(x => x.Name == employee.Name);
+                        var user = users?.FirstOrDefault(x => x.Username == employee.Username);
                         if (user == null)
                             continue;
 
@@ -110,7 +111,7 @@ public class DashboardService(
                 groups,
                 TimeSpan.FromMinutes(90)
             );
-
+            _logger.LogInformation("Memory chached. {0}", $"groups_{id}");
             _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", groups.Count, DateTime.Now.ToString("G"));
         }
         catch (Exception ex)

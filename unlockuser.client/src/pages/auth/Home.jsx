@@ -129,18 +129,17 @@ function Home() {
             // setModalMessage(!!message?.html ? message : null);
             // setGroupCollection(Array.isArray(collection) ? collection : []);
 
-            groupCollectionRef.current = await fetchData({ api: `data/groups/by/name/${gn}`, action: "return" });
+            const res = await fetchData({ api: `data/groups/by/name/${gn}`, action: "return" });
+            groupCollectionRef.current = res.groupModels;
             if (groupCollectionRef.current?.length == 0) {
 
                 const logged = sessionStorage.getItem("logged");
-
                 if (logged) {
-                    const loginTime = Number(logged);
+                    const loginTime = new Date(logged).getTime();
                     const now = Date.now();
-
                     const minutesPassed = (now - loginTime) / (1000 * 60);
 
-                    if (minutesPassed >= 90)
+                    if (minutesPassed >= 60)
                         navigate("/session/expired");
                 }
             }
@@ -155,7 +154,6 @@ function Home() {
     }, []);
 
     useEffect(() => {
-        console.log(gn)
         get();
     }, [gn])
 
@@ -230,7 +228,7 @@ function Home() {
                     res = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)));
                 else {
                     res = (isClass)
-                        ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)
+                        ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)?.sort((a,b) => a.name?.toLowerCase().localeCompare(b.name?.toLowerCase()))
                         : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name))
                             && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
                 }
@@ -242,6 +240,8 @@ function Home() {
 
                 res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
             }
+
+            
 
             handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
             return Array.isArray(res) ? null : data;
@@ -311,7 +311,7 @@ function Home() {
                                 color="error"
                                 className="search-reset"
                                 type="reset"
-                                disabled={loading || !isChanged}
+                                disabled={loading || !isChanged || searching}
                                 onClick={() => dispatch({ type: "RESET" })}
                                 edge="end">
                                 <SearchOffSharp />
@@ -322,7 +322,7 @@ function Home() {
                                 color={isChanged ? "primary" : "inherit"}
                                 className="search-button"
                                 type="submit"
-                                disabled={!isChanged || loading}
+                                disabled={!isChanged || loading || searching}
                                 ref={refSubmit}
                                 edge="end">
                                 <SearchSharp />

@@ -23,14 +23,14 @@ const links = [
     { label: "Informations artiklar", url: "/articles", icon: <Info />, access: false, hidden: false, blink: true },
     { label: "Behöriga användare", url: "/moderators", icon: <SettingsApplications />, access: true, hidden: false },
     { label: "Skolor", url: "/catalog/schools", icon: <School />, access: true, hidden: false },
-    { label: "Historik", url: "/catalog/logs/history", icon: <WorkHistory />, access: true, hidden: false },
     { label: "Statistik", url: "/catalog/statistics", icon: <BarChart />, access: true, hidden: false },
-    { label: "Loggfiler", url: "/catalog/logs/errors", icon: <ErrorOutline />, access: true, hidden: false },
+    { label: "Historik", url: "/catalog/history", icon: <WorkHistory />, access: true, hidden: false },
+    { label: "Loggfiler", url: "/catalog/errors", icon: <ErrorOutline />, access: true, hidden: false },
     { label: "Kontakta support", url: "/contact", icon: <LiveHelp />, access: false, hidden: false },
     { label: "Logga ut", url: "/session/logout", icon: <Logout />, access: false, hidden: false }
 ];
 
-const Header = memo(function Header({ disabled }) {
+const Header = memo(function Header({ disabled, supportMode }) {
 
     const [open, setOpen] = useState(false);
 
@@ -57,13 +57,15 @@ const Header = memo(function Header({ disabled }) {
             setOpen(false);
     }, [loc])
 
+    const switchMenuColor = loc.pathname.toLowerCase().includes("support") || supportMode;
+
     return (
         <header className='header-container w-100 d-column'>
             <section className='header-wrapper d-row jc-start w-100' id="logotype">
                 <Logotype />
             </section>
 
-            <section className={`menu-container${loc.pathname.toLowerCase().includes("support") ? " support-view" : ""} w-100`} id="menu-container">
+            <section className={`menu-container${switchMenuColor ? " support-view" : ""} w-100`} id="menu-container">
                 <div className='menu-wrapper d-row jc-between'>
                     <div className="d-row" id="header-home">
                         <IconButton

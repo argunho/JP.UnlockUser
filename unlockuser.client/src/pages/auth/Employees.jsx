@@ -38,7 +38,7 @@ function Employees() {
             {pagination}
 
             {/* If list is empty or bad response from server */}
-            {(moderators.length == 0 && !loading)
+            {moderators.length == 0
                 && <Message res={{ color: "info", msg: "Inga anställda hittades..." }} 
                     cancel={onReset} styles={{ marginTop: "32px" }} />}
 
@@ -49,7 +49,7 @@ function Employees() {
                 {moderators?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, index) => {
                     const calculatedIndex = (perPage * (page - 1)) + (index + 1);
                     return <ListItem key={index} className={`list-item${(calculatedIndex === moderators?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}`}
-                        secondaryAction={<IconButton onClick={() => navigate(`/moderators/view/${item?.name}`)}>
+                        secondaryAction={<IconButton onClick={() => navigate(`/moderators/view/${item?.username}`)}>
                             <ArrowForward />
                         </IconButton>}> 
                         <ListItemIcon>

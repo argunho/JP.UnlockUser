@@ -26,7 +26,7 @@ import NotFound from "../pages/NotFound";
 import ErrorView from '../pages/ErrorView';
 
 // Services
-import { loader, loaderById, loaderByParams, loaderBySession } from '../services/LoadFunctions';
+import { loader, loaderApiGroups, loaderById, loaderByParams, loaderBySession } from '../services/LoadFunctions';
 
 // Storage
 import FetchContextProvider from '../storage/FetchContext';
@@ -114,7 +114,8 @@ const AppRoutes = () => [
       },
       {
         path: 'contact',
-        element: <Contacts isAuthorized={true} />
+        element: <Contacts isAuthorized={true} />,
+        errorElement: <ErrorView />
       },
       {
         path: "manage/:group",
@@ -141,15 +142,13 @@ const AppRoutes = () => [
       }
     ]
   },
-
-
   {
     path: "/moderators",
     element: <FetchContextProvider>
       <UsersLayout />
     </FetchContextProvider>,
     errorElement: <NotFound isAuthorized={true} />,
-    loader: loader("user/principal"),
+    loader: loader("user/catalogs"),
     // shouldRevalidate: () => false,
     children: [
       {
@@ -166,7 +165,7 @@ const AppRoutes = () => [
         path: "view/:id",
         element: <EmployeeView />,
         errorElement: <ErrorView />,
-        loader: loader("data/schools")
+        loader: loaderApiGroups({ schools: "data/schools", groupModels: "data/groups/by/name/personal" })
       }
     ]
   },
@@ -177,18 +176,6 @@ const AppRoutes = () => [
     </FetchContextProvider>,
     errorElement: <NotFound isAuthorized={true} />,
     children: [
-      {
-        path: ':api/errors',
-        element: <Catalog label="Loggfiler" search={true} download="logs/download/by" />,
-        errorElement: <ErrorView />,
-        loader: loader("logs")
-      },
-      {
-        path: ':api/history',
-        element: <Catalog label="Historik" api="data/history" search={true} download="data/download/by" modal={true} disabled={true} />,
-        errorElement: <ErrorView />,
-        loader: loader("data/logs/history")
-      },
       {
         path: 'statistics',
         element: <Catalog label="Statistik" fullWidth={true} dropdown={true} />,
@@ -201,6 +188,24 @@ const AppRoutes = () => [
         errorElement: <ErrorView />,
         loader: loader("data/schools")
       },
+      {
+        path: 'history',
+        element: <Catalog
+          label="Historik"
+          api="data/history"
+          search={true}
+          download={true}
+          modal={true}
+          disabled={true} />,
+        errorElement: <ErrorView />,
+        loader: loader("data/logs/history")
+      },
+      {
+        path: 'errors',
+        element: <Catalog label="Loggfiler" api="logs" download={true} />,
+        errorElement: <ErrorView />,
+        loader: loader("logs")
+      }
     ]
   },
   {

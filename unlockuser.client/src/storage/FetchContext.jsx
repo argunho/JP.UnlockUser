@@ -15,7 +15,7 @@ export const FetchContext = createContext();
 
 const initialState = {
     response: null,
-    resData: undefined,
+    data: undefined,
     loading: false,
     success: false,
     pending: false,
@@ -32,17 +32,19 @@ function fetchReducer(state, action) {
         case 'LOAD_START':
             return { ...state, loading: !action.isMutation, pending: action.isMutation };
         case 'SUCCESS':
-            return { ...state, ...processClean, success: true, resData: action.payload };
+            return { ...state, ...processClean, success: true, data: action.payload };
         case 'ERROR':
             return { ...state, ...processClean, response: action.payload };
         case 'MESSAGE':
             return { ...state, ...processClean, response: action.payload };
         case 'COMPLETE':
-            return { ...state, ...initialClean, complete: true, resData: action.payload };
+            return { ...state, ...initialClean, complete: true, data: action.payload };
+        case 'CLEAN':
+            return { ...state, ...processClean };
         case 'CLEAR':
             return { ...state, ...initialClean };
         case 'SET_DATA':
-            return { ...state, resData: action.payload };
+            return { ...state, data: action.payload };
         default:
             return state;
     }
@@ -77,8 +79,8 @@ function FetchContextProvider({ children }) {
 
     const fetchData = useCallback(async ({ api, method = 'get', data = null, action = null, responseType = null, loadDisabled = false }) => {
         controllerRef.current = new AbortController();
-
-        dispatch({ type: 'LOAD_START', isMutation: method !== "get" && !loadDisabled });
+        
+        dispatch({ type: 'LOAD_START', isMutation: method.toLowerCase() !== "get" && !loadDisabled});
 
         try {
             const config = {
@@ -113,8 +115,10 @@ function FetchContextProvider({ children }) {
                 dispatch({ type: 'MESSAGE', payload: (res?.result && res.result?.msg) ? res.result : (res?.response ? res?.response : res) });
             } else if (res && action !== "skip") {
                 dispatch({ type: action !== "complete" ? 'SUCCESS' : "COMPLETE", payload: res });
+            } else if(action === "clean"){
+                dispatch({ type: "CLEAN" });
             } else {
-                dispatch({ type: action !== "complete" ? 'SUCCESS' : "COMPLETE", payload: null });
+                dispatch({ type: action !== "complete" ? 'SUCCESS' : "COMPLETE", payload: null});
             }
 
             if (action === "success")

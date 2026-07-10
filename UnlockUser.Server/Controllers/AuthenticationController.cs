@@ -68,7 +68,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
             if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning")
                     || roles.Contains("DevelopTeam", StringComparer.OrdinalIgnoreCase))
-                roles.Add("Support");
+                roles.Add("Moderator");
 
             var userGroups = _provider.GetUserGroups(authorizedUser);
             permissionGroups?.RemoveAll(x => !userGroups.Contains(x.PermissionGroup!));
@@ -79,7 +79,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
                 return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
 
             var moderators = await _localFileService.GetListFromEncryptedFile<User>("catalogs/moderators");
-            var currentModerator = moderators.FirstOrDefault(x => x.Name != null && x.Name.Equals(authorizedUser.Name!, StringComparison.OrdinalIgnoreCase));
+            var currentModerator = moderators.FirstOrDefault(x => x.Username != null && x.Username.Equals(authorizedUser.Name!, StringComparison.OrdinalIgnoreCase));
             if (currentModerator != null)
                 _session!.SetString("permissions", JsonConvert.SerializeObject(currentModerator?.Permissions));
 
@@ -97,7 +97,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             claims.Add(new("Permissions", string.Join(',', currentModerator?.Permissions?.Groups ?? [])));
             claims.Add(new("Roles", string.Join(",", roles)));
 
-            bool openAccess = roles.IndexOf("Support") > -1;
+            bool openAccess = roles.IndexOf("Moderator") > -1;
             if (openAccess)
                 claims.Add(new("OpenAccess", "ok")); //
 

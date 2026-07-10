@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, use } from 'react'; //, use
 
 // Installed
-import { Outlet, useNavigation, useParams, useLoaderData, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigation, useParams, useLoaderData, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@mui/material';
 
 // Components
@@ -21,9 +21,9 @@ function AppLayout() {
   const refContainer = useRef();
   const navigation = useNavigation();
   const navigate = useNavigate();
+  const loc = useLocation();
   const params = useParams();
-  const { group } = params;
-  const { fetchData, resData: collections } = use(FetchContext);
+  const { fetchData, data: collections } = use(FetchContext);
 
   const modalMessage = useLoaderData();
 
@@ -34,10 +34,6 @@ function AppLayout() {
   useEffect(() => {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
 
-    if(!group){
-      navigate(`search/${permissions[0]?.toLowerCase()}`, { replace: true });
-    }
-
     async function getCollections() {
       await fetchData({ api: "data/collections" });
     }
@@ -45,13 +41,20 @@ function AppLayout() {
     getCollections()
   }, []);
 
+  useEffect(() => {
+    if (loc.pathname === "/search" || loc.pathname === "/") {
+      navigate(`/search/${permissions[0]?.toLowerCase()}`, { replace: true });
+    }
+  }, [loc])
+
 
   async function hideMessage() {
     setOpen(false);
-    await fetchData({ api: "article/hide/popup/message", method: "post", loadDisabled: true});
+    await fetchData({ api: "article/hide/popup/message", method: "post", action: "clean" });
   }
 
   const loading = !collections || navigation.state == "loading";
+
   return (
     <>
       <Header disabled={loading} />
@@ -66,20 +69,18 @@ function AppLayout() {
         }} />
 
         {/* Loading */}
-        {loading && <div className="d-column curtain">
-           <LinearLoading size={30} cls="curtain" />
-        </div>}
+        {loading && <LinearLoading size={30} />}
       </div>
 
       {/* Modal message */}
       {open && <ModalMessage
-          label={`<p style='font-size: 32px'>${modalMessage?.name}</p>`}
-          content={modalMessage?.html}
-          childrenButton={true}>
-          <Button variant="contained" color="default" onClick={hideMessage} >
-            Visa inte meddelandet igen
-          </Button>
-        </ModalMessage>}
+        label={`<p style='font-size: 32px'>${modalMessage?.primary}</p>`}
+        content={modalMessage?.html}
+        childrenButton={true}>
+        <Button variant="contained" color="default" onClick={hideMessage}>
+          Visa inte meddelandet igen
+        </Button>
+      </ModalMessage>}
     </>
 
   )

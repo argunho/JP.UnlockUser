@@ -75,7 +75,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
 
     // Get stored  employees who have permission to manage employee passwords nby group name
-    [HttpGet("principal")]
+    [HttpGet("catalogs")]
     public async Task<IActionResult> GetUsersByGroupName()
     {
         try
@@ -85,9 +85,10 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             var moderators = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
             var managers = await _localFileService.GetListFromEncryptedFile<Manager>("catalogs/managers") ?? [];
             var politicians = (await _localFileService.GetListFromEncryptedFile<User>("catalogs/politicians")).Select(s => new UserViewModel(s)) ?? [];
+            var approvedEmployees = await _localFileService.GetListFromEncryptedFile<ApprovedEmployee>("catalogs/approved-employees") ?? [];
             var groups = _config.GetSection("Groups").Get<List<GroupModel>>()?.Select(s => s.Name).ToList();
 
-            return Ok(new { moderators, managers, politicians, groups });
+            return Ok(new { moderators, managers, politicians, approvedEmployees, groups });
         }
         catch (Exception ex)
         {
@@ -97,7 +98,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
 
     [HttpGet("saved/{username}")]
-    [Authorize(Roles = "Support, DevelopTeam")]
+    [Authorize(Roles = "Moderator, DevelopTeam")]
     public async Task<IActionResult> GetCachedUser(string username)
     {
         try
@@ -115,7 +116,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
 
     [HttpGet("by/{username}")]
-    [Authorize(Roles = "Support, DevelopTeam")]
+    [Authorize(Roles = "Moderator, DevelopTeam")]
     public async Task<IActionResult> GetUserByUsername(string username)
     {
         try
@@ -137,7 +138,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             var cachedUser = await _localService.GetUserFromFile(username);
             var modifiedUser = new UserViewModel(new User
             {
-                Name = userPrincipal.SamAccountName,
+                Username = userPrincipal.SamAccountName,
                 DisplayName = userPrincipal.DisplayName,
                 Title = userPrincipal.Title,
                 Email = userPrincipal.EmailAddress,
@@ -170,7 +171,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
 
     [HttpGet("groups")]
-    [Authorize(Roles = "DevelopTeam,Manager,Support")]
+    [Authorize(Roles = "DevelopTeam,Manager,Moderator")]
     public List<string?> GetGrous()
     {
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
@@ -286,7 +287,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
 
     [HttpPost("renew/saved")]
-    [Authorize(Roles = "DevelopTeam,Manager,Support")]
+    [Authorize(Roles = "DevelopTeam,Manager,Moderator")]
     public async Task<IActionResult> RenewSavedEmployeesList()
     {
         try
@@ -324,13 +325,13 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
 
     [HttpPut("update/permissions/{username}")]
-    [Authorize(Roles = "DevelopTeam,Manager,Support")]
+    [Authorize(Roles = "DevelopTeam,Manager,Moderator")]
     public async Task<IActionResult> PutUpdateEmployeeSchool(string username, PermissionsViewModel model)
     {
         try
         {
             var employees = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
-            var employee = employees.FirstOrDefault(x => x.Name == username);
+            var employee = employees.FirstOrDefault(x => x.Username == username);
             if (employee == null)
                 return NotFound(_helpService.NotFound("Anställd"));
 
@@ -340,6 +341,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
             employee.Permissions = model;
             await _localFileService.SaveUpdateEncryptedFile(employees, "catalogs/moderators");
+            await _localFileService.SaveUpdateEncryptedFile(model.ApprovedEmployees, "catalogs/approved-employees");
         }
         catch (Exception ex)
         {
@@ -447,7 +449,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         _logger.LogInformation("Permission validation for the admin role.");
 
         // Check current user permission
-        if (roles.Contains("Support", StringComparer.OrdinalIgnoreCase))
+        if (roles.Contains("Moderator", StringComparer.OrdinalIgnoreCase))
         {
             var permissionsJson = HttpContext.Session.GetString("permissions");
 
@@ -537,7 +539,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                 groupModels = cachedGroups!.TryGetValue(group.ToLower(), out var value) ? value : [];
             }
 
-            var user = groupModels.FirstOrDefault(x => x.Name == name);
+            var user = groupModels.FirstOrDefault(x => x.Username == name);
             return (user, false);
         }
 
@@ -701,7 +703,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 //    var roles = claims != null && claims.TryGetValue("roles", out var r) && !string.IsNullOrEmpty(r)
 //                            ? r.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
 
-//    if (!roles.Contains("Support", StringComparer.OrdinalIgnoreCase))
+//    if (!roles.Contains("Moderator", StringComparer.OrdinalIgnoreCase))
 //    {
 //        var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permissions"])!;
 

@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react'; //, use
 
 // Installed
-import { Outlet, useNavigation, useParams, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigation, useNavigate, useLocation } from 'react-router-dom';
 
 // Components
 import Header from "../components/blocks/Header";
@@ -17,7 +17,6 @@ function CatalogLayout() {
 
   const navigate = useNavigate();
   const navigation = useNavigation();
-  const params = useParams();
   const refContainer = useRef();
   const loc = useLocation();
 
@@ -33,19 +32,15 @@ function CatalogLayout() {
   const loading = navigation.state == "loading";
   return (
     <>
-      <Header disabled={loading} />
+      <Header disabled={loading} supportMode={true}/>
 
       <div className="container d-column jc-start fade-in" ref={refContainer}>
 
-        <Outlet context={{
-          ...params,
-          loading
-        }} />
+        <Outlet context={{ loading, name: loc.pathname.split("/").filter(Boolean).pop() }} />
 
         {/* Loading */}
-        {loading && <div className="d-column curtain">
-          <LinearLoading size={30} cls="curtain" />
-        </div>}
+        {loading && <LinearLoading size={30} />}
+        
       </div>
     </>
   )

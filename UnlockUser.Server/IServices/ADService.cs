@@ -99,7 +99,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor) : IActiveDirect
                     users.Add(user!);
                 else if (isEmployee && alternativeParams!.Contains(user!.Manager!.Trim()?[3..user.Manager.IndexOf(',')], StringComparer.OrdinalIgnoreCase))
                     users.Add(user!);
-                else if (isPolitician && alternativeParams!.Contains(user!.Name, StringComparer.OrdinalIgnoreCase))
+                else if (isPolitician && alternativeParams!.Contains(user!.Username, StringComparer.OrdinalIgnoreCase))
                     users.Add(user!);
             }
             else if ((alternativeParams?.Count == 0))
@@ -163,13 +163,13 @@ public class ADService(IHttpContextAccessor httpContextAccessor) : IActiveDirect
                     User? manager = GetUserParams(properties);
                     if (manager == null)
                         break;
-                    else if (managers.Exists(m => m.DisplayName == manager.DisplayName && m.Username == manager.Name))
+                    else if (managers.Exists(m => m.DisplayName == manager.DisplayName && m.Username == manager.Username))
                         break;
                     else if (!string.IsNullOrEmpty(manager.Manager) && manager?.Manager != userManager)
                     {
                         managers.Add(new Manager
                         {
-                            Username = manager!.Name,
+                            Username = manager!.Username,
                             DisplayName = manager.DisplayName,
                             Division = manager.Division,
                             Default = true
@@ -271,7 +271,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor) : IActiveDirect
 
         return new User
         {
-            Name = props["cn"][0].ToString(),
+            Username = props["cn"][0].ToString(),
             DisplayName = props.Contains("displayName") ? props["displayName"][0]?.ToString() : "",
             Email = props.Contains("userPrincipalName") ? props["userPrincipalName"][0]?.ToString() : "",
             Manager = props.Contains("manager") ? props["manager"][0]?.ToString() : "",

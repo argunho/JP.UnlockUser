@@ -1,7 +1,7 @@
 import { useState, useEffect, use } from 'react';
 
 // Installed
-import { Outlet, useNavigation, useLoaderData, NavLink, useParams } from 'react-router-dom';
+import { Outlet, useNavigation, useLoaderData, NavLink, useParams, useRevalidator } from 'react-router-dom';
 import { IconButton, Tooltip } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
 
@@ -12,37 +12,44 @@ import { FetchContext } from '../storage/FetchContext';
 import TabPanel from './../components/blocks/TabPanel';
 import SearchFilter from '../components/forms/SearchFilter';
 import Header from '../components/blocks/Header';
+import LinearLoading from '../components/blocks/LinearLoading';
 
 // Functions
 import { Capitalize } from '../functions/Helpers';
-import LinearLoading from '../components/blocks/LinearLoading';
 
 function UsersLayout() {
 
-    const { fetchData, response } = use(FetchContext);
-    const { moderators, managers, politicians, groups } = useLoaderData();
+    const { fetchData, response, pending, success } = use(FetchContext);
+    const loaded = useLoaderData();
+    const { moderators, groups } = loaded;
 
     const navigation = useNavigation();
     const { group, id } = useParams();
+    const revalidator = useRevalidator();
 
-    const loading = navigation.state === "loading";
     const groupName = Capitalize(group);
 
-    const [searchWord, setSearchWord] = useState(null);
+    const [searchValue, setSearchValue] = useState(null);
 
     useEffect(() => {
         document.title = "UnlockUser | Moderators";
     }, [])
 
     useEffect(() => {
-        if (searchWord)
-            setSearchWord(null);
+        if (searchValue)
+            setSearchValue(null);
     }, [group])
+
+    useEffect(() => {
+        if (!success) return;
+
+        revalidator.revalidate();
+    }, [success, revalidator])
 
 
     async function renewList() {
-        await fetchData({ api: "user/renew/saved", method: "post" });
-        sessionStorage.setItem("updated", "true");
+        await fetchData({ api: "user/renew/saved", method: "post", action: "success" });
+        sessionStorage.setItem("updated", new Date().toISOString());
     }
 
     const groupsLinks = groups?.map((name, index) => (
@@ -50,57 +57,65 @@ function UsersLayout() {
     ));
 
     const moderatorsByGroup = group ? moderators?.filter(x => x.permissions?.groups?.includes(groupName)) : moderators;
-    const moderator = id ? moderatorsByGroup?.find(x => x.name === id) : null;
-
+    const moderator = id ? moderatorsByGroup?.find(x => x.username === id) : null;
     const secondaryRow = id
-        ? `${moderator?.primary} | <span class="secondary-span">${moderator?.office}</span> | <span class="secondary-span">${moderator?.title}</span>`
+        ? `${moderator?.office} | <span class="secondary-span">${moderator?.title}</span>`
         : groupsLinks;
+    const showSearch = !id || moderator?.permissions.groups?.includes("Personal");
+
+    const loading = navigation.state === "loading";
+    const renewDisabled = sessionStorage.getItem("updated");
+    const renewTime = new Date(renewDisabled).toLocaleDateString() + " " + new Date(renewDisabled).toLocaleTimeString();
 
     return (
         <>
-            <Header disabled={loading} />
+            <Header disabled={loading} supportMode={true} />
 
             <div className="container d-column jc-start w-100">
 
                 {/* Tab menu */}
                 <TabPanel
-                    primary={id ? `Behörighetslista` : "Moderators"}
-                    secondary={secondaryRow} >
+                    primary={id ? moderator.displayName : "Moderators"}
+                    secondary={secondaryRow} initialsView={!!id}>
 
                     {/* Refresh list */}
-                    {!id && <div className="d-row">
+                    {showSearch && <div className="d-row">
                         {/* Search filter */}
-                        <SearchFilter key={group} label="anställda" disabled={loading || response}
-                            onSearch={(value) => setSearchWord(value)} onReset={() => setSearchWord(null)} />
+                        <SearchFilter
+                            key={group}
+                            label="anställda"
+                            disabled={loading || response}
+                            onSearch={(value) => setSearchValue(value)}
+                            onReset={() => setSearchValue(null)} />
 
                         {/* Refresh button */}
-                        <Tooltip title="Uppdatera listan" classes={{
+                        <Tooltip title={!!renewDisabled ? `Uppdaterad ${renewTime}` : "Uppdatera listan"} classes={{
                             tooltip: "tooltip-default"
                         }} arrow>
                             <span>
                                 <IconButton
                                     size='large'
                                     variant='outlined'
-                                    disabled={loading || !!sessionStorage.getItem("updated")}
+                                    disabled={loading || !!renewDisabled}
                                     onClick={renewList}>
                                     <Refresh />
                                 </IconButton>
-
                             </span>
                         </Tooltip>
                     </div>}
                 </TabPanel>
 
-                {/* Loading */}
-                {loading && <LinearLoading size={30} cls="curtain" />}
-
-                {!loading && <Outlet key={`${group}_${searchWord}_${id}`} context={!id
+                <Outlet key={`${group}_${searchValue}_${id}`} context={!id
                     ? {
-                        moderators: (searchWord
-                            ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase()))
+                        moderators: (searchValue
+                            ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchValue?.toLowerCase()))
                             : moderatorsByGroup),
-                        onReset: () => setSearchWord(null)
-                    } : { groups, moderator, managers, politicians }} />}
+                        onReset: () => setSearchValue(null)
+                    } : { ...loaded, moderator, searchValue }} />
+
+                {/* Loading */}
+                {loading && <LinearLoading size={30} />}
+                {pending && <LinearLoading loading="progress" />}
 
             </div>
 

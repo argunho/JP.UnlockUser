@@ -17,15 +17,15 @@ function ClassManager() {
     const [removed, setRemoved] = useState([]);
     const [hidden, setHidden] = useState(false);
 
-    const { collections, classId, school } = useOutletContext();
+    const { classId, school } = useOutletContext();
 
     const navigate = useNavigate();
 
     const loc = useLocation();
-    const { selected } = loc.state;
+    const { selected, list } = loc.state;
 
-    const users = collections.studenter?.map((user) => {
-        if (selected.includes(user?.name))
+    const users = list?.map((user) => {
+        if (selected.includes(user?.username))
             return user;
         return null;
     })?.filter(Boolean) ?? [];
@@ -41,14 +41,14 @@ function ClassManager() {
         setRemoved(previous => [...previous, id]);
     }
 
-    const classMembers = users.filter(x => !removed.includes(x.name));
+    const classMembers = users.filter(x => !removed.includes(x.username));
     const lgh = classMembers?.length;
-
-
+    const slgh = selected?.length - removed?.length;
+    
     return (
         <>
             {/* Tab menu */}
-            <TabPanel primary={`${school} ${classId}`} secondary={`${selected?.length} student(er)`}>
+            <TabPanel primary={`${school} ${classId}`} secondary={`${slgh} student${slgh > 1 ? "(er)" : ""}`}>
                 {/* Edit class members list */}
                 <Button
                     color={dropdown ? "primary" : "inherit"}
@@ -68,11 +68,11 @@ function ClassManager() {
                 {/* List of students */}
                 {classMembers?.map((user) => (
                     <Button
-                        key={user.name}
+                        key={user.username}
                         variant='outlined'
                         color="inherit"
                         endIcon={<Close color="error" />}
-                        onClick={() => spliceUsersList(user.name)}>
+                        onClick={() => spliceUsersList(user.username)}>
                         {user.displayName}
                     </Button>
                 ))}

@@ -50,7 +50,7 @@ function Contacts({ isAuthorized }) {
 
       </section>
 
-      {/* Navuigate to log in button */}
+      {/* Navigate to log in button */}
       {!isAuthorized && <div className="d-row jc-end contacts-button">
         <Button variant="outlined" color="info" onClick={() => navigate("/")}>
           Logga in

@@ -63,19 +63,19 @@ function Overview() {
     const isEmployee = user?.passwordLength > 8;
 
     const profileFields = [
-        { label: "Användarnamn", value: user?.name, icon: Label },
+        { label: "Användarnamn", value: user?.username, icon: Label },
         { label: "Email", value: user?.email, icon: AlternateEmail },
         { label: isEmployee ? "Arbetsplats" : "Plats", value: [user?.office, user?.office !== user?.department ? user?.department : null].filter(Boolean).join(" "), icon: Business },
         ...(isEmployee ? [{ label: "Förvaltning", value: user?.division, icon: AccountBalance }] : []),
         ...(groups ? [{
             label: "Behörigheter", value: "", icon: Shield,
-            secondaryAction: <IconButton onClick={() => navigate(`/moderators/view/${user?.name}`)} sx={{ marginRight: "20px" }} >
+            secondaryAction: <IconButton onClick={() => navigate(`/moderators/view/${user?.username}`)} sx={{ marginRight: "20px" }} >
                 <ArrowForward />
             </IconButton>
         }] : [])
     ];
 
-    const initials = (user?.displayName ?? user?.name ?? "")
+    const initials = (user?.displayName ?? user?.username ?? "")
         .split(/[\s,]+/)
         .filter(Boolean)
         .slice(0, 2)
@@ -101,7 +101,7 @@ function Overview() {
             return;
 
         var userToCheck = collection?.length > 0
-            ? collection.find(x => x.name === value || x.email === value)
+            ? collection.find(x => x.username === value || x.email === value)
             : await fetchData({ api: `user/by/${value}`, method: "get", action: "return" });
 
         const userManager = userToCheck?.manager ? userToCheck.manager?.trim()?.substring(3, userToCheck.manager.indexOf(',')) : null;
@@ -110,7 +110,7 @@ function Overview() {
 
         if (!userToCheck)
             setMessage(messages.none)
-        else if (user?.name === userToCheck?.name)
+        else if (user?.username === userToCheck?.username)
             setMessage(messages.same);
         else if (userToCheck?.permissions?.groups?.length > 0)
             setMessage(messages.forbid);
@@ -118,7 +118,7 @@ function Overview() {
             setMessage(messages.error);
         else if ((userToCheck?.group === "Studenter" && !schools?.includes(userToCheck.office))
             || (userToCheck?.group === "Personal" && !managers?.includes(userManager))
-            || (userToCheck?.group === "Politiker" && !politicians?.includes(userToCheck?.name)))
+            || (userToCheck?.group === "Politiker" && !politicians?.includes(userToCheck?.username)))
             setMessage(messages.warning);
         else
             setMessage(messages.success)
@@ -145,7 +145,7 @@ function Overview() {
                 {/* If the current user has permission to set or reset the password for the viewed user.. */}
                 {accessToPasswordManage?.length > 0 && <IconButton
                     sx={{ marginRight: "20px" }}
-                    onClick={() => navigate(`/manage/${user?.group?.toLowerCase()}/user/${user?.name}`)}>
+                    onClick={() => navigate(`/manage/${user?.group?.toLowerCase()}/user/${user?.username}`)}>
                     <Edit />
                 </IconButton>}
             </div>
@@ -158,7 +158,7 @@ function Overview() {
                 <div className="profile-card-header d-row jc-start ai-center w-100">
                     <Avatar className="profile-avatar">{initials}</Avatar>
                     <div className="d-column ai-start">
-                        <h2>{user?.displayName ?? user?.name}</h2>
+                        <h2>{user?.displayName ?? user?.username}</h2>
                         <span className="profile-subtitle">{user?.title ? user?.title : (isEmployee ? "Anställd" : "Student")}</span>
                     </div>
                 </div>

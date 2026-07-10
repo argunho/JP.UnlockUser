@@ -18,12 +18,12 @@ export function loaderById(api) {
 }
 
 export function loaderBySession(api, key, save) {
-    if(!!sessionStorage.getItem(key))
+    if (!!sessionStorage.getItem(key))
         return null;
 
     return async function load() {
         const res = await ApiRequest(api, "get");
-        if(res || save)
+        if (res || save)
             sessionStorage.setItem(key, "ok");
         return res;
     }
@@ -59,9 +59,22 @@ export function loaderByParams(api, keys = null) {
     }
 }
 
+// Loader groups
+export function loaderApiGroups(apier) {
+    return async function load() {
+        const entries = await Promise.all(
+            Object.entries(apier).map(async ([key, api]) => {
+                const res = await ApiRequest(api);
+                return [key, res?.[key] ?? res];
+            })
+        );
+        return Object.fromEntries(entries);
+    }
+}
+
 // Dynamic loader function
 export function loaderByApiParam(param, chainLink = "", keys = null) {
-    return async function lod({ params }) {
+    return async function load({ params }) {
 
         if (sessionStorage.getItem(params[param]))
             return {};
