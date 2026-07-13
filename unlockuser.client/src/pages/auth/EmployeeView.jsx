@@ -60,7 +60,6 @@ function EmployeeView() {
     const [officeManager, setOfficeManager] = useState(null);
 
     function onChange(value, group, multiple) {
-
         if (!value || !group)
             return;
 
