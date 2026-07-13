@@ -35,15 +35,15 @@ function AppLayout() {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
 
     async function getCollections() {
-      await fetchData({ api: "data/collections" });
+      await fetchData({ api: "data/collections", action: "complete" });
     }
 
     getCollections()
   }, []);
 
   useEffect(() => {
-    if (loc.pathname === "/search" || loc.pathname === "/") {
-      navigate(`/search/${permissions[0]?.toLowerCase()}`, { replace: true });
+    if ((loc.pathname === "/search" || loc.pathname === "/") && !!permissions) {
+      navigate(`/search/${permissions?.[0]?.toLowerCase()}`, { replace: true });
     }
   }, [loc])
 

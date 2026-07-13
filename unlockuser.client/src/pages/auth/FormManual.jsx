@@ -25,6 +25,7 @@ const checkboxes = {
 
 function FormManual({ api, label, checkbox }) {
     const [loading, setLoading] = useState(false);
+    const [checkboxValue, setCheckboxValue] = useState(false);
 
     const { fetchData, pending: buffering, response, success, data: resData, handleResponse } = use(FetchContext);
 
@@ -69,6 +70,10 @@ function FormManual({ api, label, checkbox }) {
     const disabled = pending || buffering;
     const formModel = formState?.data ?? resData;
 
+    useEffect(() => {
+        if (!!checkbox) setCheckboxValue(!!formModel?.[checkbox]);
+    }, [formModel, checkbox]);
+
     return <>
         <TabPanel primary={label ?? (id && (!formModel ? "Data hämtras..." : `Edit: ${formModel?.name}`))} />
 
@@ -104,7 +109,8 @@ function FormManual({ api, label, checkbox }) {
                 control={<Checkbox
                     color="success"
                     name={checkboxes[checkbox]?.name}
-                    checked={formModel?.[checkbox]}
+                    checked={checkboxValue}
+                    onChange={(e) => setCheckboxValue(e.target.checked)}
                     disabled={disabled} />}
                 label={checkboxes[checkbox]?.label} />}
 

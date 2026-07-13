@@ -61,7 +61,7 @@ function UsersLayout() {
     const secondaryRow = id
         ? `${moderator?.office} | <span class="secondary-span">${moderator?.title}</span>`
         : groupsLinks;
-    const showSearch = !id || moderator?.permissions.groups?.includes("Personal");
+    const showSearch = !id || moderator?.permissions?.groups?.includes("Personal");
 
     const loading = navigation.state === "loading";
     const renewDisabled = sessionStorage.getItem("updated");
@@ -75,7 +75,7 @@ function UsersLayout() {
 
                 {/* Tab menu */}
                 <TabPanel
-                    primary={id ? moderator.displayName : "Moderators"}
+                    primary={id ? moderator?.displayName : "Moderators"}
                     secondary={secondaryRow} initialsView={!!id}>
 
                     {/* Refresh list */}

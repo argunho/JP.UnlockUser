@@ -5,16 +5,18 @@ using System.Text;
 
 namespace UnlockUser.Server.IServices;
 
-public class LocalFileService(IConfiguration config, ILogger<LocalFileService> logger) : ILocalFileService
+public class LocalFileService(IConfiguration config, IWebHostEnvironment env, ILogger<LocalFileService> logger) : ILocalFileService
 {
     private readonly IConfiguration _config = config;
     private readonly ILogger<LocalFileService> _logger = logger;
+    private readonly string _webRootPath = env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot");
+    private readonly string _contentRootPath = env.ContentRootPath;
 
     public async Task<List<T>> GetListFromEncryptedFile<T>(string fileName) where T : class
     {
         try
         {
-            var path = Path.Combine(@"wwwroot", $"{fileName}.txt");
+            var path = Path.Combine(_webRootPath, $"{fileName}.txt");
             if (!File.Exists(path))
                 return [];
             var res = await File.ReadAllTextAsync(path);
@@ -101,12 +103,31 @@ public class LocalFileService(IConfiguration config, ILogger<LocalFileService> l
         string? error = String.Empty;
         try
         {
-            var directory = Path.Combine(@"wwwroot", pathName);
+            var directory = Path.Combine(_webRootPath, pathName);
             CheckDirectory(directory);
 
             var path = Path.Combine(directory, $"{fileName}.txt");
             if (File.Exists(path))
-                File.Delete(path);
+            {
+                try
+                {
+                    // Remove read-only attribute if present so we can overwrite/delete
+                    File.SetAttributes(path, FileAttributes.Normal);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning("Could not clear file attributes for {path}: {msg}", path, ex.Message);
+                }
+
+                try
+                {
+                    File.Delete(path);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning("Could not delete existing file {path}: {msg}", path, ex.Message);
+                }
+            }
 
             if (list.Count == 0)
                 return null;
@@ -122,6 +143,15 @@ public class LocalFileService(IConfiguration config, ILogger<LocalFileService> l
             byte[] encrypted = EncryptStringToBytes(encryptedValue);
             string exryotedText = Convert.ToBase64String(encrypted);
             File.WriteAllText(path, exryotedText, Encoding.UTF8);
+            try
+            {
+                // Ensure file is not left read-only
+                File.SetAttributes(path, FileAttributes.Normal);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("Could not set file attributes for {path}: {msg}", path, ex.Message);
+            }
 
 
             _logger.LogInformation("End save process. [0}", fileName);
@@ -142,7 +172,8 @@ public class LocalFileService(IConfiguration config, ILogger<LocalFileService> l
     {
         try
         {
-            var configJsonFile = File.ReadAllText($"{config}.json");
+            var configPath = Path.Combine(_contentRootPath, $"{config}.json");
+            var configJsonFile = File.ReadAllText(configPath);
             dynamic? configJson = JsonConvert.DeserializeObject(configJsonFile);
 
             if (configJson != null)
@@ -153,7 +184,25 @@ public class LocalFileService(IConfiguration config, ILogger<LocalFileService> l
                     configJson[parameter] = value;
 
                 var configJsonToUpdate = JsonConvert.SerializeObject(configJson);
-                File.WriteAllText($"{config}.json", configJsonToUpdate);
+                try
+                {
+                    if (File.Exists(configPath))
+                        File.SetAttributes(configPath, FileAttributes.Normal);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning("Could not clear attributes for config file {path}: {msg}", configPath, ex.Message);
+                }
+
+                File.WriteAllText(configPath, configJsonToUpdate);
+                try
+                {
+                    File.SetAttributes(configPath, FileAttributes.Normal);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning("Could not set attributes for config file {path}: {msg}", configPath, ex.Message);
+                }
             }
         }
         catch (Exception ex)
@@ -164,7 +213,7 @@ public class LocalFileService(IConfiguration config, ILogger<LocalFileService> l
 
     public List<T> GetJsonFile<T>(string fileName)
     {
-        var path = Path.Combine(@"wwwroot/json/", $"{fileName}.json");
+        var path = Path.Combine(_webRootPath, "json", $"{fileName}.json");
         using StreamReader reader = new(path);
         return JsonConvert.DeserializeObject<List<T>>(reader.ReadToEnd()) ?? [];
 
@@ -178,7 +227,7 @@ public class LocalFileService(IConfiguration config, ILogger<LocalFileService> l
     // Save history logfile
     public async Task SaveUpdateTextFile<T>(List<T> models, string fileName) where T : class
     {
-        var directory = $@"wwwroot\logs";
+        var directory = Path.Combine(_webRootPath, "logs");
         if (CheckDirectory(directory))
         {
             var path = Path.Combine(directory, $"{fileName}.txt");
@@ -205,8 +254,8 @@ public class LocalFileService(IConfiguration config, ILogger<LocalFileService> l
     // Read text fiel
     public async Task<List<T>> GetListFromTextFile<T>(string pathName) where T : class
     {
-        string path = Path.Combine(@"wwwroot", $"{pathName}.txt");
-        string stringContent = await File.ReadAllTextAsync(pathName);
+        string path = Path.Combine(_webRootPath, $"{pathName}.txt");
+        string stringContent = await File.ReadAllTextAsync(path);
         return System.Text.Json.JsonSerializer.Deserialize<List<T>>(stringContent) ?? [];
     }
 

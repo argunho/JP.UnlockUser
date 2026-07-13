@@ -12,7 +12,7 @@ import ConfirmButtons from "../../components/forms/ConfirmButtons";
 import Message from "../../components/blocks/Message";
 import SearchFilter from "../../components/forms/SearchFilter";
 import ListLoading from "../../components/lists/ListLoading";
-import LinearLoading from "../../components/blocks/LinearLoading";
+// import LinearLoading from "../../components/blocks/LinearLoading";
 import ModalOverview from "../../components/modals/ModalOverview";
 
 // Hooks
@@ -107,8 +107,8 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
 
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
 
-    if (loading && !loading)
-        return <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain" />
+    // if (loading && !loading)
+    //     return <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain" />
 
     return (
         <>

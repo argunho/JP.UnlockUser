@@ -178,7 +178,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
             error = `Lösenords längd måste bli minst ${passwordLength} tecken`;
         else if (_password !== _confirmPassword)
             error = "Lösenorden matchar inte. Kontrollera och försök igen.";
-        else if (!regex.test(password))
+        else if (!regex.test(_password))
             error = "Lösenordet följer inte det angivna formatet. Var god kontrollera kraven.";
 
         return { data, error };

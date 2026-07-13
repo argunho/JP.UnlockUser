@@ -31,7 +31,7 @@ export function ErrorHandle(error) {
     }
     else if (error?.response?.status === 400 || error?.status === 400) {
         console.error("error validation", error?.errors)
-        Object.keys(error?.errors).forEach(key => {
+        Object.keys(error?.errors ?? {}).forEach(key => {
             const err = error?.errors[key];
             console.log("error validation key", key, err)
             errorResponse.msg += Array.isArray(err) ? err.join("<br/>") : `${err}<br/>`;

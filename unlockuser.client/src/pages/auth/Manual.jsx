@@ -32,9 +32,9 @@ function Manual({ api, label, menuLabel }) {
 
   const { pending, success, response, fetchData, handleResponse } = use(FetchContext);
 
+console.log(success)
   useEffect(() => {
     document.title = "UnlockUser | Manual";
-
   }, [manuals])
 
   async function deleteItem() {
@@ -48,7 +48,6 @@ function Manual({ api, label, menuLabel }) {
     handleResponse();
     revalidator.revalidate();
     setManual();
-    // navigate("/manual", { replace: true });
   }
 
   function toggleSortingModel() {
@@ -156,4 +155,4 @@ function Manual({ api, label, menuLabel }) {
   )
 }
 
-export default Manual
+export default Manual;

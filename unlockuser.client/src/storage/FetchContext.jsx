@@ -64,12 +64,12 @@ function FetchContextProvider({ children }) {
 
         currentPathname.current = loc.pathname;
         const currentLayoutPathname = loc.pathname.split("/")[1];
+        dispatch({ type: 'CLEAR' });
 
         if (currentLayoutPathname !== lastLayoutRef.current) {
-            dispatch({ type: 'CLEAR' });
             lastLayoutRef.current = currentLayoutPathname;
-        } else
-            dispatch({ type: 'CLEAR' });
+        }
+
     }, [loc])
 
     const cancelRequest = useCallback(() => {
@@ -105,7 +105,6 @@ function FetchContextProvider({ children }) {
                 dispatch({ type: "CLEAR" });
                 return res;
             } else if (action === "none") {
-                if (warning) console.warn("Error/Warning => ", warning);
                 dispatch({ type: "CLEAR" });
             } else if (!action && method === "delete")
                 action = "skip";

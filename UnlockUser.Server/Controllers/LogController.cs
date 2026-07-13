@@ -87,8 +87,8 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         if (!DateTime.TryParse(date, out DateTime res))
             return Ok(_helpService.Warning("Fel datum format."));
 
-        string fileLogPath = Path.Combine("wwwroot/logs", $"app-{res:yyyyMMdd}.txt");
-        string fileErrorPath = Path.Combine("wwwroot/logs", $"error-{res:yyyyMMdd}.txt");
+        string fileLogPath = Path.Combine("wwwroot/logs", $"app-unlock-{res:yyyyMMdd}.txt");
+        string fileErrorPath = Path.Combine("wwwroot/logs", $"errors-unlock-{res:yyyyMMdd}.txt");
 
         var memoryStream = new MemoryStream();
         try
@@ -98,7 +98,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
                 // Log file
                 if (System.IO.File.Exists(fileLogPath))
                 {
-                    var logEntry = zip.CreateEntry($"app-{res:yyyyMMdd}.txt");
+                    var logEntry = zip.CreateEntry($"app-unclock-{res:yyyyMMdd}.txt");
                     using var entryStream = logEntry.Open();
                     using var fileStream = new FileStream(
                             fileLogPath,
@@ -112,7 +112,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
                 // Error file
                 if (System.IO.File.Exists(fileErrorPath))
                 {
-                    var errorEntry = zip.CreateEntry($"error-{res:yyyyMMdd}.txt");
+                    var errorEntry = zip.CreateEntry($"errors-unlock-{res:yyyyMMdd}.txt");
                     using var entryStream = errorEntry.Open();
                     using var fileStream = new FileStream(
                             fileErrorPath,
@@ -126,17 +126,7 @@ public class LogController(IHelpService helpService, IFileService fileService) :
 
             memoryStream.Position = 0;
 
-            return File(memoryStream, "application/zip", $"logs-{res:yyyyMMdd}.zip");
-            //byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
-            //return File(fileBytes, "text/plain", $"app-{res:yyyyMMdd}.txt");
-
-            //var stream = new FileStream(
-            //    filePath,
-            //    FileMode.Open,
-            //    FileAccess.Read,
-            //    FileShare.ReadWrite // 🔥 Important
-            //);
-            //return File(stream, "text/plain", $"app-{res:yyyyMMdd}.txt");
+            return File(memoryStream, "application/zip", $"logs-unlock-{res:yyyyMMdd}.zip");
         }
         catch (Exception ex)
         {

@@ -17,7 +17,7 @@ namespace UnlockUser.Server.Controllers;
 [ApiController]
 [Authorize]
 public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
-    ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localService, IMemoryCache memoryCahce,
+    ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localUserService, IMemoryCache memoryCahce,
     ICredentialsService credinalService, ILocalMailService localMailService, ILogger<UserController> logger) : ControllerBase
 {
 
@@ -27,7 +27,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IWebHostEnvironment _env = env;
     private readonly IMemoryCache _memoryCache = memoryCahce;
-    private readonly ILocalUserService _localService = localService;
+    private readonly ILocalUserService _localUserService = localUserService;
     private readonly ICredentialsService _credentialsService = credinalService;
     private readonly ILocalMailService _localMailService = localMailService;
     private readonly ILogger<UserController> _logger = logger;
@@ -58,7 +58,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                     return NotFound(_helpService.NotFound("Användaren"));
                 }
                 else if (!claims!["roles"].Contains("Suppport", StringComparison.OrdinalIgnoreCase)
-                        && ((await _localService.Filter([user], groupName, claims!["permissions"]))?.Count == 0))
+                        && ((await _localUserService.Filter([user], groupName, claims!["permissions"]))?.Count == 0))
                 {
                     return Ok(_helpService.Warning($"Du saknar behörigheter att ändra lösenord till {user.DisplayName}!"));
                 }
@@ -103,7 +103,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
-            var user = await _localService.GetUserFromFile(username);
+            var user = await _localUserService.GetUserFromFile(username);
             if (user != null)
                 return Ok(new UserViewModel(user));
 
@@ -135,7 +135,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             if (userPrincipal == null)
                 return NotFound(_helpService.NotFound("Användaren"));
 
-            var cachedUser = await _localService.GetUserFromFile(username);
+            var cachedUser = await _localUserService.GetUserFromFile(username);
             var modifiedUser = new UserViewModel(new User
             {
                 Username = userPrincipal.SamAccountName,
@@ -189,7 +189,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             List<School> schools = [];
             List<ViewModel> managers = [];
             var username = _credentialsService.GetClaim("username");
-            var user = await _localService.GetUserFromFile(username!);
+            var user = await _localUserService.GetUserFromFile(username!);
             if (user == null)
                 return Ok(new { schools, managers });
 
@@ -292,7 +292,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
-            await _localService.RenewUsersCachedList();
+            await _localUserService.RenewUsersCachedList();
             _localFileService.UpdateConfigFile("appconfig", "LastUpdatedDate", DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
             return Ok();
         }

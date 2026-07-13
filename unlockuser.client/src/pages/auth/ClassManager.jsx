@@ -22,16 +22,20 @@ function ClassManager() {
     const navigate = useNavigate();
 
     const loc = useLocation();
-    const { selected, list } = loc.state;
+    const { selected, list } = loc.state ?? {};
 
     const users = list?.map((user) => {
-        if (selected.includes(user?.username))
+        if (selected?.includes(user?.username))
             return user;
         return null;
     })?.filter(Boolean) ?? [];
 
     useEffect(() => {
         document.title = `UnlockUser | ${school} ${classId}`;
+    }, [])
+
+    useEffect(() => {
+        if (!loc.state) navigate(-1);
     }, [])
 
     function spliceUsersList(id) {

@@ -24,7 +24,6 @@ ConfigurationManager configuration = builder.Configuration;
 // Ensure log directory exists
 Directory.CreateDirectory("wwwroot/logs");
 
-
 // Replace default logging with Serilog
 builder.Host.UseSerilog((context, services, configuration) =>
 {
@@ -39,7 +38,7 @@ builder.Host.UseSerilog((context, services, configuration) =>
         .WriteTo.Logger(lc => lc
             .Filter.ByExcluding(e => e.Level >= LogEventLevel.Error)
             .WriteTo.File(
-                "wwwroot/logs/app-.txt",
+                "wwwroot/logs/app-unlock-.txt",
                 rollingInterval: RollingInterval.Day,
                 shared: true,
                 retainedFileCountLimit: 30,
@@ -50,7 +49,7 @@ builder.Host.UseSerilog((context, services, configuration) =>
         .WriteTo.Logger(lc => lc
             .Filter.ByIncludingOnly(e => e.Level >= LogEventLevel.Error)
             .WriteTo.File(
-                "wwwroot/logs/errors-.txt",
+                "wwwroot/logs/errors-unlock-.txt",
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 30,
                 fileSizeLimitBytes: 10_000_000, // optional
