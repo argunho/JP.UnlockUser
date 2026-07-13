@@ -1,5 +1,5 @@
 // Installed 
-import { Skeleton, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
+import { Skeleton, List, ListItem, ListItemAvatar, ListItemText, CircularProgress } from '@mui/material';
 import { Lock } from '@mui/icons-material';
 
 
@@ -22,7 +22,7 @@ function ListLoading({ rows = 1, loading, pending }) {
             return <ListItem
                 className="li-disabled"
                 key={ind}
-                secondaryAction={<Lock color="inherit" />}>
+                secondaryAction={pending ? <CircularProgress size={22} color="inherit" /> : <Lock color="inherit" />}>
 
                 <ListItemAvatar>
                     <Skeleton

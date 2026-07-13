@@ -79,12 +79,10 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
                 return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
 
             var moderators = await _localFileService.GetListFromEncryptedFile<User>("catalogs/moderators");
-            var currentModerator = moderators.FirstOrDefault(x => x.Username != null && x.Username.Equals(authorizedUser.Name!, StringComparison.OrdinalIgnoreCase));
+            var currentModerator = moderators.FirstOrDefault(x => x.Username != null && x.Username.Equals(authorizedUser.Name?.ToString(), StringComparison.OrdinalIgnoreCase));
             if (currentModerator != null)
                 _session!.SetString("permissions", JsonConvert.SerializeObject(currentModerator?.Permissions));
 
-
-            //var userModel = new 
             List<Claim> claims = [];
             claims.Add(new("Email", authorizedUser.EmailAddress));
             claims.Add(new("DisplayName", authorizedUser.DisplayName));
@@ -92,7 +90,6 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             claims.Add(new("Manager", authorizedUser.Manager));
             claims.Add(new("Office", authorizedUser.Office));
             claims.Add(new("Department", authorizedUser.Department));
-            //claims.Add(new("User", JsonConvert.SerializeObject(authorizedUser)));
             claims.Add(new("Groups", groups));
             claims.Add(new("Permissions", string.Join(',', currentModerator?.Permissions?.Groups ?? [])));
             claims.Add(new("Roles", string.Join(",", roles)));

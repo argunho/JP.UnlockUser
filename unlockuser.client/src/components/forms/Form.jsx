@@ -32,7 +32,8 @@ const initialState = {
     showPassword: false,
     password: null,
     isCleaned: null,
-    isChanged: false
+    isChanged: false,
+    dirty: false
 };
 
 // Action reducer
@@ -45,11 +46,11 @@ function actionReducer(state, action) {
             };
         case "PASSWORD":
             return {
-                ...state, isChanged: true, showPassword: true, password: payload
+                ...state, isChanged: true, showPassword: true, password: payload, dirty: true
             };
         case "RESET_FORM_TOTAL":
             return {
-                ...state, showPassword: false, isGenerated: false, formData: null, isCleaned: new Date().getMilliseconds()
+                ...state, showPassword: false, isGenerated: false, formData: null, isCleaned: new Date().getMilliseconds(), dirty: false
             };
         default:
             return state;
@@ -59,7 +60,7 @@ function actionReducer(state, action) {
 function Form({ children, label, labelInFile, passwordLength, locked, users, multiple, hidden }) {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { showPassword, password, isCleaned, isChanged } = state;
+    const { showPassword, password, isCleaned, isChanged, dirty } = state;
 
     const { response, pending: load, fetchData, handleResponse } = use(FetchContext);
 
@@ -75,6 +76,8 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
 
     function handleDispatch(name, value) {
         dispatch({ type: "PARAM", name: name, payload: value });
+        if(value && response)
+            handleResponse();            
     }
 
     // Reset form
@@ -88,12 +91,14 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
 
     // Submit form => This is used when a password is being set for a user.
     async function onSubmitSinglePassword(previous, fd) {
+        dispatch({ type: "PARAM", name: "dirty", payload: false });
+
         const { data, error } = comparePasswords(fd);
 
         if (error)
             return { data, error };
 
-        data.username = users[0]?.name;
+        data.username = users[0]?.username;
         data.manager = users[0]?.manager;
 
         // Request
@@ -105,6 +110,8 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
 
     // Submit form => This is used when a password is being set for a school class.
     async function onSubmitMultiplePasswords(previous, fd) {
+        dispatch({ type: "PARAM", name: "dirty", payload: false });
+
         let data = {
             office: users[0]?.office,
             department: users[0]?.department,
@@ -127,7 +134,6 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
             error = res.error;
         } else if (fd.get("check") === "on")
             data.check = true;
-
 
         const usersToManage = usersValue.map(x => ({ ...x, ...data }));
 
@@ -185,7 +191,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
     }
 
     const [formState, formAction, pending] = useActionState(multiple ? onSubmitMultiplePasswords : onSubmitSinglePassword, { error: null });
-    const error = formState?.error;
+    const error = formState?.error && !dirty ? formState.error : null;
     const disabled = load || response || pending || locked;
 
     // Manage children params
@@ -249,6 +255,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
                                 variant="outlined"
                                 required
                                 defaultValue={value}
+                                onChange={() => dirty || handleDispatch("dirty", true)}
                                 inputProps={{
                                     minLength: passwordLength,
                                     autoComplete: fields[field.name],

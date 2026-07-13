@@ -1,15 +1,15 @@
 // Installed
 import { List, ListItem, ListItemText, ListItemAvatar, Avatar } from '@mui/material';
 
-function ListView({ list, avatar: Icon }) {
+function ListView({ list, avatar }) {
 
     return (
         <List className="w-100">
             {list.map((item, index) => {
                 return <ListItem key={index}>
-                    {Icon && <ListItemAvatar>
+                    {avatar && <ListItemAvatar>
                         <Avatar>
-                            <Icon />
+                            {avatar}
                         </Avatar>
                     </ListItemAvatar>}
                     <ListItemText

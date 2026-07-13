@@ -1,0 +1,245 @@
+2026-07-13 18:21:15.146 +02:00 [INF] Autentisering utförd vid: 2026-07-13 18:21. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 18:21:15.675 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 18:21:16.646 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 18:21:16.
+2026-07-13 18:21:16.646 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 18:21:16.
+2026-07-13 18:21:30.612 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 18:21:30.
+2026-07-13 18:21:40.139 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 18:21:40.
+2026-07-13 18:21:48.282 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 18:21:48.
+2026-07-13 18:21:48.284 +02:00 [INF] Memory cached. groups_a80677c4-378f-1df3-b9a6-d36400b9e9db
+2026-07-13 18:21:48.285 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 18:21:48.
+2026-07-13 18:21:48.290 +02:00 [INF] Dashboard data setup completed.
+2026-07-13 18:22:05.407 +02:00 [INF] Starting process to save file managers
+2026-07-13 18:22:05.418 +02:00 [INF] End save process. managers
+2026-07-13 18:22:06.422 +02:00 [INF] Starting process to save file politicians
+2026-07-13 18:22:06.444 +02:00 [INF] End save process. politicians
+2026-07-13 18:22:56.550 +02:00 [INF] Starting process to save file managers
+2026-07-13 18:22:56.554 +02:00 [INF] End save process. managers
+2026-07-13 18:22:57.562 +02:00 [INF] Starting process to save file politicians
+2026-07-13 18:22:57.568 +02:00 [INF] End save process. politicians
+2026-07-13 18:23:49.675 +02:00 [INF] Starting process to save file moderators
+2026-07-13 18:23:49.694 +02:00 [INF] End save process. moderators
+2026-07-13 18:24:40.389 +02:00 [INF] Starting process to save file moderators
+2026-07-13 18:24:40.398 +02:00 [INF] End save process. moderators
+2026-07-13 18:27:47.891 +02:00 [INF] Autentisering utförd vid: 2026-07-13 18:27. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 18:27:47.893 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 18:27:47.907 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 18:27:47.
+2026-07-13 18:27:47.909 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 18:27:47.
+2026-07-13 18:27:47.912 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 18:27:47.
+2026-07-13 18:27:47.915 +02:00 [INF] Memory cached. groups_cdc4a369-4c54-8481-47de-666877077acb
+2026-07-13 18:27:47.916 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 18:27:47.
+2026-07-13 18:27:47.918 +02:00 [INF] Dashboard data setup completed.
+2026-07-13 18:27:48.188 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 18:27:48.
+2026-07-13 18:27:48.189 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 18:27:48.
+2026-07-13 18:31:24.137 +02:00 [INF] Password change initiated at 2026-07-13 18:31. Moderator: 790822asla
+2026-07-13 18:31:24.139 +02:00 [INF] Permission validation for the admin role.
+2026-07-13 18:32:44.618 +02:00 [INF] Permissions validated. Starting to set a new password for UnlockUser.Server.FormModels.UserFormModel at 2026-07-13 18:32.
+2026-07-13 18:32:51.052 +02:00 [INF] Password change finished at 2026-07-13 18:32. Moderator: 790822asla
+2026-07-13 18:39:44.065 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 18:39:44.
+2026-07-13 18:39:44.065 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 18:39:44.
+2026-07-13 18:40:46.652 +02:00 [INF] Autentisering utförd vid: 2026-07-13 18:40. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 18:40:46.681 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 18:40:46.929 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 18:40:46.
+2026-07-13 18:40:46.930 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 18:40:46.
+2026-07-13 18:40:54.288 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 18:40:54.
+2026-07-13 18:41:05.098 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 18:41:05.
+2026-07-13 18:41:14.683 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 18:41:14.
+2026-07-13 18:41:14.686 +02:00 [INF] Memory cached. groups_a96ce8c0-c0c7-698e-39c8-7fba079be2c7
+2026-07-13 18:41:14.688 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 18:41:14.
+2026-07-13 18:41:14.695 +02:00 [INF] Dashboard data setup completed.
+2026-07-13 18:42:37.180 +02:00 [INF] Password change initiated at 2026-07-13 18:42. Moderator: 790822asla
+2026-07-13 18:42:37.181 +02:00 [INF] Permission validation for the admin role.
+2026-07-13 18:42:40.446 +02:00 [INF] Permissions validated. Starting to set a new password for UnlockUser.Server.FormModels.UserFormModel at 2026-07-13 18:42.
+2026-07-13 18:42:40.447 +02:00 [INF] Password change finished at 2026-07-13 18:42. Moderator: 790822asla
+2026-07-13 18:50:08.150 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 18:50:08.
+2026-07-13 18:50:08.150 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 18:50:08.
+2026-07-13 18:51:22.255 +02:00 [INF] Autentisering utförd vid: 2026-07-13 18:51. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 18:51:22.275 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 18:51:22.543 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 18:51:22.
+2026-07-13 18:51:22.543 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 18:51:22.
+2026-07-13 18:51:31.248 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 18:51:31.
+2026-07-13 18:51:39.598 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 18:51:39.
+2026-07-13 18:51:47.443 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 18:51:47.
+2026-07-13 18:51:47.445 +02:00 [INF] Memory cached. groups_60e80a05-8bbc-4791-25f7-88b7cd9856ff
+2026-07-13 18:51:47.446 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 18:51:47.
+2026-07-13 18:51:47.450 +02:00 [INF] Dashboard data setup completed.
+2026-07-13 18:58:00.813 +02:00 [INF] Password change initiated at 2026-07-13 18:58. Moderator: 790822asla
+2026-07-13 18:58:00.815 +02:00 [INF] Permission validation for the admin role.
+2026-07-13 18:58:18.323 +02:00 [INF] Permissions validated. Starting to set a new password for UnlockUser.Server.FormModels.UserFormModel at 2026-07-13 18:58.
+2026-07-13 18:58:18.325 +02:00 [INF] Password change finished at 2026-07-13 18:58. Moderator: 790822asla
+2026-07-13 18:58:31.302 +02:00 [INF] Starting process to save file statistics
+2026-07-13 18:58:31.318 +02:00 [INF] End save process. statistics
+2026-07-13 19:00:52.806 +02:00 [INF] Autentisering utförd vid: 2026-07-13 19:00. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 19:00:52.884 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 19:00:53.244 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 19:00:53.
+2026-07-13 19:00:53.244 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 19:00:53.
+2026-07-13 19:01:03.431 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 19:01:03.
+2026-07-13 19:01:13.825 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 19:01:13.
+2026-07-13 19:01:20.936 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 19:01:20.
+2026-07-13 19:01:20.938 +02:00 [INF] Memory cached. groups_a492c28a-a68a-6f35-16eb-f6e680a78938
+2026-07-13 19:01:20.940 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 19:01:20.
+2026-07-13 19:01:20.944 +02:00 [INF] Dashboard data setup completed.
+2026-07-13 19:28:46.254 +02:00 [INF] Autentisering utförd vid: 2026-07-13 19:28. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 19:28:46.257 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 19:28:46.291 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 19:28:46.
+2026-07-13 19:28:46.297 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 19:28:46.
+2026-07-13 19:28:46.301 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 19:28:46.
+2026-07-13 19:28:46.305 +02:00 [INF] Memory cached. groups_59034731-540f-3593-1308-c8599aa8cc04
+2026-07-13 19:28:46.307 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 19:28:46.
+2026-07-13 19:28:46.314 +02:00 [INF] Dashboard data setup completed.
+2026-07-13 19:28:46.784 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 19:28:46.
+2026-07-13 19:28:46.784 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 19:28:46.
+2026-07-13 19:36:17.096 +02:00 [INF] Password change initiated at 2026-07-13 19:36. Moderator: 790822asla
+2026-07-13 19:36:17.098 +02:00 [INF] Permission validation for the admin role.
+2026-07-13 19:36:25.458 +02:00 [INF] Permissions validated. Starting to set a new password for UnlockUser.Server.FormModels.UserFormModel at 2026-07-13 19:36.
+2026-07-13 19:36:25.460 +02:00 [INF] Password change finished at 2026-07-13 19:36. Moderator: 790822asla
+2026-07-13 19:36:30.946 +02:00 [INF] Starting process to save file statistics
+2026-07-13 19:36:30.959 +02:00 [INF] End save process. statistics
+2026-07-13 19:44:09.053 +02:00 [INF] Autentisering utförd vid: 2026-07-13 19:44. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 19:44:09.139 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 19:44:09.558 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 19:44:09.
+2026-07-13 19:44:09.558 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 19:44:09.
+2026-07-13 19:44:18.579 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 19:44:18.
+2026-07-13 19:44:27.136 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 19:44:27.
+2026-07-13 19:44:33.780 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 19:44:33.
+2026-07-13 19:44:33.782 +02:00 [INF] Memory cached. groups_101a8eef-0f3d-2e8c-a032-a1bf1eb4c6b7
+2026-07-13 19:44:33.783 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 19:44:33.
+2026-07-13 19:44:33.787 +02:00 [INF] Dashboard data setup completed.
+2026-07-13 19:44:52.161 +02:00 [INF] Password change initiated at 2026-07-13 19:44. Moderator: 790822asla
+2026-07-13 19:44:52.164 +02:00 [INF] Permission validation for the admin role.
+2026-07-13 19:44:58.020 +02:00 [INF] Permissions validated. Starting to set a new password for UnlockUser.Server.FormModels.UserFormModel at 2026-07-13 19:44.
+2026-07-13 19:44:58.023 +02:00 [INF] Password change finished at 2026-07-13 19:44. Moderator: 790822asla
+2026-07-13 19:45:33.781 +02:00 [INF] Starting process to save file statistics
+2026-07-13 19:45:33.800 +02:00 [INF] End save process. statistics
+2026-07-13 19:45:54.432 +02:00 [INF] Password change initiated at 2026-07-13 19:45. Moderator: 790822asla
+2026-07-13 19:45:54.434 +02:00 [INF] Permission validation for the admin role.
+2026-07-13 19:46:22.740 +02:00 [INF] Permissions validated. Starting to set a new password for UnlockUser.Server.FormModels.UserFormModel at 2026-07-13 19:46.
+2026-07-13 19:46:22.743 +02:00 [INF] Password change finished at 2026-07-13 19:46. Moderator: 790822asla
+2026-07-13 19:48:09.944 +02:00 [INF] Starting process to save file statistics
+2026-07-13 19:48:09.951 +02:00 [INF] End save process. statistics
+2026-07-13 19:57:17.656 +02:00 [INF] Autentisering utförd vid: 2026-07-13 19:57. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 19:57:17.731 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 19:57:18.040 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 19:57:18.
+2026-07-13 19:57:18.040 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 19:57:18.
+2026-07-13 19:57:26.424 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 19:57:26.
+2026-07-13 19:57:35.595 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 19:57:35.
+2026-07-13 19:57:42.797 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 19:57:42.
+2026-07-13 19:57:42.799 +02:00 [INF] Memory cached. groups_ad6632ec-fb53-0dad-99c4-4cdb88068233
+2026-07-13 19:57:42.801 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 19:57:42.
+2026-07-13 19:57:42.805 +02:00 [INF] Dashboard data setup completed.
+2026-07-13 19:58:10.733 +02:00 [INF] Password change initiated at 2026-07-13 19:58. Moderator: 790822asla
+2026-07-13 19:58:10.736 +02:00 [INF] Permission validation for the admin role.
+2026-07-13 20:00:09.739 +02:00 [INF] Autentisering utförd vid: 2026-07-13 20:00. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 20:00:09.834 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 20:00:10.141 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:00:10.
+2026-07-13 20:00:10.141 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:00:10.
+2026-07-13 20:00:18.587 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 20:00:18.
+2026-07-13 20:00:27.203 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 20:00:27.
+2026-07-13 20:00:34.933 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 20:00:34.
+2026-07-13 20:00:34.937 +02:00 [INF] Memory cached. groups_027c1124-4a77-0903-cd02-b3bad6e74b8e
+2026-07-13 20:00:34.939 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 20:00:34.
+2026-07-13 20:00:34.948 +02:00 [INF] Dashboard data setup completed.
+2026-07-13 20:01:26.934 +02:00 [INF] Password change initiated at 2026-07-13 20:01. Moderator: 790822asla
+2026-07-13 20:01:26.937 +02:00 [INF] Permission validation for the admin role.
+2026-07-13 20:01:32.485 +02:00 [INF] Permissions validated. Starting to set a new password for UnlockUser.Server.FormModels.UserFormModel at 2026-07-13 20:01.
+2026-07-13 20:02:07.113 +02:00 [INF] Password change finished at 2026-07-13 20:02. Moderator: 790822asla
+2026-07-13 20:03:58.998 +02:00 [INF] Starting process to save file statistics
+2026-07-13 20:03:59.014 +02:00 [INF] End save process. statistics
+2026-07-13 20:04:17.593 +02:00 [INF] Password change initiated at 2026-07-13 20:04. Moderator: 790822asla
+2026-07-13 20:04:17.594 +02:00 [INF] Permission validation for the admin role.
+2026-07-13 20:04:17.597 +02:00 [INF] Permissions validated. Starting to set a new password for UnlockUser.Server.FormModels.UserFormModel at 2026-07-13 20:04.
+2026-07-13 20:05:05.139 +02:00 [INF] Password change finished at 2026-07-13 20:05. Moderator: 790822asla
+2026-07-13 20:05:08.864 +02:00 [INF] Starting process to save file statistics
+2026-07-13 20:05:08.867 +02:00 [INF] End save process. statistics
+2026-07-13 20:11:49.552 +02:00 [INF] Password change initiated at 2026-07-13 20:11. Moderator: 790822asla
+2026-07-13 20:11:49.559 +02:00 [INF] Permission validation for the admin role.
+2026-07-13 20:11:49.564 +02:00 [INF] Permissions validated. Starting to set a new password for UnlockUser.Server.FormModels.UserFormModel at 2026-07-13 20:11.
+2026-07-13 20:11:50.650 +02:00 [INF] Password change finished at 2026-07-13 20:11. Moderator: 790822asla
+2026-07-13 20:11:53.008 +02:00 [INF] Starting process to save file statistics
+2026-07-13 20:11:53.013 +02:00 [INF] End save process. statistics
+2026-07-13 20:14:28.572 +02:00 [INF] Autentisering utförd vid: 2026-07-13 20:14. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 20:14:28.669 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 20:14:29.011 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:14:29.
+2026-07-13 20:14:29.011 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:14:29.
+2026-07-13 20:14:37.442 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 20:14:37.
+2026-07-13 20:14:45.501 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 20:14:45.
+2026-07-13 20:14:52.679 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 20:14:52.
+2026-07-13 20:14:52.682 +02:00 [INF] Memory cached. groups_e2f053a4-8d58-eae9-5cc4-cc5d0a88fa2a
+2026-07-13 20:14:52.683 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 20:14:52.
+2026-07-13 20:14:52.689 +02:00 [INF] Dashboard data setup completed.
+2026-07-13 20:17:07.988 +02:00 [INF] Password change initiated at 2026-07-13 20:17. Moderator: 790822asla
+2026-07-13 20:17:07.990 +02:00 [INF] Permission validation for the admin role.
+2026-07-13 20:17:08.008 +02:00 [INF] Permissions validated. Starting to set a new password for UnlockUser.Server.FormModels.UserFormModel at 2026-07-13 20:17.
+2026-07-13 20:18:34.337 +02:00 [INF] Password change finished at 2026-07-13 20:18. Moderator: 790822asla
+2026-07-13 20:18:38.382 +02:00 [INF] Starting process to save file histories
+2026-07-13 20:18:38.389 +02:00 [INF] End save process. histories
+2026-07-13 20:18:39.406 +02:00 [INF] Starting process to save file statistics
+2026-07-13 20:18:39.412 +02:00 [INF] End save process. statistics
+2026-07-13 20:23:50.588 +02:00 [INF] Autentisering utförd vid: 2026-07-13 20:23. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 20:23:50.683 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 20:23:51.002 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:23:51.
+2026-07-13 20:23:51.002 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:23:51.
+2026-07-13 20:24:00.682 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 20:24:00.
+2026-07-13 20:24:10.733 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 20:24:10.
+2026-07-13 20:24:19.899 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 20:24:19.
+2026-07-13 20:24:19.901 +02:00 [INF] Memory cached. groups_c1c3318a-4668-2af8-e495-a8295f1f9738
+2026-07-13 20:24:19.903 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 20:24:19.
+2026-07-13 20:24:19.914 +02:00 [INF] Dashboard data setup completed.
+2026-07-13 20:26:23.797 +02:00 [INF] Password change initiated at 2026-07-13 20:26. Moderator: 790822asla
+2026-07-13 20:26:23.800 +02:00 [INF] Permission validation for the admin role.
+2026-07-13 20:26:23.817 +02:00 [INF] Permissions validated. Starting to set a new password for UnlockUser.Server.FormModels.UserFormModel at 2026-07-13 20:26.
+2026-07-13 20:26:45.939 +02:00 [INF] Password change finished at 2026-07-13 20:26. Moderator: 790822asla
+2026-07-13 20:28:34.168 +02:00 [INF] Autentisering utförd vid: 2026-07-13 20:28. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 20:28:34.170 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 20:28:34.197 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 20:28:34.
+2026-07-13 20:28:34.200 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 20:28:34.
+2026-07-13 20:28:34.204 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 20:28:34.
+2026-07-13 20:28:34.206 +02:00 [INF] Memory cached. groups_ec549991-da63-aaae-2b28-63a9c6dfa4f0
+2026-07-13 20:28:34.208 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 20:28:34.
+2026-07-13 20:28:34.212 +02:00 [INF] Dashboard data setup completed.
+2026-07-13 20:28:34.514 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:28:34.
+2026-07-13 20:28:34.514 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:28:34.
+2026-07-13 20:28:56.953 +02:00 [INF] Password change initiated at 2026-07-13 20:28. Moderator: 790822asla
+2026-07-13 20:28:56.955 +02:00 [INF] Permission validation for the admin role.
+2026-07-13 20:35:31.899 +02:00 [INF] Permissions validated. Starting to set a new password for UnlockUser.Server.FormModels.UserFormModel at 2026-07-13 20:35.
+2026-07-13 20:39:33.086 +02:00 [INF] Autentisering utförd vid: 2026-07-13 20:39. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 20:39:33.197 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 20:39:33.650 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:39:33.
+2026-07-13 20:39:33.650 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:39:33.
+2026-07-13 20:39:42.499 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 20:39:42.
+2026-07-13 20:39:51.897 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 20:39:51.
+2026-07-13 20:40:00.989 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 20:40:00.
+2026-07-13 20:40:00.991 +02:00 [INF] Memory cached. groups_1f74e164-5aa5-3d41-509e-8b33e2ad9d76
+2026-07-13 20:40:00.991 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 20:40:00.
+2026-07-13 20:40:00.996 +02:00 [INF] Dashboard data setup completed.
+2026-07-13 20:40:14.395 +02:00 [INF] Password change initiated at 2026-07-13 20:40. Moderator: 790822asla
+2026-07-13 20:40:14.398 +02:00 [INF] Permission validation for the admin role.
+2026-07-13 20:47:07.962 +02:00 [INF] Autentisering utförd vid: 2026-07-13 20:47. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 20:47:08.058 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 20:47:08.424 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:47:08.
+2026-07-13 20:47:08.424 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:47:08.
+2026-07-13 20:47:16.880 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 20:47:16.
+2026-07-13 20:47:27.695 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 20:47:27.
+2026-07-13 20:47:38.206 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 20:47:38.
+2026-07-13 20:47:38.208 +02:00 [INF] Memory cached. groups_f59a951c-1544-bce3-f721-138e9abaa106
+2026-07-13 20:47:38.210 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 20:47:38.
+2026-07-13 20:47:38.215 +02:00 [INF] Dashboard data setup completed.
+2026-07-13 20:50:58.007 +02:00 [INF] Autentisering utförd vid: 2026-07-13 20:50. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 20:50:58.011 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 20:50:58.038 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 20:50:58.
+2026-07-13 20:50:58.042 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 20:50:58.
+2026-07-13 20:50:58.048 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 20:50:58.
+2026-07-13 20:50:58.050 +02:00 [INF] Memory cached. groups_9a1b1f1d-9c2e-2a5f-e8d2-b03b3843637b
+2026-07-13 20:50:58.052 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 20:50:58.
+2026-07-13 20:50:58.054 +02:00 [INF] Dashboard data setup completed.
+2026-07-13 20:50:58.225 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:50:58.
+2026-07-13 20:50:58.260 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:50:58.
+2026-07-13 20:52:19.802 +02:00 [INF] Autentisering utförd vid: 2026-07-13 20:52. Department: IT avdelning. Office: IT avdelning.
+2026-07-13 20:52:19.877 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-13 20:52:20.241 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:52:20.
+2026-07-13 20:52:20.241 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-13 20:52:20.
+2026-07-13 20:52:29.686 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-13 20:52:29.
+2026-07-13 20:52:39.210 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-13 20:52:39.
+2026-07-13 20:52:48.862 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-13 20:52:48.
+2026-07-13 20:52:48.864 +02:00 [INF] Memory cached. groups_ec00edcc-3b04-b5c7-6f48-4b0346e1de8e
+2026-07-13 20:52:48.866 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-13 20:52:48.
+2026-07-13 20:52:48.871 +02:00 [INF] Dashboard data setup completed.

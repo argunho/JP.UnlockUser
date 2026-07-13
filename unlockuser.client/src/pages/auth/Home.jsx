@@ -1,4 +1,4 @@
-import { useEffect, useState, use, useReducer, useRef, useActionState } from 'react';
+import { useEffect, use, useReducer, useRef, useActionState } from 'react';
 import _ from "lodash";
 
 // Installed
@@ -93,8 +93,6 @@ function Home() {
     const refAutocomplete = useRef(null);
     const groupCollectionRef = useRef(null);
 
-    const [searching, setSearching] = useState(false);
-
     function waitForCollection(timeout = 60000) {
         return new Promise((resolve) => {
             if (groupCollectionRef.current !== null) return resolve(groupCollectionRef.current);
@@ -112,7 +110,6 @@ function Home() {
     async function get() {
         try {
 
-            // const shouldFetchMessage = !sessionStorage.getItem("checked");
             // const messagePromise = shouldFetchMessage
             //     ? ApiRequest("article/popup/message")
             //     : Promise.resolve(null);
@@ -122,12 +119,6 @@ function Home() {
             //     ApiRequest(`data/groups/by/name/${gn}`),
             // ]);
 
-            // if (shouldFetchMessage) {
-            //     sessionStorage.setItem("checked", "true");
-            // }
-
-            // setModalMessage(!!message?.html ? message : null);
-            // setGroupCollection(Array.isArray(collection) ? collection : []);
 
             const res = await fetchData({ api: `data/groups/by/name/${gn}`, action: "return" });
             groupCollectionRef.current = res.groupModels;
@@ -166,10 +157,6 @@ function Home() {
         onReset();
     }, [groupName])
 
-    // useEffect(() => {
-    //     console.log("searchparams", name)
-    // }, [searchParams])
-
     function handleDispatch(name, value, type = "PARAM") {
         dispatch({ type: type, name: name, payload: value });
     }
@@ -186,68 +173,62 @@ function Home() {
 
     // Function - submit form
     async function onSubmit(previous, fd) {
-        try {
-            setSearching(true);
-            const name = fd.get("name")?.toLowerCase();
-            const match = fd.get("match") === "on" ? true : false;
-            const school = fd.get("school") ?? null;
 
-            const data = { name, match, school };
+        const name = fd.get("name")?.toLowerCase();
+        const match = fd.get("match") === "on" ? true : false;
+        const school = fd.get("school") ?? null;
 
-            // Navigate to search query page
-            // let navLink = `/search/${gn}?name=${name.replaceAll(" ", "%20")}`;
-            // if(match)
-            //     navLink += "&match=on";
-            // if(school)
-            //     navLink += `&school=${school}`;
+        const data = { name, match, school };
 
-            // navigate(navLink, { replace: true });
+        // Navigate to search query page
+        // let navLink = `/search/${gn}?name=${name.replaceAll(" ", "%20")}`;
+        // if(match)
+        //     navLink += "&match=on";
+        // if(school)
+        //     navLink += `&school=${school}`;
 
-            let errors = [];
-            let error = null;
+        // navigate(navLink, { replace: true });
 
-            if (_.isEqual({ name: "", school: "" }, { name, school })) {
-                error = "Begäran avvisades. Inga ändringar gjordes i formulärets data."
-                return {
-                    ...data,
-                    error
-                }
+        let errors = [];
+        let error = null;
+
+        if (_.isEqual({ name: "", school: "" }, { name, school })) {
+            error = "Begäran avvisades. Inga ändringar gjordes i formulärets data."
+            return {
+                ...data,
+                error
             }
-
-            if (errors?.length > 0)
-                return { ...data, errors };
-
-            if (groupCollectionRef.current === null)
-                await waitForCollection(120000);
-
-            const collection = groupCollectionRef.current;
-
-            let res = null;
-            if (collection?.length > 0) {
-                if (gn === "support")
-                    res = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)));
-                else {
-                    res = (isClass)
-                        ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)?.sort((a,b) => a.name?.toLowerCase().localeCompare(b.name?.toLowerCase()))
-                        : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name))
-                            && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
-                }
-            } else {
-                // API parameters by chosen searching alternative
-                let options = isClass
-                    ? `students${fd.get("school")}/${name}`
-                    : `person/${name}/${group}/${match}`;
-
-                res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
-            }
-
-            
-
-            handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
-            return Array.isArray(res) ? null : data;
-        } finally {
-            setSearching(false);
         }
+
+        if (errors?.length > 0)
+            return { ...data, errors };
+
+        if (groupCollectionRef.current === null)
+            await waitForCollection(120000);
+
+        const collection = groupCollectionRef.current;
+
+        let res = null;
+        if (collection?.length > 0) {
+            if (gn === "support")
+                res = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)));
+            else {
+                res = (isClass)
+                    ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)?.sort((a, b) => a.name?.toLowerCase().localeCompare(b.name?.toLowerCase()))
+                    : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name))
+                        && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
+            }
+        } else {
+            // API parameters by chosen searching alternative
+            let options = isClass
+                ? `students${fd.get("school")}/${name}`
+                : `person/${name}/${group}/${match}`;
+
+            res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
+        }
+
+        handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
+        return Array.isArray(res) ? null : data;
     }
 
     function onReset() {
@@ -301,7 +282,7 @@ function Home() {
                             {!isClass && <FormControlLabel
                                 control={<Checkbox
                                     name="match"
-                                    disabled={isClass}
+                                    disabled={isClass || pending}
                                     checked={isMatch}
                                     onClick={() => handleDispatch("isMatch", !isMatch)} />}
                                 label="Exakt matchning" />}
@@ -311,7 +292,7 @@ function Home() {
                                 color="error"
                                 className="search-reset"
                                 type="reset"
-                                disabled={loading || !isChanged || searching}
+                                disabled={loading || !isChanged || pending}
                                 onClick={() => dispatch({ type: "RESET" })}
                                 edge="end">
                                 <SearchOffSharp />
@@ -322,7 +303,7 @@ function Home() {
                                 color={isChanged ? "primary" : "inherit"}
                                 className="search-button"
                                 type="submit"
-                                disabled={!isChanged || loading || searching}
+                                disabled={!isChanged || loading || pending}
                                 ref={refSubmit}
                                 edge="end">
                                 <SearchSharp />
@@ -373,7 +354,7 @@ function Home() {
             <div className='d-row jc-between w-100 view-list-result'>
                 {/* Result info */}
                 <div className="vlr-info d-column ai-start">
-                    <span>{searching ? "Sökning pågår..." : "Resultat"}</span>
+                    <span>{pending ? "Sökning pågår..." : "Resultat"}</span>
                     <span className="d-row jc-start" style={{ color: users ? "var(--color-active)" : "var(--color-gray)" }}>
                         {users?.length > 0 && <List size="small" color="primary" style={{ marginRight: 10 }} />}
                         {users ? `${users?.length} användare` : "*****************"}
@@ -407,7 +388,7 @@ function Home() {
             </div>
 
             {/* List loading */}
-            {(!users || searching) && <ListLoading rows={5} pending={pending || searching} />}
+            {(!users || pending) && <ListLoading rows={5} pending={pending} />}
 
             {/* Result of search */}
             {users?.length > 0 && <ListsView

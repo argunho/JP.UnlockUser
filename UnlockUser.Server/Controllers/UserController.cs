@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using UnlockUser.Server.FormModels;
 
 namespace UnlockUser.Server.Controllers;
@@ -314,7 +315,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                 return Ok(_helpService.Warning(message));
 
             // Save/Update statistics
-            await SaveUpdateStatitics("Unlocked", 1);
+            await SaveUpdateStatistics("Unlocked", 1);
 
             return Ok(new { success = true, color = "success", msg = "Användaren har låsts upp!" });
         }
@@ -449,7 +450,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         _logger.LogInformation("Permission validation for the admin role.");
 
         // Check current user permission
-        if (roles.Contains("Moderator", StringComparer.OrdinalIgnoreCase))
+        if (!roles.Contains("Moderator", StringComparer.OrdinalIgnoreCase))
         {
             var permissionsJson = HttpContext.Session.GetString("permissions");
 
@@ -463,11 +464,16 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                 if (!permissions!.Schools.Contains(office, StringComparer.OrdinalIgnoreCase))
                     return $"{warningMessage} {department} {office}";
             }
+            else if (string.IsNullOrEmpty(userModel.Manager))
+            {
+                return $"{warningMessage} {userModel.Username}";
+            }
             else
             {
-                var manager = userModel.Manager;
+                //string? userManager = (!string.IsNullOrEmpty(manager) && manager.Contains(',')) ? manager.Trim()?[3..manager!.IndexOf(',')] : null;
 
-                string? userManager = (!string.IsNullOrEmpty(manager) && manager.Contains(',')) ? manager.Trim()?[3..manager!.IndexOf(',')] : null;
+                var match = Regex.Match(userModel.Manager!, @"^CN=([^,]+)");
+                string? userManager = match.Success ? match.Groups[1]?.Value : null;
 
                 if (string.IsNullOrEmpty(userManager) || (!permissions!.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase)
                     && !userManager.Equals(username, StringComparison.OrdinalIgnoreCase)))
@@ -477,7 +483,6 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
         Data sessionUserData = await GetLogData(group!, office!, department!);
         var message = new StringBuilder();
-
 
         _logger.LogInformation("Permissions validated. Starting to set a new password for {users} at {dateTime}.", string.Join(",", userModels), DateTime.Now.ToString("g"));
 
@@ -503,7 +508,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             _ = Task.Run(async () =>
             {
                 await SaveHistoryLogFile(sessionUserData);
-                await SaveUpdateStatitics("PasswordsChange", userModels.Count);
+                await SaveUpdateStatistics("PasswordsChange", userModels.Count);
             });
         }
 
@@ -567,178 +572,119 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
 
     // Save update statistik
-    private async Task SaveUpdateStatitics(string param, int count)
+    private async Task SaveUpdateStatistics(string param, int count)
     {
-        var year = DateTime.Now.Year;
-        var month = DateTime.Now.ToString("MMMM", CultureInfo.InvariantCulture);
-
-        var passChange = (param == "PasswordsChange");
-
-        var statistics = await _localFileService.GetListFromEncryptedFile<Statistics>("catalogs/statistics");
-        var yearStatistics = statistics.FirstOrDefault(x => x.Year == year);
-
-        var newData = new Months
+        try
         {
-            Name = month,
-            PasswordsChange = passChange ? count : 0,
-            Unlocked = passChange ? 0 : count
-        };
+            var year = DateTime.Now.Year;
+            var month = DateTime.Now.ToString("MMMM", CultureInfo.InvariantCulture);
 
-        if (yearStatistics != null)
-        {
-            var monthStatistics = yearStatistics.Months.FirstOrDefault(x => x.Name == month);
-            if (monthStatistics != null)
+            var passChange = (param == "PasswordsChange");
+
+            var statistics = await _localFileService.GetListFromEncryptedFile<Statistics>("catalogs/statistics") ?? [];
+            var yearStatistics = statistics.FirstOrDefault(x => x.Year == year);
+
+            var newData = new Months
             {
-                if (passChange)
-                    monthStatistics.PasswordsChange += count;
+                Name = month,
+                PasswordsChange = passChange ? count : 0,
+                Unlocked = passChange ? 0 : count
+            };
+
+            if (yearStatistics != null)
+            {
+                var monthStatistics = yearStatistics.Months.FirstOrDefault(x => x.Name == month);
+                if (monthStatistics != null)
+                {
+                    if (passChange)
+                        monthStatistics.PasswordsChange += count;
+                    else
+                        monthStatistics.Unlocked += count;
+                }
                 else
-                    monthStatistics.Unlocked += count;
+                    yearStatistics.Months.Add(newData);
             }
             else
-                yearStatistics.Months.Add(newData);
-        }
-        else
-        {
-            statistics.Add(new Statistics
             {
-                Year = year,
-                Months = [newData]
-            });
-        }
+                statistics.Add(new Statistics
+                {
+                    Year = year,
+                    Months = [newData]
+                });
+            }
 
-        await _localFileService.SaveUpdateEncryptedFile(statistics, "catalogs", "statistics");
+            await _localFileService.SaveUpdateEncryptedFile(statistics, "catalogs", "statistics");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Unable to save the statistics file! Error: {error}", ex.Message);
+            await _helpService.Error(ex);
+        }
     }
 
     // Save log file
     private async Task SaveHistoryLogFile(Data model)
     {
-        var user = _provider.FindUserByUsername(_credentialsService.GetClaim("username") ?? "");
-        if (user == null)
-            return;
-
-        var description = new StringBuilder();
-        description.Append("\r Anställd");
-        description.Append($"\n - Användarnamn: {user?.Name}");
-        description.Append($"\n - Namn: {user?.DisplayName}");
-        description.Append($"\n - E-postadress: {user?.EmailAddress}");
-        description.Append($"\n - Arbetsplats: {user.Department}");
-        description.Append($"\n - Tjänst: {user.Title}");
-        description.Append($"\n\n\r Dator");
-        description.Append($"\n - Datornamn: {model?.ComputerName}");
-        description.Append($"\n - IpAddress: {model?.IpAddress}");
-        description.Append($"\n\n\r Hantering");
-        description.Append($"\n - Gruppnamn: {model?.Group}");
-        description.Append($"\n - ");
-        description.Append($"\n - ");
-
-        bool isStudentGroup = string.Equals(model!.Group, "studenter", StringComparison.OrdinalIgnoreCase);
-
-        if (isStudentGroup)
+        try
         {
-            description.Append($" - Skolan: {model?.ManagedUserOffice}");
-            description.Append($" - Klassnamn: {model?.ManagedUserDepartment}");
-            description.Append($"\n\n\r Lösenord ändrad till {model?.Users.Count} student{(model?.Users.Count > 1 ? "er" : "")}:");
-            foreach (var student in model!.Users)
-                description.Append($"\n\t- Student: {student}");
-        }
-        else
-        {
-            var managedUser = _provider.FindUserByUsername(model!.Users[0]);
-            if (managedUser != null)
+            var user = _provider.FindUserByUsername(_credentialsService.GetClaim("username") ?? "");
+            if (user == null)
+                return;
+
+            var description = new StringBuilder();
+            description.Append("\r Anställd");
+            description.Append($"\n - Användarnamn: {user?.Name}");
+            description.Append($"\n - Namn: {user?.DisplayName}");
+            description.Append($"\n - E-postadress: {user?.EmailAddress}");
+            description.Append($"\n - Arbetsplats: {user.Department}");
+            description.Append($"\n - Tjänst: {user.Title}");
+            description.Append($"\n\n\r Dator");
+            description.Append($"\n - Datornamn: {model?.ComputerName}");
+            description.Append($"\n - IpAddress: {model?.IpAddress}");
+            description.Append($"\n\n\r Hantering");
+            description.Append($"\n - Gruppnamn: {model?.Group}");
+            description.Append($"\n - ");
+            description.Append($"\n - ");
+
+            bool isStudentGroup = string.Equals(model!.Group, "studenter", StringComparison.OrdinalIgnoreCase);
+
+            if (isStudentGroup)
             {
-                model.Office = user.Office;
-                model.Department = user.Department;
+                description.Append($" - Skolan: {model?.ManagedUserOffice}");
+                description.Append($" - Klassnamn: {model?.ManagedUserDepartment}");
+                description.Append($"\n\n\r Lösenord ändrad till {model?.Users.Count} student{(model?.Users.Count > 1 ? "er" : "")}:");
+                foreach (var student in model!.Users)
+                    description.Append($"\n\t- Student: {student}");
             }
-            description.Append($" - Arbetsplats: {model?.Office}");
-            description.Append($"\n\n\r Lösenord ämdrad till:");
-            description.Append($"\n\t-{model?.Group}: {model?.Users[0]}");
+            else
+            {
+                var managedUser = _provider.FindUserByUsername(model!.Users[0]);
+                if (managedUser != null)
+                {
+                    model.Office = user.Office;
+                    model.Department = user.Department;
+                }
+                description.Append($" - Arbetsplats: {model?.Office}");
+                description.Append($"\n\n\r Lösenord ämdrad till:");
+                description.Append($"\n\t-{model?.Group}: {model?.Users[0]}");
+            }
+            description.Append("\n\n\n Datum: " + DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
+
+            var histories = await _localFileService.GetListFromEncryptedFile<FileViewModel>("catalogs/histories") ?? [];
+            FileViewModel hitoryData = new()
+            {
+                Name = $"{model!.Group}  {model.Office}",
+                Description = description.ToString()
+            };
+
+            histories.Add(hitoryData);
+            await _localFileService.SaveUpdateEncryptedFile(histories, "catalogs", "histories");
         }
-        description.Append("\n\n\n Datum: " + DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
-
-        var histories = await _localFileService.GetListFromEncryptedFile<FileViewModel>("catalogs/histories");
-        FileViewModel hitoryData = new()
+        catch (Exception ex)
         {
-            Name = $"{model!.Group}  {model.Office}",
-            Description = description.ToString()
-        };
-
-        histories.Add(hitoryData);
-        await _localFileService.SaveUpdateEncryptedFile(histories, "catalogs", "histories");
+            _logger.LogError("Unable to save the history file! Error: {error}", ex.Message);
+            await _helpService.Error(ex);
+        }
     }
     #endregion
 }
-
-//// Set multiple passwords
-//private async Task<string?> SetPassword(UserFormModel user)
-//{
-//    // Check model is valid or not and return warning is true or false
-//    if (user == null)
-//        return "Användare för lösenordsåterställning har inte specificerats."; // Password reset user not specified
-
-//    // If password needs to confirm
-//    if (!string.IsNullOrEmpty(user.ConfirmPassword))
-//    {
-//        if (!string.Equals(user.Password, user.ConfirmPassword))
-//            return "Lösenord och bekräftelse av lösenord matchar inte.";
-//    }
-
-//    // Managed user credentials
-//    string? group = user.GroupName;
-//    string? office = user.Office;
-//    string? department = user.Department;
-
-//    // CUrrent moderator claims
-//    var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permissions"]);
-
-
-//    // Check permission for the managed users group
-//    var groups = claims != null && claims.TryGetValue("groups", out var g) && !string.IsNullOrEmpty(g)
-//                    ? g.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
-
-//    if (!groups.Contains(group, StringComparer.OrdinalIgnoreCase))
-//        return "Behörigheter saknas!"; // Warning!
-
-
-//    // Check current moderators role
-//    var roles = claims != null && claims.TryGetValue("roles", out var r) && !string.IsNullOrEmpty(r)
-//                            ? r.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
-
-//    if (!roles.Contains("Moderator", StringComparer.OrdinalIgnoreCase))
-//    {
-//        var permissions = JsonConvert.DeserializeObject<PermissionsViewModel>(claims!["permissions"])!;
-
-//        string warningMessage = "Du saknar behörigheter att ändra lösenord till";
-
-//        var manager = user.Manager;
-
-//        string? userManager = (!string.IsNullOrEmpty(manager) && manager.Contains(',')) ? manager.Trim()?[3..manager!.IndexOf(',')] : null;
-//        if (string.IsNullOrEmpty(userManager) || !permissions.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase))
-//            return $"{warningMessage} {user.Username}";
-//    }
-
-//    Data sessionUserData = await GetLogData(group!, office!, department!);
-//    var message = new StringBuilder();
-
-//    // Set password to class students
-
-//    try
-//    {
-//        _provider.ResetPassword(user);
-//        if (_env.IsProduction())
-//            sessionUserData.Users.Add(user?.Username ?? "");
-//    }
-//    catch (Exception ex)
-//    {
-//        message?.Append($"Fel vid försök ändra lösenord till {user.Username}: {ex.Message}");
-//    }
-
-
-//    // Save/Update statistics
-//    if (!user.Check && _env.IsProduction())
-//    {
-//        await SaveHistoryLogFile(sessionUserData);
-//        await SaveUpdateStatitics("PasswordsChange", 1);
-//    }
-
-//    return (message?.Length > 0) ? message.ToString() : null;
-//}

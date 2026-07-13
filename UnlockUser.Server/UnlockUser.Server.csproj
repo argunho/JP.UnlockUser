@@ -30,7 +30,12 @@
 	<ItemGroup>
 	  <Content Include="wwwroot\articles\0.Nya_regler_i_den_nya_versionen.txt" />
 	  <Content Include="wwwroot\catalogs\approved-employees.txt" />
+	  <Content Include="wwwroot\catalogs\histories.txt" />
+	  <Content Include="wwwroot\catalogs\managers.txt" />
+	  <Content Include="wwwroot\catalogs\moderators.txt" />
+	  <Content Include="wwwroot\catalogs\politicians.txt" />
 	  <Content Include="wwwroot\catalogs\schools.txt" />
+	  <Content Include="wwwroot\catalogs\statistics.txt" />
 	  <Content Include="wwwroot\images\alvestakommun.png" />
 	  <Content Include="wwwroot\images\background.png" />
 	  <Content Include="wwwroot\images\contacts.png" />

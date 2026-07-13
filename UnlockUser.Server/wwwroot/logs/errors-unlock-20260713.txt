@@ -1,0 +1,7 @@
+2026-07-13 18:58:20.567 +02:00 [ERR] Unable to save the history file! Error: Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')
+2026-07-13 19:36:27.443 +02:00 [ERR] Unable to save the history file! Error: Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')
+2026-07-13 19:45:32.653 +02:00 [ERR] Unable to save the history file! Error: Index was out of range. Must be non-negative and less than the size of the collection. (Parameter 'index')
+2026-07-13 19:48:08.931 +02:00 [ERR] Unable to save the history file! Error: The (&(objectClass=user)(|(userPrincipalName=)(distinguishedName=)(name=))) search filter is invalid.
+2026-07-13 20:03:57.877 +02:00 [ERR] Unable to save the history file! Error: The (&(objectClass=user)(|(userPrincipalName=)(distinguishedName=)(name=))) search filter is invalid.
+2026-07-13 20:05:07.852 +02:00 [ERR] Unable to save the history file! Error: The (&(objectClass=user)(|(userPrincipalName=)(distinguishedName=)(name=))) search filter is invalid.
+2026-07-13 20:11:51.987 +02:00 [ERR] Unable to save the history file! Error: The (&(objectClass=user)(|(userPrincipalName=)(distinguishedName=)(name=))) search filter is invalid.
