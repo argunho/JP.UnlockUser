@@ -3,7 +3,7 @@ import { useState, use, Fragment, useRef, useEffect } from "react";
 // Installed
 import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText, Skeleton, Tooltip } from "@mui/material";
 import { ArrowDropDown, ArrowDropUp, CalendarMonth, Delete, Download, Pageview } from "@mui/icons-material";
-import { useLoaderData, useNavigate, useRevalidator, useOutletContext } from 'react-router-dom'; //, useMatch
+import { useLoaderData, useNavigate, useRevalidator, useOutletContext } from 'react-router-dom';
 
 // Components
 import TabPanel from './../../components/blocks/TabPanel';
@@ -12,7 +12,6 @@ import ConfirmButtons from "../../components/forms/ConfirmButtons";
 import Message from "../../components/blocks/Message";
 import SearchFilter from "../../components/forms/SearchFilter";
 import ListLoading from "../../components/lists/ListLoading";
-// import LinearLoading from "../../components/blocks/LinearLoading";
 import ModalOverview from "../../components/modals/ModalOverview";
 
 // Hooks
@@ -30,7 +29,6 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
 
     const { loading, name } = useOutletContext();
     // const catalogLoading = useMatch("/catalog/*");
-
 
     const loaded = useLoaderData();
     const list = loaded[name] ?? loaded?.list ?? loaded;
@@ -50,13 +48,6 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
     const [searchWord, setSearchWord] = useState(null);
     const [model, setModel] = useState();
 
-    // const yesterday = new Date(today);
-    // yesterday.setDate(today.getDate() - 1);
-
-    // const maxDate = yesterday.toISOString().split("T")[0];
-
-    // const minDateObj = new Date();
-    // minDateObj.setDate(yesterday.getDate() - 29);
     const minDate = minDateObj.toISOString().split("T")[0];
 
     const navigate = useNavigate();
@@ -94,7 +85,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
 
     async function onDownload(id) {
         if (model) setModel();
-        const blob = await fetchData({ api: `${api}/download/by/id/${id}`, method: "get", action: "return", responseType: "blob" });
+        const blob = await fetchData({ api: `${api}/download/by/${id}`, method: "get", action: "return", responseType: "blob" });
         DownloadFile(blob, `${label.toLowerCase()}_${id}.txt`);
     }
 
@@ -106,9 +97,6 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
     }
 
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
-
-    // if (loading && !loading)
-    //     return <LinearLoading size={30} msg="Var vänlig vänta, data hämtas ..." cls="curtain" />
 
     return (
         <>
