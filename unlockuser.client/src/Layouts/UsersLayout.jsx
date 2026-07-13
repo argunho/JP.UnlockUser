@@ -115,7 +115,7 @@ function UsersLayout() {
 
                 {/* Loading */}
                 {loading && <LinearLoading size={30} />}
-                {pending && <LinearLoading loading="progress" />}
+                {pending && <LinearLoading loading="progress" color="success"/>}
 
             </div>
 
