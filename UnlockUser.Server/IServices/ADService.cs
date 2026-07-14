@@ -294,6 +294,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
         if (props.Contains("lockoutTime") && int.TryParse(props["lockoutTime"]?[0]?.ToString(), out int number))
             isLocked = number >= 1;
 
+        // Most useful for the student group
         Nullable<DateTime> regDate = null;
         if (props.Contains("extensionAttribute10"))
         {
