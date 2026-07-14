@@ -119,7 +119,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
 
 
                 {/* Button to download app log by date */}
-                {download && <>
+                {api === "logs" && <>
                     <input
                         type="date"
                         className="none"
