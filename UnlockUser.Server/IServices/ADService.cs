@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using UnlockUser.Server.FormModels;
 
 namespace UnlockUser.Server.IServices;
@@ -278,6 +280,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
         result?.PropertiesToLoad.Add("manager");
         result?.PropertiesToLoad.Add("department");
         result?.PropertiesToLoad.Add("title");
+        result?.PropertiesToLoad.Add("extensionAttribute10");
         result?.PropertiesToLoad.Add("lockoutTime");
         return result;
     }
@@ -291,6 +294,18 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
         if (props.Contains("lockoutTime") && int.TryParse(props["lockoutTime"]?[0]?.ToString(), out int number))
             isLocked = number >= 1;
 
+        Nullable<DateTime> regDate = null;
+        if (props.Contains("extensionAttribute10"))
+        {
+            var match = Regex.Match(props["extensionAttribute10"].ToString()!, @"(\d{8})$");
+            regDate = match.Success && DateTime.TryParseExact(
+                match.Groups[1].Value, 
+                "yyyyMMdd", 
+                CultureInfo.InvariantCulture, 
+                DateTimeStyles.None, 
+                out var parsed) ? parsed : null;
+        }
+
         return new User
         {
             Username = props["cn"][0].ToString(),
@@ -301,6 +316,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
             Division = props.Contains("division") ? props["division"][0]?.ToString() : "",
             Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
             Title = props.Contains("title") ? props["title"][0]?.ToString() : "",
+            Registered = regDate,
             IsLocked = isLocked
         };
     }

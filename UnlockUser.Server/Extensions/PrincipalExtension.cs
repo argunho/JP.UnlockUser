@@ -81,6 +81,21 @@ public class UserPrincipalExtension : UserPrincipal
 
     }
 
+
+    [DirectoryProperty("extensionAttribute10")]
+    public string Registered
+    {
+        get
+        {
+            if (ExtensionGet("extensionAttribute10").Length != 1)
+                return string.Empty;
+
+            return (string)ExtensionGet("extensionAttribute10")[0];
+        }
+
+        set { ExtensionSet("extensionAttribute10", value); }
+    }
+
     public static new UserPrincipalExtension FindByIdentity(PrincipalContext context, string identityValue)
     {
         return (UserPrincipalExtension)FindByIdentityWithType(context, typeof(UserPrincipalExtension), identityValue);

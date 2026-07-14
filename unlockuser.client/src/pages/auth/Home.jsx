@@ -221,6 +221,10 @@ function Home() {
                     ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)?.sort((a, b) => a.name?.toLowerCase().localeCompare(b.name?.toLowerCase()))
                     : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name))
                         && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
+console.log(res)
+                // if(isClass && res?.length > 0){
+                //     res = res;
+                // }
             }
         } else {
             // API parameters by chosen searching alternative
