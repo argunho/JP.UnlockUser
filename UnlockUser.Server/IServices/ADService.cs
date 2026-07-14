@@ -295,16 +295,18 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
             isLocked = number >= 1;
 
         // Most useful for the student group
-        Nullable<DateTime> regDate = null;
-        if (props.Contains("extensionAttribute10"))
+        string? regDate = null;
+        string title = props.Contains("title") ? props["title"][0]?.ToString() : "";
+        if (string.Equals(title, "stiudent", StringComparison.OrdinalIgnoreCase) && props.Contains("extensionAttribute10"))
         {
-            var match = Regex.Match(props["extensionAttribute10"].ToString()!, @"(\d{8})$");
-            regDate = match.Success && DateTime.TryParseExact(
-                match.Groups[1].Value, 
-                "yyyyMMdd", 
-                CultureInfo.InvariantCulture, 
-                DateTimeStyles.None, 
-                out var parsed) ? parsed : null;
+            var match = Regex.Match(props["extensionAttribute10"][0].ToString()!, @"(\d{8})$");
+            //regDate = match.Success && DateTime.TryParseExact(
+            //    match.Groups[1].Value, 
+            //    "yyyyMMdd", 
+            //    CultureInfo.InvariantCulture, 
+            //    DateTimeStyles.None, 
+            //    out var parsed) ? parsed : null;
+            regDate = match.Success ? match.Groups[1].Value?.ToString() : null;
         }
 
         return new User
@@ -316,7 +318,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
             Office = props.Contains("physicalDeliveryOfficeName") ? props["physicalDeliveryOfficeName"][0]?.ToString() : "",
             Division = props.Contains("division") ? props["division"][0]?.ToString() : "",
             Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
-            Title = props.Contains("title") ? props["title"][0]?.ToString() : "",
+            Title = title,
             Registered = regDate,
             IsLocked = isLocked
         };

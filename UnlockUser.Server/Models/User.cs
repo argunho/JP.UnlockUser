@@ -10,7 +10,7 @@ public class User
     public string? Office { get; set; }
     public string? Division { get; set; }
     public string? Title { get; set; }
-    public Nullable<DateTime> Registered { get; set; }
+    public string? Registered { get; set; }
     public bool IsLocked { get; set; }
     public List<Manager> Managers { get; set; } = [];
     public PermissionsViewModel? Permissions { get; set; }
