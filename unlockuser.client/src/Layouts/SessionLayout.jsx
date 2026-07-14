@@ -5,7 +5,7 @@ function SessionLayout() {
     const navigation = useNavigation();
 
     return (
-        <div className="container">
+        <div className="container fade-in-slow">
             <Outlet context={{ loading: navigation.state === "loading" }} />
         </div>
     )

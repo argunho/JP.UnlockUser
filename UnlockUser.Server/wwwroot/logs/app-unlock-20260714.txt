@@ -1,0 +1,31 @@
+2026-07-14 09:40:40.145 +02:00 [INF] Starting process to save file managers
+2026-07-14 09:40:40.364 +02:00 [INF] End save process. managers
+2026-07-14 09:40:41.381 +02:00 [INF] Starting process to save file politicians
+2026-07-14 09:40:41.423 +02:00 [INF] End save process. politicians
+2026-07-14 09:42:30.207 +02:00 [INF] Starting process to save file moderators
+2026-07-14 09:42:30.221 +02:00 [INF] End save process. moderators
+2026-07-14 09:43:44.120 +02:00 [INF] Autentisering utförd vid: 2026-07-14 09:43. Department: IT avdelning. Office: IT avdelning.
+2026-07-14 09:43:44.259 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-14 09:43:45.762 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-14 09:43:45.
+2026-07-14 09:44:02.503 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-14 09:44:02.
+2026-07-14 09:44:18.528 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-14 09:44:18.
+2026-07-14 09:44:31.376 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-14 09:44:31.
+2026-07-14 09:44:31.378 +02:00 [INF] Memory cached. groups_f993183f-d14f-4f7a-d58b-424b6ef089b3
+2026-07-14 09:44:31.380 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-14 09:44:31.
+2026-07-14 09:44:31.386 +02:00 [INF] Dashboard data setup completed.
+2026-07-14 10:40:40.565 +02:00 [INF] Starting process to save file managers
+2026-07-14 10:40:40.571 +02:00 [INF] End save process. managers
+2026-07-14 10:40:41.586 +02:00 [INF] Starting process to save file politicians
+2026-07-14 10:40:41.593 +02:00 [INF] End save process. politicians
+2026-07-14 10:42:46.700 +02:00 [INF] Starting process to save file moderators
+2026-07-14 10:42:46.711 +02:00 [INF] End save process. moderators
+2026-07-14 11:16:26.086 +02:00 [INF] Autentisering utförd vid: 2026-07-14 11:16. Department: IT avdelning. Office: IT avdelning.
+2026-07-14 11:16:26.090 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-14 11:16:26.115 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-14 11:16:26.
+2026-07-14 11:16:26.120 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-14 11:16:26.
+2026-07-14 11:16:26.126 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-14 11:16:26.
+2026-07-14 11:16:26.130 +02:00 [INF] Memory cached. groups_f993183f-d14f-4f7a-d58b-424b6ef089b3
+2026-07-14 11:16:26.133 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-14 11:16:26.
+2026-07-14 11:16:26.138 +02:00 [INF] Dashboard data setup completed.
+2026-07-14 11:16:26.356 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-14 11:16:26.
+2026-07-14 11:16:26.356 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-14 11:16:26.

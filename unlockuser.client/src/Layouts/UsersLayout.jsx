@@ -71,7 +71,7 @@ function UsersLayout() {
         <>
             <Header disabled={loading} supportMode={true} />
 
-            <div className="container d-column jc-start w-100">
+            <div className="container d-column jc-start w-100 fade-in-slow">
 
                 {/* Tab menu */}
                 <TabPanel
@@ -118,8 +118,6 @@ function UsersLayout() {
                 {pending && <LinearLoading loading="progress" color="success"/>}
 
             </div>
-
-
         </>
     )
 }

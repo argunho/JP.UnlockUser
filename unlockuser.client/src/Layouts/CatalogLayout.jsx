@@ -5,7 +5,6 @@ import { Outlet, useNavigation, useNavigate, useLocation } from 'react-router-do
 
 // Components
 import Header from "../components/blocks/Header";
-import LinearLoading from '../components/blocks/LinearLoading';
 
 // Storage
 
@@ -25,6 +24,7 @@ function CatalogLayout() {
   useEffect(() => {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
 
+console.log(!!loc)
     if (!openAccess)
       navigate("/")
   }, [loc])
@@ -34,12 +34,9 @@ function CatalogLayout() {
     <>
       <Header disabled={loading} supportMode={true}/>
 
-      <div className="container d-column jc-start fade-in" ref={refContainer}>
+      <div className="container d-column jc-start fade-in-slow" ref={refContainer}>
 
         <Outlet context={{ loading, name: loc.pathname.split("/").filter(Boolean).pop() }} />
-
-        {/* Loading */}
-        {loading && <LinearLoading size={30} />}
         
       </div>
     </>

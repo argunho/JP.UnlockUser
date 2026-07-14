@@ -32,7 +32,7 @@ function Manual({ api, label, menuLabel }) {
 
   const { pending, success, response, fetchData, handleResponse } = use(FetchContext);
 
-console.log(success)
+
   useEffect(() => {
     document.title = "UnlockUser | Manual";
   }, [manuals])

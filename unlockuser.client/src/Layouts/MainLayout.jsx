@@ -5,8 +5,9 @@ import { Outlet, useNavigation } from 'react-router-dom';
 
 // Components
 import Header from "../components/blocks/Header";
+import LinearLoading from './../components/blocks/LinearLoading';
 
-function ListLayout() {
+function MainLayout() {
 
   const refContainer = useRef();
   const navigation = useNavigation();
@@ -15,17 +16,20 @@ function ListLayout() {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
   }, [])
 
+  const loading = navigation.state == "loading";
 
   return (
     <>
-      <Header />
+      <Header disabled={loading} />
 
-      <div className="container fade-in" ref={refContainer}>
-        <Outlet context={{ loading: navigation.state === "loading" }} />
+      <div className="container fade-in-slow" ref={refContainer}>
+        <Outlet />
       </div>
-    </>
 
+      {/* Loading */}
+      {loading && <LinearLoading size={30} />}
+    </>
   )
 }
 
-export default ListLayout;
+export default MainLayout;

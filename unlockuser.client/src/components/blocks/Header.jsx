@@ -19,8 +19,8 @@ import '../../assets/css/header.css';
 const links = [
     { label: "Hem", url: "/search", icon: <Home />, access: false, hidden: false },
     { label: "Mina behörigheter", url: "/view/my/permissions", icon: <FactCheck />, access: false, hidden: false },
-    { label: "Webapp-manual", url: "/manual", icon: <MenuBook />, access: true, hidden: false, blink: true },
-    { label: "Informations artiklar", url: "/articles", icon: <Info />, access: false, hidden: false, blink: true },
+    { label: "Webapp-manual", url: "/web/manual", icon: <MenuBook />, access: true, hidden: false, blink: true },
+    { label: "Informations artiklar", url: "/web/articles", icon: <Info />, access: false, hidden: false, blink: true },
     { label: "Behöriga användare", url: "/moderators", icon: <SettingsApplications />, access: true, hidden: false },
     { label: "Skolor", url: "/catalog/schools", icon: <School />, access: true, hidden: false },
     { label: "Statistik", url: "/catalog/statistics", icon: <BarChart />, access: true, hidden: false },
@@ -56,6 +56,13 @@ const Header = memo(function Header({ disabled, supportMode }) {
         if (open)
             setOpen(false);
     }, [loc])
+
+    function handleOpenMenu(){
+        setOpen((open) => !open);
+        
+        if(open && !sessionStorage.getItem("blinked"))
+            sessionStorage.setItem("blinked", "ok");
+    }
 
     const switchMenuColor = loc.pathname.toLowerCase().includes("support") || supportMode;
 
@@ -117,7 +124,7 @@ const Header = memo(function Header({ disabled, supportMode }) {
                     <HiddenMenu
                         open={open}
                         links={openAccess ? links : links.filter(x => !x.access && !x?.hidden)}
-                        onClose={() => setOpen(false)} />
+                        onClose={handleOpenMenu} />
 
                 </div>
             </section>

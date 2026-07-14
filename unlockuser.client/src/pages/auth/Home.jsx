@@ -37,7 +37,7 @@ const initialState = {
     isClass: false,
     isMatch: false,
     isChanged: false,
-    isCleaned: null
+    isCleaned: null,
 }
 
 // Action reducer
@@ -95,7 +95,9 @@ function Home() {
 
     function waitForCollection(timeout = 60000) {
         return new Promise((resolve) => {
-            if (groupCollectionRef.current !== null) return resolve(groupCollectionRef.current);
+            if (groupCollectionRef.current !== null)
+                return resolve(groupCollectionRef.current);
+
             const start = Date.now();
             const interval = setInterval(() => {
                 if (groupCollectionRef.current !== null || Date.now() - start >= timeout) {
@@ -173,7 +175,7 @@ function Home() {
 
     // Function - submit form
     async function onSubmit(previous, fd) {
-
+      
         const name = fd.get("name")?.toLowerCase();
         const match = fd.get("match") === "on" ? true : false;
         const school = fd.get("school") ?? null;
@@ -205,6 +207,8 @@ function Home() {
 
         if (groupCollectionRef.current === null)
             await waitForCollection(120000);
+        else
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
         const collection = groupCollectionRef.current;
 
@@ -245,6 +249,18 @@ function Home() {
         errors: null
     });
 
+    const noResultView = <Message res={{
+        color: "warning", msg: "Inga resultat hittades." +
+            "\n\nMöjliga orsaker:" +
+            "\n• Sökparametrarna kan vara felstavade." +
+            "\n• Personen, skolan eller klassen finns inte i databasen.." +
+            "\n• Du saknar behörighet att hantera personens/classens konto." +
+            "\n• Du försöker ändra lösenordet för ett administratörskonto. Av säkerhetsskäl får administratörer inte ändra lösenord för andra administratörer." +
+            "\n\n Försök att justera din sökning eller kontrollera stavningen." +
+            "\n\n\n <span style='color: #cc0000;font-style: normal;font-weight:bold'>Observera!</span> Om du tidigare under den pågående sessionen kunde hitta personen men inte längre kan göra det, kan det bero på att tiden för personsökningen har löpt ut." +
+            "\n<a href='/session/logout' style='color: var(--color-active)'>Logga ut</a> och logga in igen för att fortsätta använda webbplatsen."
+    }} cancel={onReset} />;
+
     return (
         <>
             {/* Search form */}
@@ -257,7 +273,7 @@ function Home() {
                     collection={schools}
                     required={true}
                     shrink={true}
-                    disabled={loading}
+                    disabled={loading || pending}
                     defValue={formState ? formState?.school : ""}
                     keyword="id"
                     ref={refAutocomplete}
@@ -387,31 +403,18 @@ function Home() {
                 </div>
             </div>
 
-            {/* List loading */}
-            {(!users || pending) && <ListLoading rows={5} pending={pending} />}
 
-            {/* Result of search */}
-            {users?.length > 0 && <ListsView
-                list={users}
-                grouped="office"
-                openAccess={openAccess}
-                group={gn}
-                multiple={isClass}
-            />}
-
-
-            {/* Message if result is null */}
-            {users?.length == 0 && <Message res={{
-                color: "warning", msg: "Inga resultat hittades." +
-                    "\n\nMöjliga orsaker:" +
-                    "\n• Sökparametrarna kan vara felstavade." +
-                    "\n• Personen, skolan eller klassen finns inte i databasen.." +
-                    "\n• Du saknar behörighet att hantera personens/classens konto." +
-                    "\n• Du försöker ändra lösenordet för ett administratörskonto. Av säkerhetsskäl får administratörer inte ändra lösenord för andra administratörer." +
-                    "\n\n Försök att justera din sökning eller kontrollera stavningen." +
-                    "\n\n\n <span style='color: #cc0000;font-style: normal;font-weight:bold'>Observera!</span> Om du tidigare under den pågående sessionen kunde hitta personen men inte längre kan göra det, kan det bero på att tiden för personsökningen har löpt ut." +
-                    "\n<a href='/session/logout' style='color: var(--color-active)'>Logga ut</a> och logga in igen för att fortsätta använda webbplatsen."
-            }} cancel={onReset} />}
+            {/* List loading | No result - message | Result of search  */}
+            {(!users || pending) ? <ListLoading rows={5} pending={pending} />
+                : (users?.length === 0 ? noResultView
+                    : <ListsView
+                        list={users}
+                        grouped="office"
+                        openAccess={openAccess}
+                        group={gn}
+                        multiple={isClass}
+                    />
+                )}
         </>
     )
 }

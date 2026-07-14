@@ -38,6 +38,7 @@ import '../assets/css/modals.css';
 import '../assets/css/lists.css';
 import '../assets/css/manage.css';
 import '../assets/css/message.css';
+import MainLayout from '../layouts/MainLayout';
 
 const AppRoutes = () => [
   {
@@ -75,6 +76,52 @@ const AppRoutes = () => [
         loader: loaderById("user/by")
       },
       {
+        path: 'contact',
+        element: <Contacts isAuthorized={true} />,
+        errorElement: <ErrorView />
+      },
+      {
+        path: "manage/:group",
+        children: [
+          {
+            path: "user/:id",
+            element: <UserManager />,
+            errorElement: <ErrorView />,
+            loader: loaderByParams("user/by", ["group", "id"]),
+            // shouldRevalidate: () => false
+          },
+          {
+            path: "school/:school/class/:classId",
+            element: <ClassManager />,
+            errorElement: <ErrorView />
+          }
+        ]
+      }
+    ]
+  },
+  {
+    path: "view",
+    element: <FetchContextProvider>
+      <MainLayout />
+    </FetchContextProvider>,
+    errorElement: <NotFound isAuthorized={true} />,
+    children: [
+      {
+        path: "my/permissions",
+        element: <Permissions />,
+        errorElement: <ErrorView />,
+        loader: loader("user/permissions")
+      }
+    ]
+  },
+  {
+    path: "web",
+    element: <FetchContextProvider>
+      <MainLayout />
+    </FetchContextProvider>,
+    errorElement: <NotFound isAuthorized={true} />,
+    children: [
+      {
         path: "manual",
         children: [
           {
@@ -85,11 +132,13 @@ const AppRoutes = () => [
           },
           {
             path: "new",
-            element: <FormManual api="manual" label="Nya manual" />
+            element: <FormManual api="manual" label="Nya manual" />,
+            errorElement: <ErrorView />
           },
           {
             path: "edit/:id",
-            element: <FormManual api="manual" />
+            element: <FormManual api="manual" />,
+            errorElement: <ErrorView />
           }
         ]
       },
@@ -112,34 +161,6 @@ const AppRoutes = () => [
           }
         ]
       },
-      {
-        path: 'contact',
-        element: <Contacts isAuthorized={true} />,
-        errorElement: <ErrorView />
-      },
-      {
-        path: "manage/:group",
-        children: [
-          {
-            path: "user/:id",
-            element: <UserManager />,
-            errorElement: <ErrorView />,
-            loader: loaderByParams("user/by", ["group", "id"]),
-            // shouldRevalidate: () => false
-          },
-          {
-            path: "school/:school/class/:classId",
-            element: <ClassManager />,
-            errorElement: <ErrorView />
-          }
-        ]
-      },
-      {
-        path: "view/my/permissions",
-        element: <Permissions />,
-        errorElement: <ErrorView />,
-        loader: loader("user/permissions")
-      }
     ]
   },
   {

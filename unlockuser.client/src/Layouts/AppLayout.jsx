@@ -59,7 +59,7 @@ function AppLayout() {
     <>
       <Header disabled={loading} />
 
-      <div className="container d-column jc-start fade-in" ref={refContainer}>
+      <div className="container d-column jc-start fade-in-slow" ref={refContainer}>
 
         <Outlet context={{
           ...params,
