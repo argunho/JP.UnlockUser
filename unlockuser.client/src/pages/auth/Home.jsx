@@ -175,7 +175,7 @@ function Home() {
 
     // Function - submit form
     async function onSubmit(previous, fd) {
-      
+
         const name = fd.get("name")?.toLowerCase();
         const match = fd.get("match") === "on" ? true : false;
         const school = fd.get("school") ?? null;
@@ -221,10 +221,19 @@ function Home() {
                     ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)?.sort((a, b) => a.name?.toLowerCase().localeCompare(b.name?.toLowerCase()))
                     : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name))
                         && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
-console.log(res)
-                // if(isClass && res?.length > 0){
-                //     res = res;
-                // }
+ 
+                if (isClass && res?.length > 0) {
+                    const oneYearAgo = new Date();
+                    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+                    res = res.map(item => {
+                        let d = item.registered;
+                        let date = d != null ? new Date(`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`) : null;
+                        
+                        if (date === null || date > oneYearAgo){
+                            return item;
+                        }
+                    }).filter(Boolean);
+                }
             }
         } else {
             // API parameters by chosen searching alternative
@@ -331,7 +340,7 @@ console.log(res)
                         </InputAdornment>
                     }}
                     InputLabelProps={{ shrink: true }}
-                    disabled={loading}
+                    disabled={loading || pending}
                     placeholder={isClass
                         ? "Skriv exakt klassbeteckning här ..."
                         : (isMatch ? "Skriv exakt fullständigt namn eller anvädarnamn här ..." : "Sök ord här ...")

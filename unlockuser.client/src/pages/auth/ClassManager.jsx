@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 // Installed
 import { ArrowDropDown, ArrowDropUp, Close } from '@mui/icons-material';
-import { Button } from '@mui/material';
+import { Button, ClickAwayListener } from '@mui/material';
 import { useNavigate, useOutletContext, useLocation } from 'react-router-dom';
 
 // Components
@@ -48,7 +48,7 @@ function ClassManager() {
     const classMembers = users.filter(x => !removed.includes(x.username));
     const lgh = classMembers?.length;
     const slgh = selected?.length - removed?.length;
-    
+
     return (
         <>
             {/* Tab menu */}
@@ -63,25 +63,30 @@ function ClassManager() {
             </TabPanel>
 
             {/* Student to manage  */}
-            <div className={`selected-list dropdown-container${dropdown ? " open" : ""}`}>
+            <ClickAwayListener
+                mouseEvent="onMouseDown"
+                touchEvent="onTouchStart"
+                onClickAway={() => setDropdown(false)}>
+                <div className={`selected-list dropdown-container${dropdown ? " open" : ""}`}>
 
-                <p className="w-100 dropdown-label">
-                    Klicka på användare för att radera användaren från listan
-                </p>
+                    <p className="w-100 dropdown-label">
+                        Klicka på användare för att radera användaren från listan
+                    </p>
 
-                {/* List of students */}
-                {classMembers?.map((user) => (
-                    <Button
-                        key={user.username}
-                        variant='outlined'
-                        color="inherit"
-                        endIcon={<Close color="error" />}
-                        onClick={() => spliceUsersList(user.username)}>
-                        {user.displayName}
-                    </Button>
-                ))}
-            </div>
-            
+                    {/* List of students */}
+                    {classMembers?.map((user) => (
+                        <Button
+                            key={user.username}
+                            variant='outlined'
+                            color="inherit"
+                            endIcon={<Close color="error" />}
+                            onClick={() => spliceUsersList(user.username)}>
+                            {user.displayName}
+                        </Button>
+                    ))}
+                </div>
+            </ClickAwayListener>
+
             <Form
                 label={`Nya lösenord till ${lgh} elev${(lgh > 1 ? "er" : "")}.`}
                 labelInFile={`${school} ${classId}`}
@@ -92,7 +97,7 @@ function ClassManager() {
                 <MultiplePassword
                     label={`${school} ${classId}`}
                     subLabel={`Lösenord för ${selected?.length} elever`}
-                    users={classMembers} 
+                    users={classMembers}
                     onSwitch={(value) => setHidden(value)} />
             </Form>
         </>

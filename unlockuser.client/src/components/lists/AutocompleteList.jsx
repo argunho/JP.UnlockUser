@@ -50,6 +50,7 @@ const AutocompleteList = memo(function AutocompleteList({ label, multiple, name,
                     InputLabelProps={{ 
                         shrink: shrink ?? false
                     }}
+                    disabled={disabled}
                     className="autocomplete-field"
                     placeholder={defValue?.length > 0 || value?.length > 0 ? "" : `Välj från listan ...`}
                     autoComplete='off'

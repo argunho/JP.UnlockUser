@@ -297,7 +297,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
         // Most useful for the student group
         string? regDate = null;
         string title = props.Contains("title") ? props["title"][0]?.ToString() : "";
-        if (string.Equals(title, "stiudent", StringComparison.OrdinalIgnoreCase) && props.Contains("extensionAttribute10"))
+        if (string.Equals(title, "student", StringComparison.OrdinalIgnoreCase) && props.Contains("extensionAttribute10"))
         {
             var match = Regex.Match(props["extensionAttribute10"][0].ToString()!, @"(\d{8})$");
             //regDate = match.Success && DateTime.TryParseExact(

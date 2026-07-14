@@ -20,6 +20,7 @@ public class UserViewModel : User
             Office = user?.Office;
             Division = user?.Division;
             Title = user?.Title;
+            Registered = user?.Registered;
             IsLocked = user!.IsLocked || false;
             Permissions = user?.Permissions;
         }

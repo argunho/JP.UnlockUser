@@ -24,7 +24,6 @@ function CatalogLayout() {
   useEffect(() => {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
 
-console.log(!!loc)
     if (!openAccess)
       navigate("/")
   }, [loc])
