@@ -18,9 +18,12 @@
 }
 
 .dropdown-label {
-  margin: 15px 0 10px 0;
-  font-size: 16px;
+  margin: 15px 0 20px 0;
+  font-size: 20px;
   letter-spacing: 1px;
+  background-color: #f7f334;
+  width: max-content !important;
+  padding: 5px
 }
 
 .history-dropdown-list {

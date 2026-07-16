@@ -57,7 +57,7 @@ function actionReducer(state, action) {
     }
 }
 
-function Form({ children, label, labelInFile, passwordLength, locked, users, multiple, hidden }) {
+function Form({ children, label, labelInFile, passwordLength, locked, users, multiple, hidden, cls }) {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
     const { showPassword, password, isCleaned, isChanged, dirty } = state;
@@ -76,8 +76,8 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
 
     function handleDispatch(name, value) {
         dispatch({ type: "PARAM", name: name, payload: value });
-        if(value && response)
-            handleResponse();            
+        if (value && response)
+            handleResponse();
     }
 
     // Reset form
@@ -204,105 +204,103 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
 
 
     return (
-        <>
-            <div className='form-wrapper w-100'>
+        <div className={`form-wrapper w-100${cls ? ` ${cls}` : ''}`} >
 
-                <div className="d-row jc-between">
+            <div className="d-row jc-between">
 
-                    {/* Title */}
-                    <h2 className='label'>
-                        {label}
+                {/* Title */}
+                <h2 className='label'>
+                    {label}
 
-                        {/* Modal  window with help texts */}
-                        <ModalView
-                            label="Lösenordskrav"
-                            content={PasswordTips(passwordLength)} />
-                    </h2>
+                    {/* Modal  window with help texts */}
+                    <ModalView
+                        label="Lösenordskrav"
+                        content={PasswordTips(passwordLength)} />
+                </h2>
 
-                    {/* Generate password */}
-                    {!hidden && <PasswordGeneration
-                        key={isCleaned}
-                        passwordLength={passwordLength}
-                        disabled={disabled}
-                        setGenerated={val => handleDispatch("isGenerated", val)}
-                        regex={regex}
-                        onChange={onChange} />}
+                {/* Generate password */}
+                {!hidden && <PasswordGeneration
+                    key={isCleaned}
+                    passwordLength={passwordLength}
+                    disabled={disabled}
+                    setGenerated={val => handleDispatch("isGenerated", val)}
+                    regex={regex}
+                    onChange={onChange} />}
 
-                </div>
-
-                {/* Response message */}
-                {response && <Message res={response} cancel={() => response.success ? navigate("/") : handleResponse()} />}
-
-                {/* Error message */}
-                {error && <Message res={{ color: "error", msg: error }} />}
-
-                {/* Password form */}
-                {!response && <form key={isCleaned} className='user-view-form fade-in' action={formAction}>
-
-                    {modifiedChildren}
-
-                    {/* Passwords inputs */}
-                    {!hidden && fields?.map((field, i) => {
-
-                        const value = formState?.[field.name] ?? password ?? "";
-
-                        return <FormControl key={i} fullWidth>
-                            <TextField
-                                key={value}
-                                label={field.label}
-                                name={field.name}
-                                type={showPassword ? "text" : "password"}
-                                variant="outlined"
-                                required
-                                defaultValue={value}
-                                onChange={() => dirty || handleDispatch("dirty", true)}
-                                inputProps={{
-                                    minLength: passwordLength,
-                                    autoComplete: fields[field.name],
-                                    form: { autoComplete: 'off', }
-                                }}
-                                InputProps={field.name === "password" ? {
-                                    endAdornment: (
-                                        <IconButton
-                                            disabled={disabled}
-                                            onClick={() => handleDispatch("showPassword", !showPassword)}
-                                            title="Visa lösenord">
-                                            {showPassword ? <Abc /> : <Password />}
-                                        </IconButton>
-                                    )
-                                } : undefined
-                                }
-                                className={`field ${(error ? "error" : '')}`}
-                                error={error}
-                                placeholder={field?.placeholder}
-                                disabled={disabled}
-                            />
-                        </FormControl>
-                    })}
-
-
-                    {/* Buttons */}
-                    {(!hidden && !locked) && <FormButtons
-                        label="Verkställ"
-                        disabled={!isChanged}
-                        confirmable={true}
-                        loading={load || pending}
-                        onCancel={onReset}
-                    >
-
-                        {/* Change the password input type */}
-                        {developer && <FormControlLabel
-                            className='checkbox'
-                            title="Spara inte logfilen"
-                            control={<Checkbox
-                                name="check"
-                                disabled={disabled} />}
-                            label="Test" />}
-                    </FormButtons>}
-                </form>}
             </div>
-        </>
 
+            {/* Response message */}
+            {response && <Message res={response} cancel={() => response.success ? navigate("/") : handleResponse()} />}
+
+            {/* Error message */}
+            {error && <Message res={{ color: "error", msg: error }} />}
+
+            {/* Password form */}
+            {!response && <form key={isCleaned} className='user-view-form fade-in' action={formAction}>
+
+                {modifiedChildren}
+
+                {/* Passwords inputs */}
+                {!hidden && fields?.map((field, i) => {
+
+                    const value = formState?.[field.name] ?? password ?? "";
+
+                    return <FormControl key={i} fullWidth>
+                        <TextField
+                            key={value}
+                            label={field.label}
+                            name={field.name}
+                            type={showPassword ? "text" : "password"}
+                            variant="outlined"
+                            required
+                            defaultValue={value}
+                            onChange={() => dirty || handleDispatch("dirty", true)}
+                            inputProps={{
+                                minLength: passwordLength,
+                                autoComplete: fields[field.name],
+                                form: { autoComplete: 'off', }
+                            }}
+                            InputProps={field.name === "password" ? {
+                                endAdornment: (
+                                    <IconButton
+                                        disabled={disabled}
+                                        onClick={() => handleDispatch("showPassword", !showPassword)}
+                                        title="Visa lösenord">
+                                        {showPassword ? <Abc /> : <Password />}
+                                    </IconButton>
+                                )
+                            } : undefined
+                            }
+                            className={`field ${(error ? "error" : '')}`}
+                            error={error}
+                            placeholder={field?.placeholder}
+                            disabled={disabled}
+                        />
+                    </FormControl>
+                })}
+
+
+                {/* Buttons */}
+                {(!hidden && !locked) && <FormButtons
+                    label="Verkställ"
+                    disabled={!isChanged}
+                    confirmable={true}
+                    loading={load || pending}
+                    onCancel={onReset}
+                >
+
+                    {/* Change the password input type */}
+                    {developer && <FormControlLabel
+                        className='checkbox'
+                        title="Spara inte logfilen"
+                        control={<Checkbox
+                            name="check"
+                            disabled={disabled} />}
+                        label="Test" />}
+                </FormButtons>}
+            </form>}
+
+        </div>
     )
 }
 

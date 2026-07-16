@@ -69,9 +69,11 @@ function ClassManager() {
                 onClickAway={() => setDropdown(false)}>
                 <div className={`selected-list dropdown-container${dropdown ? " open" : ""}`}>
 
-                    <p className="w-100 dropdown-label">
-                        Klicka på användare för att radera användaren från listan
-                    </p>
+                    <div className="w-100">
+                        <p className="dropdown-label">
+                            Klicka på användare för att radera användaren från listan
+                        </p>
+                    </div>
 
                     {/* List of students */}
                     {classMembers?.map((user) => (
@@ -93,6 +95,7 @@ function ClassManager() {
                 users={classMembers}
                 hidden={hidden}
                 multiple={true}
+                cls={dropdown ? "scale-hide" : null}
                 passwordLength={8}>
                 <MultiplePassword
                     label={`${school} ${classId}`}
