@@ -1,14 +1,13 @@
-import { useActionState, use, useEffect, useState } from 'react';
+import { useActionState, use, useState } from 'react';
 
 // Installed
 import { TextField, FormControl, FormControlLabel, Checkbox } from '@mui/material';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLoaderData, useOutletContext } from 'react-router-dom';
 
 // Components
 import TabPanel from '../../components/blocks/TabPanel';
 import Editor from '../../components/forms/Editor';
 import FormButtons from '../../components/forms/FormButtons';
-import Loading from '../../components/blocks/Loading';
 import ModalSuccess from '../../components/modals/ModalSuccess';
 import Message from '../../components/blocks/Message';
 
@@ -22,57 +21,42 @@ const checkboxes = {
     }
 }
 
-
 function FormManual({ api, label, checkbox }) {
-    const [loading, setLoading] = useState(false);
     const [checkboxValue, setCheckboxValue] = useState(false);
+    const [prevFormModel, setPrevFormModel] = useState(undefined);
 
-    const { fetchData, pending: buffering, response, success, data: resData, handleResponse } = use(FetchContext);
+    const { fetchData, pending: buffering, response, success, handleResponse } = use(FetchContext);
 
     const { id } = useParams();
+    const item = useLoaderData();
     const navigate = useNavigate();
-
-    async function getDataById() {
-
-        setLoading(true)
-        try {
-            await fetchData({ api: `${api}/${id}` });
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    useEffect(() => {
-        if (!id) return;
-
-        getDataById();
-    }, [id])
-
+    const { loading } = useOutletContext();
 
     async function onSubmit(previous, fd) {
         const data = {
-            name: fd.get("name") ?? resData?.name,
+            name: fd.get("name") ?? item?.name,
             html: fd.get("html")
         }
 
-        if(!!checkbox){
+        if (!!checkbox) {
             data[checkbox] = fd.get(checkbox) === "on";
         }
 
         // Request
         await fetchData({ api: id ? `${api}/${id}` : "manual", method: id ? "put" : "post", data: data });
         return null;
-
     }
 
     const [formState, formAction, pending] = useActionState(onSubmit, { error: null });
 
     const disabled = pending || buffering;
-    const formModel = formState?.data ?? resData;
+    const formModel = formState?.data ?? item;
 
-    useEffect(() => {
-        if (!!checkbox) setCheckboxValue(!!formModel?.[checkbox]);
-    }, [formModel, checkbox]);
+    if (!!checkbox && formModel !== prevFormModel) {
+        setPrevFormModel(formModel);
+        setCheckboxValue(!!formModel?.[checkbox]);
+    }
+    
 
     return <>
         <TabPanel primary={label ?? (id && (!formModel ? "Data hämtras..." : `Edit: ${formModel?.name}`))} />
@@ -80,9 +64,7 @@ function FormManual({ api, label, checkbox }) {
         {/* Error message */}
         {response && <Message res={response} cancel={() => handleResponse()} />}
 
-        {/* Loading */}
-        {loading && <Loading msg="Data hämtas..." style={{ flex: 1 }} />}
-
+        {/* Form */}
         {!loading && <form className='form-manual fade-in' action={formAction}>
 
             <FormControl fullWidth style={{ marginBottom: "30px" }}>
@@ -96,12 +78,11 @@ function FormManual({ api, label, checkbox }) {
                         minLength: 5
                     }}
                     disabled={disabled || id}
-
                     className="field w-100"
                 />
             </FormControl>
 
-            <Editor name="html" required={true} disabled={disabled || (id && !resData)} defaultValue={formModel?.html} />
+            <Editor name="html" required={true} disabled={disabled || (id && !item)} defaultValue={formModel?.html} />
 
             {/* Change the password input type */}
             {!!checkbox && <FormControlLabel
@@ -118,10 +99,8 @@ function FormManual({ api, label, checkbox }) {
         </form>}
 
         {/* Success modal */}
-        {(success && !resData) && <ModalSuccess onClose={() => navigate(-1)} />}
+        {(success && !item) && <ModalSuccess onClose={() => navigate(-1)} />}
     </>;
 }
 
 export default FormManual;
-
-//key={isCleaned}  action={formAction}

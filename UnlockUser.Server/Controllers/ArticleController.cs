@@ -362,7 +362,7 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
 
         return models;
     }
-
+    
     private void RemovePopupFiles()
     {
         var (_, files) = GetFiles("popup");

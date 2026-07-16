@@ -6,13 +6,9 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class ManualController(IHelpService helpService, IFileService fileService, ICredentialsService credentialsService) : ControllerBase
+public class ManualController(IHelpService helpService) : ControllerBase
 {
     private readonly IHelpService _help = helpService;
-    private readonly IFileService _fileService = fileService;
-    private readonly ICredentialsService _credentials = credentialsService;
-
-    private static readonly object _lock = new();
 
     #region GET
     [HttpGet]
@@ -61,7 +57,6 @@ public class ManualController(IHelpService helpService, IFileService fileService
             return BadRequest(await _help.Error(ex));
         }
     }
-
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)

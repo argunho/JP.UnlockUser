@@ -26,15 +26,15 @@ input[type="password"]:disabled {
 .form-wrapper,
 .form-manual {
   padding: 10px;
-  margin: 10px 0;
+  margin: 10px auto;
   position: relative;
   transition: all 0.9s ease-in-out;
-  max-width: 1050px;
+  max-width: 1350px;
 }
 
 .form-manual {
   width: auto !important;
-  max-width: unset !important;
+  max-width: 1350px !important;
 }
 
 .form-wrapper>* {

@@ -75,8 +75,9 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
 
             {/* Default buttons */}
             <div className={`d-row jc-end ${children ? "w-mc" : "w-100"}`}>
+                {/* eslint-disable-next-line react-hooks/refs -- ref.current is only read inside confirmHandle's click handler, never during render */}
                 {buttons.filter(x => x.visible).map((b, ind) => {
-                    return <Button key={ind} {...b.props} ref={b?.ref}>{b.label}</Button>
+                    return <Button key={ind} {...b.props}>{b.label}</Button>
                 })}
 
                 {/* Hidden submit button */}

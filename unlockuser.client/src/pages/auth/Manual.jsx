@@ -1,7 +1,7 @@
 import { useEffect, useState, use } from 'react';
 
 // Installed
-import { useLoaderData, useNavigate, useRevalidator } from 'react-router-dom';
+import { useLoaderData, useNavigate, useRevalidator, useOutletContext } from 'react-router-dom';
 import { IconButton, Tooltip } from '@mui/material';
 import { Edit, EditDocument, Delete, Save, SwapVert } from '@mui/icons-material';
 
@@ -27,8 +27,10 @@ function Manual({ api, label, menuLabel }) {
 
   const { openAccess } = DecodedClaims()
   const manuals = useLoaderData();
+  const { loading } = useOutletContext();
   const navigate = useNavigate();
   const revalidator = useRevalidator();
+
 
   const { pending, success, response, fetchData, handleResponse } = use(FetchContext);
 
@@ -130,7 +132,8 @@ function Manual({ api, label, menuLabel }) {
       {/* If response */}
       {response && <Message res={response} cancel={() => handleResponse()} />}
 
-      <div className="d-row jc-between ai-start w-100">
+      {/* Content div */}
+      {!loading && <div className="d-row jc-between ai-start w-100">
 
         {/* Menu */}
         <SideMenu key={success} label={menuLabel} list={manuals} disabled={pending} clickHandle={setManual}
@@ -141,7 +144,7 @@ function Manual({ api, label, menuLabel }) {
           <div key={manual?.name} className="box-wrapper fade-in w-100"
             dangerouslySetInnerHTML={{ __html: (manual ?? manuals?.[0])?.html }}></div>}
 
-      </div>
+      </div>}
 
       {/* Confirm modal */}
       {confirm && <ModalConfirm onConfirm={deleteItem} onClose={() => setConfirm(false)} />}

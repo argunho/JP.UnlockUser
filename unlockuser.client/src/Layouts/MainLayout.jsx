@@ -23,7 +23,7 @@ function MainLayout() {
       <Header disabled={loading} />
 
       <div className="container fade-in-slow" ref={refContainer}>
-        <Outlet />
+        <Outlet context={{ loading }} />
       </div>
 
       {/* Loading */}

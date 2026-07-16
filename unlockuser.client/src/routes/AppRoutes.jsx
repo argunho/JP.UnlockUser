@@ -6,6 +6,7 @@ import AppLayout from '../layouts/AppLayout';
 import SessionLayout from './../layouts/SessionLayout';
 import UsersLayout from './../layouts/UsersLayout';
 import CatalogLayout from '../layouts/CatalogLayout';
+import MainLayout from '../layouts/MainLayout';
 
 // Pages
 import Employees from "../pages/auth/Employees";
@@ -38,7 +39,6 @@ import '../assets/css/modals.css';
 import '../assets/css/lists.css';
 import '../assets/css/manage.css';
 import '../assets/css/message.css';
-import MainLayout from '../layouts/MainLayout';
 
 const AppRoutes = () => [
   {
@@ -138,7 +138,8 @@ const AppRoutes = () => [
           {
             path: "edit/:id",
             element: <FormManual api="manual" />,
-            errorElement: <ErrorView />
+            errorElement: <ErrorView />,
+            loader: loaderById("manual")
           }
         ]
       },
@@ -153,11 +154,14 @@ const AppRoutes = () => [
           },
           {
             path: "new",
-            element: <FormManual api="articles" label="Nya artikel" checkbox="popup" />
+            element: <FormManual api="articles" label="Nya artikel" checkbox="popup" />,
+            errorElement: <ErrorView />
           },
           {
             path: "edit/:id",
-            element: <FormManual api="articles" checkbox="popup" />
+            element: <FormManual api="articles" checkbox="popup" />,
+            errorElement: <ErrorView />,
+            loader: loaderById("articles")
           }
         ]
       },
