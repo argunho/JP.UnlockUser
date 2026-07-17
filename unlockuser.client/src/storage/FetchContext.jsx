@@ -59,8 +59,11 @@ function FetchContextProvider({ children }) {
     const loc = useLocation();
 
     useEffect(() => {
-        if (loc.pathname == currentPathname.current)
+        if (loc.pathname == currentPathname.current) {
+            dispatch({ type: 'CLEAR' });
+            console.log("hello")
             return;
+        }
 
         currentPathname.current = loc.pathname;
         const currentLayoutPathname = loc.pathname.split("/")[1];
@@ -69,7 +72,6 @@ function FetchContextProvider({ children }) {
         if (currentLayoutPathname !== lastLayoutRef.current) {
             lastLayoutRef.current = currentLayoutPathname;
         }
-
     }, [loc])
 
     const cancelRequest = useCallback(() => {
@@ -79,8 +81,8 @@ function FetchContextProvider({ children }) {
 
     const fetchData = useCallback(async ({ api, method = 'get', data = null, action = null, responseType = null, loadDisabled = false }) => {
         controllerRef.current = new AbortController();
-        
-        dispatch({ type: 'LOAD_START', isMutation: method.toLowerCase() !== "get" && !loadDisabled});
+
+        dispatch({ type: 'LOAD_START', isMutation: method.toLowerCase() !== "get" && !loadDisabled });
 
         try {
             const config = {
@@ -114,10 +116,10 @@ function FetchContextProvider({ children }) {
                 dispatch({ type: 'MESSAGE', payload: (res?.result && res.result?.msg) ? res.result : (res?.response ? res?.response : res) });
             } else if (res && action !== "skip") {
                 dispatch({ type: action !== "complete" ? 'SUCCESS' : "COMPLETE", payload: res });
-            } else if(action === "clean"){
+            } else if (action === "clean") {
                 dispatch({ type: "CLEAN" });
             } else {
-                dispatch({ type: action !== "complete" ? 'SUCCESS' : "COMPLETE", payload: null});
+                dispatch({ type: action !== "complete" ? 'SUCCESS' : "COMPLETE", payload: null });
             }
 
             if (action === "success")

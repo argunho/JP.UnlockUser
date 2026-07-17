@@ -11,7 +11,11 @@ div[role="dialog"] {
 }
 
 .modal-view div[role="dialog"] {
-  padding: 20px 15px
+  padding: 20px 15px;
+}
+
+.modal-block div[role="dialog"] {
+  max-width: 600px !important;
 }
 
 button.modal-help-btn {

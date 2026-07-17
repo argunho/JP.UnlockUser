@@ -50,14 +50,15 @@ function UsersLayout() {
 
     useEffect(() => {
         if (!success) return;
-        console.log(success)
-        revalidator.revalidate();
+console.log(success, "success")
+        setSearchValue(null);
     }, [success, revalidator])
 
 
     async function renewList() {
         await fetchData({ api: "catalogs/renew/saved", method: "post", action: "success" });
         sessionStorage.setItem("updated", new Date().toISOString());
+        revalidator.revalidate();
     }
 
     const groupsLinks = groups?.map((name, index) => (
@@ -102,7 +103,7 @@ function UsersLayout() {
                     {showSearch && <div className="d-row">
                         {/* Search filter */}
                         <SearchFilter
-                            key={group}
+                            key={`${group}_${success}`}
                             label="anställda"
                             disabled={loading || response}
                             onSearch={(value) => setSearchValue(value)}

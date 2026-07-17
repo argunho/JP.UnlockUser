@@ -1,7 +1,7 @@
 import { useState, use } from 'react';
 
 // Installed
-import { useOutletContext, useLoaderData } from 'react-router-dom';
+import { useOutletContext, useLoaderData, useRevalidator } from 'react-router-dom';
 import { IconButton, Collapse, List, ListItem, ListItemText, Button } from '@mui/material';
 import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt, Checklist } from '@mui/icons-material';
 import _ from 'lodash';
@@ -37,9 +37,9 @@ function normalizedEmployees(arr) {
 
 function EmployeeView() {
 
-    // const revalidator = useRevalidator();
+    const revalidator = useRevalidator();
     // const { groupModels, schools } = useLoaderData();
-    
+
     const groupModels = useLoaderData();
     const { groups, moderator, managers, politicians, approvedEmployees, schools, searchValue } = useOutletContext();
     const { permissions } = moderator;
@@ -142,7 +142,7 @@ function EmployeeView() {
             username: moderator?.username,
             names: []
         };
-        
+
         if (managersChanged)
             data.managers = approved?.managers?.map(x => x.username);
         if (politiciansChanged)
@@ -150,7 +150,7 @@ function EmployeeView() {
         if (schoolsChanged)
             data.schools = approved?.schools;
 
-        if(managersChanged || politiciansChanged || schoolsChanged)
+        if (managersChanged || politiciansChanged || schoolsChanged)
             data.names.push("moderators")
 
         if (employeesChanged) {
@@ -159,6 +159,11 @@ function EmployeeView() {
         }
 
         await fetchData({ api: `catalogs/update/changed`, method: "put", data: data, action: "success" });
+        setCollapsed(false);
+        setTimeout(() => {
+            handleResponse();
+            revalidator.revalidate();
+        }, 500)
     }
 
     function handleShowByOffice(username) {
