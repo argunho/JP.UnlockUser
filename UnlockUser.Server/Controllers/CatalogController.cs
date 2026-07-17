@@ -43,7 +43,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             var approvedEmployees = await _localFileService.GetListFromEncryptedFile<ApprovedEmployeeViewModel>($"catalogs/{ApprovedCatalog}") ?? [];
             var groups = _config.GetSection("Groups").Get<List<GroupModel>>()?.Select(s => s.Name).ToList();
 
-            return Ok(new { moderators, managers, politicians, approvedEmployees, groups });
+            return Ok(new { moderators, managers, politicians, schools, approvedEmployees, groups });
         }
         catch (Exception ex)
         {

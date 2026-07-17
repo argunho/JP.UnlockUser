@@ -9,4 +9,3 @@ public class CatalogsFormModel
     public List<ApprovedEmployeeViewModel> ApprovedEmployees { get; set; } = [];
     public List<string> Schools { get; set; } = [];
 }
-}
