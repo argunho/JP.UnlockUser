@@ -174,7 +174,7 @@ const AppRoutes = () => [
     </FetchContextProvider>,
     errorElement: <NotFound isAuthorized={true} />,
     loader: loader("catalogs"),
-    // shouldRevalidate: () => false,
+    shouldRevalidate: () => false,
     children: [
       {
         index: true,

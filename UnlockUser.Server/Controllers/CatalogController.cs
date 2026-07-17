@@ -68,20 +68,6 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             return BadRequest(_helpService.Error(ex));
         }
     }    
-    
-    // Get schools list
-    [HttpGet("schools")]
-    public async Task<IActionResult> GetSchools()
-    {
-        var schools = (await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools")).Select(s => new ViewModel
-        {
-            Id = s.Name,
-            Primary = s.Name,
-            Secondary = s.Place
-        }).ToList() ?? [];
-
-        return Ok( new { schools });
-    }
     #endregion
 
     #region PUT

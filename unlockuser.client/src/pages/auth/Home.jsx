@@ -121,9 +121,7 @@ function Home() {
             //     ApiRequest(`data/groups/by/name/${gn}`),
             // ]);
 
-
-            const res = await fetchData({ api: `data/groups/by/name/${gn}`, action: "return" });
-            groupCollectionRef.current = res.groupModels;
+            groupCollectionRef.current = await fetchData({ api: `data/groups/by/name/${gn}`, action: "return" })
             if (groupCollectionRef.current?.length == 0) {
 
                 const logged = sessionStorage.getItem("logged");

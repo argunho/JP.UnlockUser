@@ -3,7 +3,7 @@ import { useState, useEffect, use } from 'react';
 // Installed
 import { Outlet, useNavigation, useLoaderData, NavLink, useParams, useRevalidator } from 'react-router-dom';
 import { IconButton, Tooltip } from '@mui/material';
-import { Refresh } from '@mui/icons-material';
+import { Refresh, Forward } from '@mui/icons-material';
 
 // Storage
 import { FetchContext } from '../storage/FetchContext';
@@ -30,10 +30,18 @@ function UsersLayout() {
     const groupName = Capitalize(group);
 
     const [searchValue, setSearchValue] = useState(null);
+    const [searchTooltipOpen, setSearchTooltipOpen] = useState(false);
 
     useEffect(() => {
         document.title = "UnlockUser | Moderators";
     }, [])
+
+    useEffect(() => {
+        setSearchTooltipOpen(true);
+
+        const timer = setTimeout(() => setSearchTooltipOpen(false), 4000);
+        return () => clearTimeout(timer);
+    }, [id])
 
     useEffect(() => {
         if (searchValue)
@@ -42,7 +50,7 @@ function UsersLayout() {
 
     useEffect(() => {
         if (!success) return;
-console.log(success)
+        console.log(success)
         revalidator.revalidate();
     }, [success, revalidator])
 
@@ -78,6 +86,18 @@ console.log(success)
                     primary={id ? moderator?.displayName : "Moderators"}
                     secondary={secondaryRow} initialsView={!!id}>
 
+                    {/* Tooltip message */}
+                    {(id && showSearch) && <Tooltip title="Sök efter en anställd för att lägga till personen i listan över godkända anställda för den valda personen."
+                        open={searchTooltipOpen}
+                        onOpen={() => setSearchTooltipOpen(true)}
+                        onClose={() => setSearchTooltipOpen(false)}
+                        classes={{
+                            tooltip: "tooltip-info",
+                            arrow: "tooltip-arrow-info"
+                        }} placement="left" arrow>
+                        <Forward color="primary" style={{ marginRight: "20px", opacity: searchTooltipOpen ? 1 : 0.1 }} />
+                    </Tooltip>}
+
                     {/* Refresh list */}
                     {showSearch && <div className="d-row">
                         {/* Search filter */}
@@ -87,6 +107,7 @@ console.log(success)
                             disabled={loading || response}
                             onSearch={(value) => setSearchValue(value)}
                             onReset={() => setSearchValue(null)} />
+
 
                         {/* Refresh button */}
                         <Tooltip title={!!renewDisabled ? `Uppdaterad ${renewTime}` : "Uppdatera listan"} classes={{
@@ -105,17 +126,18 @@ console.log(success)
                     </div>}
                 </TabPanel>
 
-                <Outlet key={`${group}_${searchValue}_${id}`} context={!id
-                    ? {
-                        moderators: (searchValue
-                            ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchValue?.toLowerCase()))
-                            : moderatorsByGroup),
-                        onReset: () => setSearchValue(null)
-                    } : { ...loaded, moderator, searchValue }} />
+                <Outlet key={`${group}_${searchValue}_${id}`}
+                    context={!id
+                        ? {
+                            moderators: (searchValue
+                                ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchValue?.toLowerCase()))
+                                : moderatorsByGroup),
+                            onReset: () => setSearchValue(null)
+                        } : { ...loaded, moderator, searchValue }} />
 
                 {/* Loading */}
                 {loading && <LinearLoading size={30} />}
-                {pending && <LinearLoading loading="progress" color="success"/>}
+                {pending && <LinearLoading loading="progress" color="success" />}
 
             </div>
         </>

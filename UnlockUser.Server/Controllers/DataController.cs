@@ -104,9 +104,8 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             }
         }
 
-        return Ok(new { groupModels });
+        return Ok(groupModels);
     }
-
 
     // Get all history files
     [HttpGet("logs/history")]
