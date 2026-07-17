@@ -75,29 +75,6 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         }
     }
 
-    // Get stored  employees who have permission to manage employee passwords nby group name
-    [HttpGet("catalogs")]
-    public async Task<IActionResult> GetUsersByGroupName()
-    {
-        try
-        {
-
-            // Saved employees who have permission to manage employee passwords
-            var moderators = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
-            var managers = await _localFileService.GetListFromEncryptedFile<Manager>("catalogs/managers") ?? [];
-            var politicians = (await _localFileService.GetListFromEncryptedFile<User>("catalogs/politicians")).Select(s => new UserViewModel(s)) ?? [];
-            var approvedEmployees = await _localFileService.GetListFromEncryptedFile<ApprovedEmployeeViewModel>("catalogs/approved-employees") ?? [];
-            var groups = _config.GetSection("Groups").Get<List<GroupModel>>()?.Select(s => s.Name).ToList();
-
-            return Ok(new { moderators, managers, politicians, approvedEmployees, groups });
-        }
-        catch (Exception ex)
-        {
-            await _helpService.Error(ex);
-            return Ok();
-        }
-    }
-
     [HttpGet("saved/{username}")]
     [Authorize(Roles = "Moderator, DevelopTeam")]
     public async Task<IActionResult> GetCachedUser(string username)
@@ -280,22 +257,6 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
 
             return BadRequest(_helpService.Warning(res));
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(_helpService.Error(ex));
-        }
-    }
-
-    [HttpPost("renew/saved")]
-    [Authorize(Roles = "DevelopTeam,Manager,Moderator")]
-    public async Task<IActionResult> RenewSavedEmployeesList()
-    {
-        try
-        {
-            await _localUserService.RenewUsersCachedList();
-            _localFileService.UpdateConfigFile("appconfig", "LastUpdatedDate", DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
-            return Ok();
         }
         catch (Exception ex)
         {

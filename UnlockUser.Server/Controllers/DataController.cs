@@ -41,7 +41,13 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             // Employee groups where each group has its own password management permissions
             List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
-            var schools = await GetSchoolsFromFile();
+            var schools = (await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools")).Select(s => new ViewModel
+            {
+                Id = s.Name,
+                Primary = s.Name,
+                Secondary = s.Place
+            }).ToList() ?? []; 
+
             collections.Add("schools", schools);
             _logger.LogInformation("Gruppdata har laddats ner. Group: Skolor. Tid: {time}.", DateTime.Now.ToString("G"));
 
@@ -101,13 +107,6 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         return Ok(new { groupModels });
     }
 
-    // Get schools list
-    [HttpGet("schools")]
-    public async Task<IActionResult> GetSchools()
-    {
-        var schools = await GetSchoolsFromFile();
-        return Ok( new { schools });
-    }
 
     // Get all history files
     [HttpGet("logs/history")]

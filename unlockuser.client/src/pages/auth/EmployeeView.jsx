@@ -38,8 +38,10 @@ function normalizedEmployees(arr) {
 function EmployeeView() {
 
     // const revalidator = useRevalidator();
-    const { groupModels, schools } = useLoaderData();
-    const { groups, moderator, managers, politicians, approvedEmployees, searchValue } = useOutletContext();
+    // const { groupModels, schools } = useLoaderData();
+    
+    const groupModels = useLoaderData();
+    const { groups, moderator, managers, politicians, approvedEmployees, schools, searchValue } = useOutletContext();
     const { permissions } = moderator;
 
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
@@ -66,7 +68,7 @@ function EmployeeView() {
         let newValues;
 
         if (group === "managers") {
-            if(typeof value === "string" && !multiple){
+            if (typeof value === "string" && !multiple) {
                 value = managers.find(x => x.username == value);
             }
             newValues = multiple
@@ -137,14 +139,26 @@ function EmployeeView() {
 
     async function onSubmit() {
         const data = {
-            groups: permissions.groups,
-            managers: approved?.managers?.map(x => x.username),
-            politicians: approved?.politicians?.map(x => x.username),
-            approvedEmployees: approved?.employees,
-            schools: approved?.schools
+            username: moderator?.username,
+            names: []
         };
+        
+        if (managersChanged)
+            data.managers = approved?.managers?.map(x => x.username);
+        if (politiciansChanged)
+            data.politicians = approved?.politicians?.map(x => x.username);
+        if (schoolsChanged)
+            data.schools = approved?.schools;
 
-        await fetchData({ api: `user/update/permissions/${moderator?.username}`, method: "put", data: data, action: "success" });
+        if(managersChanged || politiciansChanged || schoolsChanged)
+            data.names.push("moderators")
+
+        if (employeesChanged) {
+            data.names.push("approved-employees")
+            data.approvedEmployees = approved?.employees;
+        }
+
+        await fetchData({ api: `catalogs/update/changed`, method: "put", data: data, action: "success" });
     }
 
     function handleShowByOffice(username) {
@@ -152,10 +166,12 @@ function EmployeeView() {
         setCollapsed((collapsed) => !collapsed);
     }
 
-    const isChanged = !_.isEqual(permissions?.managers, sortedValues(approved?.managers, "username"))
-        || !_.isEqual(sortedValues(approvedPoliticians, "username"), sortedValues(approved?.politicians, "username"))
-        || !_.isEqual(permissions?.schools, sortedValues(approved?.schools))
-        || !_.isEqual(normalizedEmployees(approvedEmployees), normalizedEmployees(approved?.employees));
+    const managersChanged = !_.isEqual(permissions?.managers, sortedValues(approved?.managers, "username"));
+    const politiciansChanged = !_.isEqual(sortedValues(approvedPoliticians, "username"), sortedValues(approved?.politicians, "username"));
+    const schoolsChanged = !_.isEqual(permissions?.schools, sortedValues(approved?.schools));
+    const employeesChanged = !_.isEqual(normalizedEmployees(approvedEmployees), normalizedEmployees(approved?.employees));
+
+    const isChanged = managersChanged || politiciansChanged || schoolsChanged || employeesChanged;
 
     const searchTerm = searchValue?.toLowerCase();
     const employeesToView = searchValue?.length >= 3

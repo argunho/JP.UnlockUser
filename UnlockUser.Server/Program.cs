@@ -4,6 +4,7 @@ global using UnlockUser.Server.Extensions;
 global using UnlockUser.Server.Interface;
 global using UnlockUser.Server.IServices;
 global using UnlockUser.Server.Models;
+global using UnlockUser.Server.FormModels;
 global using UnlockUser.Server.Services;
 global using UnlockUser.Server.ViewModels;
 

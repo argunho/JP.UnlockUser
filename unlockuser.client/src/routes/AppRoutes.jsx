@@ -27,7 +27,7 @@ import NotFound from "../pages/NotFound";
 import ErrorView from '../pages/ErrorView';
 
 // Services
-import { loader, loaderApiGroups, loaderById, loaderByParams, loaderBySession } from '../services/LoadFunctions';
+import { loader, loaderById, loaderByParams, loaderBySession } from '../services/LoadFunctions'; // loaderApiGroups,
 
 // Storage
 import FetchContextProvider from '../storage/FetchContext';
@@ -173,7 +173,7 @@ const AppRoutes = () => [
       <UsersLayout />
     </FetchContextProvider>,
     errorElement: <NotFound isAuthorized={true} />,
-    loader: loader("user/catalogs"),
+    loader: loader("catalogs"),
     // shouldRevalidate: () => false,
     children: [
       {
@@ -190,7 +190,8 @@ const AppRoutes = () => [
         path: "view/:id",
         element: <EmployeeView />,
         errorElement: <ErrorView />,
-        loader: loaderApiGroups({ schools: "data/schools", groupModels: "data/groups/by/name/personal" })
+        // loader: loaderApiGroups({ schools: "catalog/schools", groupModels: "data/groups/by/name/personal" })
+        loader: loader("data/groups/by/name/personal")
       }
     ]
   },
@@ -209,9 +210,9 @@ const AppRoutes = () => [
       },
       {
         path: 'schools',
-        element: <Catalog label="Skolor" api="data/school" fields="school" />,
+        element: <Catalog label="Skolor" api="catalog/school" fields="school" />,
         errorElement: <ErrorView />,
-        loader: loader("data/schools")
+        loader: loader("catalog/schools")
       },
       {
         path: 'history',

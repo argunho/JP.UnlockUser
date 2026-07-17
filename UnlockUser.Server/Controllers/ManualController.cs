@@ -29,7 +29,7 @@ public class ManualController(IHelpService helpService) : ControllerBase
         return Ok(manuals.OrderBy(x => x.FileName).ToList());
     }
 
-    [HttpGet("byname/{name}")]
+    [HttpGet("by/name/{name}")]
     public async Task<IActionResult> GetByName(string name)
     {
         try

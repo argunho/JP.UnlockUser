@@ -42,13 +42,13 @@ function UsersLayout() {
 
     useEffect(() => {
         if (!success) return;
-
+console.log(success)
         revalidator.revalidate();
     }, [success, revalidator])
 
 
     async function renewList() {
-        await fetchData({ api: "user/renew/saved", method: "post", action: "success" });
+        await fetchData({ api: "catalogs/renew/saved", method: "post", action: "success" });
         sessionStorage.setItem("updated", new Date().toISOString());
     }
 
