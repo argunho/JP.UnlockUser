@@ -206,7 +206,7 @@ const AppRoutes = () => [
         path: 'statistics',
         element: <Catalog label="Statistik" fullWidth={true} dropdown={true} />,
         errorElement: <ErrorView />,
-        loader: loader("data/statistics")
+        loader: loader("catalog/statistics")
       },
       {
         path: 'schools',
@@ -216,9 +216,9 @@ const AppRoutes = () => [
       },
       {
         path: 'history',
-        element: <Catalog label="Historik" api="data/history" search={true} download={true} modal={true} disabled={true} />,
+        element: <Catalog label="Historik" api="catalog/history" search={true} download={true} modal={true} disabled={true} />,
         errorElement: <ErrorView />,
-        loader: loader("data/logs/history")
+        loader: loader("catalog/histories")
       },
       {
         path: 'errors',
