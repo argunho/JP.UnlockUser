@@ -26,7 +26,7 @@ public class MailService : ILocalMailService
 
         try
         {
-            var path = Path.Combine(@"wwwroot/", "alvestakommun.png");
+            var path = Path.Combine(@"wwwroot/images/", "alvestakommun.png");
             var logo = ImageToBase64(path);
             MailMessage _mail = new(new MailAddress("no-reply@alvesta.se", "Unlock User"), new MailAddress(toEmail))
             {

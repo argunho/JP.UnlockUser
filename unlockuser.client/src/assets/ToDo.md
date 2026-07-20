@@ -1,3 +1,1 @@
-# Todo
-
-1. Email logotype
+# Todois done
