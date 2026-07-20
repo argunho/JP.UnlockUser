@@ -1,7 +1,7 @@
 import { useState, use } from 'react';
 
 // Installed
-import { useOutletContext, useLoaderData, useRevalidator } from 'react-router-dom';
+import { useOutletContext, useLoaderData } from 'react-router-dom';
 import { IconButton, Collapse, List, ListItem, ListItemText, Button } from '@mui/material';
 import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt, Checklist } from '@mui/icons-material';
 import _ from 'lodash';
@@ -37,11 +37,8 @@ function normalizedEmployees(arr) {
 
 function EmployeeView() {
 
-    const revalidator = useRevalidator();
-    // const { groupModels, schools } = useLoaderData();
-
     const groupModels = useLoaderData();
-    const { groups, moderator, managers, politicians, approvedEmployees, schools, searchValue } = useOutletContext();
+    const { groups, moderator, managers, politicians, approvedEmployees, schools, searchValue, revalidate } = useOutletContext();
     const { permissions } = moderator;
 
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
@@ -58,8 +55,31 @@ function EmployeeView() {
         schools: permissions?.schools,
         employees: approvedEmployees ?? []
     });
+
+    // Resync the local edit buffer with the canonical server data whenever it actually
+    // changes (e.g. a revalidate finishing after save) - otherwise, if this component gets
+    // recreated (Outlet key changes) before the revalidated data arrives, "approved" is stuck
+    // with the state it had at that recreation and never catches up.
+    const [approvedSource, setApprovedSource] = useState({ approvedManagers, approvedPoliticians, schools: permissions?.schools, approvedEmployees });
+
+    const sourceChanged = !_.isEqual(approvedSource.approvedManagers, approvedManagers)
+        || !_.isEqual(approvedSource.approvedPoliticians, approvedPoliticians)
+        || !_.isEqual(approvedSource.schools, permissions?.schools)
+        || !_.isEqual(approvedSource.approvedEmployees, approvedEmployees);
+
+    if (sourceChanged) {
+        setApprovedSource({ approvedManagers, approvedPoliticians, schools: permissions?.schools, approvedEmployees });
+        setApproved({
+            managers: approvedManagers,
+            politicians: approvedPoliticians,
+            schools: permissions?.schools,
+            employees: approvedEmployees ?? []
+        });
+    }
+
     const [collapsed, setCollapsed] = useState(false);
     const [officeManager, setOfficeManager] = useState(null);
+
 
     function onChange(value, group, multiple) {
         if (!value || !group)
@@ -160,9 +180,9 @@ function EmployeeView() {
 
         await fetchData({ api: `catalogs/update/changed`, method: "put", data: data, action: "success" });
         setCollapsed(false);
+        revalidate();
         setTimeout(() => {
             handleResponse();
-            revalidator.revalidate();
         }, 500)
     }
 
@@ -188,11 +208,12 @@ function EmployeeView() {
 
     return (
         <>
+            {/* Action panel */}
             <ActionButtons label="Behörighetslista" pending={pending} disabled={!isChanged} onConfirm={onSubmit}>
                 {(personalPermissions && approvedUsernames?.length > 0 && !officeManager) &&
                     <Button
                         className="fade-in"
-                        startIcon={collapsed ? <Close /> : <Checklist />}
+                        startIcon={collapsed ? <Close color="error" /> : <Checklist />}
                         color={collapsed ? "default" : "primary"}
                         disabled={!!searchValue}
                         onClick={() => setCollapsed((collapsed) => !collapsed)}>

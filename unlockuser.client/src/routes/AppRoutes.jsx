@@ -174,7 +174,7 @@ const AppRoutes = () => [
     </FetchContextProvider>,
     errorElement: <NotFound isAuthorized={true} />,
     loader: loader("catalogs"),
-    // shouldRevalidate: () => false,
+    shouldRevalidate: () => true,
     children: [
       {
         index: true,
@@ -191,7 +191,8 @@ const AppRoutes = () => [
         element: <EmployeeView />,
         errorElement: <ErrorView />,
         // loader: loaderApiGroups({ schools: "catalog/schools", groupModels: "data/groups/by/name/personal" })
-        loader: loader("data/groups/by/name/personal")
+        loader: loader("data/groups/by/name/personal"),
+        shouldRevalidate: () => true
       }
     ]
   },

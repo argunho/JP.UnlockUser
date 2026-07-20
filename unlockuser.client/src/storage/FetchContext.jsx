@@ -61,7 +61,6 @@ function FetchContextProvider({ children }) {
     useEffect(() => {
         if (loc.pathname == currentPathname.current) {
             dispatch({ type: 'CLEAR' });
-            console.log("hello")
             return;
         }
 

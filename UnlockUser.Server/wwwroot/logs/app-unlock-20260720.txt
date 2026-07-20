@@ -1,0 +1,134 @@
+2026-07-20 08:51:37.470 +02:00 [INF] Starting process to save file managers
+2026-07-20 08:51:37.779 +02:00 [INF] End save process. managers
+2026-07-20 08:51:38.793 +02:00 [INF] Starting process to save file politicians
+2026-07-20 08:51:38.847 +02:00 [INF] End save process. politicians
+2026-07-20 08:52:16.182 +02:00 [INF] Autentisering utförd vid: 2026-07-20 08:52. Department: IT avdelning. Office: IT avdelning.
+2026-07-20 08:52:16.260 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-20 08:52:17.040 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-20 08:52:17.
+2026-07-20 08:52:17.040 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-20 08:52:17.
+2026-07-20 08:52:34.445 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-20 08:52:34.
+2026-07-20 08:52:54.389 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-20 08:52:54.
+2026-07-20 08:53:07.892 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-20 08:53:07.
+2026-07-20 08:53:07.895 +02:00 [INF] Memory cached. groups_4ffea1c6-d05f-d87e-2cdb-dbf1633059cc
+2026-07-20 08:53:07.897 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-20 08:53:07.
+2026-07-20 08:53:07.907 +02:00 [INF] Dashboard data setup completed.
+2026-07-20 08:53:33.815 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 08:53:33.821 +02:00 [INF] End save process. approved-employees
+2026-07-20 08:53:40.362 +02:00 [INF] Starting process to save file moderators
+2026-07-20 08:53:40.374 +02:00 [INF] End save process. moderators
+2026-07-20 08:53:41.502 +02:00 [INF] Starting process to save file histories
+2026-07-20 08:53:41.509 +02:00 [INF] End save process. histories
+2026-07-20 09:28:16.433 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-20 09:28:16.
+2026-07-20 09:28:16.433 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-20 09:28:16.
+2026-07-20 09:31:35.836 +02:00 [INF] Autentisering utförd vid: 2026-07-20 09:31. Department: IT avdelning. Office: IT avdelning.
+2026-07-20 09:31:35.851 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-20 09:31:35.875 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-20 09:31:35.
+2026-07-20 09:31:35.879 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-20 09:31:35.
+2026-07-20 09:31:35.883 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-20 09:31:35.
+2026-07-20 09:31:35.887 +02:00 [INF] Memory cached. groups_b0fb3dff-c4ff-1612-5799-06999f7e3efb
+2026-07-20 09:31:35.888 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-20 09:31:35.
+2026-07-20 09:31:35.893 +02:00 [INF] Dashboard data setup completed.
+2026-07-20 09:31:36.117 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-20 09:31:36.
+2026-07-20 09:31:36.141 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-20 09:31:36.
+2026-07-20 09:36:35.071 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 09:36:35.086 +02:00 [INF] End save process. approved-employees
+2026-07-20 09:38:50.896 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 09:38:50.901 +02:00 [INF] End save process. approved-employees
+2026-07-20 09:46:45.602 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 09:46:45.605 +02:00 [INF] End save process. approved-employees
+2026-07-20 09:47:38.099 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 09:47:38.106 +02:00 [INF] End save process. approved-employees
+2026-07-20 09:50:27.950 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 09:50:27.953 +02:00 [INF] End save process. approved-employees
+2026-07-20 09:51:07.328 +02:00 [INF] Starting process to save file managers
+2026-07-20 09:51:07.336 +02:00 [INF] End save process. managers
+2026-07-20 09:51:08.350 +02:00 [INF] Starting process to save file politicians
+2026-07-20 09:51:08.360 +02:00 [INF] End save process. politicians
+2026-07-20 09:52:45.980 +02:00 [INF] Starting process to save file moderators
+2026-07-20 09:52:45.988 +02:00 [INF] End save process. moderators
+2026-07-20 09:52:47.004 +02:00 [INF] Starting process to save file histories
+2026-07-20 09:52:47.011 +02:00 [INF] End save process. histories
+2026-07-20 09:53:17.211 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 09:53:17.215 +02:00 [INF] End save process. approved-employees
+2026-07-20 09:54:29.378 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 09:54:29.382 +02:00 [INF] End save process. approved-employees
+2026-07-20 09:55:11.045 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 09:55:11.049 +02:00 [INF] End save process. approved-employees
+2026-07-20 09:58:01.077 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 09:58:01.082 +02:00 [INF] End save process. approved-employees
+2026-07-20 10:51:02.995 +02:00 [INF] Starting process to save file managers
+2026-07-20 10:51:03.002 +02:00 [INF] End save process. managers
+2026-07-20 10:51:04.015 +02:00 [INF] Starting process to save file politicians
+2026-07-20 10:51:04.020 +02:00 [INF] End save process. politicians
+2026-07-20 10:52:35.039 +02:00 [INF] Starting process to save file moderators
+2026-07-20 10:52:35.047 +02:00 [INF] End save process. moderators
+2026-07-20 10:52:36.094 +02:00 [INF] Starting process to save file histories
+2026-07-20 10:52:36.098 +02:00 [INF] End save process. histories
+2026-07-20 11:23:05.388 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 11:23:05.408 +02:00 [INF] End save process. approved-employees
+2026-07-20 11:24:35.566 +02:00 [INF] Autentisering utförd vid: 2026-07-20 11:24. Department: IT avdelning. Office: IT avdelning.
+2026-07-20 11:24:35.587 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-20 11:24:35.609 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-20 11:24:35.
+2026-07-20 11:24:35.614 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-20 11:24:35.
+2026-07-20 11:24:35.620 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-20 11:24:35.
+2026-07-20 11:24:35.624 +02:00 [INF] Memory cached. groups_74def0f3-2852-a8a2-8085-835b4b218f69
+2026-07-20 11:24:35.627 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-20 11:24:35.
+2026-07-20 11:24:35.632 +02:00 [INF] Dashboard data setup completed.
+2026-07-20 11:24:35.834 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-20 11:24:35.
+2026-07-20 11:25:50.216 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 11:25:50.220 +02:00 [INF] End save process. approved-employees
+2026-07-20 11:30:01.489 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 11:30:01.495 +02:00 [INF] End save process. approved-employees
+2026-07-20 11:30:34.488 +02:00 [INF] Starting process to save file moderators
+2026-07-20 11:30:34.499 +02:00 [INF] End save process. moderators
+2026-07-20 11:30:56.291 +02:00 [INF] Starting process to save file moderators
+2026-07-20 11:30:56.310 +02:00 [INF] End save process. moderators
+2026-07-20 11:51:04.168 +02:00 [INF] Starting process to save file managers
+2026-07-20 11:51:04.181 +02:00 [INF] End save process. managers
+2026-07-20 11:51:05.201 +02:00 [INF] Starting process to save file politicians
+2026-07-20 11:51:05.210 +02:00 [INF] End save process. politicians
+2026-07-20 11:52:37.596 +02:00 [INF] Starting process to save file moderators
+2026-07-20 11:52:37.609 +02:00 [INF] End save process. moderators
+2026-07-20 11:52:38.627 +02:00 [INF] Starting process to save file histories
+2026-07-20 11:52:38.632 +02:00 [INF] End save process. histories
+2026-07-20 11:55:22.223 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 11:55:22.227 +02:00 [INF] End save process. approved-employees
+2026-07-20 11:57:09.993 +02:00 [INF] Autentisering utförd vid: 2026-07-20 11:57. Department: IT avdelning. Office: IT avdelning.
+2026-07-20 11:57:10.004 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-07-20 11:57:10.035 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-07-20 11:57:10.
+2026-07-20 11:57:10.039 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-07-20 11:57:10.
+2026-07-20 11:57:10.044 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-07-20 11:57:10.
+2026-07-20 11:57:10.048 +02:00 [INF] Memory cached. groups_cff17484-24e4-a3df-7863-9b0741fd38e1
+2026-07-20 11:57:10.050 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-07-20 11:57:10.
+2026-07-20 11:57:10.055 +02:00 [INF] Dashboard data setup completed.
+2026-07-20 11:57:10.317 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-07-20 11:57:10.
+2026-07-20 11:58:26.384 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 11:58:26.388 +02:00 [INF] End save process. approved-employees
+2026-07-20 12:01:54.301 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 12:01:54.311 +02:00 [INF] End save process. approved-employees
+2026-07-20 12:03:34.051 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 12:03:34.055 +02:00 [INF] End save process. approved-employees
+2026-07-20 12:05:04.214 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 12:05:04.380 +02:00 [INF] End save process. approved-employees
+2026-07-20 12:22:20.658 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 12:22:20.687 +02:00 [INF] End save process. approved-employees
+2026-07-20 12:23:04.790 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 12:23:04.818 +02:00 [INF] End save process. approved-employees
+2026-07-20 12:24:57.356 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 12:24:57.366 +02:00 [INF] End save process. approved-employees
+2026-07-20 12:25:10.161 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 12:25:10.167 +02:00 [INF] End save process. approved-employees
+2026-07-20 12:26:16.661 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 12:26:16.672 +02:00 [INF] End save process. approved-employees
+2026-07-20 12:46:47.966 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 12:46:48.000 +02:00 [INF] End save process. approved-employees
+2026-07-20 12:47:59.020 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 12:47:59.027 +02:00 [INF] End save process. approved-employees
+2026-07-20 12:48:39.284 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 12:48:39.292 +02:00 [INF] End save process. approved-employees
+2026-07-20 12:49:23.039 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 12:49:23.052 +02:00 [INF] End save process. approved-employees
+2026-07-20 12:49:38.974 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 12:49:38.980 +02:00 [INF] End save process. approved-employees
+2026-07-20 12:49:49.169 +02:00 [INF] Starting process to save file approved-employees
+2026-07-20 12:49:49.184 +02:00 [INF] End save process. approved-employees

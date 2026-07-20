@@ -39,25 +39,22 @@ function UsersLayout() {
     useEffect(() => {
         setSearchTooltipOpen(true);
 
-        const timer = setTimeout(() => setSearchTooltipOpen(false), 4000);
+        const timer = setTimeout(() => setSearchTooltipOpen(false), 2000);
         return () => clearTimeout(timer);
     }, [id])
 
     useEffect(() => {
         if (searchValue)
             setSearchValue(null);
-    }, [group])
-
-    useEffect(() => {
-        if (!success) return;
-console.log(success, "success")
-        setSearchValue(null);
-    }, [success, revalidator])
-
+    }, [group, success])
 
     async function renewList() {
         await fetchData({ api: "catalogs/renew/saved", method: "post", action: "success" });
         sessionStorage.setItem("updated", new Date().toISOString());
+        revalidator.revalidate();
+    }
+
+    function revalidate() {
         revalidator.revalidate();
     }
 
@@ -134,7 +131,7 @@ console.log(success, "success")
                                 ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchValue?.toLowerCase()))
                                 : moderatorsByGroup),
                             onReset: () => setSearchValue(null)
-                        } : { ...loaded, moderator, searchValue }} />
+                        } : { ...loaded, moderator, searchValue, revalidate }} />
 
                 {/* Loading */}
                 {loading && <LinearLoading size={30} />}

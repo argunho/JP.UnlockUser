@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, memo } from 'react';
 
 // Installed
-import { LiveHelp, Logout, Menu, Close, FactCheck, SettingsApplications, School, WorkHistory, ErrorOutline, BarChart, Home, MenuBook, Info } from '@mui/icons-material';
+import { Menu, Close, Home } from '@mui/icons-material';
 import { Button, IconButton } from '@mui/material';
 import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 
@@ -15,20 +15,6 @@ import { DecodedClaims } from '../../functions/DecodedToken';
 // Css
 import '../../assets/css/header.css';
 
-
-const links = [
-    { label: "Hem", url: "/search", icon: <Home />, access: false, hidden: false },
-    { label: "Mina behörigheter", url: "/view/my/permissions", icon: <FactCheck />, access: false, hidden: false },
-    { label: "Webapp-manual", url: "/web/manual", icon: <MenuBook />, access: true, hidden: false, blink: true },
-    { label: "Informations artiklar", url: "/web/articles", icon: <Info />, access: false, hidden: false, blink: true },
-    { label: "Behöriga användare", url: "/moderators", icon: <SettingsApplications />, access: true, hidden: false },
-    { label: "Skolor", url: "/catalog/schools", icon: <School />, access: true, hidden: false },
-    { label: "Statistik", url: "/catalog/statistics", icon: <BarChart />, access: true, hidden: false },
-    { label: "Historik", url: "/catalog/history", icon: <WorkHistory />, access: true, hidden: false },
-    { label: "Loggfiler", url: "/catalog/errors", icon: <ErrorOutline />, access: true, hidden: false },
-    { label: "Kontakta support", url: "/contact", icon: <LiveHelp />, access: false, hidden: false },
-    { label: "Logga ut", url: "/session/logout", icon: <Logout />, access: false, hidden: false }
-];
 
 const Header = memo(function Header({ disabled, supportMode }) {
 
@@ -121,14 +107,13 @@ const Header = memo(function Header({ disabled, supportMode }) {
                     </Button>
 
                     {/* Hidden menu */}
-                    <HiddenMenu
-                        open={open}
-                        links={openAccess ? links : links.filter(x => !x.access && !x?.hidden)}
-                        onClose={handleOpenMenu} />
+                   {open && <HiddenMenu
+                        openAccess={openAccess}
+                        onClose={handleOpenMenu} />}
 
                 </div>
             </section>
-        </header >
+        </header>
     )
 })
 
