@@ -98,25 +98,31 @@ function Manual({ api, label, menuLabel }) {
         </>}
 
 
-        {/* Save sort order — visible only in sorting mode, enabled only when order changed */}
-        {(!noFound && openAccess && sortingModel) && (
-          <Tooltip title="Spara sortering" classes={{ tooltip: "tooltip-white" }} arrow>
-            <span style={{ marginLeft: "8px" }}>
-              <IconButton color={isDirty ? "success" : "default"} onClick={saveSorting} disabled={pending || !isDirty}>
-                <Save />
-              </IconButton>
-            </span>
-          </Tooltip>
+        {/* Sorting buttons */}
+        {manuals?.length > 1 && (
+          <>
+            {/* Save sort order — visible only in sorting mode, enabled only when order changed */}
+            {(!noFound && openAccess && sortingModel) && (
+              <Tooltip title="Spara sortering" classes={{ tooltip: "tooltip-white" }} arrow>
+                <span style={{ marginLeft: "8px" }}>
+                  <IconButton color={isDirty ? "success" : "default"} onClick={saveSorting} disabled={pending || !isDirty}>
+                    <Save />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            )}
+
+            {/* Toggle sort mode */}
+            {(!noFound && openAccess) && (
+              <Tooltip title={sortingModel ? "Avbryt sortering" : "Sortera lista"} classes={{ tooltip: "tooltip-white" }} arrow>
+                <IconButton color={sortingModel ? "primary" : "default"} onClick={toggleSortingModel} >
+                  <SwapVert />
+                </IconButton>
+              </Tooltip>
+            )}
+          </>
         )}
 
-        {/* Toggle sort mode */}
-        {(!noFound && openAccess) && (
-          <Tooltip title={sortingModel ? "Avbryt sortering" : "Sortera lista"} classes={{ tooltip: "tooltip-white" }} arrow>
-            <IconButton color={sortingModel ? "primary" : "default"} onClick={toggleSortingModel} >
-              <SwapVert />
-            </IconButton>
-          </Tooltip>
-        )}
 
         {/* New manual */}
         {openAccess && <Tooltip title="Skapa manual" color="secondary" classes={{ tooltip: "tooltip-white" }} arrow>
