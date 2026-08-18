@@ -61,7 +61,7 @@ function UsersLayout() {
     const groupsLinks = groups?.map((name, index) => (
         <NavLink className="link-group" to={`/moderators/${name?.toLowerCase()}`} key={index} >{name}</NavLink>
     ));
-
+console.log(groupName)
     const moderatorsByGroup = group ? moderators?.filter(x => x.permissions?.groups?.includes(groupName)) : moderators;
     const moderator = id ? moderatorsByGroup?.find(x => x.username === id) : null;
     const secondaryRow = id

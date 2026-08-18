@@ -1,5 +1,5 @@
 // Installed
-import { LiveHelp, Logout, Close, FactCheck, Settings, School, WorkHistory, ErrorOutline, BarChart, Home, MenuBook, Info } from '@mui/icons-material';
+import { LiveHelp, Logout, Close, FactCheck, Settings, School, WorkHistory, ErrorOutline, BarChart, Home, MenuBook, Info, ForwardToInbox } from '@mui/icons-material';
 import { IconButton, ClickAwayListener } from '@mui/material';
 import { NavLink } from 'react-router-dom';
 
@@ -20,6 +20,7 @@ const links = [
     { label: "Statistik", url: "/catalog/statistics", icon: <BarChart />, access: true },
     { label: "Historik", url: "/catalog/history", icon: <WorkHistory />, access: true },
     { label: "Loggfiler", url: "/catalog/errors", icon: <ErrorOutline />, access: true },
+    { label: "Skicka mail", url: "/send/email", icon: <ForwardToInbox />, access: true },
     { label: "Kontakta support", url: "/contact", icon: <LiveHelp />, access: false },
     { label: "Logga ut", url: "/session/logout", icon: <Logout />, access: false }
 ];

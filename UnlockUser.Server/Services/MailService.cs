@@ -1,11 +1,16 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Mail;
+using System.Runtime.CompilerServices;
 
 namespace UnlockUser.Server.Services;
 
-public class MailService : ILocalMailService
+public class MailService(IHelpService helpService, ICredentialsService credentialsService, IConfiguration config) : ILocalMailService
 {
+
+    private readonly IHelpService _helpService = helpService;
+    private readonly ICredentialsService _credentialsService = credentialsService;
+    private readonly IConfiguration _config = config;
 
     // Template params
     private static string mailHtml = "<div style=\"width:98%;display:block;margin:auto;background-color:#FFFFFF;font-family:Tahoma\">" +
@@ -21,11 +26,15 @@ public class MailService : ILocalMailService
     public static string? _message { get; set; }
 
     // Send mail service
-    public bool SendMail(string toEmail, string mailSubject, string mailContent, string emailFrom, string password, IFormFile? attachedFile = null)
+    //public bool SendMail(string toEmail, string mailSubject, string mailContent, string emailFrom, string password, IFormFile? attachedFile = null)
+    public bool SendMail(string toEmail, string mailSubject, string mailContent, IFormFile? attachedFile = null)
     {
 
         try
         {
+            var emailFrom = _credentialsService.GetClaim("email");
+            var password = _helpService.DecodeFromBase64("HashedCredential").Replace(_config["JwtSettings:Key"]!, "") ?? "";
+
             var path = Path.Combine(@"wwwroot/images/", "alvestakommun.png");
             var logo = ImageToBase64(path);
             MailMessage _mail = new(new MailAddress("no-reply@alvesta.se", "Unlock User"), new MailAddress(toEmail))

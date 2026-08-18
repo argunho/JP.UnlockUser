@@ -250,7 +250,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                 var pass = _helpService.DecodeFromBase64("HashedCredential").Replace(_config["JwtSettings:Key"]!, "") ?? "";
                 var success = _localMailService.SendMail(claims["email"], file!.FileName.Replace(".pdf", ""),
                             $"Hej {claims["displayname"]}!<br/> Här bifogas PDF document filen med nya lösenord till elever från {label}.",
-                            claims["email"], pass, file);
+                            file);
 
                 return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
             }
