@@ -55,8 +55,8 @@ function FormEmail() {
         <TabPanel primary={`Skicka mail`} >
             {/* Choose group */}
             <DropdownMenu
-                label="Hanteras"
-                list={["Studenter", "Personal", "Politiker"]}
+                label="Mottagare"
+                list={["Alla", "Studenter", "Personal", "Politiker"]}
                 value={group ? group : ""}
                 link="/send/mail/"
                 disabled={pending} />
