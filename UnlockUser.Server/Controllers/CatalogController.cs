@@ -48,6 +48,14 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         }
     }
 
+    // Get groups
+    [HttpGet("groups")]
+    public async Task<IActionResult> GetGroups()
+    {
+        var groups = _config.GetSection("Groups").Get<List<GroupModel>>()?.Select(s => s.Name).ToList();
+        return Ok(groups);
+    }
+
     // Get schools
     [HttpGet("schools")]
     public async Task<IActionResult> GetSchools()

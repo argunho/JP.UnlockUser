@@ -12,6 +12,9 @@ import ModalSuccess from '../../components/modals/ModalSuccess';
 import Message from '../../components/blocks/Message';
 import DropdownMenu from '../../components/lists/DropdownMenu';
 
+// Functions
+import { Capitalize } from '../../functions/Helpers';
+
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
 
@@ -57,7 +60,7 @@ function FormEmail() {
             <DropdownMenu
                 label="Mottagare"
                 list={["Alla", "Studenter", "Personal", "Politiker"]}
-                value={group ? group : ""}
+                value={group ? Capitalize(group) : ""}
                 link="/send/email/"
                 disabled={pending} />
         </TabPanel>
