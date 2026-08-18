@@ -86,14 +86,14 @@ function FormEmail() {
 
     function onClose(){
         handleResponse();
-        revalidate.re
+        revalidate();
     }
 
     const [formState, formAction, pending] = useActionState(onSubmit, { error: null });
 
     const disabled = pending || buffering || !group;
     const formModel = formState?.data;
-
+    const errors = formState?.errors;
     return <>
         <TabPanel primary={`Skicka mail`} >
             {/* Choose group */}
@@ -139,6 +139,7 @@ function FormEmail() {
                     }}
                     disabled={disabled}
                     className="field w-100"
+                    error={errors?.name}
                 />
             </FormControl>
 

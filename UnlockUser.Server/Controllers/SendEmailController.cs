@@ -61,7 +61,7 @@ public class SendEmailController(ILocalMailService service, IHelpService helpSer
                 _service.SendMail(email!, model.Subject!, model.Message!);
             }
 
-            return Ok(_helpService.Success()); // 2026-08-18
+            return Ok(); // 2026-08-18
         }
         catch (Exception ex)
         {
