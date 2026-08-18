@@ -17,16 +17,14 @@ export function loaderById(api) {
     }
 }
 
-export function loaderBySession(api, key, value) {
-    const stored = sessionStorage.getItem(key);
-    if (!!stored){
-        return (stored === "ok") ? null : JSON.parse(stored);
-    }
+export function loaderBySession(api, key, save) {
+    if (!!sessionStorage.getItem(key))
+        return null;
 
     return async function load() {
         const res = await ApiRequest(api, "get");
-        if (res)
-            sessionStorage.setItem(key, value ? JSON.stringify(value) : "ok");
+        if (res || save)
+            sessionStorage.setItem(key, "ok");
         return res;
     }
 }

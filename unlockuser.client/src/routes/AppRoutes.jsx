@@ -48,7 +48,7 @@ const AppRoutes = () => [
       <AppLayout />
     </FetchContextProvider>,
     errorElement: <NotFound isAuthorized={true} />,
-    loader: loaderBySession("article/popup/message", "popup"),
+    loader: loaderBySession("article/popup/message", "popup", true),
     children: [
       {
         index: true,
@@ -101,14 +101,12 @@ const AppRoutes = () => [
       {
         path: 'send/email',
         element: <FormEmail />,
-        errorElement: <ErrorView />,
-        loader: loaderBySession("catalog/groups", "groups", true)
+        errorElement: <ErrorView />
       },
       {
         path: 'send/email/:group',
         element: <FormEmail />,
-        errorElement: <ErrorView />,
-        loader: loaderBySession("catalog/groups", "groups", true)
+        errorElement: <ErrorView />
       },
     ]
   },

@@ -1,41 +1,65 @@
-import { useActionState, use, useState } from 'react';
+import { useActionState, use, useState, useEffect } from 'react';
 
 // Installed
-import { TextField, FormControl } from '@mui/material';
-import { useParams, useNavigate, useLoaderData, useOutletContext } from 'react-router-dom';
+import { TextField, FormControl, InputLabel, Button} from '@mui/material';
+import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
+import { useParams, useOutletContext } from 'react-router-dom';
 
 // Components
 import TabPanel from '../../components/blocks/TabPanel';
 import Editor from '../../components/forms/Editor';
 import FormButtons from '../../components/forms/FormButtons';
-import ModalSuccess from '../../components/modals/ModalSuccess';
 import Message from '../../components/blocks/Message';
 import DropdownMenu from '../../components/lists/DropdownMenu';
 
 // Functions
-import { Capitalize } from '../../functions/Helpers';
+import { Capitalize } from '../../functions/Helpers'
+import { Claim } from './../../functions/DecodedToken';;
 
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
 
+// Services
+import { ApiRequest } from '../../services/ApiRequest';
+
 
 function FormEmail() {
     const [prevFormModel, setPrevFormModel] = useState(undefined);
+    const [groups, setGroups] = useState([]);
+    const [copy, setCopy] = useState(null);
 
-    const { fetchData, pending: buffering, response, success, handleResponse } = use(FetchContext);
+    const email = Claim("email");
+
+    const { fetchData, pending: buffering, response, handleResponse } = use(FetchContext);
 
     const { group } = useParams();
-    const item = useLoaderData();
-    const navigate = useNavigate();
     const { loading } = useOutletContext();
 
+    useEffect(() => {
+        async function getGroups(){
+            const res = await ApiRequest("catalog/groups");
+            console.log(res)
+            if(res && Array.isArray(res))
+                setGroups(res);
+        }
+
+        if(groups?.length === 0)
+            getGroups();
+    }, []);
+
     async function onSubmit(previous, fd) {
-        if(!group)
+        if (!group)
             return;
 
+        const value = fd.get("copyTo")
+        const copyTo = (value !== null && value?.length > 0) ? value?.split(",") : [];
+        if(copy)
+            copyTo.push(copy);
+
         const data = {
-            subject: fd.get("name") ?? item?.name,
+            subject: fd.get("name"),
             message: fd.get("html"),
+            copyTo: copyTo,
             group: group
         }
 
@@ -47,29 +71,44 @@ function FormEmail() {
     const [formState, formAction, pending] = useActionState(onSubmit, { error: null });
 
     const disabled = pending || buffering || !group;
-    const formModel = formState?.data ?? item;
+    const formModel = formState?.data;
 
     if (formModel !== prevFormModel) {
         setPrevFormModel(formModel);
     }
 
-
     return <>
         <TabPanel primary={`Skicka mail`} >
             {/* Choose group */}
             <DropdownMenu
-                label="Mottagare"
-                list={["Alla", "Studenter", "Personal", "Politiker"]}
+                label="Behöriga anställda"
+                list={["Alla", ...groups]}
                 value={group ? Capitalize(group) : ""}
                 link="/send/email/"
-                disabled={pending} />
+                disabled={pending || !groups} />
         </TabPanel>
 
         {/* Error message */}
         {response && <Message res={response} cancel={() => handleResponse()} />}
+        {!group && <Message res={{ color: "info", msg: "Välj e-postmottagare från behöriga anställda!" }} />}
 
         {/* Form */}
         {!loading && <form className='form-manual fade-in' action={formAction}>
+
+            {group && <>
+                <InputLabel sx={{ mb: 3 }}>Mottagare: {Capitalize(group)}</InputLabel>
+
+                <FormControl fullWidth>
+                    <TextField
+                        label="Kopia"
+                        defaultValue={formModel?.name}
+                        name="emails"
+                        placeholder="E-postadresser separerade med kommatecken ..."
+                        disabled={disabled}
+                        className="field w-100"
+                    />
+                </FormControl>
+            </>}
 
             <FormControl fullWidth style={{ marginBottom: "30px" }}>
                 <TextField
@@ -77,7 +116,7 @@ function FormEmail() {
                     required={true}
                     defaultValue={formModel?.name}
                     name="name"
-                    placeholder="Namn på manualen, minst length 5 karaktär"
+                    placeholder="E-post titel ..."
                     inputProps={{
                         minLength: 5
                     }}
@@ -88,11 +127,13 @@ function FormEmail() {
 
             <Editor name="html" required={true} disabled={disabled} defaultValue={formModel?.html} />
 
-            <FormButtons loading={pending} disabled={disabled} confirmable={true} />
-        </form>}
 
-        {/* Success modal */}
-        {(success && !item) && <ModalSuccess onClose={() => navigate(-1)} />}
+            <FormButtons loading={pending} disabled={disabled} confirmable={true}>
+                    <Button startIcon={copy ? <CheckBox/> : <CheckBoxOutlineBlank />} onClick={() => setCopy(copy ? null : email)}>
+                        Skicka mig en kopia
+                    </Button>
+            </FormButtons>
+        </form>}
     </>;
 }
 

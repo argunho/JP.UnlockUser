@@ -33,9 +33,29 @@ public class SendEmailController(ILocalMailService service, IHelpService helpSer
             //};
 
             var moderators = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
-            var receivers = moderators.Where(x => x.Permissions!.Groups.Contains(model.Group, StringComparer.OrdinalIgnoreCase)).Select(s => s.Email)!.ToHashSet<string>();            
-            if (receivers.Count == 0)
+            var emails = string.Equals(model.Group, "Alla", StringComparison.OrdinalIgnoreCase) 
+                ? [.. moderators.Select(s => s.Email!)]
+                : moderators.Where(x => x.Permissions!.Groups.Contains(model.Group, StringComparer.OrdinalIgnoreCase)).Select(s => s.Email)!.ToList();    
+            
+            if (emails.Count == 0)
                 return Ok(_helpService.Warning("E-postmottagare hittades inte"));
+
+            HashSet<string> receivers = [];
+
+            foreach(var email in emails)
+            {
+                if (email != null && _helpService.CheckEmail(email!.Trim()))
+                    receivers.Add(email!.Trim());
+            }
+            
+            if(model.CopyTo != null)
+            {
+                foreach(var email in model.CopyTo!.Split(","))
+                {
+                    if (email != null && _helpService.CheckEmail(email!.Trim()))
+                        receivers.Add(email!.Trim());
+                }
+            }
 
             receivers = ["aslan.khadizov@alvesta.se", "aslan_argun@hotmail.com"];
             foreach (var email in receivers)

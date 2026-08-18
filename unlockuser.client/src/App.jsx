@@ -1,4 +1,4 @@
-import { use } from "react";
+import { use, useMemo } from "react";
 
 // Installed
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -25,8 +25,10 @@ function App() {
 function Root() {
     const { isAuthorized } = use(AuthContext);
 
-    const routes = !isAuthorized ? OpenRoutes() : AppRoutes();
-    const router = createBrowserRouter(routes);
+    const router = useMemo(() => {
+        const routes = !isAuthorized ? OpenRoutes() : AppRoutes();
+        return createBrowserRouter(routes);
+    }, [isAuthorized]);
 
     return <RouterProvider key={isAuthorized} router={router} />
 }

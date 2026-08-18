@@ -40,3 +40,10 @@
 2026-08-18 11:54:28.731 +02:00 [INF] Memory cached. groups_b692f086-304e-c7fc-6e7c-86382a248c9e
 2026-08-18 11:54:28.734 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-08-18 11:54:28.
 2026-08-18 11:54:28.740 +02:00 [INF] Dashboard data setup completed.
+2026-08-18 14:21:00.823 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 14:21:00.
+2026-08-18 14:47:49.988 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 14:47:49.
+2026-08-18 14:47:49.988 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 14:47:49.
+2026-08-18 15:00:13.367 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 15:00:13.
+2026-08-18 15:00:13.379 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 15:00:13.
+2026-08-18 15:33:28.082 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 15:33:28.
+2026-08-18 15:33:28.082 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 15:33:28.
