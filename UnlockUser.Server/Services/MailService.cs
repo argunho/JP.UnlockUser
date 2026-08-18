@@ -29,7 +29,6 @@ public class MailService(IHelpService helpService, ICredentialsService credentia
     //public bool SendMail(string toEmail, string mailSubject, string mailContent, string emailFrom, string password, IFormFile? attachedFile = null)
     public bool SendMail(string toEmail, string mailSubject, string mailContent, IFormFile? attachedFile = null)
     {
-
         try
         {
             var emailFrom = _credentialsService.GetClaim("email");
@@ -37,7 +36,7 @@ public class MailService(IHelpService helpService, ICredentialsService credentia
 
             var path = Path.Combine(@"wwwroot/images/", "alvestakommun.png");
             var logo = ImageToBase64(path);
-            MailMessage _mail = new(new MailAddress("no-reply@alvesta.se", "Unlock User"), new MailAddress(toEmail))
+            MailMessage _mail = new(new MailAddress("no-reply@unlockuser.alvesta.se", "Unlock User"), new MailAddress(toEmail))
             {
                 Subject = mailSubject,
                 Body = mailHtml.Replace("{content}", mailContent).Replace("{logo}", logo),
@@ -85,7 +84,7 @@ public class MailService(IHelpService helpService, ICredentialsService credentia
             var logoImg = ImageToBase64(logoImagePath);
             var contactsImagePath = Path.Combine(@"wwwroot/images", "contacts.png");
             var contactsImg = ImageToBase64(contactsImagePath);
-            MailMessage _mail = new(new MailAddress("unlock.contact@alvesta.se", "Unlock User"), new MailAddress("it.flow@alvesta.se"));
+            MailMessage _mail = new(new MailAddress("contact@unlockuser.alvesta.se", "Unlock User"), new MailAddress("it.flow@alvesta.se"));
             SmtpClient _smtp = new("smtp.alvesta.local");
             _mail.Subject = model.Title;
             _mail.Body = mailHtml.Replace("{content}", model.Text).Replace("{logo}", logoImg).Replace("{contacts}", contactsImagePath);

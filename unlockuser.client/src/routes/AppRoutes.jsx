@@ -21,6 +21,7 @@ import ExpiredSession from '../pages/auth/ExpiredSession';
 import Overview from './../pages/auth/Overview';
 import Permissions from '../pages/auth/permissions';
 import EmployeeView from '../pages/auth/EmployeeView';
+import FormEmail from '../pages/auth/FormEmail';
 
 import Contacts from "../pages/Contacts";
 import NotFound from "../pages/NotFound";
@@ -96,7 +97,12 @@ const AppRoutes = () => [
             errorElement: <ErrorView />
           }
         ]
-      }
+      },
+      {
+        path: 'send/email',
+        element: <FormEmail />,
+        errorElement: <ErrorView />
+      },
     ]
   },
   {
