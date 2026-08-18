@@ -103,6 +103,11 @@ const AppRoutes = () => [
         element: <FormEmail />,
         errorElement: <ErrorView />
       },
+      {
+        path: 'send/email/:group',
+        element: <FormEmail />,
+        errorElement: <ErrorView />
+      },
     ]
   },
   {
