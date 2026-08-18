@@ -101,7 +101,7 @@ function FetchContextProvider({ children }) {
 
             const res = response?.data !== undefined ? response.data : response;
             const warning = (res?.msg || res?.result?.msg || res?.response);
-
+console.log(res)
             if (action === "return" && !warning) {
                 dispatch({ type: "CLEAR" });
                 return res;

@@ -360,28 +360,29 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                                         enterDelay={1000}
                                         leaveDelay={0}
                                         arrow>
-                                        <ToggleButton
-                                            {...(!item?.skip ? { value: item } : null)}
-                                            aria-label={item?.cmd}
-                                            style={{ position: "relative" }}
-                                            onClick={() => handleAction(item, index)}>
-                                            {item?.icon}
-                                            {item?.models && <>
-                                                {openIndex === index ? <ArrowDropUp /> : <ArrowDropDown />}
-                                                {openIndex === index && <div className="d-column jc-start editor-dropdown">
-                                                    {item?.models?.map((m) => (
-                                                        <Button
-                                                            key={m}
-                                                            value={m}
-                                                            aria-label={m}
-                                                            className="w-100"
-                                                            onClick={() => handleChange(m)}>
-                                                            {item?.colors ? <Square style={{ color: m }} /> : m}
-                                                        </Button>
-                                                    ))}
-                                                </div>}
-                                            </>}
-                                        </ToggleButton>
+                                        <div style={{ position: "relative" }}>
+                                            <ToggleButton
+                                                {...(!item?.skip ? { value: item } : null)}
+                                                aria-label={item?.cmd}
+                                                onClick={() => handleAction(item, index)}>
+                                                {item?.icon}
+                                                {item?.models && (openIndex === index ? <ArrowDropUp /> : <ArrowDropDown />)}
+                                            </ToggleButton>
+
+                                            {/* Dropdown lives outside the button - a <button> can't contain another <button> */}
+                                            {item?.models && openIndex === index && <div className="d-column jc-start editor-dropdown">
+                                                {item?.models?.map((m) => (
+                                                    <Button
+                                                        key={m}
+                                                        value={m}
+                                                        aria-label={m}
+                                                        className="w-100"
+                                                        onClick={() => handleChange(m)}>
+                                                        {item?.colors ? <Square style={{ color: m }} /> : m}
+                                                    </Button>
+                                                ))}
+                                            </div>}
+                                        </div>
                                     </Tooltip>
                                 })}
                             </ToggleButtonGroup>

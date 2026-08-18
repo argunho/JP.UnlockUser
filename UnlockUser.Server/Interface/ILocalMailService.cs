@@ -2,6 +2,6 @@
 
 public interface ILocalMailService
 {
-    bool SendMail(string toEmail, string mailSubject, string mailContent, IFormFile? attachedFile = null);
-    bool SendContactEmail(ContactViewModel model);
+    void SendMail(string toEmail, string mailSubject, string mailContent, IFormFile? attachedFile = null);
+    void SendContactEmail(ContactViewModel model);
 }

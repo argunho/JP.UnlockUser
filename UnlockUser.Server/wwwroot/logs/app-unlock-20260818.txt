@@ -47,3 +47,11 @@
 2026-08-18 15:00:13.379 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 15:00:13.
 2026-08-18 15:33:28.082 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 15:33:28.
 2026-08-18 15:33:28.082 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 15:33:28.
+2026-08-18 15:55:02.547 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 15:55:02.
+2026-08-18 15:55:02.547 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 15:55:02.
+2026-08-18 16:00:34.385 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 16:00:34.
+2026-08-18 16:00:34.385 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 16:00:34.
+2026-08-18 16:22:19.132 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 16:22:19.
+2026-08-18 16:22:19.132 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 16:22:19.
+2026-08-18 20:05:24.502 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 20:05:24.
+2026-08-18 20:05:24.502 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-18 20:05:24.

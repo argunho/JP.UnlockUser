@@ -1,7 +1,7 @@
 export function ErrorHandle(error) {
 
     const errorResponse = {
-        color: "Error",
+        color: "error",
         msg: "Något har gått snett.<br/>Fel: "
     }
 

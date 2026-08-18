@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -38,24 +36,24 @@ public class SendEmailController(ILocalMailService service, IHelpService helpSer
                 : moderators.Where(x => x.Permissions!.Groups.Contains(model.Group, StringComparer.OrdinalIgnoreCase)).Select(s => s.Email)!.ToList();    
             
             if (emails.Count == 0)
-                return Ok(_helpService.Warning("E-postmottagare hittades inte"));
+                return Ok(_helpService.Warning("E-postmottagare hittades inte."));
 
             HashSet<string> receivers = [];
 
-            foreach(var email in emails)
-            {
-                if (email != null && _helpService.CheckEmail(email!.Trim()))
-                    receivers.Add(email!.Trim());
-            }
+            //foreach(var email in emails)
+            //{
+            //    if (email != null && _helpService.CheckEmail(email!.Trim()))
+            //        receivers.Add(email!.Trim());
+            //}
             
-            if(model.CopyTo != null)
-            {
-                foreach(var email in model.CopyTo!.Split(","))
-                {
-                    if (email != null && _helpService.CheckEmail(email!.Trim()))
-                        receivers.Add(email!.Trim());
-                }
-            }
+            //if(model.CopyTo?.Count > 0)
+            //{
+            //    foreach(var email in model.CopyTo)
+            //    {
+            //        if (email != null && _helpService.CheckEmail(email!.Trim()))
+            //            receivers.Add(email!.Trim());
+            //    }
+            //}
 
             receivers = ["aslan.khadizov@alvesta.se", "aslan_argun@hotmail.com"];
             foreach (var email in receivers)
@@ -63,7 +61,7 @@ public class SendEmailController(ILocalMailService service, IHelpService helpSer
                 _service.SendMail(email!, model.Subject!, model.Message!);
             }
 
-            return Ok();
+            return Ok(_helpService.Success()); // 2026-08-18
         }
         catch (Exception ex)
         {

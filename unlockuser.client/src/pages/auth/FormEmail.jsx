@@ -3,7 +3,7 @@ import { useActionState, use, useState, useEffect } from 'react';
 // Installed
 import { TextField, FormControl, InputLabel, Button} from '@mui/material';
 import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
-import { useParams, useOutletContext } from 'react-router-dom';
+import { useParams, useOutletContext, useRevalidator } from 'react-router-dom';
 
 // Components
 import TabPanel from '../../components/blocks/TabPanel';
@@ -21,24 +21,24 @@ import { FetchContext } from '../../storage/FetchContext';
 
 // Services
 import { ApiRequest } from '../../services/ApiRequest';
+import ModalSuccess from '../../components/modals/ModalSuccess';
 
 
 function FormEmail() {
-    const [prevFormModel, setPrevFormModel] = useState(undefined);
     const [groups, setGroups] = useState([]);
     const [copy, setCopy] = useState(null);
 
     const email = Claim("email");
 
-    const { fetchData, pending: buffering, response, handleResponse } = use(FetchContext);
+    const { fetchData, pending: buffering, success, response, handleResponse } = use(FetchContext);
 
     const { group } = useParams();
     const { loading } = useOutletContext();
+    const { revalidate } = useRevalidator();
 
     useEffect(() => {
         async function getGroups(){
             const res = await ApiRequest("catalog/groups");
-            console.log(res)
             if(res && Array.isArray(res))
                 setGroups(res);
         }
@@ -51,31 +51,48 @@ function FormEmail() {
         if (!group)
             return;
 
-        const value = fd.get("copyTo")
+        let data = {};
+        let errors = [];
+
+        fd.forEach((value, key) => {
+            if (key !== "copyTo" && value.length < 3)
+                errors.push(key);
+            else
+                data[key] = value;
+        });
+
+        if (errors?.length > 0) {
+            return {
+                errors: errors.reduce((obj, key) => ({ ...obj, [key]: true }), {}),
+                data
+            };
+        }
+
+        const value = fd.get("copyTo");
         const copyTo = (value !== null && value?.length > 0) ? value?.split(",") : [];
         if(copy)
             copyTo.push(copy);
 
-        const data = {
-            subject: fd.get("name"),
-            message: fd.get("html"),
+       data = {
+            subject: data?.name,
+            message: data?.html,
             copyTo: copyTo,
             group: group
         }
 
         // Request
         await fetchData({ api: "sendEmail", method: "post", data: data });
-        return null;
+    }
+
+    function onClose(){
+        handleResponse();
+        revalidate.re
     }
 
     const [formState, formAction, pending] = useActionState(onSubmit, { error: null });
 
     const disabled = pending || buffering || !group;
     const formModel = formState?.data;
-
-    if (formModel !== prevFormModel) {
-        setPrevFormModel(formModel);
-    }
 
     return <>
         <TabPanel primary={`Skicka mail`} >
@@ -134,6 +151,9 @@ function FormEmail() {
                     </Button>
             </FormButtons>
         </form>}
+
+        {/* Success modal */}
+        {success && <ModalSuccess onClose={onClose} />}
     </>;
 }
 

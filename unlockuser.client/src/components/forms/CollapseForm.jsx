@@ -23,7 +23,7 @@ function CollapseForm({ open = true, fieldsName, api, id, onClose }) {
 
     const { fetchData, pending: process, success } = use(FetchContext);
     const refMessage = useRef(null);
-    const { revalidate } = useRevalidator()
+    const { revalidate } = useRevalidator();
 
     async function onSubmit(previous, fd) {
 

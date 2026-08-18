@@ -34,7 +34,7 @@ input[type="password"]:disabled {
 
 .form-manual {
   width: auto !important;
-  max-width: 1350px !important;
+  max-width: 1085px !important;
 }
 
 .form-wrapper>* {

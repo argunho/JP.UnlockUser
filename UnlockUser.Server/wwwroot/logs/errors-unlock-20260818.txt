@@ -1,0 +1,2 @@
+2026-08-18 20:14:59.227 +02:00 [ERR] Emai: aslan_argun@hotmail.com. 
+Error: Mailbox unavailable. The server response was: 5.7.54 SMTP; Unable to relay recipient in non-accepted domain
