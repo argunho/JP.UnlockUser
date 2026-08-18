@@ -89,7 +89,7 @@ function FormEmail() {
         revalidate();
     }
 
-    const [formState, formAction, pending] = useActionState(onSubmit, { error: null });
+    const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
 
     const disabled = pending || buffering || !group;
     const formModel = formState?.data;
