@@ -1,7 +1,7 @@
 import { useActionState, use, useState } from 'react';
 
 // Installed
-import { TextField, FormControl, FormControlLabel, Checkbox } from '@mui/material';
+import { TextField, FormControl } from '@mui/material';
 import { useParams, useNavigate, useLoaderData, useOutletContext } from 'react-router-dom';
 
 // Components
@@ -58,7 +58,7 @@ function FormEmail() {
                 label="Mottagare"
                 list={["Alla", "Studenter", "Personal", "Politiker"]}
                 value={group ? group : ""}
-                link="/send/mail/"
+                link="/send/email/"
                 disabled={pending} />
         </TabPanel>
 
