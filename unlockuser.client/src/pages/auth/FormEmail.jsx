@@ -47,7 +47,7 @@ function FormEmail() {
     }, []);
 
     async function onSubmit(previous, fd) {
-        if (!group)
+        if(!group)
             return;
 
         let data = {};
@@ -73,12 +73,11 @@ function FormEmail() {
         if (sendCopy)
             copyTo.push(email);
 
-
         data = {
             subject: data?.name,
             message: data?.html,
             copyTo: copyTo,
-            group: group
+            group: group == "ingen" ? null : group
         }
 
         // Request
@@ -102,7 +101,7 @@ function FormEmail() {
             {/* Choose group */}
             <DropdownMenu
                 label="Behöriga anställda"
-                list={["Alla", ...groups]}
+                list={["Alla", ...groups, "Ingen"]}
                 value={group ? Capitalize(group) : ""}
                 link="/send/email/"
                 disabled={pending || !groups} />

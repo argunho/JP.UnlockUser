@@ -30,20 +30,22 @@ public class SendEmailController(ILocalMailService service, IHelpService helpSer
             //    _ => null
             //};
 
-            var moderators = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
-            var emails = string.Equals(model.Group, "Alla", StringComparison.OrdinalIgnoreCase) 
-                ? [.. moderators.Select(s => s.Email!)]
-                : moderators.Where(x => x.Permissions!.Groups.Contains(model.Group, StringComparer.OrdinalIgnoreCase)).Select(s => s.Email)!.ToList();    
-            
-            if (emails.Count == 0)
-                return Ok(_helpService.Warning("E-postmottagare hittades inte."));
-
             HashSet<string> receivers = [];
-
-            foreach (var email in emails)
+            if (!string.IsNullOrEmpty(model.Group))
             {
-                if (email != null && _helpService.CheckEmail(email!.Trim()))
-                    receivers.Add(email!.Trim());
+                var moderators = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
+                var emails = string.Equals(model.Group, "Alla", StringComparison.OrdinalIgnoreCase)
+                    ? [.. moderators.Select(s => s.Email!)]
+                    : moderators.Where(x => x.Permissions!.Groups.Contains(model.Group, StringComparer.OrdinalIgnoreCase)).Select(s => s.Email)!.ToList();
+
+                if (emails.Count == 0)
+                    return Ok(_helpService.Warning("E-postmottagare hittades inte."));
+
+                foreach (var email in emails)
+                {
+                    if (email != null && _helpService.CheckEmail(email!.Trim()))
+                        receivers.Add(email!.Trim());
+                }
             }
 
             if (model.CopyTo?.Count > 0)
@@ -54,6 +56,9 @@ public class SendEmailController(ILocalMailService service, IHelpService helpSer
                         receivers.Add(email!.Trim());
                 }
             }
+
+            if(receivers.Count == 0)
+                return Ok(_helpService.Warning("E-postmottagare hittades inte."));
 
             await _service.SendMail([.. receivers], model.Subject!, model.Message!);
 
