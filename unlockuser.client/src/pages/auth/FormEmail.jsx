@@ -1,9 +1,9 @@
 import { useActionState, use, useState, useEffect } from 'react';
 
 // Installed
-import { TextField, FormControl, InputLabel, Button} from '@mui/material';
+import { TextField, FormControl, InputLabel, Button } from '@mui/material';
 import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
-import { useParams, useOutletContext, useRevalidator } from 'react-router-dom';
+import { useParams, useOutletContext } from 'react-router-dom';
 
 // Components
 import TabPanel from '../../components/blocks/TabPanel';
@@ -26,24 +26,23 @@ import ModalSuccess from '../../components/modals/ModalSuccess';
 
 function FormEmail() {
     const [groups, setGroups] = useState([]);
-    const [copy, setCopy] = useState(null);
+    const [sendCopy, setSendCopy] = useState(false);
 
     const email = Claim("email");
-
+    
     const { fetchData, pending: buffering, success, response, handleResponse } = use(FetchContext);
 
     const { group } = useParams();
     const { loading } = useOutletContext();
-    const { revalidate } = useRevalidator();
 
     useEffect(() => {
-        async function getGroups(){
+        async function getGroups() {
             const res = await ApiRequest("catalog/groups");
-            if(res && Array.isArray(res))
+            if (res && Array.isArray(res))
                 setGroups(res);
         }
 
-        if(groups?.length === 0)
+        if (groups?.length === 0)
             getGroups();
     }, []);
 
@@ -55,7 +54,7 @@ function FormEmail() {
         let errors = [];
 
         fd.forEach((value, key) => {
-            if (key !== "copyTo" && value.length < 3)
+            if (key !== "emails" && value.length < 3)
                 errors.push(key);
             else
                 data[key] = value;
@@ -70,10 +69,12 @@ function FormEmail() {
 
         const value = fd.get("copyTo");
         const copyTo = (value !== null && value?.length > 0) ? value?.split(",") : [];
-        if(copy)
-            copyTo.push(copy);
 
-       data = {
+        if (sendCopy)
+            copyTo.push(email);
+
+
+        data = {
             subject: data?.name,
             message: data?.html,
             copyTo: copyTo,
@@ -81,12 +82,13 @@ function FormEmail() {
         }
 
         // Request
-        await fetchData({ api: "sendEmail", method: "post", data: data });
+        await fetchData({ api: "sendEmail", method: "post", data: data, action: "done" });
+        return null;
     }
 
     function onClose(){
         handleResponse();
-        revalidate();
+        setSendCopy(false);
     }
 
     const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
@@ -94,6 +96,7 @@ function FormEmail() {
     const disabled = pending || buffering || !group;
     const formModel = formState?.data;
     const errors = formState?.errors;
+
     return <>
         <TabPanel primary={`Skicka mail`} >
             {/* Choose group */}
@@ -110,7 +113,7 @@ function FormEmail() {
         {!group && <Message res={{ color: "info", msg: "Välj e-postmottagare från behöriga anställda!" }} />}
 
         {/* Form */}
-        {!loading && <form className='form-manual fade-in' action={formAction}>
+        {!loading && <form key={group} className='form-manual fade-in' action={formAction}>
 
             {group && <>
                 <InputLabel sx={{ mb: 3 }}>Mottagare: {Capitalize(group)}</InputLabel>
@@ -118,7 +121,7 @@ function FormEmail() {
                 <FormControl fullWidth>
                     <TextField
                         label="Kopia"
-                        defaultValue={formModel?.name}
+                        defaultValue={formModel?.emails}
                         name="emails"
                         placeholder="E-postadresser separerade med kommatecken ..."
                         disabled={disabled}
@@ -134,22 +137,22 @@ function FormEmail() {
                     defaultValue={formModel?.name}
                     name="name"
                     placeholder="E-post titel ..."
-                    inputProps={{
-                        minLength: 5
-                    }}
                     disabled={disabled}
                     className="field w-100"
                     error={errors?.name}
                 />
             </FormControl>
 
-            <Editor name="html" required={true} disabled={disabled} defaultValue={formModel?.html} />
+            {/* Text editor */}
+            <Editor key={success.toString()} name="html" required={true} disabled={disabled} defaultValue={formModel?.html} />
 
-
+            {/* Buttons */}
             <FormButtons loading={pending} disabled={disabled} confirmable={true}>
-                    <Button startIcon={copy ? <CheckBox/> : <CheckBoxOutlineBlank />} onClick={() => setCopy(copy ? null : email)}>
-                        Skicka mig en kopia
-                    </Button>
+                <Button
+                    startIcon={sendCopy ? <CheckBox /> : <CheckBoxOutlineBlank />}
+                    onClick={() => setSendCopy((sendCopy) => !sendCopy)}>
+                    Skicka mig en kopia
+                </Button>
             </FormButtons>
         </form>}
 

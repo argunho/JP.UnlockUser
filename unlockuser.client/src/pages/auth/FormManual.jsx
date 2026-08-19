@@ -43,7 +43,7 @@ function FormManual({ api, label, checkbox }) {
         }
 
         // Request
-        await fetchData({ api: id ? `${api}/${id}` : "manual", method: id ? "put" : "post", data: data });
+        await fetchData({ api: id ? `${api}/${id}` : "manual", method: id ? "put" : "post", data: data, action: "done" });
         return null;
     }
 

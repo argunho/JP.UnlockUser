@@ -47,7 +47,6 @@ function AppLayout() {
     }
   }, [loc])
 
-
   async function hideMessage() {
     setOpen(false);
     await fetchData({ api: "article/hide/popup/message", method: "post", action: "clean" });

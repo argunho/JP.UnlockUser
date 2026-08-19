@@ -40,11 +40,11 @@ public class SendEmailController(ILocalMailService service, IHelpService helpSer
 
             HashSet<string> receivers = [];
 
-            foreach (var email in emails)
-            {
-                if (email != null && _helpService.CheckEmail(email!.Trim()))
-                    receivers.Add(email!.Trim());
-            }
+            //foreach (var email in emails)
+            //{
+            //    if (email != null && _helpService.CheckEmail(email!.Trim()))
+            //        receivers.Add(email!.Trim());
+            //}
 
             if (model.CopyTo?.Count > 0)
             {
@@ -55,11 +55,7 @@ public class SendEmailController(ILocalMailService service, IHelpService helpSer
                 }
             }
 
-
-            foreach (var email in receivers)
-            {
-                _service.SendMail(email!, model.Subject!, model.Message!);
-            }
+            await _service.SendMail([.. receivers], model.Subject!, model.Message!);
 
             return Ok();
         }

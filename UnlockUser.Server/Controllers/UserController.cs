@@ -248,7 +248,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                 // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
                 var claims = _credentialsService.GetClaims(["email", "displayname"]) ?? [];
                 //var pass = _helpService.DecodeFromBase64("HashedCredential").Replace(_config["JwtSettings:Key"]!, "") ?? "";
-                _localMailService.SendMail(claims["email"], file!.FileName.Replace(".pdf", ""),
+                await _localMailService.SendMail([claims["email"]], file!.FileName.Replace(".pdf", ""),
                             $"Hej {claims["displayname"]}!<br/> Här bifogas PDF document filen med nya lösenord till elever från {label}.",
                             file);
 

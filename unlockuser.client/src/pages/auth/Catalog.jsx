@@ -51,7 +51,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
     const minDate = minDateObj.toISOString().split("T")[0];
 
     const navigate = useNavigate();
-    const { revalidate } = useRevalidator()
+    const revalidator = useRevalidator();
 
     const { content: pagination, page, perPage } = usePagination(
         {
@@ -79,7 +79,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
         const success = await fetchData({ api: `${api}/${confirmId}`, method: "delete", action: "success" });
 
         if (success)
-            revalidate();
+            revalidator.revalidate();
         setConfirmId(null);
     }
 

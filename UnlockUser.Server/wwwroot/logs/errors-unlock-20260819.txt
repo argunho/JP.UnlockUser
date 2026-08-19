@@ -1,0 +1,13 @@
+2026-08-19 09:27:30.223 +02:00 [ERR] Autentisering misslyckades. Fel: Information about the domain could not be retrieved (1355).
+2026-08-19 10:29:18.969 +02:00 [ERR] Emai: aslan.khadizov@alvesta.se. 
+Error: Failure sending mail.
+2026-08-19 10:30:21.978 +02:00 [ERR] DashboardService. Felmeddelande: Den angivna domänen finns inte eller kunde inte kontaktas.
+2026-08-19 10:32:52.563 +02:00 [ERR] DashboardService. Felmeddelande: Den angivna domänen finns inte eller kunde inte kontaktas.
+2026-08-19 10:32:52.642 +02:00 [ERR] DashboardService. Felmeddelande: Den angivna domänen finns inte eller kunde inte kontaktas.
+2026-08-19 10:35:35.018 +02:00 [ERR] DashboardService. Felmeddelande: Den angivna domänen finns inte eller kunde inte kontaktas.
+2026-08-19 10:35:35.066 +02:00 [ERR] DashboardService. Felmeddelande: Den angivna domänen finns inte eller kunde inte kontaktas.
+2026-08-19 10:35:35.110 +02:00 [ERR] DashboardService. Felmeddelande: Den angivna domänen finns inte eller kunde inte kontaktas.
+2026-08-19 10:36:47.394 +02:00 [ERR] DashboardService. Felmeddelande: Den angivna domänen finns inte eller kunde inte kontaktas.
+2026-08-19 10:36:47.479 +02:00 [ERR] DashboardService. Felmeddelande: Den angivna domänen finns inte eller kunde inte kontaktas.
+2026-08-19 10:39:01.560 +02:00 [ERR] Autentisering misslyckades. Fel: The server could not be contacted.
+2026-08-19 10:39:15.464 +02:00 [ERR] Autentisering misslyckades. Fel: The server could not be contacted.

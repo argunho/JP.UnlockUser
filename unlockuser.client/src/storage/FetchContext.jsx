@@ -33,6 +33,8 @@ function fetchReducer(state, action) {
             return { ...state, loading: !action.isMutation, pending: action.isMutation };
         case 'SUCCESS':
             return { ...state, ...processClean, success: true, data: action.payload };
+        case 'SUCCESS_DONE':
+            return { ...state, ...processClean, success: true };
         case 'ERROR':
             return { ...state, ...processClean, response: action.payload };
         case 'MESSAGE':
@@ -118,7 +120,11 @@ function FetchContextProvider({ children }) {
             } else if (action === "clean") {
                 dispatch({ type: "CLEAN" });
             } else {
-                dispatch({ type: action !== "complete" ? 'SUCCESS' : "COMPLETE", payload: null });
+                if(action === "done")
+                    dispatch({ type: 'SUCCESS_DONE' });
+                else
+                    dispatch({ type: action !== "complete" ? 'SUCCESS' : "COMPLETE", payload: null });
+
             }
 
             if (action === "success")
@@ -141,7 +147,7 @@ function FetchContextProvider({ children }) {
     }, []);
 
     const handleResponse = useCallback((value = null) => {
-        if (!!value)
+        if (value != null)
             dispatch({ type: 'MESSAGE', payload: value });
         else
             dispatch({ type: "CLEAR" });
