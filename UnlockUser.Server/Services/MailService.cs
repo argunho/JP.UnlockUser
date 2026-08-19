@@ -20,8 +20,8 @@ public class MailService(IHelpService helpService, ICredentialsService credentia
             "</div>\r\n" +
             "<div style=\"padding:24px;font-size:14px;line-height:1.6;color:#333\">\r\n{content}\r\n</div>\r\n" +
             "<div style=\"margin-top:30px;padding:16px 24px;background-color:#f7f9fb;text-transform:uppercase;color:#6b7280;border-top:1px solid #e6e9ef\">\r\n" +
-                "<p style=\"max-width:800px;margin:0 auto 3px auto;text-align:center\"><a href=\"https://unlockuser.alvesta.se\" target=\"_blank\" style=\"color:#0069b4;font-size:12px;text-decoration:none\">Besök Unlock User</a></p>" +
-                "<p style=\"max-width:800px;margin:3px auto 0 auto;text-align:center;font-size:9px;leter-spacing:0.5px;color:#9aa0a6\">\r\nDetta e-postmeddelande skickades av  Unlock User · Alvesta Kommun\r\n</p>" +
+                "<p style=\"max-width:800px;margin:0 auto 8px auto;text-align:center\"><a href=\"https://unlock.alvesta.se\" target=\"_blank\" style=\"color:#0069b4;font-size:12px;text-decoration:none\">Besök Unlock User</a></p>" +
+                "<p style=\"max-width:800px;margin:3px auto 0 auto;text-align:center;font-size:9px;leter-spacing:0.5px;color:#9aa0a6\">\r\nDetta e-postmeddelande skickades från Unlock User · Alvesta Kommun\r\n</p>" +
             "</div>\r\n\r\n" +
         "</div></div>";
 
