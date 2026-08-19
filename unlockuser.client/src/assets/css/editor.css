@@ -127,13 +127,21 @@
 .editor-dropdown {
     position: absolute !important;
     top: 50px !important;
-    height: 160px;
-    overflow: auto;
-    width: 100%;
-    background-color: #FFFFFF;
-    border: 1px solid var(--color-gray);
+    right: 0;
+    height: auto;
+    overflow: visible;
+    width: 170px;
+    background-color: #f5f5f5c7;
+    border: 1px solid var(--color-light-gray);
     z-index: 3000;
     padding: 3px 0;
+    flex-wrap: wrap;
+}
+
+.editor-dropdown button {
+    min-width: unset;
+    width: calc(100% / 5)!important;
+    padding: 3px !important;
 }
 
 .editor-textarea {

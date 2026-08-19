@@ -18,6 +18,7 @@ const colorCodes = [
     "#000000",
     "#FF0000",
     "#00FF00",
+    "#166406",
     "#0000FF",
     "#FFFF00",
     "#00FFFF",
@@ -370,13 +371,12 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                                             </ToggleButton>
 
                                             {/* Dropdown lives outside the button - a <button> can't contain another <button> */}
-                                            {item?.models && openIndex === index && <div className="d-column jc-start editor-dropdown">
+                                            {item?.models && openIndex === index && <div className="d-row jc-start editor-dropdown">
                                                 {item?.models?.map((m) => (
                                                     <Button
                                                         key={m}
                                                         value={m}
                                                         aria-label={m}
-                                                        className="w-100"
                                                         onClick={() => handleChange(m)}>
                                                         {item?.colors ? <Square style={{ color: m }} /> : m}
                                                     </Button>
@@ -418,7 +418,6 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                     </div>
                 </Box>
             </div>
-
 
             {/* Hidden */}
             {!onSave && <input type="hidden" name={name} value={cleanHtml(value)} />}

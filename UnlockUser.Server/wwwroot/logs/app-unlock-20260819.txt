@@ -83,3 +83,5 @@
 2026-08-19 11:10:45.936 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-19 11:10:45.
 2026-08-19 11:13:36.142 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-19 11:13:36.
 2026-08-19 11:13:36.142 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-19 11:13:36.
+2026-08-19 13:31:05.899 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-19 13:31:05.
+2026-08-19 13:31:05.900 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-08-19 13:31:05.
