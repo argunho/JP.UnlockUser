@@ -12,9 +12,9 @@ public class MailService(IHelpService helpService, ICredentialsService credentia
     private readonly ILogger<MailService> _logger = logger;
 
     // Template params
-    private static string mailHtml = "<div style=\"width:98%;display:block;margin:auto;background-color:#f4f6f8;padding:20px;font-family:Segoe UI, Tahoma, sans-serif;color:#333\">\r\n" +
-        "<div style=\"max-width:800px;margin:0 auto;background-color:#FFFFFF;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.1)\">\r\n" +
-            "<div style=\"padding:20px 24px;background-color:#FFFFFF;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e6e9ef\">\r\n" +
+    private static string mailHtml = "<div style=\"margin:0;padding:12px;background-color:#f4f6f8;font-family:Segoe UI, Tahoma, sans-serif;color:#333;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%\">\r\n" +
+        "<div style=\"width:100%;max-width:600px;margin:0 auto;background-color:#FFFFFF;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.1);box-sizing:border-box\\\">\r\n" +
+            "<div style=\"padding:20px 24px;background-color:#FFFFFF;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e6e9ef;box-sizing:border-box\">\r\n" +
                 "<div style=\"font-size:18px;font-weight:600;\">Unlock User</div>\r\n" +
                 "<img src=\"data:image/png;base64,{logo}\" alt=\"Alvesta Kommun\" style=\"height:48px\"/>\r\n" +
             "</div>\r\n" +
@@ -24,15 +24,6 @@ public class MailService(IHelpService helpService, ICredentialsService credentia
                 "<p style=\"max-width:800px;margin:3px auto 0 auto;text-align:center;font-size:9px;leter-spacing:0.5px;color:#9aa0a6\">\r\nDetta e-postmeddelande skickades från Unlock User · Alvesta Kommun\r\n</p>" +
             "</div>\r\n\r\n" +
         "</div></div>";
-
-
-    //#0069b4
-    //"<div style=\"width:98%;display:block;margin:auto;background-color:#FFFFFF;font-family:Tahoma\">" +                                
-    //                                "<div style=\"width:auto;padding:15px 10px;font-size:'14px';display:block;\"><br/>{content}</div>" +
-    //                                "<div style=\"width:100%;display:block;background:#FFF;border-top:1px solid #F2F3F6\">" +
-    //                                    "<a href=\"https://unlockuser.alvesta.se\" target=\"_blank\">Unlock User</a>" +
-    //                                    "<img src=\"data:image/png;base64,{logo}\" alt='Alvesta Kommun' width='150' height='75' style=\"display: block;margin: 15pt\"/>" +
-    //                                "</div></div>" ;
 
     // Send mail service
     public async Task SendMail(List<string> recipients, string mailSubject, string mailContent, IFormFile? attachedFile = null)
