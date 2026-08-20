@@ -84,12 +84,12 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         var group_members = GetCachedUsersGroup(name);
         if (group_members.Count > 0)
         {
-            HashSet<string> groups = [];
-            foreach (var item in group_members)
-            {
-                if (item.Office != null)
-                    groups.Add(item.Office);
-            }
+            //HashSet<string> groups = [];
+            //foreach (var item in group_members)
+            //{
+            //    if (item.Office != null)
+            //        groups.Add(item.Office);
+            //}
             return Ok(group_members);
         }
 

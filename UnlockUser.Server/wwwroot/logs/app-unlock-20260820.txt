@@ -114,3 +114,8 @@
 2026-08-20 20:55:10.950 +02:00 [INF] End save process. moderators
 2026-08-20 20:55:29.745 +02:00 [INF] Starting process to save file moderators
 2026-08-20 20:55:29.754 +02:00 [INF] End save process. moderators
+2026-08-20 21:01:14.619 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-08-20 21:01:14.
+2026-08-20 21:01:30.606 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-08-20 21:01:30.
+2026-08-20 21:01:45.291 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-08-20 21:01:45.
+2026-08-20 21:01:45.293 +02:00 [INF] Memory cached. groups_df594857-db61-e8e3-683c-3312d8aeda99
+2026-08-20 21:01:45.295 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-08-20 21:01:45.
