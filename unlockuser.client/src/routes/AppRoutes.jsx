@@ -222,7 +222,7 @@ const AppRoutes = () => [
       },
       {
         path: 'schools',
-        element: <Catalog label="Skolor" api="catalog/school" fields="school" />,
+        element: <Catalog label="Skolor/Utbildningsanstalt" api="catalog/school" fields="school" />,
         errorElement: <ErrorView />,
         loader: loader("catalog/schools")
       },

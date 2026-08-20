@@ -13,7 +13,7 @@ import { FetchContext } from './../../storage/FetchContext';
 
 const fields = {
     school: [
-        { label: "Skola", name: "name" },
+        { label: "Utbildningsanstalt", name: "name" },
         { label: "Ort", name: "place" }
     ]
 }

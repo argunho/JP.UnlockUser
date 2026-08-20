@@ -38,7 +38,17 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             var groups = _config.GetSection("Groups").Get<List<GroupModel>>()?.Select(s => s.Name).ToList();
             var schools = await SchoolsFromFile();
 
-            return Ok(new { moderators, managers, politicians, schools, approvedEmployees, groups });
+            //if (moderators.Count > 0)
+            //{
+            //    HashSet<string> m_groups = [];
+            //    foreach (var item in moderators)
+            //    {
+            //        if (item.Office != null)
+            //            m_groups.Add(item.Office);
+            //    }
+            //}
+
+            return Ok(new { moderators = moderators.OrderBy(x => x.Office).ToList(), managers, politicians, schools, approvedEmployees, groups });
         }
         catch (Exception ex)
         {

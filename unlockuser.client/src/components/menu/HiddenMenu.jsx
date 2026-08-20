@@ -16,7 +16,7 @@ const links = [
     { label: "Webapp-manual", url: "/web/manual", icon: <MenuBook />, access: true, blink: true },
     { label: "Informations artiklar", url: "/web/articles", icon: <Info />, access: false, blink: true },
     { label: "Behöriga användare", url: "/moderators", icon: <Settings />, access: true },
-    { label: "Skolor", url: "/catalog/schools", icon: <School />, access: true },
+    { label: "Skolor/Utbildningsanstalt", url: "/catalog/schools", icon: <School />, access: true },
     { label: "Statistik", url: "/catalog/statistics", icon: <BarChart />, access: true },
     { label: "Historik", url: "/catalog/history", icon: <WorkHistory />, access: true },
     { label: "Loggfiler", url: "/catalog/errors", icon: <ErrorOutline />, access: true },

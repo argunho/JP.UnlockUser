@@ -37,6 +37,7 @@ const initialState = {
     isClass: false,
     isMatch: false,
     isChanged: false,
+    byOffice: false,
     isCleaned: null,
 }
 
@@ -76,7 +77,7 @@ import './../../assets/css/home.css';
 function Home() {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { isClass, isMatch, isChanged, isCleaned, users, group } = state;
+    const { isClass, isMatch, isChanged, isCleaned, byOffice, users, group } = state;
 
     const permissionGroups = Claim("permissions")?.split(",");
     const openAccess = Claim("openAccess");
@@ -212,22 +213,25 @@ function Home() {
 
         let res = null;
         if (collection?.length > 0) {
-            if (gn === "support")
-                res = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)));
-            else {
+            if (gn === "support") {
+                if (byOffice)
+                    res = collection?.filter(x => x?.office?.toLowerCase().includes(name));
+                else
+                    res = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)));
+            } else {
                 res = (isClass)
                     ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)?.sort((a, b) => a.name?.toLowerCase().localeCompare(b.name?.toLowerCase()))
                     : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name))
                         && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
- 
+
                 if (isClass && res?.length > 0) {
                     const oneYearAgo = new Date();
                     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
                     res = res.map(item => {
                         let d = item.registered;
                         let date = d != null ? new Date(`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`) : null;
-                        
-                        if (date === null || date > oneYearAgo){
+
+                        if (date === null || date > oneYearAgo) {
                             return item;
                         }
                     }).filter(Boolean);
@@ -305,13 +309,28 @@ function Home() {
                         maxLength: 30,
                         minLength: 2,
                         endAdornment: <InputAdornment position="end">
+                            {/* Checkbox and search by office */}
+                            {gn === "support" && <FormControlLabel
+                                control={<Checkbox
+                                    name="match"
+                                    disabled={pending}
+                                    checked={byOffice}
+                                    onClick={() => {
+                                        handleDispatch("byOffice", !byOffice)
+                                        handleDispatch("isMatch", false)
+                                    }} />}
+                                label="Avdelning/Skola" />}
+
                             {/* Checkbox and radio with search parameters to choose for user search */}
                             {!isClass && <FormControlLabel
                                 control={<Checkbox
                                     name="match"
                                     disabled={isClass || pending}
                                     checked={isMatch}
-                                    onClick={() => handleDispatch("isMatch", !isMatch)} />}
+                                    onClick={() => {
+                                        handleDispatch("isMatch", !isMatch)
+                                        handleDispatch("byOffice", false)
+                                    }} />}
                                 label="Exakt matchning" />}
 
                             {/* Reset form - button */}
