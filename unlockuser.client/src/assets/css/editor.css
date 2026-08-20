@@ -131,7 +131,7 @@
     height: auto;
     overflow: visible;
     width: 170px;
-    background-color: #f5f5f5c7;
+    background-color: #f5f5f5;
     border: 1px solid var(--color-light-gray);
     z-index: 3000;
     padding: 3px 0;
