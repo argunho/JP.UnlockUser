@@ -6,7 +6,7 @@ import {
   ListItemAvatar, Avatar, Checkbox
 } from '@mui/material';
 import { WysiwygSharp, ArrowForward } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 // Components
 import ListPanel from './ListPanel';
@@ -17,6 +17,7 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
   const [selected, setSelected] = useState([]);
 
   const navigate = useNavigate();
+  const loc = useLocation()
 
   const organized = list.reduce((label, item) => {
     if (!label[item[grouped]])
@@ -47,6 +48,12 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
       else
         setSelected(previous => [...previous, value]);
     }
+  }
+
+  function onSecondaryClick(e, key){
+    e.stopPropagation();
+    console.log(key)
+    navigate(loc.pathname, { state: { key: key }});
   }
 
   return (
@@ -94,7 +101,10 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
               {/* Data */}
               <ListItemText
                 primary={item?.primary}
-                secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }}></span>}
+                secondary={<span 
+                  dangerouslySetInnerHTML={{ __html: item?.secondary }}
+                  {... (item?.secondaryKey ? { onClick: (e) => onSecondaryClick(e, item?.secondaryKey) } : null)}>
+                </span>}   
               />
             </ListItemButton>
           })}

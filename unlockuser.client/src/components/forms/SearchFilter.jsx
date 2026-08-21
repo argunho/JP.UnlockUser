@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
 import { TextField, IconButton } from '@mui/material';
 
-function SearchFilter({ label, disabled, styles, onSearch, onReset }) {
+function SearchFilter({ label, disabled, styles, onSearch, onReset, ref }) {
 
     const [value, setValue] = useState("");
 
@@ -41,6 +41,7 @@ function SearchFilter({ label, disabled, styles, onSearch, onReset }) {
                             variant="text"
                             color="error"
                             className="search-reset search-button-mobile"
+                            ref={ref}
                             onClick={resetHandle}>
                             <SearchOffSharp />
                         </IconButton>}

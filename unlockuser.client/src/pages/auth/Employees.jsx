@@ -1,7 +1,6 @@
-import { useEffect } from 'react';
-
 // Installed
-import { IconButton, List, ListItem, ListItemIcon, ListItemText
+import {
+    IconButton, List, ListItem, ListItemIcon, ListItemText
 } from '@mui/material';
 import { ArrowForward } from '@mui/icons-material';
 import { useOutletContext, useNavigate } from 'react-router-dom';
@@ -18,7 +17,7 @@ import '../../assets/css/list-view.css';
 
 function Employees() {
 
-    const { moderators, onReset } = useOutletContext();
+    const { moderators, pathname, key,  onReset } = useOutletContext();
     const navigate = useNavigate();
 
     const { content: pagination, page, perPage } = usePagination(
@@ -28,9 +27,10 @@ function Employees() {
             number: 20
         });
 
-    useEffect(() => {
-        document.title = "UnlockUser | Anställda";
-    }, [])
+    function onSecondaryClick(e, key) {
+        e.stopPropagation();
+        navigate(pathname, { state: { key: key } });
+    }
 
     return (
         <>
@@ -39,24 +39,27 @@ function Employees() {
 
             {/* If list is empty or bad response from server */}
             {moderators.length == 0
-                && <Message res={{ color: "info", msg: "Inga anställda hittades..." }} 
+                && <Message res={{ color: "info", msg: "Inga anställda hittades..." }}
                     cancel={onReset} styles={{ marginTop: "32px" }} />}
 
             {/* Result list */}
-            {(moderators?.length > 0 && <List className="d-row list-container w-100">
+            {(moderators?.length > 0 && <List className="d-row jc-start list-container w-100">
 
                 {/* Loop of result list */}
-                {moderators?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, index) => {
+                {(key ? moderators.filter(x => x.office.toLowerCase().includes(key?.toLowerCase())) : moderators)?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, index) => {
                     const calculatedIndex = (perPage * (page - 1)) + (index + 1);
                     return <ListItem key={index} className={`list-item${(calculatedIndex === moderators?.length && ((index + 1) % 2) !== 0) ? " w-100 last" : ""}`}
                         secondaryAction={<IconButton onClick={() => navigate(`/moderators/view/${item?.username}`)}>
                             <ArrowForward />
-                        </IconButton>}> 
+                        </IconButton>}>
                         <ListItemIcon>
                             {page > 1 ? calculatedIndex : index + 1}
                         </ListItemIcon>
                         <ListItemText primary={<span dangerouslySetInnerHTML={{ __html: item?.primary }} />}
-                            secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }} />} />
+                            secondary={<span
+                                dangerouslySetInnerHTML={{ __html: item?.secondary }}
+                                {... (item?.secondaryKey ? { onClick: (e) => onSecondaryClick(e, item?.secondaryKey) } : null)}
+                            />} />
                     </ListItem>
                 })}
             </List>)}

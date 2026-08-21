@@ -6,6 +6,7 @@ public class UserViewModel : User
     public string? Group { get; set; }
     public string? Primary => DisplayName;
     public string? Secondary => $"{Username},\t{Email} | <span class=\"secondary-span\">{Office + (Office != Department ? (" | " + Department) : "")}</span>";
+    public string? SecondaryKey => Office;
 
     public UserViewModel(User user)
     {

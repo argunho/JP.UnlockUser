@@ -7,7 +7,7 @@ import {
     Button, FormControl, FormControlLabel, Tooltip, IconButton,
     Radio, RadioGroup, TextField, Checkbox, InputAdornment
 } from '@mui/material';
-import { useOutletContext, NavLink, useNavigate } from 'react-router-dom'; //, useSearchParams
+import { useOutletContext, NavLink, useNavigate, useLocation } from 'react-router-dom'; //, useSearchParams
 
 // Components
 import ModalView from '../../components/modals/ModalView';
@@ -63,7 +63,7 @@ function actionReducer(state, action) {
             };
         case "RESET":
             return {
-                ...state, isChanged: false, users: null, isMatch: false, isCleaned: new Date().getMilliseconds()
+                ...state, isChanged: false, users: null, isMatch: false, byOffice: false, isCleaned: new Date().getMilliseconds()
             };
         default:
             return state;
@@ -87,12 +87,15 @@ function Home() {
     const gn = group ? group?.toLowerCase() : groupName;
 
     const navigate = useNavigate();
+    const loc = useLocation();
+    const key = loc.state?.key;
     // const [ searchParams ] = useSearchParams();
     // const name = searchParams.get('name') ?? null;
 
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
     const groupCollectionRef = useRef(null);
+
 
     function waitForCollection(timeout = 60000) {
         return new Promise((resolve) => {
@@ -140,6 +143,16 @@ function Home() {
             console.error(error);
         }
     }
+
+    useEffect(() => {
+        if (!key) return;
+        console.log(key)
+        onReset();
+        const collection = groupCollectionRef.current;
+        const res = collection?.filter(x => x?.office?.toLowerCase().includes(key.toLowerCase()));
+        handleDispatch("byOffice", true);
+        handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
+    }, [key])
 
     useEffect(() => {
         document.title = "UnlockUser | Sök";

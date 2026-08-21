@@ -38,7 +38,7 @@ function TabPanel({ children, primary, secondary, initialsView }) {
 
             {children}
 
-            <IconButton className="nav-back" onClick={() => navigate(-1)}>
+            <IconButton className="nav-back" onClick={() => navigate(-1, { state: {} })}>
                 <ArrowBack />
             </IconButton>
         </div>

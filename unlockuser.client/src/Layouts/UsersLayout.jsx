@@ -1,7 +1,7 @@
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useRef } from 'react';
 
 // Installed
-import { Outlet, useNavigation, useLoaderData, NavLink, useParams, useRevalidator } from 'react-router-dom';
+import { Outlet, useNavigation, useLoaderData, NavLink, useParams, useRevalidator, useLocation, useNavigate } from 'react-router-dom';
 import { IconButton, Tooltip } from '@mui/material';
 import { Refresh, Forward } from '@mui/icons-material';
 
@@ -26,6 +26,10 @@ function UsersLayout() {
     const navigation = useNavigation();
     const { group, id } = useParams();
     const revalidator = useRevalidator();
+    const navigate = useNavigate();
+    const loc = useLocation();
+    const key = loc.state?.key;
+    const refSearch = useRef();
 
     const groupName = Capitalize(group);
 
@@ -51,10 +55,11 @@ function UsersLayout() {
     async function renewList() {
         await fetchData({ api: "catalogs/renew/saved", method: "post", action: "success" });
         sessionStorage.setItem("updated", new Date().toISOString());
-        revalidator.revalidate();
+        revalidate();
     }
 
     function revalidate() {
+        searchClear();
         revalidator.revalidate();
     }
 
@@ -72,6 +77,12 @@ function UsersLayout() {
     const loading = navigation.state === "loading";
     const renewDisabled = sessionStorage.getItem("updated");
     const renewTime = new Date(renewDisabled).toLocaleDateString() + " " + new Date(renewDisabled).toLocaleTimeString();
+    
+    function searchClear(){
+        setSearchValue(null);
+        if(key)
+            navigate(loc.pathname, { replace: true, state: {}});
+    }
 
     return (
         <>
@@ -104,7 +115,8 @@ function UsersLayout() {
                             label="anställda"
                             disabled={loading || response}
                             onSearch={(value) => setSearchValue(value)}
-                            onReset={() => setSearchValue(null)} />
+                            onReset={searchClear} 
+                            ref={refSearch} />
 
 
                         {/* Refresh button */}
@@ -130,7 +142,9 @@ function UsersLayout() {
                             moderators: (searchValue
                                 ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchValue?.toLowerCase()))
                                 : moderatorsByGroup),
-                            onReset: () => setSearchValue(null)
+                            onReset: () => refSearch.current?.click(), // 2026-08-21 12:31
+                            pathname: loc.pathname,
+                            key: searchValue ? null : key
                         } : { ...loaded, moderator, searchValue, revalidate }} />
 
                 {/* Loading */}
