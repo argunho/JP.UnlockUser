@@ -232,6 +232,7 @@ function Home() {
                 else
                     res = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)));
             } else {
+                console.log(isClass, name, school, collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school))
                 res = (isClass)
                     ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)?.sort((a, b) => a.name?.toLowerCase().localeCompare(b.name?.toLowerCase()))
                     : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name))
@@ -240,10 +241,11 @@ function Home() {
                 if (isClass && res?.length > 0) {
                     const oneYearAgo = new Date();
                     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
                     res = res.map(item => {
                         let d = item.registered;
-                        let date = d != null ? new Date(`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`) : null;
-
+                        let date = d != null ? new Date(d) : null;
+console.log(oneYearAgo, d, date, `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`)
                         if (date === null || date > oneYearAgo) {
                             return item;
                         }

@@ -11,7 +11,8 @@ namespace UnlockUser.Server.Controllers;
 [ApiController]
 [Authorize]
 public class DataController(IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService,
-                                        IConfiguration config, IMemoryCache memoryCache, IRefreshLockService lockService, DashboardService dashboardService, ILogger<DataController> logger) : ControllerBase
+                                        IConfiguration config, IMemoryCache memoryCache, IRefreshLockService lockService, IGoogleService googleService,
+                                        DashboardService dashboardService, ILogger<DataController> logger) : ControllerBase
 {
     private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentials = credentials;
@@ -19,6 +20,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     private readonly IConfiguration _config = config;
     private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly IRefreshLockService _lockService = lockService;
+    private readonly IGoogleService _googleService = googleService;
     private readonly DashboardService _dashboardService = dashboardService;
 
     private readonly ILogger<DataController> _logger = logger;
@@ -116,6 +118,14 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         }
 
         return Ok(group_members);
+    }
+
+    [HttpGet("students")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetStudents()
+    {
+        var users = await _googleService.GetStudentsFromGoogle();
+        return Ok(users);
     }
     #endregion
 

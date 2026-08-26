@@ -20,7 +20,7 @@ public class UserViewModel : User
             Office = user?.Office;
             Division = user?.Division;
             Title = user?.Title;
-            Registered = user?.Registered;
+            Registered = user?.Registered != null ? Convert.ToDateTime(user?.Registered).ToString("yyyy-MM-dd") : null;
             IsLocked = user!.IsLocked || false;
             Permissions = user?.Permissions;
         }

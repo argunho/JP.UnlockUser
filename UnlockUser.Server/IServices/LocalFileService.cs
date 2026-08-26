@@ -33,6 +33,27 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IL
         }
     }
 
+    public async Task<string?> GetStringFromEncryptedFile(string fileName)
+    {
+        try
+        {
+            var path = Path.Combine(_webRootPath, $"{fileName}.txt");
+            if (!File.Exists(path))
+                return null;
+            var res = await File.ReadAllTextAsync(path);
+            byte[] resInBytes = Convert.FromBase64String(res);
+
+            // Decrypt file content
+            return DecryptStringFromBytes(resInBytes);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+        }
+
+        return null;
+    }
+
     public string DecryptStringFromBytes(byte[] cypherText)
     {
         // Check arguments.
@@ -98,39 +119,15 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IL
         return encrypted;
     }
 
-    public async Task<string?> SaveUpdateEncryptedFile<T>(List<T> list, string pathName, string fileName) where T : class
+    public async Task SaveUpdateEncryptedModelFile<T>(List<T> list, string pathname, string fileName) where T : class
     {
         string? error = String.Empty;
         try
         {
-            var directory = Path.Combine(_webRootPath, pathName);
-            CheckDirectory(directory);
-
-            var path = Path.Combine(directory, $"{fileName}.txt");
-            if (File.Exists(path))
-            {
-                try
-                {
-                    // Remove read-only attribute if present so we can overwrite/delete
-                    File.SetAttributes(path, FileAttributes.Normal);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning("Could not clear file attributes for {path}: {msg}", path, ex.Message);
-                }
-
-                try
-                {
-                    File.Delete(path);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning("Could not delete existing file {path}: {msg}", path, ex.Message);
-                }
-            }
-
             if (list.Count == 0)
-                return null;
+                return;
+
+            string path = PathnameReadOnlyOwerwrite(pathname, fileName);
 
             await Task.Delay(1000);
 
@@ -139,20 +136,7 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IL
             // Encrypt file
             var encryptedValue = JsonConvert.SerializeObject(list, Formatting.None);
 
-            // Encrypt the string to an array of bytes.
-            byte[] encrypted = EncryptStringToBytes(encryptedValue);
-            string exryotedText = Convert.ToBase64String(encrypted);
-            File.WriteAllText(path, exryotedText, Encoding.UTF8);
-            try
-            {
-                // Ensure file is not left read-only
-                File.SetAttributes(path, FileAttributes.Normal);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("Could not set file attributes for {path}: {msg}", path, ex.Message);
-            }
-
+            SaveEncryptedData(path, encryptedValue);
 
             _logger.LogInformation("End save process. {fileName}", fileName);
 
@@ -160,11 +144,30 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IL
         }
         catch (Exception ex)
         {
-            _logger.LogError($"{nameof(SaveUpdateEncryptedFile)} => Error: ${ex.Message}");
-            error = ex.Message;
+            _logger.LogError($"{nameof(SaveUpdateEncryptedModelFile)} => Error: ${ex.Message}");
+            throw new Exception();
+        }
+    }
+
+    public async Task SaveUpdateEncryptedStringFile(string data, string pathname, string fileName)
+    {
+        try
+        {
+            if (data.Length == 0)
+                return;
+
+            await Task.Delay(1000);
+
+            string path = PathnameReadOnlyOwerwrite(pathname, fileName);
+            SaveEncryptedData(path, data);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"{nameof(SaveUpdateEncryptedStringFile)} => Error: ${ex.Message}");
+            throw new Exception();
         }
 
-        return error;
+        throw new NotImplementedException();
     }
 
     // Update configuration json
@@ -281,6 +284,54 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IL
         {
             _logger.LogError(ex.Message);
             return false;
+        }
+    }
+
+    private string PathnameReadOnlyOwerwrite(string pathname, string fileName)
+    {
+        var directory = Path.Combine(_webRootPath, pathname);
+        CheckDirectory(directory);
+
+        var path = Path.Combine(directory, $"{fileName}.txt");
+        if (File.Exists(path))
+        {
+            try
+            {
+                // Remove read-only attribute if present so we can overwrite/delete
+                File.SetAttributes(path, FileAttributes.Normal);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("Could not clear file attributes for {path}: {msg}", path, ex.Message);
+            }
+
+            try
+            {
+                File.Delete(path);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("Could not delete existing file {path}: {msg}", path, ex.Message);
+            }
+        }
+
+        return path;
+    }
+
+    private void SaveEncryptedData(string path, string data)
+    {
+        // Encrypt the string to an array of bytes.
+        byte[] encrypted = EncryptStringToBytes(data);
+        string exryotedText = Convert.ToBase64String(encrypted);
+        File.WriteAllText(path, exryotedText, Encoding.UTF8);
+        try
+        {
+            // Ensure file is not left read-only
+            File.SetAttributes(path, FileAttributes.Normal);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Could not set file attributes for {path}: {msg}", path, ex.Message);
         }
     }
     #endregion

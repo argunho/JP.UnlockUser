@@ -9,6 +9,7 @@ public class DashboardService(
         IConfiguration config,
         IActiveDirectory provider,
         IMemoryCache memoryCache,
+        IGoogleService googleService,
         ILogger<DashboardService> logger
     )
 {
@@ -17,6 +18,7 @@ public class DashboardService(
     private readonly IConfiguration _config = config;
     private readonly IActiveDirectory _provider = provider;
     private readonly IMemoryCache _memoryCache = memoryCache;
+    private readonly IGoogleService _googleService = googleService;
     private readonly ILogger<DashboardService> _logger = logger;
 
 
@@ -63,7 +65,9 @@ public class DashboardService(
                 if (!_memoryCache.TryGetValue(group.Name!, out List<User>? users))
                 {
                     // Get user from AD by group name and current user permissions parameters
-                    users = [.. (await _provider.GetUsersByGroupName(group, alternativeParams, username))];
+                    users = isStudents 
+                                ? await _googleService.GetStudentsFromGoogle() 
+                                : [.. (await _provider.GetUsersByGroupName(group, alternativeParams, username))];
 
                     if (users?.Count > 0)
                     {
@@ -119,19 +123,4 @@ public class DashboardService(
             _logger.LogError($"DashboardService. Felmeddelande: {ex.Message}");
         }
     }
-
-    #region Help
-    private async Task<List<ViewModel>> GetSchoolsFromFile()
-    {
-        var schools = (await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools")).Select(s => new ViewModel
-        {
-            Id = s.Name,
-            Primary = s.Name,
-            Secondary = s.Place
-        }).ToList() ?? [];
-
-        return schools;
-    }
-    #endregion
-
 }

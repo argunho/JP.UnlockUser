@@ -1,15 +1,15 @@
 ﻿using System.Net;
 using System.Net.Mail;
 
-namespace UnlockUser.Server.Services;
+namespace UnlockUser.Server.IServices;
 
-public class MailService(IHelpService helpService, ICredentialsService credentialsService, IConfiguration config, ILogger<MailService> logger) : ILocalMailService
+public class LocalMailService(IHelpService helpService, ICredentialsService credentialsService, IConfiguration config, ILogger<LocalMailService> logger) : ILocalMailService
 {
 
     private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentialsService = credentialsService;
     private readonly IConfiguration _config = config;
-    private readonly ILogger<MailService> _logger = logger;
+    private readonly ILogger<LocalMailService> _logger = logger;
 
     // Template params
     private static string mailHtml = "<div style=\"margin:0;padding:12px;background-color:#f4f6f8;font-family:Segoe UI, Tahoma, sans-serif;color:#333;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%\">\r\n" +
