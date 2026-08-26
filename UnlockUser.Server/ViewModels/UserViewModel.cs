@@ -20,9 +20,10 @@ public class UserViewModel : User
             Office = user?.Office;
             Division = user?.Division;
             Title = user?.Title;
-            Registered = user?.Registered != null ? Convert.ToDateTime(user?.Registered).ToString("yyyy-MM-dd") : null;
+            Registered = user?.Registered;
             IsLocked = user!.IsLocked || false;
             Permissions = user?.Permissions;
         }
     }
 }
+//user?.Registered != null ? Convert.ToDateTime(user?.Registered).ToString("yyyy-MM-dd") : null

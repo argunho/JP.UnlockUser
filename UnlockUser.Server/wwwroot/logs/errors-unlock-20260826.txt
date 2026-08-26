@@ -71,3 +71,16 @@ Google.GoogleApiException: The service admin has thrown an exception. HttpStatus
    at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
    at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
 2026-08-26 22:55:00.899 +02:00 [ERR] DashboardService. Felmeddelande: String '20231106' was not recognized as a valid DateTime.
+2026-08-26 22:56:09.449 +02:00 [ERR] DashboardService. Felmeddelande: String '20231106' was not recognized as a valid DateTime.
+2026-08-26 22:56:09.712 +02:00 [ERR] DashboardService. Felmeddelande: String '20231106' was not recognized as a valid DateTime.
+2026-08-26 22:56:09.759 +02:00 [ERR] DashboardService. Felmeddelande: String '20231106' was not recognized as a valid DateTime.
+2026-08-26 22:56:20.502 +02:00 [ERR] DashboardService. Felmeddelande: String '20231106' was not recognized as a valid DateTime.
+2026-08-26 22:57:31.406 +02:00 [ERR] DashboardService. Felmeddelande: String '20231106' was not recognized as a valid DateTime.
+2026-08-26 22:57:32.458 +02:00 [ERR] DashboardService. Felmeddelande: String '20231106' was not recognized as a valid DateTime.
+2026-08-26 22:59:21.454 +02:00 [ERR] DashboardService. Felmeddelande: String '20231106' was not recognized as a valid DateTime.
+2026-08-26 22:59:21.706 +02:00 [ERR] DashboardService. Felmeddelande: String '20231106' was not recognized as a valid DateTime.
+2026-08-26 22:59:21.740 +02:00 [ERR] DashboardService. Felmeddelande: String '20231106' was not recognized as a valid DateTime.
+2026-08-26 22:59:30.736 +02:00 [ERR] DashboardService. Felmeddelande: String '20231106' was not recognized as a valid DateTime.
+2026-08-26 23:00:29.803 +02:00 [ERR] DashboardService. Felmeddelande: String '20231106' was not recognized as a valid DateTime.
+2026-08-26 23:02:09.773 +02:00 [ERR] DashboardService. Felmeddelande: String '20231106' was not recognized as a valid DateTime.
+2026-08-26 23:02:15.650 +02:00 [ERR] DashboardService. Felmeddelande: String '20231106' was not recognized as a valid DateTime.
