@@ -305,7 +305,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
-            var employees = await _localFileService.GetFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
+            var employees = await _localFileService.GetFromEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
             var employee = employees.FirstOrDefault(x => x.Username == username);
             if (employee == null)
                 return NotFound(_helpService.NotFound("Anställd"));
@@ -545,7 +545,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
             var passChange = (param == "PasswordsChange");
 
-            var statistics = await _localFileService.GetFromEncryptedFile<Statistics>("catalogs/statistics") ?? [];
+            var statistics = await _localFileService.GetFromEncryptedFile<List<Statistics>>("catalogs/statistics") ?? [];
             var yearStatistics = statistics.FirstOrDefault(x => x.Year == year);
 
             var newData = new Months
@@ -634,7 +634,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             }
             description.Append("\n\n\n Datum: " + DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
 
-            var histories = await _localFileService.GetFromEncryptedFile<FileViewModel>("catalogs/histories") ?? [];
+            var histories = await _localFileService.GetFromEncryptedFile<List<FileViewModel>>("catalogs/histories") ?? [];
             FileViewModel hitoryData = new()
             {
                 Name = $"{model!.Group}  {model.Office}",

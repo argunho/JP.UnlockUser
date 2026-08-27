@@ -218,7 +218,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
             if (changed.Contains(ModeratorsCatalog))
             {
-                var moderators = await _localFileService.GetFromEncryptedFile<UserViewModel>($"catalogs/{ModeratorsCatalog}") ?? [];
+                var moderators = await _localFileService.GetFromEncryptedFile<List<UserViewModel>>($"catalogs/{ModeratorsCatalog}") ?? [];
                 var moderator = moderators.FirstOrDefault(x => x.Username == model.Username);
                 if (moderator == null)
                     return NotFound(_helpService.NotFound("Anställd"));

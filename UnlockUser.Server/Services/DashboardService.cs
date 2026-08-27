@@ -31,7 +31,7 @@ public class DashboardService(
             List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
             // Saved employees who have permission to manage employee passwords
-            var savedEmployees = await _localFileService.GetFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
+            var savedEmployees = await _localFileService.GetFromEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
 
             // Currentsession user permissions
             var sessionUserPermissions = savedEmployees.FirstOrDefault(x => x.Username == username)?.Permissions;
