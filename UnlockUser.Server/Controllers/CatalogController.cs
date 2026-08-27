@@ -31,10 +31,10 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         try
         {
             // Saved employees who have permission to manage employee passwords
-            var moderators = await _localFileService.GetFromEncryptedFile<UserViewModel>($"catalogs/{ModeratorsCatalog}") ?? [];
-            var managers = await _localFileService.GetFromEncryptedFile<Manager>("catalogs/managers") ?? [];
-            var politicians = (await _localFileService.GetFromEncryptedFile<User>("catalogs/politicians")).Select(s => new UserViewModel(s)) ?? [];
-            var approvedEmployees = await _localFileService.GetFromEncryptedFile<ApprovedEmployeeViewModel>($"catalogs/{ApprovedCatalog}") ?? [];
+            var moderators = await _localFileService.GetFromEncryptedFile<List<UserViewModel>>($"catalogs/{ModeratorsCatalog}") ?? [];
+            var managers = await _localFileService.GetFromEncryptedFile<List<Manager>>("catalogs/managers") ?? [];
+            var politicians = (await _localFileService.GetFromEncryptedFile<List<User>>("catalogs/politicians")).Select(s => new UserViewModel(s)) ?? [];
+            var approvedEmployees = await _localFileService.GetFromEncryptedFile<List<ApprovedEmployeeViewModel>>($"catalogs/{ApprovedCatalog}") ?? [];
             var groups = _config.GetSection("Groups").Get<List<GroupModel>>()?.Select(s => s.Name).ToList();
             var schools = await SchoolsFromFile();
 

@@ -21,9 +21,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Compile Remove="secrets\**" />
 		<Compile Remove="wwwroot\**" />
+		<Content Remove="secrets\**" />
 		<Content Remove="wwwroot\**" />
+		<EmbeddedResource Remove="secrets\**" />
 		<EmbeddedResource Remove="wwwroot\**" />
+		<None Remove="secrets\**" />
 		<None Remove="wwwroot\**" />
 	</ItemGroup>
 
