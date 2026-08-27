@@ -9,6 +9,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using static System.Net.WebRequestMethods;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -198,11 +199,9 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
-            var res = await SetPasswords([model]);
-            if (string.IsNullOrEmpty(res))
-                return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
+            //await SetPasswords([model]);
 
-            return BadRequest(_helpService.Warning(res));
+            return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
         }
         catch (Exception ex)
         {
@@ -217,7 +216,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         {
             try
             {
-                await SetPasswords(models);
+                //await SetPasswords(models);
             }
             catch (Exception ex)
             {
@@ -225,7 +224,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                 await _helpService.Error(ex);
             }
 
-            await _googleService.UpdatePaswords(models);
+            //await _googleService.UpdatePaswords(models);
 
             return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
         }
@@ -240,7 +239,6 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
-            bool isFileEmpty = (file == null || file.Length == 0);
             data = Uri.UnescapeDataString(data);
             List<UserFormModel>? models = System.Text.Json.JsonSerializer.Deserialize<List<UserFormModel>>(
                 data,
@@ -249,25 +247,33 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                     PropertyNameCaseInsensitive = true
                 });
 
-            var res = await SetPasswords(models!);
-            if (string.IsNullOrEmpty(res) && !isFileEmpty)
+            try
+            {
+                await SetPasswords(models);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{nameof(SetPasswordsSavePdf)}. Error: {ex.Message}");
+                await _helpService.Error(ex);
+            }
+
+            await _googleService.UpdatePaswords(models);
+            if (file != null && file.Length > 0)
             {
                 // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
                 var claims = _credentialsService.GetClaims(["email", "displayname"]) ?? [];
-                //var pass = _helpService.DecodeFromBase64("HashedCredential").Replace(_config["JwtSettings:Key"]!, "") ?? "";
+
                 await _localMailService.SendMail([claims["email"]], file!.FileName.Replace(".pdf", ""),
-                            $"Hej {claims["displayname"]}!<br/> Här bifogas PDF document filen med nya lösenord till elever från {label}.",
-                            file);
-
-                return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
+                            $"Hej {claims["displayname"]}!<br/> Här bifogas PDF document filen med nya lösenord till elever från {label}.", file);
             }
+            else
+                return Ok(_helpService.Warning("Lösenordsåterställningen lyckades utan att skicka pdf filen till e-postadress."));
 
-
-            return BadRequest(_helpService.Warning(res));
+            return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error(ex));
+            return BadRequest(await _helpService.Error(ex));
         }
     }
     #endregion
@@ -376,17 +382,17 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     }
 
     // Set multiple passwords
-    private async Task<string?> SetPasswords(List<UserFormModel> userModels)
+    private async Task SetPasswords(List<UserFormModel> userModels)
     {
         var userModel = userModels[0];
         // Check model is valid or not and return warning is true or false
         if (userModel == null)
-            return "Person för lösenordsåterställning har inte specificerats."; // Password reset user not specified
+            throw new Exception("Person för lösenordsåterställning har inte specificerats."); // Password reset user not specified
 
         // CUrrent moderator claims
         var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permissions"]);
         if (claims == null || userModels == null)
-            return "Ingen användare med behörighet för lösenordsåterställning har specificerats.";
+            throw new Exception("Ingen användare med behörighet för lösenordsåterställning har specificerats.");
 
         claims!.TryGetValue("username", out string? username);
 
@@ -394,7 +400,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         if (!string.IsNullOrEmpty(userModel.ConfirmPassword))
         {
             if (!string.Equals(userModel.Password, userModel.ConfirmPassword))
-                return "Lösenord och bekräftelse av lösenord matchar inte.";
+                throw new Exception("Lösenord och bekräftelse av lösenord matchar inte.");
         }
 
         // Managed user credentials
@@ -402,13 +408,12 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         string? office = userModel.Office;
         string? department = userModel.Department;
 
-
         // Check permission for the managed users group
         var groups = claims != null && claims.TryGetValue("groups", out var g) && !string.IsNullOrEmpty(g)
                         ? g.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
 
         if (!groups.Contains(group, StringComparer.OrdinalIgnoreCase))
-            return "Behörigheter saknas!"; // Warning!
+            throw new Exception("Behörigheter saknas!"); // Warning!
 
         // Check current moderators role
         var roles = claims != null && claims.TryGetValue("roles", out var r) && !string.IsNullOrEmpty(r)
@@ -430,11 +435,11 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             if (group!.Equals("Students", StringComparison.OrdinalIgnoreCase))
             {
                 if (!permissions!.Schools.Contains(office, StringComparer.OrdinalIgnoreCase))
-                    return $"{warningMessage} {department} {office}";
+                    throw new Exception($"{warningMessage} {department} {office}");
             }
             else if (string.IsNullOrEmpty(userModel.Manager))
             {
-                return $"{warningMessage} {userModel.Username}";
+                throw new Exception($"{warningMessage} {userModel.Username}");
             }
             else
             {
@@ -445,7 +450,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
                 if (string.IsNullOrEmpty(userManager) || (!permissions!.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase)
                     && !userManager.Equals(username, StringComparison.OrdinalIgnoreCase)))
-                    return $"{warningMessage} {userModel.Username}";
+                    throw new Exception($"{warningMessage} {userModel.Username}");
             }
         }
 
@@ -457,17 +462,9 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         // Set password to class students
         foreach (var user in userModels!)
         {
-            try
-            {
-                _provider.ResetPassword(user);
-                if (_env.IsProduction())
-                    sessionUserData.Users.Add(user?.Username ?? "");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Failed to change the password for {person}.", user.Username);
-                message?.Append($"Fel vid försök ändra lösenord till {user.Username}: {ex.Message}");
-            }
+            _provider.ResetPassword(user);
+            if (_env.IsProduction())
+                sessionUserData.Users.Add(user?.Username ?? "");
         }
 
         // Save/Update statistics
@@ -481,7 +478,6 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         }
 
         _logger.LogInformation("Password change finished at {dateTime}. Moderator: {user}", DateTime.Now.ToString("g"), username);
-        return (message?.Length > 0) ? message.ToString() : null;
     }
 
     private async Task<(UserViewModel?, bool)> GetUserFromCache(string group, string name)

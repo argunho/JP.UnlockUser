@@ -116,6 +116,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
             office: users[0]?.office,
             department: users[0]?.department,
             groupName: users[0]?.group,
+            email: users[0]?.email
         };
         let error = null;
 

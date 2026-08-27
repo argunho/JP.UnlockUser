@@ -58,7 +58,7 @@ function CollapseForm({ open = true, fieldsName, api, id, onClose }) {
         <Collapse in={open} className='d-row w-100' timeout="auto" unmountOnExit>
 
             {/* Response, Error message */}
-            {errors?.length > 0 && <Message res={{color: "error", message: "Fel i formuläret, kontrollera ifyllda fält"}} ref={refMessage} />}
+            {errors?.length > 0 && <Message res={{color: "error", msg: "Fel i formuläret, kontrollera ifyllda fält"}} />}
 
             {/* Form */}
             <form className='d-row view-list-form w-100' action={formAction}>

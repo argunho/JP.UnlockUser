@@ -72,7 +72,7 @@ function Login() {
       clear = false;
       getTimeLeftToUnblock(timeLeft);
     }
-    else if (token){
+    else if (token) {
       sessionStorage.setItem("logged", new Date().toISOString());
       navigate(`/search/${groupName}`);
       authorize(token);
@@ -126,8 +126,8 @@ function Login() {
     </IconButton>
 
     {/* Response */}
-    {(response || wait) && <Message res={response ? response : { color: "warning", msg: `Vänta ${wait} minuter innan du försöker igen.` }}
-      cancel={clearResponse} />}
+    {(response || wait) && <Message res={response ? response : { color: "warning", msg: `Vänta ${wait} minuter innan du försöker igen.` }} cancel={clearResponse} />}
+
   </div>;
 }
 
