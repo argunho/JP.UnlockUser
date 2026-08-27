@@ -78,7 +78,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             if (permissionGroups.Count == 0 && roles.Count == 0)
                 return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
 
-            var moderators = await _localFileService.GetFromEncryptedFile<User>("catalogs/moderators");
+            var moderators = await _localFileService.GetFromEncryptedFile<List<User>>("catalogs/moderators");
             var currentModerator = moderators.FirstOrDefault(x => x.Username != null && x.Username.Equals(authorizedUser.Name?.ToString(), StringComparison.OrdinalIgnoreCase));
             if (currentModerator != null)
                 _session!.SetString("permissions", JsonConvert.SerializeObject(currentModerator?.Permissions));

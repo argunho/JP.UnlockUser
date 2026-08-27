@@ -49,7 +49,7 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILogger<TaskSchedul
                         var cutOffDate = currentDate.AddMonths(-3);
 
                         // Clean history file from old histories
-                        var histories = await _localFileService.GetFromEncryptedFile<FileViewModel>("catalogs/histories");
+                        var histories = await _localFileService.GetFromEncryptedFile<List<FileViewModel>>("catalogs/histories");
                         histories = [.. histories.Where(x => Convert.ToDateTime(x.Date) >= cutOffDate)];
                         await _localFileService.SaveUpdateEncryptedToFile(histories, "catalogs", "histories");
 

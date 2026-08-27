@@ -171,11 +171,11 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             if (user == null)
                 return Ok(new { schools, managers });
 
-            schools = [.. (await _localFileService.GetFromEncryptedFile<School>("catalogs/schools"))?
+            schools = [.. (await _localFileService.GetFromEncryptedFile<List<School>>("catalogs/schools"))?
                          .Where(x => (bool)(user.Permissions?.Schools.Contains(x.Name, StringComparer.OrdinalIgnoreCase))!) ?? []];
 
             var managersNames = user.Permissions?.Managers;
-            managers = [.. (await _localFileService.GetFromEncryptedFile<Manager>("catalogs/managers"))
+            managers = [.. (await _localFileService.GetFromEncryptedFile<List<Manager>>("catalogs/managers"))
                                 .Where(x => managersNames!.Contains(x.Username, StringComparer.OrdinalIgnoreCase))
                          .Select(s => new ViewModel
                          {

@@ -80,7 +80,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     {
         try
         {
-            List<Statistics> data = await _localFileService.GetFromEncryptedFile<Statistics>("catalogs/statistics");
+            List<Statistics> data = await _localFileService.GetFromEncryptedFile<List<Statistics>>("catalogs/statistics");
             List<ViewModel> list = [.. data?.OrderBy(x => x.Year).Select(s => new ViewModel {
                 Primary = s.Year.ToString(),
                 Secondary = $"Byten lösenord: {s.Months.Sum(s => s.PasswordsChange)}, Upplåst konto: {s.Months.Sum(s => s.Unlocked)}",
@@ -115,7 +115,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     {
         try
         {
-            var histories = await _localFileService.GetFromEncryptedFile<FileViewModel>("catalogs/histories");
+            var histories = await _localFileService.GetFromEncryptedFile<List<FileViewModel>>("catalogs/histories");
             if (histories.Count == 0)
                 return Ok();
 
@@ -139,7 +139,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     [HttpGet("history/{id}")]
     public async Task<IActionResult> GetHistoryFileById(string id)
     {
-        var histories = await _localFileService.GetFromEncryptedFile<FileViewModel>("catalogs/histories");
+        var histories = await _localFileService.GetFromEncryptedFile<List<FileViewModel>>("catalogs/histories");
         if (histories.Count == 0)
             return NotFound(_helpService.NotFound("Histork filen"));
 
@@ -158,7 +158,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     [HttpGet("history/download/by/{id}")]
     public async Task<IActionResult> DownloadFile(string id)
     {
-        var items = await _localFileService.GetFromEncryptedFile<FileViewModel>("catalogs/histories");
+        var items = await _localFileService.GetFromEncryptedFile<List<FileViewModel>>("catalogs/histories");
         if (items?.Count == 0)
             return BadRequest(_helpService.Warning("File hittades inte."));
 
@@ -192,7 +192,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     {
         try
         {
-            var schools = await _localFileService.GetFromEncryptedFile<School>("catalogs/schools");
+            var schools = await _localFileService.GetFromEncryptedFile<List<School>>("catalogs/schools");
             if (schools.Count == 0)
                 schools = _localFileService.GetJsonFile<School>("schools");
             schools.Add(school);
@@ -254,7 +254,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     {
         try
         {
-            var schools = await _localFileService.GetFromEncryptedFile<School>("catalogs/schools");
+            var schools = await _localFileService.GetFromEncryptedFile<List<School>>("catalogs/schools");
             schools = [.. schools.Where(x => !string.Equals(x.Name!.Trim(), name.Trim(), StringComparison.OrdinalIgnoreCase))];
             await Task.Delay(1000);
             await _localFileService.SaveUpdateEncryptedToFile(schools, "catalogs", "schools");
@@ -270,7 +270,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     #region Private methods
     public async Task<List<ViewModel>> SchoolsFromFile()
     {
-        var schools = (await _localFileService.GetFromEncryptedFile<School>("catalogs/schools")).Select(s => new ViewModel
+        var schools = (await _localFileService.GetFromEncryptedFile<List<School>>("catalogs/schools")).Select(s => new ViewModel
         {
             Id = s.Name,
             Primary = s.Name,

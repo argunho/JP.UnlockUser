@@ -45,7 +45,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             // Employee groups where each group has its own password management permissions
             List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
-            var schools = (await _localFileService.GetFromEncryptedFile<School>("catalogs/schools")).Select(s => new ViewModel
+            var schools = (await _localFileService.GetFromEncryptedFile<List<School>>("catalogs/schools")).Select(s => new ViewModel
             {
                 Id = s.Name,
                 Primary = s.Name,
