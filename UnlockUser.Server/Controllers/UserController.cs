@@ -199,7 +199,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
-            //await SetPasswords([model]);
+            await SetPasswords([model]);
 
             return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
         }
@@ -216,7 +216,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         {
             try
             {
-                //await SetPasswords(models);
+                await SetPasswords(models);
             }
             catch (Exception ex)
             {
@@ -224,7 +224,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                 await _helpService.Error(ex);
             }
 
-            //await _googleService.UpdatePaswords(models);
+            await _googleService.UpdatePaswords(models);
 
             return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
         }
