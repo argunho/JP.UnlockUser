@@ -117,7 +117,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
 
             var authModel = JsonConvert.DeserializeObject<AuthViewModel>(jwtToken);
 
-            authModel.GroupName = (permissionGroups?.FirstOrDefault()?.Name ?? "Support").ToLower();
+            authModel?.GroupName = (permissionGroups?.FirstOrDefault()?.Name ?? "Support").ToLower();
 
             // Get users by groups 
             _ = Task.Run(async () =>

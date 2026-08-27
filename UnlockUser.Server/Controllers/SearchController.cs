@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Data;
 using System.DirectoryServices;
 
@@ -66,9 +65,9 @@ public class SearchController(IActiveDirectory provider, ILocalUserService local
         }
     }
 
-
-
     // Search class students by class and school name
+    [NonAction]
+    [Obsolete("Used only for AD")]
     [HttpGet("students/{school}/{class}")]
     public async Task<IActionResult> FindClassMembers(string school, string @class)
     {

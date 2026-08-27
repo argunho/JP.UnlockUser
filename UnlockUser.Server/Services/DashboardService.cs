@@ -1,7 +1,6 @@
 ﻿namespace UnlockUser.Server.Services;
 
 using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json;
 
 public class DashboardService(
         IHttpContextAccessor contextAccessor,

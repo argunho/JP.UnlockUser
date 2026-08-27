@@ -17,7 +17,7 @@ namespace UnlockUser.Server.Controllers;
 [Authorize]
 public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localUserService, IMemoryCache memoryCahce,
-    ICredentialsService credinalService, ILocalMailService localMailService, ILogger<UserController> logger) : ControllerBase
+    ICredentialsService credinalService, ILocalMailService localMailService, IGoogleService googleService, ILogger<UserController> logger) : ControllerBase
 {
 
     private readonly IActiveDirectory _provider = provider;
@@ -29,6 +29,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     private readonly ILocalUserService _localUserService = localUserService;
     private readonly ICredentialsService _credentialsService = credinalService;
     private readonly ILocalMailService _localMailService = localMailService;
+    private readonly IGoogleService _googleService = googleService;
     private readonly ILogger<UserController> _logger = logger;
 
     #region GET
@@ -214,11 +215,19 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
-            var res = await SetPasswords(models);
-            if (string.IsNullOrEmpty(res))
-                return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
+            try
+            {
+                await SetPasswords(models);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{nameof(SetMultiplePasswords)}. Error: {ex.Message}");
+                await _helpService.Error(ex);
+            }
 
-            return BadRequest(_helpService.Warning(res));
+            await _googleService.UpdatePaswords(models);
+
+            return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
         }
         catch (Exception ex)
         {

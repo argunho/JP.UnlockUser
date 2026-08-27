@@ -224,46 +224,43 @@ function Home() {
 
         const collection = groupCollectionRef.current;
 
-        let res = null;
+        let result = null;
         if (collection?.length > 0) {
             if (gn === "support") {
                 if (byOffice)
-                    res = collection?.filter(x => x?.office?.toLowerCase().includes(name));
+                    result = collection?.filter(x => x?.office?.toLowerCase().includes(name));
                 else
-                    res = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)));
+                    result = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)));
             } else {
 
-                res = (isClass)
-                    ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)?.sort((a, b) => a.name?.toLowerCase().localeCompare(b.name?.toLowerCase()))
+                result = (isClass)
+                    ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)?.sort((a, b) => a.username?.toLowerCase().localeCompare(b.username?.toLowerCase()))
                     : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name))
                         && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
 
-                if (isClass && res?.length > 0) {
-                    const oneYearAgo = new Date();
-                    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+                // start: 2026-08-27 09:57
+                if (isClass && result?.length > 0) {
+                    const now = new Date();
+                    // School year starts in August: Aug-Dec use this year, Jan-Jul use previous year
+                    const schoolYearStartYear = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
+                    const schoolYearStart = new Date(schoolYearStartYear, 7, 1);
 
-//                     res = res.map(item => {
-//                         let d = item.registered;
-//                         let date = d != null ? new Date(d) : null;
-// // console.log(oneYearAgo, d, date, `${d.slice(0, 4)}-${d.slice(5, 7)}-${d.slice(7, 9)}`)
-// console.log(date > oneYearAgo, oneYearAgo, date)
-//                         if (date === null || date > oneYearAgo) {
-//                             return item;
-//                         }
-//                     }).filter(Boolean);
+                    result = result.map(item => {
+                        let lastTime = item.lastLoginTime;
+                        let date = lastTime != null ? new Date(lastTime) : null;
+                        if (date === null || date > schoolYearStart) {
+                            return item;
+                        }
+                    }).filter(Boolean);
                 }
+                // end
             }
         } else {
-            // API parameters by chosen searching alternative
-            let options = isClass
-                ? `students/${fd.get("school")}/${name}`
-                : `person/${name}/${group}/${match}`;
-
-            res = await fetchData({ api: `search/${options}`, method: "get", action: "return" });
+            await fetchData({ api: `data/update/sorted`, method: "post", action: "complete" });
         }
 
-        handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
-        return Array.isArray(res) ? null : data;
+        handleDispatch("users", Array.isArray(result) ? result : [], "RESULT");
+        return Array.isArray(result) ? null : data;
     }
 
     function onReset() {
@@ -291,6 +288,14 @@ function Home() {
             "\n\n\n <span style='color: #cc0000;font-style: normal;font-weight:bold'>Observera!</span> Om du tidigare under den pågående sessionen kunde hitta personen men inte längre kan göra det, kan det bero på att tiden för personsökningen har löpt ut." +
             "\n<a href='/session/logout' style='color: var(--color-active)'>Logga ut</a> och logga in igen för att fortsätta använda webbplatsen."
     }} cancel={onReset} />;
+
+    // start: 2026-08-27 10:13
+    const schoolYearStartLabel = (() => {
+        const now = new Date();
+        const year = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
+        return new Date(year, 7, 1).toLocaleDateString("sv-SE", { month: "long", year: "numeric" });
+    })();
+    // end
 
     return (
         <>
@@ -449,6 +454,13 @@ function Home() {
                 </div>
             </div>
 
+            {/* start: 2026-08-27 10:13 */}
+            {(isClass && users?.length > 0) && <Message res={{
+                color: "info",
+                msg: `Listan visar endast elever som har loggat in sedan ${schoolYearStartLabel} (innevarande läsår). Elever som inte loggat in sedan dess visas inte här.` +
+                    "\nSaknas en elev i listan? Sök då efter eleven separat med användarnamn under alternativet \"Användare\"." // 2026-08-27 10:16
+            }} />}
+            {/* end */}
 
             {/* List loading | No result - message | Result of search  */}
             {(!users || pending) ? <ListLoading rows={5} pending={pending} />

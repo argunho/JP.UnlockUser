@@ -292,20 +292,20 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
         if (props.Contains("lockoutTime") && int.TryParse(props["lockoutTime"]?[0]?.ToString(), out int number))
             isLocked = number >= 1;
 
-        // Most useful for the student group
-        string? regDate = null;
         string title = props.Contains("title") ? props["title"][0]?.ToString() : "";
-        if (string.Equals(title, "student", StringComparison.OrdinalIgnoreCase) && props.Contains("extensionAttribute10"))
-        {
-            var match = Regex.Match(props["extensionAttribute10"][0].ToString()!, @"(\d{8})$");
-            //regDate = match.Success && DateTime.TryParseExact(
-            //    match.Groups[1].Value, 
-            //    "yyyyMMdd", 
-            //    CultureInfo.InvariantCulture, 
-            //    DateTimeStyles.None, 
-            //    out var parsed) ? parsed : null;
-            regDate = match.Success ? match.Groups[1].Value?.ToString() : null;
-        }
+        // Most useful for the student group
+        //string? regDate = null;
+        //if (string.Equals(title, "student", StringComparison.OrdinalIgnoreCase) && props.Contains("extensionAttribute10"))
+        //{
+        //    var match = Regex.Match(props["extensionAttribute10"][0].ToString()!, @"(\d{8})$");
+        //    //regDate = match.Success && DateTime.TryParseExact(
+        //    //    match.Groups[1].Value, 
+        //    //    "yyyyMMdd", 
+        //    //    CultureInfo.InvariantCulture, 
+        //    //    DateTimeStyles.None, 
+        //    //    out var parsed) ? parsed : null;
+        //    regDate = match.Success ? match.Groups[1].Value?.ToString() : null;
+        //}
 
         return new User
         {
@@ -317,7 +317,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
             Division = props.Contains("division") ? props["division"][0]?.ToString() : "",
             Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
             Title = title,
-            Registered = regDate,
+            //Registered = regDate,
             IsLocked = isLocked
         };
     }

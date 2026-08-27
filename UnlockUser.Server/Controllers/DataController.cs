@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Text;
-using System.Xml.Linq;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -126,6 +125,50 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     {
         var users = await _googleService.GetStudentsFromGoogle();
         return Ok(users);
+    }
+
+    [HttpGet("users")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetUsers()
+    {
+        var users = await _googleService.GetUsers();
+        return Ok(users);
+    }
+    #endregion
+
+    #region POST
+    [HttpPost("update/stored")]
+    public async Task<IActionResult> UpdateData()
+    {
+        var claims = _credentials.GetClaims(["username", "openAccess", "permissions"]);
+
+        claims!.TryGetValue("username", out string? username);
+        bool openAccess = claims!.TryGetValue("openAccess", out string? access) && bool.Parse(access);
+        List<string> groups = claims!.TryGetValue("permissions", out string? permissions) ? [.. permissions.Split(',')] : [];
+
+        // Get users by groups 
+        _ = Task.Run(async () =>
+        {
+            if (_lockService.TryStart(username!, out var waitTask))
+            {
+                try
+                {
+                    _logger.LogInformation("Starting asynchronous dashboard data setup.");
+                    await _dashboardService.StoreUsersByGroup(username!, openAccess, groups!);
+                    _logger.LogInformation("Dashboard data setup completed.");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Failed to set up dashboard data. Error: {ex.Message}");
+                }
+                finally
+                {
+                    _lockService.Finish(username!);
+                }
+            }
+        });
+
+        return Ok();
     }
     #endregion
 
