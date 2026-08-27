@@ -231,3 +231,6 @@ _Pvt_Extensions
 # FAKE - F# Make
 .fake/
 /UnlockUser.Server/Controllers/UserController.cs
+
+# Secrets - never commit (2026-08-27 13:56)
+/UnlockUser.Server/secrets/

@@ -116,7 +116,7 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
     #region Private methods
     private DirectoryService Service()
     {
-        var credential = GoogleCredential.FromFile(@"wwwroot/service/service.json")
+        var credential = GoogleCredential.FromFile(@"secrets/service.json") // moved out of wwwroot (was publicly served) — 2026-08-27 13:56
                     .CreateScoped(
                         DirectoryService.Scope.AdminDirectoryUser)
                     .CreateWithUser("aslan.khadizov@edualvesta.se");
