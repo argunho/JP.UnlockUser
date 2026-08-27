@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Text;
+using System.Text.Json;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -44,7 +45,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             // Employee groups where each group has its own password management permissions
             List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
-            var schools = (await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools")).Select(s => new ViewModel
+            var schools = (await _localFileService.GetFromEncryptedFile<School>("catalogs/schools")).Select(s => new ViewModel
             {
                 Id = s.Name,
                 Primary = s.Name,
@@ -167,6 +168,35 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                 }
             }
         });
+
+        return Ok();
+    }
+
+    [HttpPost("upload")]
+    [Authorize(Roles = "Moderator, DevelopTeam")]
+    public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] string data)
+    {
+        try
+        {
+            if (file == null || file.Length == 0)
+                return Ok(_helpService.Warning("Filen saknas."));
+
+            data = Uri.UnescapeDataString(data);
+            ServiceModel? model = System.Text.Json.JsonSerializer.Deserialize<ServiceModel>(
+                data,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+            await _localFileService.SaveUpdateEncryptedToFile(file, "service", "service");
+            await _localFileService.SaveUpdateEncryptedToFile(model, "service", "config");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"{nameof(UploadFile)} error: {ex.Message}");
+            await _helpService.Error(ex);
+        }
 
         return Ok();
     }

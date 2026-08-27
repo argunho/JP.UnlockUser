@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -12,119 +11,33 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IL
     private readonly string _webRootPath = env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot");
     private readonly string _contentRootPath = env.ContentRootPath;
 
-    public async Task<List<T>> GetListFromEncryptedFile<T>(string fileName) where T : class
+    public async Task<T?> GetFromEncryptedFile<T>(string fileName)
     {
         try
         {
             var path = Path.Combine(_webRootPath, $"{fileName}.txt");
             if (!File.Exists(path))
-                return [];
+                return default;
             var res = await File.ReadAllTextAsync(path);
             byte[] resInBytes = Convert.FromBase64String(res);
 
             // Decrypt file content
             string decryptDataInString = DecryptStringFromBytes(resInBytes);
-            return JsonConvert.DeserializeObject<List<T>>(decryptDataInString) ?? [];
+            return JsonConvert.DeserializeObject<T>(decryptDataInString);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
-            return [];
+            return default;
         }
     }
 
-    public async Task<string?> GetStringFromEncryptedFile(string fileName)
-    {
-        try
-        {
-            var path = Path.Combine(_webRootPath, $"{fileName}.txt");
-            if (!File.Exists(path))
-                return null;
-            var res = await File.ReadAllTextAsync(path);
-            byte[] resInBytes = Convert.FromBase64String(res);
-
-            // Decrypt file content
-            return DecryptStringFromBytes(resInBytes);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex.Message);
-        }
-
-        return null;
-    }
-
-    public string DecryptStringFromBytes(byte[] cypherText)
-    {
-        // Check arguments.
-        if (cypherText == null || cypherText.Length <= 0)
-            throw new ArgumentNullException("cypherText");
-
-        // Declare the string used to hold the decrypted text.
-        string? plainText = null;
-        var (secureKeyInBytes, secureKeyIV) = GetKeys();
-
-        // Create an Aes object with the specified key and IV.
-        using (Aes aesAlg = Aes.Create())
-        {
-            aesAlg.Key = secureKeyInBytes;
-            aesAlg.IV = secureKeyIV;
-
-            // Create a decryptor to perform the stream transform.
-            ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-
-            // Create the streams used for decryption.
-            using MemoryStream msDecrypt = new(cypherText);
-            using CryptoStream csDecrypt = new(msDecrypt, decryptor, CryptoStreamMode.Read);
-            using StreamReader srDecrypt = new(csDecrypt);
-
-            // Read the decrypted bytes from the decrypting stream  and place them in a string.
-            plainText = srDecrypt.ReadToEnd();
-        }
-
-        return plainText;
-    }
-
-    public byte[] EncryptStringToBytes(string plainText)
-    {        // Check arguments.
-        if (plainText == null || plainText.Length <= 0)
-            throw new ArgumentNullException("plainText");
-
-        byte[] encrypted;
-        var (secureKeyInBytes, secureKeyIV) = GetKeys();
-
-        // Create an Aes object
-        // with the specified key and IV.
-        using (Aes aesAlg = Aes.Create())
-        {
-            aesAlg.Key = secureKeyInBytes;
-            aesAlg.IV = secureKeyIV;
-
-            // Create an encryptor to perform the stream transform.
-            ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-
-            // Create the streams used for encryption.
-            using MemoryStream msEncrypt = new();
-            using (CryptoStream csEncrypt = new(msEncrypt, encryptor, CryptoStreamMode.Write))
-            {
-                using StreamWriter swEncrypt = new(csEncrypt);
-                //Write all data to the stream.
-                swEncrypt.Write(plainText);
-            }
-
-            encrypted = msEncrypt.ToArray();
-        }
-
-        // Return the encrypted bytes from the memory stream.
-        return encrypted;
-    }
-
-    public async Task SaveUpdateEncryptedModelFile<T>(List<T> list, string pathname, string fileName) where T : class
+    public async Task SaveUpdateEncryptedToFile<T>(T? data, string pathname, string fileName)
     {
         string? error = String.Empty;
         try
         {
-            if (list.Count == 0)
+            if (data == null)
                 return;
 
             string path = PathnameReadOnlyOwerwrite(pathname, fileName);
@@ -134,7 +47,7 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IL
             _logger.LogInformation("Starting process to save file {fileName}", fileName);
 
             // Encrypt file
-            var encryptedValue = JsonConvert.SerializeObject(list, Formatting.None);
+            var encryptedValue = JsonConvert.SerializeObject(data, Formatting.None);
 
             SaveEncryptedData(path, encryptedValue);
 
@@ -144,30 +57,9 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IL
         }
         catch (Exception ex)
         {
-            _logger.LogError($"{nameof(SaveUpdateEncryptedModelFile)} => Error: ${ex.Message}");
+            _logger.LogError($"{nameof(SaveUpdateEncryptedToFile)} => Error: ${ex.Message}");
             throw new Exception();
         }
-    }
-
-    public async Task SaveUpdateEncryptedStringFile(string data, string pathname, string fileName)
-    {
-        try
-        {
-            if (data.Length == 0)
-                return;
-
-            await Task.Delay(1000);
-
-            string path = PathnameReadOnlyOwerwrite(pathname, fileName);
-            SaveEncryptedData(path, data);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"{nameof(SaveUpdateEncryptedStringFile)} => Error: ${ex.Message}");
-            throw new Exception();
-        }
-
-        throw new NotImplementedException();
     }
 
     // Update configuration json
@@ -227,41 +119,6 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IL
         //stream.Close();
     }
 
-    // Save history logfile
-    public async Task SaveUpdateTextFile<T>(List<T> models, string fileName) where T : class
-    {
-        var directory = Path.Combine(_webRootPath, "logs");
-        if (CheckDirectory(directory))
-        {
-            var path = Path.Combine(directory, $"{fileName}.txt");
-            if (File.Exists(path))
-                File.Delete(path);
-
-            if (models.Count > 0)
-            {
-                var json = System.Text.Json.JsonSerializer.Serialize(models);
-                await File.WriteAllTextAsync(path, json, Encoding.UTF8);
-            }
-
-            //fileNem += string.Concat(Guid.NewGuid().ToString().AsSpan(10), "_", DateTime.Now.ToString("yyyyMMddHHmmss"));
-
-            //// Write line by lien in file using loop of list
-            //using StreamWriter stream = File.CreateText(path);
-            //foreach (var contentLine in list)
-            //    stream.WriteLine(contentLine);
-
-            //stream.Close();
-        }
-    }
-
-    // Read text fiel
-    public async Task<List<T>> GetListFromTextFile<T>(string pathName) where T : class
-    {
-        string path = Path.Combine(_webRootPath, $"{pathName}.txt");
-        string stringContent = await File.ReadAllTextAsync(path);
-        return System.Text.Json.JsonSerializer.Deserialize<List<T>>(stringContent) ?? [];
-    }
-
     #region Help methods
     private static (byte[], byte[]) GetKeys()
     {
@@ -269,6 +126,72 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IL
         var secureKeyIV = Encoding.UTF8.GetBytes("unlock_user_2024"); // Length 16 chars
 
         return (secureKeyInBytes, secureKeyIV);
+    }
+
+    private byte[] EncryptStringToBytes(string plainText)
+    {        // Check arguments.
+        if (plainText == null || plainText.Length <= 0)
+            throw new ArgumentNullException("plainText");
+
+        byte[] encrypted;
+        var (secureKeyInBytes, secureKeyIV) = GetKeys();
+
+        // Create an Aes object
+        // with the specified key and IV.
+        using (Aes aesAlg = Aes.Create())
+        {
+            aesAlg.Key = secureKeyInBytes;
+            aesAlg.IV = secureKeyIV;
+
+            // Create an encryptor to perform the stream transform.
+            ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+            // Create the streams used for encryption.
+            using MemoryStream msEncrypt = new();
+            using (CryptoStream csEncrypt = new(msEncrypt, encryptor, CryptoStreamMode.Write))
+            {
+                using StreamWriter swEncrypt = new(csEncrypt);
+                //Write all data to the stream.
+                swEncrypt.Write(plainText);
+            }
+
+            encrypted = msEncrypt.ToArray();
+        }
+
+        // Return the encrypted bytes from the memory stream.
+        return encrypted;
+    }
+
+
+    private string DecryptStringFromBytes(byte[] cypherText)
+    {
+        // Check arguments.
+        if (cypherText == null || cypherText.Length <= 0)
+            throw new ArgumentNullException("cypherText");
+
+        // Declare the string used to hold the decrypted text.
+        string? plainText = null;
+        var (secureKeyInBytes, secureKeyIV) = GetKeys();
+
+        // Create an Aes object with the specified key and IV.
+        using (Aes aesAlg = Aes.Create())
+        {
+            aesAlg.Key = secureKeyInBytes;
+            aesAlg.IV = secureKeyIV;
+
+            // Create a decryptor to perform the stream transform.
+            ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+            // Create the streams used for decryption.
+            using MemoryStream msDecrypt = new(cypherText);
+            using CryptoStream csDecrypt = new(msDecrypt, decryptor, CryptoStreamMode.Read);
+            using StreamReader srDecrypt = new(csDecrypt);
+
+            // Read the decrypted bytes from the decrypting stream  and place them in a string.
+            plainText = srDecrypt.ReadToEnd();
+        }
+
+        return plainText;
     }
 
     // Check directory path exists or not

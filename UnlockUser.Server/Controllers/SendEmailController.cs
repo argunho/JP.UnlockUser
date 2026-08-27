@@ -33,7 +33,7 @@ public class SendEmailController(ILocalMailService service, IHelpService helpSer
             HashSet<string> receivers = [];
             if (!string.IsNullOrEmpty(model.Group) && !string.Equals(model.Group, "Ingen", StringComparison.OrdinalIgnoreCase))
             {
-                var moderators = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
+                var moderators = await _localFileService.GetFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
                 var emails = string.Equals(model.Group, "Alla", StringComparison.OrdinalIgnoreCase)
                     ? [.. moderators.Select(s => s.Email!)]
                     : moderators.Where(x => x.Permissions!.Groups.Contains(model.Group, StringComparer.OrdinalIgnoreCase)).Select(s => s.Email)!.ToList();

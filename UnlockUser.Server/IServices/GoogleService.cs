@@ -1,8 +1,9 @@
 ﻿using Google.Apis.Admin.Directory.directory_v1;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
-using UserModel = UnlockUser.Server.Models.User;
+using System.Text;
 using GoogleUserModel = Google.Apis.Admin.Directory.directory_v1.Data.User;
+using UserModel = UnlockUser.Server.Models.User;
 
 namespace UnlockUser.Server.IServices;
 
@@ -17,13 +18,14 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
         List<UserModel> users = [];
         try
         {
-            var service = Service();
+            var (service, id) = await Service();
             string? pageToken = null;
 
             do
             {
                 var request = service.Users.List();
-                request.Customer = _config["CustomerId"] ?? "my_customer";
+                //request.Customer = _config["CustomerId"] ?? "my_customer";
+                request.Customer = id ?? "my_customer";
                 request.MaxResults = 500;
                 request.PageToken = pageToken;
                 var res = await request.ExecuteAsync();
@@ -70,10 +72,10 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
     {
         try
         {
-            var service = Service();
+            var (service, id) = await Service();
 
             var request = service.Users.List();
-            request.Customer = _config["CustomerId"] ?? "my_customer";
+            request.Customer = id ?? "my_customer";
             request.MaxResults = 500;
 
             var res = await request.ExecuteAsync();
@@ -97,7 +99,7 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
 
     public async Task UpdatePaswords(List<UserFormModel> models)
     {
-        var service = Service();
+        var (service, id) = await Service();
 
         foreach (var model in models)
         {
@@ -114,12 +116,22 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
     }
 
     #region Private methods
-    private DirectoryService Service()
+    private async Task<(DirectoryService, string)> Service()
     {
-        var credential = GoogleCredential.FromFile(@"secrets/service.json") // moved out of wwwroot (was publicly served) — 2026-08-27 13:56
-                    .CreateScoped(
-                        DirectoryService.Scope.AdminDirectoryUser)
-                    .CreateWithUser("aslan.khadizov@edualvesta.se");
+        var serviceJson =  await _localFileService.GetFromEncryptedFile<dynamic>("service/service.json");
+        var serviceConfig = await _localFileService.GetFromEncryptedFile<ServiceModel>("service/config.json");
+
+        string serviceString = System.Text.Json.JsonSerializer.Serialize(serviceJson);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(serviceString));
+
+        var credential = GoogleCredential
+            .FromStream(stream)
+            .CreateScoped(DirectoryService.Scope.AdminDirectoryUser)
+            .CreateWithUser(serviceConfig.CustomerEmail);
+        //var credential = GoogleCredential.FromFile(@"secrets/service.json") // moved out of wwwroot (was publicly served) — 2026-08-27 13:56
+        //            .CreateScoped(
+        //                DirectoryService.Scope.AdminDirectoryUser)
+        //            .CreateWithUser("aslan.khadizov@edualvesta.se");
 
         var service = new DirectoryService(
             new BaseClientService.Initializer
@@ -128,7 +140,7 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
                 ApplicationName = "UnlockUser"
             });
 
-        return service;
+        return (service, serviceConfig.CustomerId!);
     }
     #endregion
 }

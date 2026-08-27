@@ -47,14 +47,14 @@ public class LocalUserService(ILocalFileService localFileService,
             Default = false
         }).ToList();
 
-        await _localFileService.SaveUpdateEncryptedModelFile(managersToSave, "catalogs", "managers");
-        await _localFileService.SaveUpdateEncryptedModelFile(politicians, "catalogs", "politicians");
+        await _localFileService.SaveUpdateEncryptedToFile(managersToSave, "catalogs", "managers");
+        await _localFileService.SaveUpdateEncryptedToFile(politicians, "catalogs", "politicians");
         #endregion
 
         #region Get employees        
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
-        var currentSavedList = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
-        var schools = await _localFileService.GetListFromEncryptedFile<School>("catalogs/schools");
+        var currentSavedList = await _localFileService.GetFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
+        var schools = await _localFileService.GetFromEncryptedFile<School>("catalogs/schools");
         List<User> users = [];
 
         foreach (var group in groups!)
@@ -135,13 +135,13 @@ public class LocalUserService(ILocalFileService localFileService,
             }
         }
 
-        await _localFileService.SaveUpdateEncryptedModelFile([.. users.OrderBy(o => o.DisplayName)], "catalogs", "moderators");
+        await _localFileService.SaveUpdateEncryptedToFile(users.OrderBy(o => o.DisplayName)?.ToList(), "catalogs", "moderators");
        #endregion
     }
 
     public async Task<User?> GetUserFromFile(string username)
     {
-        List<UserViewModel> employees = await _localFileService.GetListFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
+        List<UserViewModel> employees = await _localFileService.GetFromEncryptedFile<UserViewModel>("catalogs/moderators") ?? [];
         UserViewModel? user = employees?.FirstOrDefault(x => x.Username == username);
         return user;
     }
