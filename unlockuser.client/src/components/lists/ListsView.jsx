@@ -28,15 +28,20 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
   }, {});
 
   function onClick(user) {
-    if ((multiple && selected.length === 0) || (!multiple && !user))
+    if (!user)
       return;
 
-    if(group === "support")
+    if (group === "support")
       navigate(`view/user/` + (user?.username ? user?.username : selected[0]));
-    else if (user && !multiple)
-      navigate(`/manage/${group}/user/` + (user?.username ? user?.username : selected[0]));
     else
-      navigate(`/manage/${group}/school/${list[0].office}/class/${list[0].department}`, { state: { selected, list } })
+      navigate(`/manage/${group}/user/` + (user?.username ? user?.username : selected[0]));
+  }
+
+  function onNavigate() {
+    if (selected.length === 0)
+      return;
+
+    navigate(`/manage/${group}/school/${list[0].office}/class/${list[0].department}`, { state: { selected, list } })
   }
 
   function onSelected(value) {
@@ -50,10 +55,10 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
     }
   }
 
-  function onSecondaryClick(e, key){
+  function onSecondaryClick(e, key) {
     e.stopPropagation();
     console.log(key)
-    navigate(loc.pathname, { state: { key: key }});
+    navigate(loc.pathname, { state: { key: key } });
   }
 
   return (
@@ -63,7 +68,7 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
         selected={selected}
         ids={list?.map(x => (x?.name ?? x?.username))} // Maybe username
         onSelected={onSelected}
-        onClick={() => onClick()} />}
+        onClick={onNavigate} />}
 
       {Object.entries(organized).map(([name, items]) => {
 
@@ -77,9 +82,9 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
             return <ListItemButton key={index} component="li" className="loop-li" onClick={() => onClick(item)}>
 
               <ListItemSecondaryAction>
-                {item?.isLocked 
-                ? <span className="unlock-span locked-account">Kontot är låst</span>
-                : (openAccess && <ArrowForward />)}
+                {item?.isLocked
+                  ? <span className="unlock-span locked-account">Kontot är låst</span>
+                  : (openAccess && <ArrowForward />)}
               </ListItemSecondaryAction>
 
               <ListItemAvatar>
@@ -93,18 +98,18 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
                     }}
                     onClick={(e) => e.stopPropagation()}
                   />
-                  : <Avatar sx={{ backgroundColor: "transparent !important" }}> 
-                      <WysiwygSharp color="success" />
-                    </Avatar>}
+                  : <Avatar sx={{ backgroundColor: "transparent !important" }}>
+                    <WysiwygSharp color="success" />
+                  </Avatar>}
               </ListItemAvatar>
 
               {/* Data */}
               <ListItemText
                 primary={item?.primary}
-                secondary={<span 
+                secondary={<span
                   dangerouslySetInnerHTML={{ __html: item?.secondary }}
                   {... (item?.secondaryKey ? { onClick: (e) => onSecondaryClick(e, item?.secondaryKey) } : null)}>
-                </span>}   
+                </span>}
               />
             </ListItemButton>
           })}

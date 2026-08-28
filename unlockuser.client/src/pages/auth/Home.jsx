@@ -188,11 +188,11 @@ function Home() {
     // Function - submit form
     async function onSubmit(previous, fd) {
 
-        const name = fd.get("name")?.toLowerCase();
+        const key = fd.get("key")?.toLowerCase();
         const match = fd.get("match") === "on" ? true : false;
         const school = fd.get("school") ?? null;
 
-        const data = { name, match, school };
+        const data = { key: key, match, school };
 
         // Navigate to search query page
         // let navLink = `/search/${gn}?name=${name.replaceAll(" ", "%20")}`;
@@ -206,7 +206,7 @@ function Home() {
         let errors = [];
         let error = null;
 
-        if (_.isEqual({ name: "", school: "" }, { name, school })) {
+        if (_.isEqual({ key: "", school: "" }, { key: key, school })) {
             error = "Begäran avvisades. Inga ändringar gjordes i formulärets data."
             return {
                 ...data,
@@ -228,14 +228,16 @@ function Home() {
         if (collection?.length > 0) {
             if (gn === "support") {
                 if (byOffice)
-                    result = collection?.filter(x => x?.office?.toLowerCase().includes(name));
+                    result = collection?.filter(x => x?.office?.toLowerCase().includes(key));
                 else
-                    result = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name)));
+                    result = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === key : 
+                        (x?.displayName?.toLowerCase().includes(key) || x.email?.toLowerCase().startsWith(key.replace(" ", ".")))));
             } else {
 
                 result = (isClass)
-                    ? collection?.filter(x => x?.department?.toLowerCase() === name && x?.office === school)?.sort((a, b) => a.username?.toLowerCase().localeCompare(b.username?.toLowerCase()))
-                    : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === name : x?.displayName?.toLowerCase().includes(name))
+                    ? collection?.filter(x => x?.department?.toLowerCase() === key && x?.office === school)?.sort((a, b) => a.username?.toLowerCase().localeCompare(b.username?.toLowerCase()))
+                    : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === key : 
+                        (x?.displayName?.toLowerCase().includes(key) || x.email?.toLowerCase().startsWith(key.replace(" ", "."))))
                         && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
 
                 // start: 2026-08-27 09:57
@@ -317,7 +319,7 @@ console.log(schools)
 
                 {/* Field name */}
                 <TextField
-                    name="name"
+                    name="key"
                     label={isClass ? "Klassbeteckning" : "Namn"}
                     required
                     fullWidth

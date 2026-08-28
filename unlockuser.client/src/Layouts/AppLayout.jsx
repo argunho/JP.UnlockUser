@@ -9,12 +9,14 @@ import Header from "../components/blocks/Header";
 import LinearLoading from './../components/blocks/LinearLoading';
 import ModalMessage from './../components/modals/ModalMessage';
 
+// Models
+import { Links } from '../models/Links';
+
 // Storage
 import { FetchContext } from './../storage/FetchContext';
 
 // Functions
 import { Claim } from '../functions/DecodedToken';
-
 
 function AppLayout() {
 
@@ -30,19 +32,23 @@ function AppLayout() {
   const [open, setOpen] = useState(!!modalMessage);
 
   const permissions = Claim("permissions")?.split(',');
+  const openAccess = Claim("openAccess");
 
+  const urls = new Set(Links.filter(x => x.access).map(link => link.url));
+console.log(urls, loc.pathname)
   useEffect(() => {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
 
     async function getCollections() {
-      await fetchData({ api: "data/collections", action: "complete" });
+      await fetchData({ api: "data/by/session", action: "complete" });
     }
 
     getCollections()
   }, []);
 
   useEffect(() => {
-    if ((loc.pathname === "/search" || loc.pathname === "/") && !!permissions) {
+    if (((loc.pathname === "/search" || loc.pathname === "/") && !!permissions) 
+          || (urls.has(loc.pathname) && !openAccess)) { // 2026-08-28 16:05
       navigate(`/search/${permissions?.[0]?.toLowerCase()}`, { replace: true });
     }
   }, [loc])

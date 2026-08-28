@@ -26,16 +26,16 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     private readonly ILogger<DataController> _logger = logger;
 
     #region GET
-    [HttpGet("collections")]
+    [HttpGet("by/session")]
     public async Task<IActionResult> GetCollections()
     {
         try
         {
-            var cachedCollections = HttpContext.Session.GetString("collections");
-            if (cachedCollections != null)
-                return Ok(JsonConvert.DeserializeObject<Dictionary<string, object>>(cachedCollections));
+            var sessionData = HttpContext.Session.GetString("session-data");
+            if (sessionData != null)
+                return Ok(JsonConvert.DeserializeObject<Dictionary<string, object>>(sessionData));
 
-            Dictionary<string, object>? collections = [];
+            Dictionary<string, object>? data = [];
 
             var claims = _credentials.GetClaims(["username", "openAccess", "permissions"]);
 
@@ -43,7 +43,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             List<string> sessionUserGroups = [.. claims!["permissions"].Split(',')]!;
 
             // Employee groups where each group has its own password management permissions
-            List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
+            List<GroupModel> groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
             var schools = (await _localFileService.GetFromEncryptedFile<List<School>>("catalogs/schools")).Select(s => new ViewModel
             {
@@ -52,19 +52,19 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                 Secondary = s.Place
             }).ToList() ?? [];
 
-            collections.Add("schools", schools);
+            data.Add("schools", schools);
             _logger.LogInformation("Gruppdata har laddats ner. Group: Skolor. Tid: {time}.", DateTime.Now.ToString("G"));
 
             // Verify the current user's membership in the support group
             // "openAccess" claim is only present on the token when true (see AuthenticationController) — 2026-08-28 15:28
             bool accessGroup = claims!.TryGetValue("openAccess", out string? openAccessValue) && !string.IsNullOrEmpty(openAccessValue);
 
-            if (accessGroup && passwordManageGroups.Count > 0)
-                collections.Add("groups", passwordManageGroups.Select(s => s.Name).ToList());
+            if (accessGroup && groups.Count > 0)
+                data.Add("groups", groups.Select(s => s.Name).ToList());
 
-            HttpContext.Session.SetString("collections", JsonConvert.SerializeObject(collections));
+            HttpContext.Session.SetString("session-data", JsonConvert.SerializeObject(data));
 
-            return Ok(collections);
+            return Ok(data);
         }
         catch (Exception ex)
         {

@@ -32,6 +32,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Controllers\SearchController.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Content Include="wwwroot\articles\0.Nya_regler_i_den_nya_versionen.txt" />
 	  <Content Include="wwwroot\catalogs\histories.txt" />
 	  <Content Include="wwwroot\catalogs\managers.txt" />

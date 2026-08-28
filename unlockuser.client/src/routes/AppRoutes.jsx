@@ -110,7 +110,7 @@ const AppRoutes = () => [
         errorElement: <ErrorView />
       },
       {
-        path: "service/form",
+        path: "service/configuration",
         element: <FormUploadFile />,
         errorElement: <ErrorView />
       }
