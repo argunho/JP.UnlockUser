@@ -28,7 +28,8 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
                 request.Customer = id ?? "my_customer";
 
                 // Server-side filtering
-                request.Query = "orgTitle='Student' isSuspended=false";
+                //request.Query = "orgTitle='Student' isSuspended=false";
+                request.Query = "orgTitle='Student'";
                 request.Fields = "nextPageToken,users(name,primaryEmail,organizations,externalIds,lastLoginTime,archived)";
 
                 request.MaxResults = 500;

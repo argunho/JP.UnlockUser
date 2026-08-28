@@ -241,20 +241,20 @@ console.log(accounts)
                         && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
 
                 // start: 2026-08-27 09:57
-                if (isClass && result?.length > 0) {
-                    const now = new Date();
-                    // School year starts in August: Aug-Dec use this year, Jan-Jul use previous year
-                    const schoolYearStartYear = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
-                    const schoolYearStart = new Date(schoolYearStartYear, 7, 1);
+                // if (isClass && result?.length > 0) {
+                //     const now = new Date();
+                //     // School year starts in August: Aug-Dec use this year, Jan-Jul use previous year
+                //     const schoolYearStartYear = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
+                //     const schoolYearStart = new Date(schoolYearStartYear, 7, 1);
 
-                    result = result.map(item => {
-                        let lastTime = item.lastLoginTime;
-                        let date = lastTime != null ? new Date(lastTime) : null;
-                        if (date === null || date > schoolYearStart) {
-                            return item;
-                        }
-                    }).filter(Boolean);
-                }
+                //     result = result.map(item => {
+                //         let lastTime = item.lastLoginTime;
+                //         let date = lastTime != null ? new Date(lastTime) : null;
+                //         if (date === null || date > schoolYearStart) {
+                //             return item;
+                //         }
+                //     }).filter(Boolean);
+                // }
                 // end
             }
         } else {
@@ -457,11 +457,11 @@ console.log(accounts)
             </div>
 
             {/* start: 2026-08-27 10:13 */}
-            {(isClass && users?.length > 0 && !pending) && <Message res={{
+            {/* {(isClass && users?.length > 0 && !pending) && <Message res={{
                 color: "info",
                 msg: `Listan visar endast elever som har loggat in sedan ${schoolYearStartLabel} (innevarande läsår). Elever som inte loggat in sedan dess visas inte här.` +
                     "\nSaknas en elev i listan? Sök då efter eleven separat med användarnamn under alternativet \"Användare\"." // 2026-08-27 10:16
-            }} />}
+            }} />} */}
             {/* end */}
 
             {/* List loading */}
