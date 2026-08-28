@@ -21,3 +21,4 @@
 2026-08-28 14:28:04.943 +02:00 [ERR] GetStudentsFromGoogle Error: 0
 2026-08-28 14:33:57.048 +02:00 [ERR] GetStudentsFromGoogle Error: 0
 2026-08-28 14:36:10.241 +02:00 [ERR] GetStudentsFromGoogle Error: 0
+2026-08-28 15:24:55.322 +02:00 [ERR] DashboardService. Felmeddelande: startIndex cannot be larger than length of string. (Parameter 'startIndex')

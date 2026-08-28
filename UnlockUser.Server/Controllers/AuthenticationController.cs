@@ -94,7 +94,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
             claims.Add(new("Permissions", string.Join(',', currentModerator?.Permissions?.Groups ?? [])));
             claims.Add(new("Roles", string.Join(",", roles)));
 
-            bool openAccess = roles.IndexOf("Moderator") > -1;
+            bool openAccess = roles.IndexOf("Moderator") == -1;
             if (openAccess)
                 claims.Add(new("OpenAccess", "ok")); //
 

@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
-using System.Text.RegularExpressions;
 
 namespace UnlockUser.Server.IServices;
 

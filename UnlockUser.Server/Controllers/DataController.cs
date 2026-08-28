@@ -56,7 +56,8 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             _logger.LogInformation("Gruppdata har laddats ner. Group: Skolor. Tid: {time}.", DateTime.Now.ToString("G"));
 
             // Verify the current user's membership in the support group
-            bool accessGroup = !string.IsNullOrEmpty(claims["openAccess"]);
+            // "openAccess" claim is only present on the token when true (see AuthenticationController) — 2026-08-28 15:28
+            bool accessGroup = claims!.TryGetValue("openAccess", out string? openAccessValue) && !string.IsNullOrEmpty(openAccessValue);
 
             if (accessGroup && passwordManageGroups.Count > 0)
                 collections.Add("groups", passwordManageGroups.Select(s => s.Name).ToList());

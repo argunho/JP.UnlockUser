@@ -35,7 +35,7 @@ function ClassManager() {
     }, [])
 
     useEffect(() => {
-        if (!loc.state) navigate(-1);
+        if (!loc.state) navigate("/search", { replace: true }); // 2026-08-28 15:26
     }, [])
 
     function spliceUsersList(id) {

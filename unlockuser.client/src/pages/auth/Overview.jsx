@@ -88,10 +88,12 @@ function Overview() {
     const [message, setMessage] = useState(hasPermission ? messages?.info : messages?.noPermission);
     const [checked, setChecked] = useState(null);
 
+    // start: 2026-08-28 15:26
     useEffect(() => {
         if (!openAccess)
-            navigate(-1);
+            navigate("/search", { replace: true });
     }, [openAccess])
+    // end
 
     async function onSubmit() {
         const value = ref.current.value;
