@@ -201,10 +201,10 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         {
             List<UserFormModel> models = [model];
 
-            //if (model.IsEmployee)
-            //    await SetPasswords(models);
-            //else
-            //    await StudentsPasswordChenge(models);
+            if (model.IsEmployee)
+                await SetPasswords(models);
+            else
+                await StudentsPasswordChenge(models);
 
             return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
         }
