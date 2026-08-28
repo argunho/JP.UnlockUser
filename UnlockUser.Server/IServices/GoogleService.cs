@@ -1,4 +1,5 @@
 ﻿using Google.Apis.Admin.Directory.directory_v1;
+using Google.Apis.Admin.Directory.directory_v1.Data;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using System.Text;
@@ -24,28 +25,37 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
             do
             {
                 var request = service.Users.List();
-                //request.Customer = _config["CustomerId"] ?? "my_customer";
                 request.Customer = id ?? "my_customer";
+
+                // Server-side filtering
+                request.Query = "orgTitle='Student' isSuspended=false";
+                request.Fields = "nextPageToken,users(name,primaryEmail,organizations,externalIds,lastLoginTime,archived)";
+
                 request.MaxResults = 500;
                 request.PageToken = pageToken;
+
                 var res = await request.ExecuteAsync();
                 if (res.UsersValue == null)
                     break;
 
-                var resUsers = res.UsersValue?.Where(x =>
-                    x.Organizations != null
-                    && string.Equals(x.Organizations[0]?.Title, "Student", StringComparison.OrdinalIgnoreCase)
-                    && x.ExternalIds != null
+                var resUsers = res.UsersValue?.Where(x => x.Organizations.Any() == true
+                    && x.ExternalIds.Any() == true
                     && x.Archived != true
-                    ).Select(s => new UserModel
+                    ).Select(s =>
                     {
-                        DisplayName = s.Name.FullName,
-                        Username = s.ExternalIds[0]?.Value,
-                        Email = s.PrimaryEmail,
-                        Department = s.Organizations[0]?.Department,
-                        Office = s.Organizations[0]?.Location,
-                        Title = s.Organizations[0]?.Title,
-                        LastLoginTime = s.LastLoginTimeRaw
+                        var organization = s.Organizations?.FirstOrDefault(o => o.Primary == true) ?? s.Organizations?.FirstOrDefault();
+
+                        return new UserModel
+                        {
+                            DisplayName = s.Name.FullName,
+                            Username = s.ExternalIds.FirstOrDefault()?.Value,
+                            Email = s.PrimaryEmail,
+                            Department = organization?.Department,
+                            Office = organization?.Location,
+                            Title = organization?.Title,
+                            LastLoginTime = s.LastLoginTimeRaw
+                        };
+
                     }).ToList() ?? [];
 
                 users.AddRange(resUsers);
@@ -118,7 +128,7 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
     #region Private methods
     private async Task<(DirectoryService, string)> Service()
     {
-        string serviceJson =  await _localFileService.GetFromEncryptedFile<string>("service/service");
+        string serviceJson = await _localFileService.GetFromEncryptedFile<string>("service/service");
         var serviceConfig = await _localFileService.GetFromEncryptedFile<ServiceModel>("service/config");
 
         //string serviceString = System.Text.Json.JsonSerializer.Serialize(serviceJson);
