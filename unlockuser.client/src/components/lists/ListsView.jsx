@@ -57,7 +57,6 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
 
   function onSecondaryClick(e, key) {
     e.stopPropagation();
-    console.log(key)
     navigate(loc.pathname, { state: { key: key } });
   }
 
@@ -73,7 +72,7 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
       {Object.entries(organized).map(([name, items]) => {
 
         return <List key={name} className="w-100">
-          <Typography variant="h5" sx={{ fontWeight: 600 }} gutterBottom>{name}</Typography>
+          <Typography variant="h6" sx={{ fontWeight: 600 }} gutterBottom>{name}</Typography>
 
           {/* Loop of list */}
           {items.map((item, index) => {

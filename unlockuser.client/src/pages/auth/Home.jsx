@@ -94,19 +94,19 @@ function Home() {
 
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
-    const groupCollectionRef = useRef(null);
+    const groupAccountsRef = useRef(null);
 
 
     function waitForCollection(timeout = 60000) {
         return new Promise((resolve) => {
-            if (groupCollectionRef.current !== null)
-                return resolve(groupCollectionRef.current);
+            if (groupAccountsRef.current !== null)
+                return resolve(groupAccountsRef.current);
 
             const start = Date.now();
             const interval = setInterval(() => {
-                if (groupCollectionRef.current !== null || Date.now() - start >= timeout) {
+                if (groupAccountsRef.current !== null || Date.now() - start >= timeout) {
                     clearInterval(interval);
-                    resolve(groupCollectionRef.current);
+                    resolve(groupAccountsRef.current);
                 }
             }, 100);
         });
@@ -125,8 +125,8 @@ function Home() {
             //     ApiRequest(`data/groups/by/name/${gn}`),
             // ]);
 
-            groupCollectionRef.current = await fetchData({ api: `data/groups/by/name/${gn}`, action: "return" })
-            if (groupCollectionRef.current?.length == 0) {
+            groupAccountsRef.current = await fetchData({ api: `data/groups/by/name/${gn}`, action: "return" })
+            if (groupAccountsRef.current?.length == 0) {
 
                 const logged = sessionStorage.getItem("logged");
                 if (logged) {
@@ -146,9 +146,9 @@ function Home() {
 
     useEffect(() => {
         if (!key) return;
-        console.log(key)
+
         onReset();
-        const collection = groupCollectionRef.current;
+        const collection = groupAccountsRef.current;
         const res = collection?.filter(x => x?.office?.toLowerCase().includes(key.toLowerCase()));
         handleDispatch("byOffice", true);
         handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
@@ -217,26 +217,26 @@ function Home() {
         if (errors?.length > 0)
             return { ...data, errors };
 
-        if (groupCollectionRef.current === null)
+        if (groupAccountsRef.current === null)
             await waitForCollection(120000);
         else
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-        const collection = groupCollectionRef.current;
-
+        const accounts = groupAccountsRef.current;
+console.log(accounts)
         let result = null;
-        if (collection?.length > 0) {
+        if (accounts?.length > 0) {
             if (gn === "support") {
                 if (byOffice)
-                    result = collection?.filter(x => x?.office?.toLowerCase().includes(key));
+                    result = accounts?.filter(x => x?.office?.toLowerCase().includes(key));
                 else
-                    result = collection?.filter(x => (match ? x?.displayName?.toLowerCase() === key : 
+                    result = accounts?.filter(x => (match ? x?.displayName?.toLowerCase() === key : 
                         (x?.displayName?.toLowerCase().includes(key) || x.email?.toLowerCase().startsWith(key.replace(" ", ".")))));
             } else {
 
                 result = (isClass)
-                    ? collection?.filter(x => x?.department?.toLowerCase() === key && x?.office === school)?.sort((a, b) => a.username?.toLowerCase().localeCompare(b.username?.toLowerCase()))
-                    : collection?.filter(x => (match ? x?.displayName?.toLowerCase() === key : 
+                    ? accounts?.filter(x => x?.department?.toLowerCase() === key && x?.office === school)?.sort((a, b) => a.username?.toLowerCase().localeCompare(b.username?.toLowerCase()))
+                    : accounts?.filter(x => (match ? x?.displayName?.toLowerCase() === key : 
                         (x?.displayName?.toLowerCase().includes(key) || x.email?.toLowerCase().startsWith(key.replace(" ", "."))))
                         && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
 
@@ -258,7 +258,7 @@ function Home() {
                 // end
             }
         } else {
-            await fetchData({ api: `data/update/sorted`, method: "post", action: "complete" });
+            await fetchData({ api: `data/update/stored`, method: "post", action: "complete" });
         }
 
         handleDispatch("users", Array.isArray(result) ? result : [], "RESULT");
@@ -298,7 +298,7 @@ function Home() {
         return new Date(year, 7, 1).toLocaleDateString("sv-SE", { month: "long", year: "numeric" });
     })();
     // end
-console.log(schools)
+
     return (
         <>
             {/* Search form */}

@@ -199,7 +199,12 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
-            //await SetPasswords([model]);
+            List<UserFormModel> models = [model];
+
+            //if (model.IsEmployee)
+            //    await SetPasswords(models);
+            //else
+            //    await StudentsPasswordChenge(models);
 
             return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
         }
@@ -214,17 +219,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
-            //try
-            //{
-            //    await SetPasswords(models);
-            //}
-            //catch (Exception ex)
-            //{
-            //    _logger.LogError($"{nameof(SetMultiplePasswords)}. Error: {ex.Message}");
-            //    await _helpService.Error(ex);
-            //}
-
-            //await _googleService.UpdatePaswords(models);
+            await StudentsPasswordChenge(models);
 
             return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
         }
@@ -247,17 +242,8 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                     PropertyNameCaseInsensitive = true
                 });
 
-            //try
-            //{
-            //    await SetPasswords(models);
-            //}
-            //catch (Exception ex)
-            //{
-            //    _logger.LogError($"{nameof(SetPasswordsSavePdf)}. Error: {ex.Message}");
-            //    await _helpService.Error(ex);
-            //}
+            await StudentsPasswordChenge(models);
 
-            //await _googleService.UpdatePaswords(models);
             if (file != null && file.Length > 0)
             {
                 // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
@@ -478,6 +464,21 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         }
 
         _logger.LogInformation("Password change finished at {dateTime}. Moderator: {user}", DateTime.Now.ToString("g"), username);
+    }
+
+    private async Task StudentsPasswordChenge(List<UserFormModel> models)
+    {
+        try
+        {
+            await SetPasswords(models);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"{nameof(SetPasswordsSavePdf)}. Error: {ex.Message}");
+            await _helpService.Error(ex);
+        }
+
+        await _googleService.UpdatePaswords(models);
     }
 
     private async Task<(UserViewModel?, bool)> GetUserFromCache(string group, string name)

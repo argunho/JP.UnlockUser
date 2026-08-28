@@ -98,8 +98,12 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
         if (error)
             return { data, error };
 
+        console.log(users[0])
+
         data.username = users[0]?.username;
         data.manager = users[0]?.manager;
+        data.email = users[0]?.email;
+        data.title = users[0].title;
 
         // Request
         await fetchData({ api: "user/reset/single/password", method: "post", data: data });

@@ -35,7 +35,7 @@ function AppLayout() {
   const openAccess = Claim("openAccess");
 
   const urls = new Set(Links.filter(x => x.access).map(link => link.url));
-console.log(urls, loc.pathname)
+
   useEffect(() => {
     refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
 

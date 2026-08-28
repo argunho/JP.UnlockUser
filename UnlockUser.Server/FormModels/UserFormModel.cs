@@ -7,6 +7,7 @@ public class UserFormModel
     public string? Name { set; get; }
     public string? Username { get; set; }
     public string? Email { get; set; }
+    public string? Title { get; set; }
 
     [DataType(DataType.Password)]
     public string? Password { get; set; }
@@ -20,5 +21,6 @@ public class UserFormModel
     public string? Department { get; set; }
     public  string? GroupName { get; set; }
     public string? Manager { get; set; }
-}
 
+    public bool IsEmployee => !string.Equals(Title, "student", StringComparison.OrdinalIgnoreCase);
+}
