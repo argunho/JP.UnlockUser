@@ -196,7 +196,10 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                     PropertyNameCaseInsensitive = true
                 });
 
-            await _localFileService.SaveUpdateEncryptedToFile(file, "service", "service");
+            // Read uploaded file content (the JSON) and save its content encrypted
+            using var reader = new StreamReader(file.OpenReadStream(), Encoding.UTF8);
+            var fileContent = await reader.ReadToEndAsync();
+            await _localFileService.SaveUpdateEncryptedToFile(fileContent, "service", "service");
             await _localFileService.SaveUpdateEncryptedToFile(model, "service", "config");
         }
         catch (Exception ex)

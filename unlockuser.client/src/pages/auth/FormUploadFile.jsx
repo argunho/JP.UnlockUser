@@ -3,6 +3,8 @@ import { useState, use, useEffect, useRef, useActionState } from 'react';
 // installed
 import { TextField, InputLabel, IconButton } from '@mui/material';
 import { UploadFile as UploadFileIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+
 
 // Components
 import Message from '../../components/blocks/Message';
@@ -13,17 +15,16 @@ import TabPanel from '../../components/blocks/TabPanel';
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
 
-
-function FormUploadFile({ keyword }) {
+function FormUploadFile() {
 
     const [file, setFile] = useState();
 
     const refUpload = useRef();
+    const navigate = useNavigate();
     const { response, pending: loading, success, fetchData, handleResponse, cancelRequest } = use(FetchContext);
-    console.log("uploadfile")
+
     useEffect(() => {
         document.title = "UnlockUser | Ladda up file";
-        handleResponse();
     }, [])
 
     function onFileChange(ev) {
@@ -134,8 +135,11 @@ function FormUploadFile({ keyword }) {
                 </div>
 
 
-                <FormButtons confirmable={true} pending={pending} disabled={pending || response || !file}
-                    {...(pending ? { cancel: cancelRequest } : null)} />
+                <FormButtons 
+                    confirmable={true} 
+                    loading={pending} 
+                    disabled={pending || response || !file}
+                    {...(pending ? { onCancel: cancelRequest } : null)} />
 
                 {/* Upload file input */}
                 <input type="file" name="file" onChange={onFileChange} className="none" ref={refUpload} />
@@ -143,7 +147,7 @@ function FormUploadFile({ keyword }) {
 
 
             {/* Success response */}
-            {success && <ModalSuccess open={true} onClose={() => handleResponse()} />}
+            {success && <ModalSuccess onClose={() => navigate(-1)} />}
         </>
     )
 }

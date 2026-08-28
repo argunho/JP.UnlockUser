@@ -118,11 +118,11 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
     #region Private methods
     private async Task<(DirectoryService, string)> Service()
     {
-        var serviceJson =  await _localFileService.GetFromEncryptedFile<dynamic>("service/service.json");
-        var serviceConfig = await _localFileService.GetFromEncryptedFile<ServiceModel>("service/config.json");
+        string serviceJson =  await _localFileService.GetFromEncryptedFile<string>("service/service");
+        var serviceConfig = await _localFileService.GetFromEncryptedFile<ServiceModel>("service/config");
 
-        string serviceString = System.Text.Json.JsonSerializer.Serialize(serviceJson);
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(serviceString));
+        //string serviceString = System.Text.Json.JsonSerializer.Serialize(serviceJson);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(serviceJson));
 
         var credential = GoogleCredential
             .FromStream(stream)

@@ -48,6 +48,8 @@
 	  <Content Include="wwwroot\json\watched.json" />
 	  <Content Include="wwwroot\manual\0.Startsidan.txt" />
 	  <Content Include="wwwroot\popup\0.Nya_regler_i_den_nya_versionen.txt" />
+	  <Content Include="wwwroot\service\config.txt" />
+	  <Content Include="wwwroot\service\service.txt" />
 	</ItemGroup>
 
 	<ItemGroup>
