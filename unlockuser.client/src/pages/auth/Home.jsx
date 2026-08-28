@@ -235,7 +235,7 @@ console.log(accounts)
             } else {
 
                 result = (isClass)
-                    ? accounts?.filter(x => x?.department?.toLowerCase() === key && x?.office === school)?.sort((a, b) => a.username?.toLowerCase().localeCompare(b.username?.toLowerCase()))
+                    ? accounts?.filter(x => x?.department?.toLowerCase() === key && x?.office === school)?.sort((a, b) => a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase()))
                     : accounts?.filter(x => (match ? x?.displayName?.toLowerCase() === key : 
                         (x?.displayName?.toLowerCase().includes(key) || x.email?.toLowerCase().startsWith(key.replace(" ", "."))))
                         && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
