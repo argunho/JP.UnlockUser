@@ -22,6 +22,7 @@ import Overview from './../pages/auth/Overview';
 import Permissions from '../pages/auth/permissions';
 import EmployeeView from '../pages/auth/EmployeeView';
 import FormEmail from '../pages/auth/FormEmail';
+import FormUploadFile from '../pages/auth/FormUploadFile';
 
 import Contacts from "../pages/Contacts";
 import NotFound from "../pages/NotFound";
@@ -108,6 +109,11 @@ const AppRoutes = () => [
         element: <FormEmail />,
         errorElement: <ErrorView />
       },
+      {
+        path: "service/form",
+        element: <FormUploadFile />,
+        errorElement: <ErrorView />
+      }
     ]
   },
   {

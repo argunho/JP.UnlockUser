@@ -1,0 +1,151 @@
+import { useState, use, useEffect, useRef, useActionState } from 'react';
+
+// installed
+import { TextField, InputLabel, IconButton } from '@mui/material';
+import { UploadFile as UploadFileIcon } from '@mui/icons-material';
+
+// Components
+import Message from '../../components/blocks/Message';
+import ModalSuccess from '../../components/modals/ModalSuccess';
+import FormButtons from '../../components/forms/FormButtons';
+import TabPanel from '../../components/blocks/TabPanel';
+
+// Storage
+import { FetchContext } from '../../storage/FetchContext';
+
+
+function FormUploadFile({ keyword }) {
+
+    const [file, setFile] = useState();
+
+    const refUpload = useRef();
+    const { response, pending: loading, success, fetchData, handleResponse, cancelRequest } = use(FetchContext);
+    console.log("uploadfile")
+    useEffect(() => {
+        document.title = "UnlockUser | Ladda up file";
+        handleResponse();
+    }, [])
+
+    function onFileChange(ev) {
+        ev.preventDefault();
+
+        if (!ev.target.files || ev.target.files?.length === 0)
+            return;
+
+        const file = ev.target.files[0];
+        const extension = file.name.split(".").pop().toLowerCase();
+
+        if ("json" !== extension) {
+            handleResponse({ color: "error", msg: `Filtypen måste vara 'json' uppladdat filtypen är ${file?.type}.` });
+            return;
+        }
+        setFile(file);
+    }
+
+    async function onSubmit(previous, fd) {
+
+        const data = {
+            customerId: fd.get("customerId"),
+            customerEmail: fd.get("customerEmail")
+        }
+        let errors = [];
+
+        if (data?.customerId?.length == 0)
+            errors.push("customerEmail");
+        if (data?.customerId?.length == 0)
+            errors.push("customerEmail");
+
+        if (errors?.length > 0) {
+            return {
+                errors: errors.reduce((obj, key) => ({ ...obj, [key]: true }), {}),
+                data
+            };
+        }
+
+        let formData = new FormData();
+        formData.append("file", file);
+        formData.append("data", JSON.stringify(data));
+
+        await fetchData({ api: "data/upload/service/file", method: "post", data: formData });
+        setFile();
+        return null;
+    }
+
+    const [formState, formAction, pending] = useActionState(onSubmit, null);   
+    const errors = formState?.errors;
+
+    return (
+        <>
+            <TabPanel primary="Google-tjänstkonto" secondary={file?.name ?? "---------"} />
+
+            {/* Message */}
+            {response && <Message res={response} cancel={() => handleResponse()} />}
+
+            <form className='form-manual fade-in w-100' action={formAction} id="form-upload">
+
+                <div className="field-wrapper w-100" id="file-name">
+                    <InputLabel className="w-100 p-rel">
+                        Kund id
+                    </InputLabel>
+                    <TextField
+                        className="w-100 field"
+                        name="customerId"
+                        required
+                        disabled={loading || response}
+                        placeholder="T.ex. C02worlfg (hittas i Google Admin-konsolen under Konto > Kontoinställningar)" // 2026-08-28 11:54
+                        defaultValue={formState?.name ?? ""}
+                        error={errors?.customerId}
+                    />
+                </div>
+
+                <div className="field-wrapper w-100" id="file-name">
+                    <InputLabel className="w-100 p-rel">
+                        E-postadress
+                    </InputLabel>
+                    <TextField
+                        className="w-100 field"
+                        name="customerEmail"
+                        required
+                        disabled={loading || response}
+                        placeholder="T.ex. admin@dinorganisation.se – kontot som service-filen ska ge åtkomst till" // 2026-08-28 11:54
+                        defaultValue={formState?.name ?? ""}                      
+                        error={errors?.customerEmail}
+                    />
+                </div>
+
+                {/* Upload file, readonly */}
+                <div className="field-wrapper w-100" id="upload-file">
+                    <InputLabel className="w-100 p-rel" required>
+                        Service fil här
+                    </InputLabel>
+                    <TextField
+                        className="w-100 field"
+                        type="readonly"
+                        value={file?.name ?? ""}
+                        InputProps={{
+                            endAdornment: <IconButton onClick={() => refUpload.current.click()}>
+                                <UploadFileIcon />
+                            </IconButton>
+                        }}
+                        disabled={loading || response}
+                        placeholder="Klicka på ikonen till höger och välj service-kontots .json-fil" // 2026-08-28 11:55
+                        required
+                    />
+                </div>
+
+
+                <FormButtons confirmable={true} pending={pending} disabled={pending || response || !file}
+                    {...(pending ? { cancel: cancelRequest } : null)} />
+
+                {/* Upload file input */}
+                <input type="file" name="file" onChange={onFileChange} className="none" ref={refUpload} />
+            </form >
+
+
+            {/* Success response */}
+            {success && <ModalSuccess open={true} onClose={() => handleResponse()} />}
+        </>
+    )
+}
+
+export default FormUploadFile;

@@ -139,7 +139,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 
     #region POST
     [HttpPost("update/stored")]
-    public async Task<IActionResult> UpdateData()
+    public async Task<IActionResult> UpdateStoredData()
     {
         var claims = _credentials.GetClaims(["username", "openAccess", "permissions"]);
 
@@ -172,9 +172,16 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         return Ok();
     }
 
-    [HttpPost("upload")]
+
+    /// <summary>
+    /// Upload google service json, customer id and customer email
+    /// </summary>
+    /// <param name="file"></param>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    [HttpPost("upload/service/file")]
     [Authorize(Roles = "Moderator, DevelopTeam")]
-    public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] string data)
+    public async Task<IActionResult> UploadGoogleAccountData([FromForm] IFormFile file, [FromForm] string data)
     {
         try
         {
@@ -194,7 +201,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         }
         catch (Exception ex)
         {
-            _logger.LogError($"{nameof(UploadFile)} error: {ex.Message}");
+            _logger.LogError($"{nameof(UploadGoogleAccountData)} error: {ex.Message}");
             await _helpService.Error(ex);
         }
 
