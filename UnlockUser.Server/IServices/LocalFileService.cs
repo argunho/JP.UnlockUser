@@ -18,7 +18,7 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IL
         {
             var path = Path.Combine(_webRootPath, $"{fileName}.txt");
             if (_env.IsDevelopment())
-                path = Path.Combine("https://unlock2.alvesta.se/", $"{fileName}.txt");
+                path = Path.Combine("https://unlock2.alvesta.se/", _webRootPath, $"{fileName}.txt");
 
             if (!File.Exists(path))
                 return default;

@@ -45,7 +45,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             // Employee groups where each group has its own password management permissions
             List<GroupModel> groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
-            var schools = (await _localFileService.GetFromEncryptedFile<List<School>>("catalogs/schools")).Select(s => new ViewModel
+            var schools = (await _localFileService.GetFromEncryptedFile<List<School>>("catalogs/schools"))?.Select(s => new ViewModel
             {
                 Id = s.Name,
                 Primary = s.Name,
@@ -123,24 +123,36 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 
     [HttpGet("students")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetStudents()
+    public async Task<IActionResult> GetStudents([FromQuery] string? date)
     {
+        DateTime currentDate = DateTime.Now;
+        if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
+            return Ok();
+
         var users = await _googleService.GetStudentsFromGoogle();
         return Ok(users);
     }
 
     [HttpGet("users")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetUsers()
+    public async Task<IActionResult> GetUsers([FromQuery] string? date)
     {
+        DateTime currentDate = DateTime.Now;
+        if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
+            return Ok();
+
         var users = await _googleService.GetUsers();
         return Ok(users);
     }
 
-    [HttpGet("user/by/email")]
+    [HttpGet("user/by")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetUser([FromQuery] string email)
+    public async Task<IActionResult> GetUser([FromQuery] string email, [FromQuery] string? date)
     {
+        DateTime currentDate = DateTime.Now;
+        if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
+            return Ok();
+
         var user = await _googleService.GetUser(email);
         return Ok(user);
     }
