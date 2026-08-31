@@ -8,6 +8,7 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IL
 {
     private readonly IConfiguration _config = config;
     private readonly ILogger<LocalFileService> _logger = logger;
+    private readonly IWebHostEnvironment _env = env;
     private readonly string _webRootPath = env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot");
     private readonly string _contentRootPath = env.ContentRootPath;
 
@@ -16,6 +17,9 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IL
         try
         {
             var path = Path.Combine(_webRootPath, $"{fileName}.txt");
+            if (_env.IsDevelopment())
+                path = Path.Combine("https://unlock2.alvesta.se/", $"{fileName}.txt");
+
             if (!File.Exists(path))
                 return default;
             var res = await File.ReadAllTextAsync(path);
