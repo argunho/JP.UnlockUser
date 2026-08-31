@@ -136,6 +136,14 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         var users = await _googleService.GetUsers();
         return Ok(users);
     }
+
+    [HttpGet("user/by/email")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetUser([FromQuery] string email)
+    {
+        var user = await _googleService.GetUser(email);
+        return Ok(user);
+    }
     #endregion
 
     #region POST

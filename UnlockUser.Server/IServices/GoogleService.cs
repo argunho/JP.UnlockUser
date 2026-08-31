@@ -28,9 +28,9 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
                 request.Customer = id ?? "my_customer";
 
                 // Server-side filtering
-                //request.Query = "orgTitle='Student' isSuspended=false";
-                request.Query = "orgTitle='Student'";
-                request.Fields = "nextPageToken,users(name,primaryEmail,organizations,externalIds,lastLoginTime,archived)";
+                request.Query = "orgTitle='Student' isSuspended=false";
+                //request.Query = "orgTitle='Student'";
+                request.Fields = "nextPageToken,users(name,primaryEmail,orgUnitPath,organizations,externalIds,lastLoginTime,archived)";
 
                 request.MaxResults = 500;
                 request.PageToken = pageToken;
@@ -45,16 +45,17 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
                     ).Select(s =>
                     {
                         var organization = s.Organizations?.FirstOrDefault(o => o.Primary == true) ?? s.Organizations?.FirstOrDefault();
+                        var department = s.OrgUnitPath?.Split('/')?.LastOrDefault();
 
                         return new UserModel
                         {
                             DisplayName = s.Name.FullName,
                             Username = s.ExternalIds.FirstOrDefault()?.Value,
                             Email = s.PrimaryEmail,
-                            Department = organization?.Department,
+                            Department = department ?? organization?.Department,
                             Office = organization?.Location,
                             Title = organization?.Title,
-                            LastLoginTime = s.LastLoginTimeRaw
+                            LastLoginTime = s.LastLoginTimeRaw == "1970-01-01T00:00:00.000Z" ? null : s.LastLoginTimeRaw 
                         };
 
                     }).ToList() ?? [];
@@ -106,6 +107,15 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
         }
 
         return [];
+    }
+
+    public async Task<GoogleUserModel> GetUser(string email)
+    {
+        var (service, id) = await Service();
+        var user = await service.Users
+                .Get(email)
+                .ExecuteAsync();
+        return user;
     }
 
     public async Task UpdatePaswords(List<UserFormModel> models)

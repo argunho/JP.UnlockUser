@@ -223,46 +223,49 @@ function Home() {
             await new Promise(resolve => setTimeout(resolve, 1000));
 
         const accounts = groupAccountsRef.current;
-console.log(accounts)
-        let result = null;
+
+        let res = null;
         if (accounts?.length > 0) {
             if (gn === "support") {
                 if (byOffice)
-                    result = accounts?.filter(x => x?.office?.toLowerCase().includes(key));
+                    res = accounts?.filter(x => x?.office?.toLowerCase().includes(key));
                 else
-                    result = accounts?.filter(x => (match ? x?.displayName?.toLowerCase() === key : 
+                    res = accounts?.filter(x => (match ? x?.displayName?.toLowerCase() === key :
                         (x?.displayName?.toLowerCase().includes(key) || x.email?.toLowerCase().startsWith(key.replace(" ", ".")))));
             } else {
 
-                result = (isClass)
+                res = (isClass)
                     ? accounts?.filter(x => x?.department?.toLowerCase() === key && x?.office === school)?.sort((a, b) => a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase()))
-                    : accounts?.filter(x => (match ? x?.displayName?.toLowerCase() === key : 
+                    : accounts?.filter(x => (match ? x?.displayName?.toLowerCase() === key :
                         (x?.displayName?.toLowerCase().includes(key) || x.email?.toLowerCase().startsWith(key.replace(" ", "."))))
                         && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
 
                 // start: 2026-08-27 09:57
-                // if (isClass && result?.length > 0) {
-                //     const now = new Date();
-                //     // School year starts in August: Aug-Dec use this year, Jan-Jul use previous year
-                //     const schoolYearStartYear = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
-                //     const schoolYearStart = new Date(schoolYearStartYear, 7, 1);
+                if (isClass && res?.length > 0 && res.find(x => !x.lastLoginTime) !== null) {
+                    const now = new Date();
+                    // School year starts in August: Aug-Dec use this year, Jan-Jul use previous year
+                    const schoolYearStartYear = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
+                    const schoolYearStart = new Date(schoolYearStartYear, 7, 1);
 
-                //     result = result.map(item => {
-                //         let lastTime = item.lastLoginTime;
-                //         let date = lastTime != null ? new Date(lastTime) : null;
-                //         if (date === null || date > schoolYearStart) {
-                //             return item;
-                //         }
-                //     }).filter(Boolean);
-                // }
+                    res = res.map(item => {
+                        let lastTime = item?.lastLoginTime;
+                        if (!lastTime)
+                            return item;
+
+                        let date = lastTime != null ? new Date(lastTime) : null;
+                        if (date === null || date > schoolYearStart) {
+                            return item;
+                        }
+                    }).filter(Boolean);
+                }
                 // end
             }
         } else {
             await fetchData({ api: `data/update/stored`, method: "post", action: "complete" });
         }
 
-        handleDispatch("users", Array.isArray(result) ? result : [], "RESULT");
-        return Array.isArray(result) ? null : data;
+        handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
+        return Array.isArray(res) ? null : data;
     }
 
     function onReset() {
@@ -457,11 +460,12 @@ console.log(accounts)
             </div>
 
             {/* start: 2026-08-27 10:13 */}
-            {/* {(isClass && users?.length > 0 && !pending) && <Message res={{
-                color: "info",
-                msg: `Listan visar endast elever som har loggat in sedan ${schoolYearStartLabel} (innevarande läsår). Elever som inte loggat in sedan dess visas inte här.` +
-                    "\nSaknas en elev i listan? Sök då efter eleven separat med användarnamn under alternativet \"Användare\"." // 2026-08-27 10:16
-            }} />} */}
+            {(isClass && users?.length > 0 && !pending) && <Message
+                res={{
+                    color: "info",
+                    msg: (users.find(x => !x.lastLoginTime) !== null ? `Listan visar endast elever som har loggat in sedan ${schoolYearStartLabel} (innevarande läsår). Elever som inte loggat in sedan dess visas inte här.\n` : null) +
+                        "Saknas en elev i listan? Sök då efter eleven separat med användarnamn under alternativet \"Användare\"." // 2026-08-27 10:16
+                }} />}
             {/* end */}
 
             {/* List loading */}
