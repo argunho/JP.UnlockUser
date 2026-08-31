@@ -15,6 +15,24 @@ import TabPanel from '../../components/blocks/TabPanel';
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
 
+const fields = [
+    {
+        label: "Kund id",
+        name: "customerId",
+        placeholder: "T.ex. C84worlfg (hittas i Google Admin-konsolen under Konto > Kontoinställningar)"
+    },
+    {
+        label: "Kund e-postadress",
+        name: "customerEmail",
+        placeholder: "T.ex. admin@dinorganisation.se – kontot som service-filen ska ge åtkomst till"
+    },
+    {
+        label: "Applikation namn",
+        name: "appName",
+        placeholder: "T.ex. UnlockUser – namnet som identifierar applikationen mot Google API" // 2026-08-31 10:34
+    }
+]
+
 function FormUploadFile() {
 
     const [file, setFile] = useState();
@@ -47,7 +65,8 @@ function FormUploadFile() {
 
         const data = {
             customerId: fd.get("customerId"),
-            customerEmail: fd.get("customerEmail")
+            customerEmail: fd.get("customerEmail"),
+            appName: fd.get("appName")
         }
         let errors = [];
 
@@ -55,6 +74,8 @@ function FormUploadFile() {
             errors.push("customerEmail");
         if (data?.customerId?.length == 0)
             errors.push("customerEmail");
+        if (data?.appName?.length == 0)
+            errors.push("appName");
 
         if (errors?.length > 0) {
             return {
@@ -67,12 +88,12 @@ function FormUploadFile() {
         formData.append("file", file);
         formData.append("data", JSON.stringify(data));
 
-        await fetchData({ api: "data/upload/service/file", method: "post", data: formData });
+        await fetchData({ api: "data/upload/service/file", method: "post", data: formData, action: "done" });
         setFile();
         return null;
     }
 
-    const [formState, formAction, pending] = useActionState(onSubmit, null);   
+    const [formState, formAction, pending] = useActionState(onSubmit, null);
     const errors = formState?.errors;
 
     return (
@@ -84,35 +105,22 @@ function FormUploadFile() {
 
             <form className='form-manual fade-in w-100' action={formAction} id="form-upload">
 
-                <div className="field-wrapper w-100" id="file-name">
-                    <InputLabel className="w-100 p-rel">
-                        Kund id
-                    </InputLabel>
-                    <TextField
-                        className="w-100 field"
-                        name="customerId"
-                        required
-                        disabled={loading || response}
-                        placeholder="T.ex. C02worlfg (hittas i Google Admin-konsolen under Konto > Kontoinställningar)" // 2026-08-28 11:54
-                        defaultValue={formState?.name ?? ""}
-                        error={errors?.customerId}
-                    />
-                </div>
-
-                <div className="field-wrapper w-100" id="file-name">
-                    <InputLabel className="w-100 p-rel">
-                        E-postadress
-                    </InputLabel>
-                    <TextField
-                        className="w-100 field"
-                        name="customerEmail"
-                        required
-                        disabled={loading || response}
-                        placeholder="T.ex. admin@dinorganisation.se – kontot som service-filen ska ge åtkomst till" // 2026-08-28 11:54
-                        defaultValue={formState?.name ?? ""}                      
-                        error={errors?.customerEmail}
-                    />
-                </div>
+                {fields?.map((field, ind) => (
+                    <div className="field-wrapper w-100" id="file-name" key={ind}>
+                        <InputLabel className="w-100 p-rel">
+                            {field?.label}
+                        </InputLabel>
+                        <TextField
+                            className="w-100 field"
+                            name={field?.name}
+                            required
+                            disabled={loading || response}
+                            placeholder={field?.placeholder}
+                            defaultValue={formState?.[field?.name] ?? ""}
+                            error={errors?.[field?.name]}
+                        />
+                    </div>
+                ))}
 
                 {/* Upload file, readonly */}
                 <div className="field-wrapper w-100" id="upload-file">
@@ -135,9 +143,9 @@ function FormUploadFile() {
                 </div>
 
 
-                <FormButtons 
-                    confirmable={true} 
-                    loading={pending} 
+                <FormButtons
+                    confirmable={true}
+                    loading={pending}
                     disabled={pending || response || !file}
                     {...(pending ? { onCancel: cancelRequest } : null)} />
 
@@ -147,7 +155,7 @@ function FormUploadFile() {
 
 
             {/* Success response */}
-            {success && <ModalSuccess onClose={() => navigate(-1)} />}
+            {success && <ModalSuccess onClose={() => navigate("/")} />}
         </>
     )
 }

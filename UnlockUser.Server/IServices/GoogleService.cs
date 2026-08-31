@@ -158,7 +158,7 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
             new BaseClientService.Initializer
             {
                 HttpClientInitializer = credential,
-                ApplicationName = "UnlockUser"
+                ApplicationName = serviceConfig.AppName
             });
 
         return (service, serviceConfig.CustomerId!);
