@@ -16,7 +16,7 @@ public class DashboardService(
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IConfiguration _config = config;
     private readonly IActiveDirectory _provider = provider;
-    private readonly IMemoryCache _memoryCache = memoryCache;
+    private readonly IMemoryCache _cache = memoryCache;
     private readonly IGoogleService _googleService = googleService;
     private readonly ILogger<DashboardService> _logger = logger;
 
@@ -31,10 +31,10 @@ public class DashboardService(
             List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
             // Saved employees who have permission to manage employee passwords
-            var savedEmployees = await _localFileService.GetFromEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+            var savedModerators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
 
             // Currentsession user permissions
-            var sessionUserPermissions = savedEmployees.FirstOrDefault(x => x.Username == username)?.Permissions;
+            var sessionUserPermissions = savedModerators.FirstOrDefault(x => x.Username == username)?.Permissions;
 
             // Lopp of all employees groups
             foreach (var group in passwordManageGroups)
@@ -60,35 +60,28 @@ public class DashboardService(
                         alternativeParams = sessionUserPermissions!.Managers;
                 }
 
-                // All users who are members of the current password management group
-                if (!_memoryCache.TryGetValue(group.Name!, out List<User>? users))
+                var cacheKey = alternativeParams.Any() && !isStudents ? $"{group.Name}:{username}" : $"{group.Name}";
+                List<User>? users = await _cache.GetOrCreateAsync(cacheKey, async entry =>
                 {
-                    // Get user from AD by group name and current user permissions parameters
-                    users = isStudents 
-                                ? await _googleService.GetStudentsFromGoogle() 
-                                : [.. (await _provider.GetUsersByGroupName(group, alternativeParams, username))];
+                    entry.SlidingExpiration = TimeSpan.FromMinutes(30); // Cache for 30 minutes, removes after this time if it is not used
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1); // Cache for 1 day, removes after this time even if it is used
 
-                    if (users?.Count > 0)
-                    {
-                        _memoryCache.Set(
-                            group.Name!,
-                            users,
-                            TimeSpan.FromHours(6)
-                         );
-                    }
-                }
+                   return isStudents ? await _googleService.GetStudentsFromGoogle()
+                                : [.. (await _provider.GetUsersByGroupName(group, alternativeParams, username))];
+                });
+
 
                 if (!isStudents)
                 {
                     // Filter the list of saved employees according to the current password management group
                     // Update permissions in all users of the current password management group based on the filtered saved users
-                    foreach (var employee in savedEmployees)
+                    foreach (var m in savedModerators)
                     {
-                        var user = users?.FirstOrDefault(x => x.Username == employee.Username);
+                        var user = users?.FirstOrDefault(x => x.Username == m.Username);
                         if (user == null)
                             continue;
 
-                        user.Permissions = employee.Permissions;
+                        user.Permissions = m.Permissions;
                     }
                 }
 
@@ -109,7 +102,7 @@ public class DashboardService(
             }
 
             var id = _session!.Id;
-            _memoryCache.Set(
+            _cache.Set(
                 $"groups_{id}",
                 groups,
                 TimeSpan.FromMinutes(90)

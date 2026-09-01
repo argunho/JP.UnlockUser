@@ -84,7 +84,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
         List<string> approvedEmployeeUsernames = [];
         if (isEmployee)
         {
-            var approvedEmployees = await _localFileService.GetFromEncryptedFile<List<ApprovedEmployeeViewModel>>("catalogs/approved-employees") ?? [];
+            var approvedEmployees = await _localFileService.GetEncryptedFile<List<ApprovedEmployeeViewModel>>("catalogs/approved-employees") ?? [];
             if (approvedEmployees?.Count > 0)
             {
                 approvedEmployees.RemoveAll(x => !x.Moderators!.Contains(username!));

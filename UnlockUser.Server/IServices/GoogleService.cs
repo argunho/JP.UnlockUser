@@ -1,5 +1,4 @@
 ﻿using Google.Apis.Admin.Directory.directory_v1;
-using Google.Apis.Admin.Directory.directory_v1.Data;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using System.Text;
@@ -8,9 +7,8 @@ using UserModel = UnlockUser.Server.Models.User;
 
 namespace UnlockUser.Server.IServices;
 
-public class GoogleService(IConfiguration config, ILocalFileService localFileService, ILogger<GoogleService> logger) : IGoogleService
+public class GoogleService(ILocalFileService localFileService, ILogger<GoogleService> logger) : IGoogleService
 {
-    private readonly IConfiguration _config = config;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly ILogger<GoogleService> _logger = logger;
 
@@ -55,7 +53,7 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
                             Department = department ?? organization?.Department,
                             Office = organization?.Location,
                             Title = organization?.Title,
-                            LastLoginTime = s.LastLoginTimeRaw == "1970-01-01T00:00:00.000Z" ? null : s.LastLoginTimeRaw 
+                            LastLoginTime = s.LastLoginTimeRaw == "1970-01-01T00:00:00.000Z" ? null : s.LastLoginTimeRaw
                         };
 
                     }).ToList() ?? [];
@@ -105,17 +103,29 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
         {
             _logger.LogError($"{nameof(GetStudentsFromGoogle)} Error: {0}", gex.Error?.Message);
         }
+        catch (Exception ex)
+        {
+            _logger.LogError($"{nameof(GetStudentsFromGoogle)} Error: {0}", ex?.Message);
+        }
 
         return [];
     }
 
-    public async Task<GoogleUserModel> GetUser(string email)
+    public async Task<GoogleUserModel?> GetUser(string email)
     {
+        try
+        {
         var (service, id) = await Service();
         var user = await service.Users
                 .Get(email)
                 .ExecuteAsync();
         return user;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"{nameof(GetStudentsFromGoogle)} Error: {0}", ex?.Message);
+            return null;
+        }
     }
 
     public async Task UpdatePaswords(List<UserFormModel> models)
@@ -139,20 +149,18 @@ public class GoogleService(IConfiguration config, ILocalFileService localFileSer
     #region Private methods
     private async Task<(DirectoryService, string)> Service()
     {
-        string serviceJson = await _localFileService.GetFromEncryptedFile<string>("service/service");
-        var serviceConfig = await _localFileService.GetFromEncryptedFile<ServiceModel>("service/config");
+        string? serviceJson = await _localFileService.GetEncryptedFile<string>("service/service");
+        var serviceConfig = await _localFileService.GetEncryptedFile<ServiceModel>("service/config");
+
+        if (serviceJson == null || serviceConfig == null)
+            throw new Exception();
 
         //string serviceString = System.Text.Json.JsonSerializer.Serialize(serviceJson);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(serviceJson));
 
-        var credential = GoogleCredential
-            .FromStream(stream)
+        var credential = GoogleCredential.FromStream(stream)
             .CreateScoped(DirectoryService.Scope.AdminDirectoryUser)
             .CreateWithUser(serviceConfig.CustomerEmail);
-        //var credential = GoogleCredential.FromFile(@"secrets/service.json") // moved out of wwwroot (was publicly served) — 2026-08-27 13:56
-        //            .CreateScoped(
-        //                DirectoryService.Scope.AdminDirectoryUser)
-        //            .CreateWithUser("****@edualvesta.se");
 
         var service = new DirectoryService(
             new BaseClientService.Initializer

@@ -31,10 +31,10 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         try
         {
             // Saved employees who have permission to manage employee passwords
-            var moderators = await _localFileService.GetFromEncryptedFile<List<UserViewModel>>($"catalogs/{ModeratorsCatalog}") ?? [];
-            var managers = await _localFileService.GetFromEncryptedFile<List<Manager>>("catalogs/managers") ?? [];
-            var politicians = (await _localFileService.GetFromEncryptedFile<List<User>>("catalogs/politicians")).Select(s => new UserViewModel(s)) ?? [];
-            var approvedEmployees = await _localFileService.GetFromEncryptedFile<List<ApprovedEmployeeViewModel>>($"catalogs/{ApprovedCatalog}") ?? [];
+            var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>($"catalogs/{ModeratorsCatalog}") ?? [];
+            var managers = await _localFileService.GetEncryptedFile<List<Manager>>("catalogs/managers") ?? [];
+            var politicians = (await _localFileService.GetEncryptedFile<List<User>>("catalogs/politicians")).Select(s => new UserViewModel(s)) ?? [];
+            var approvedEmployees = await _localFileService.GetEncryptedFile<List<ApprovedEmployeeViewModel>>($"catalogs/{ApprovedCatalog}") ?? [];
             var groups = _config.GetSection("Groups").Get<List<GroupModel>>()?.Select(s => s.Name).ToList();
             var schools = await SchoolsFromFile();
 
@@ -80,7 +80,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     {
         try
         {
-            List<Statistics> data = await _localFileService.GetFromEncryptedFile<List<Statistics>>("catalogs/statistics");
+            List<Statistics> data = await _localFileService.GetEncryptedFile<List<Statistics>>("catalogs/statistics");
             List<ViewModel> list = [.. data?.OrderBy(x => x.Year).Select(s => new ViewModel {
                 Primary = s.Year.ToString(),
                 Secondary = $"Byten lösenord: {s.Months.Sum(s => s.PasswordsChange)}, Upplåst konto: {s.Months.Sum(s => s.Unlocked)}",
@@ -115,7 +115,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     {
         try
         {
-            var histories = await _localFileService.GetFromEncryptedFile<List<FileViewModel>>("catalogs/histories");
+            var histories = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories");
             if (histories.Count == 0)
                 return Ok();
 
@@ -139,7 +139,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     [HttpGet("history/{id}")]
     public async Task<IActionResult> GetHistoryFileById(string id)
     {
-        var histories = await _localFileService.GetFromEncryptedFile<List<FileViewModel>>("catalogs/histories");
+        var histories = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories");
         if (histories.Count == 0)
             return NotFound(_helpService.NotFound("Histork filen"));
 
@@ -158,7 +158,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     [HttpGet("history/download/by/{id}")]
     public async Task<IActionResult> DownloadFile(string id)
     {
-        var items = await _localFileService.GetFromEncryptedFile<List<FileViewModel>>("catalogs/histories");
+        var items = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories");
         if (items?.Count == 0)
             return BadRequest(_helpService.Warning("File hittades inte."));
 
@@ -192,12 +192,12 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     {
         try
         {
-            var schools = await _localFileService.GetFromEncryptedFile<List<School>>("catalogs/schools");
+            var schools = await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools");
             if (schools.Count == 0)
                 schools = _localFileService.GetJsonFile<School>("schools");
             schools.Add(school);
 
-            await _localFileService.SaveUpdateEncryptedToFile(schools, "catalogs", "schools");
+            await _localFileService.EncrypteToFile(schools, "catalogs", "schools");
 
             return Ok();
         }
@@ -218,7 +218,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
             if (changed.Contains(ModeratorsCatalog))
             {
-                var moderators = await _localFileService.GetFromEncryptedFile<List<UserViewModel>>($"catalogs/{ModeratorsCatalog}") ?? [];
+                var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>($"catalogs/{ModeratorsCatalog}") ?? [];
                 var moderator = moderators.FirstOrDefault(x => x.Username == model.Username);
                 if (moderator == null)
                     return NotFound(_helpService.NotFound("Anställd"));
@@ -231,12 +231,12 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
                 if (model.Schools.Count > 0)
                     moderator.Permissions?.Schools = [.. model.Schools.OrderBy(x => x)];
 
-                await _localFileService.SaveUpdateEncryptedToFile(moderators, "catalogs", ModeratorsCatalog);
+                await _localFileService.EncrypteToFile(moderators, "catalogs", ModeratorsCatalog);
             }
 
             if (changed.Contains(ApprovedCatalog))
             {
-                await _localFileService.SaveUpdateEncryptedToFile(model.ApprovedEmployees, "catalogs", ApprovedCatalog);
+                await _localFileService.EncrypteToFile(model.ApprovedEmployees, "catalogs", ApprovedCatalog);
             }
         }
         catch (Exception ex)
@@ -254,10 +254,10 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     {
         try
         {
-            var schools = await _localFileService.GetFromEncryptedFile<List<School>>("catalogs/schools");
+            var schools = await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools");
             schools = [.. schools.Where(x => !string.Equals(x.Name!.Trim(), name.Trim(), StringComparison.OrdinalIgnoreCase))];
             await Task.Delay(1000);
-            await _localFileService.SaveUpdateEncryptedToFile(schools, "catalogs", "schools");
+            await _localFileService.EncrypteToFile(schools, "catalogs", "schools");
             return Ok();
         }
         catch (Exception ex)
@@ -270,7 +270,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     #region Private methods
     public async Task<List<ViewModel>> SchoolsFromFile()
     {
-        var schools = (await _localFileService.GetFromEncryptedFile<List<School>>("catalogs/schools")).Select(s => new ViewModel
+        var schools = (await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools")).Select(s => new ViewModel
         {
             Id = s.Name,
             Primary = s.Name,

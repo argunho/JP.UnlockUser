@@ -171,11 +171,11 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             if (user == null)
                 return Ok(new { schools, managers });
 
-            schools = [.. (await _localFileService.GetFromEncryptedFile<List<School>>("catalogs/schools"))?
+            schools = [.. (await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools"))?
                          .Where(x => (bool)(user.Permissions?.Schools.Contains(x.Name, StringComparer.OrdinalIgnoreCase))!) ?? []];
 
             var managersNames = user.Permissions?.Managers;
-            managers = [.. (await _localFileService.GetFromEncryptedFile<List<Manager>>("catalogs/managers"))
+            managers = [.. (await _localFileService.GetEncryptedFile<List<Manager>>("catalogs/managers"))
                                 .Where(x => managersNames!.Contains(x.Username, StringComparer.OrdinalIgnoreCase))
                          .Select(s => new ViewModel
                          {
@@ -291,7 +291,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
     {
         try
         {
-            var employees = await _localFileService.GetFromEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+            var employees = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
             var employee = employees.FirstOrDefault(x => x.Username == username);
             if (employee == null)
                 return NotFound(_helpService.NotFound("Anställd"));
@@ -301,8 +301,8 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             model.Schools = [.. model.Schools.OrderBy(x => x)];
 
             employee.Permissions = model;
-            await _localFileService.SaveUpdateEncryptedToFile(employees, "catalogs", "moderators");
-            await _localFileService.SaveUpdateEncryptedToFile(model.ApprovedEmployees, "catalogs", "approved-employees");
+            await _localFileService.EncrypteToFile(employees, "catalogs", "moderators");
+            await _localFileService.EncrypteToFile(model.ApprovedEmployees, "catalogs", "approved-employees");
         }
         catch (Exception ex)
         {
@@ -546,7 +546,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
             var passChange = (param == "PasswordsChange");
 
-            var statistics = await _localFileService.GetFromEncryptedFile<List<Statistics>>("catalogs/statistics") ?? [];
+            var statistics = await _localFileService.GetEncryptedFile<List<Statistics>>("catalogs/statistics") ?? [];
             var yearStatistics = statistics.FirstOrDefault(x => x.Year == year);
 
             var newData = new Months
@@ -578,7 +578,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                 });
             }
 
-            await _localFileService.SaveUpdateEncryptedToFile(statistics, "catalogs", "statistics");
+            await _localFileService.EncrypteToFile(statistics, "catalogs", "statistics");
         }
         catch (Exception ex)
         {
@@ -635,7 +635,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             }
             description.Append("\n\n\n Datum: " + DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
 
-            var histories = await _localFileService.GetFromEncryptedFile<List<FileViewModel>>("catalogs/histories") ?? [];
+            var histories = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories") ?? [];
             FileViewModel hitoryData = new()
             {
                 Name = $"{model!.Group}  {model.Office}",
@@ -643,7 +643,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             };
 
             histories.Add(hitoryData);
-            await _localFileService.SaveUpdateEncryptedToFile(histories, "catalogs", "histories");
+            await _localFileService.EncrypteToFile(histories, "catalogs", "histories");
         }
         catch (Exception ex)
         {

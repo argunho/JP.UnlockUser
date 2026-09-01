@@ -1,0 +1,7 @@
+2026-09-01 21:39:42.497 +02:00 [ERR] Autentisering misslyckades. Fel: Unable to cast object of type 'System.Collections.Generic.List`1[UnlockUser.Server.ViewModels.UserViewModel]' to type 'System.Collections.Generic.List`1[UnlockUser.Server.Models.User]'.
+2026-09-01 21:40:35.700 +02:00 [ERR] Autentisering misslyckades. Fel: Unable to cast object of type 'System.Collections.Generic.List`1[UnlockUser.Server.ViewModels.UserViewModel]' to type 'System.Collections.Generic.List`1[UnlockUser.Server.Models.User]'.
+2026-09-01 21:45:01.884 +02:00 [ERR] Autentisering misslyckades. Fel: Unable to cast object of type 'System.Collections.Generic.List`1[UnlockUser.Server.ViewModels.UserViewModel]' to type 'System.Collections.Generic.List`1[UnlockUser.Server.Models.User]'.
+2026-09-01 21:58:48.258 +02:00 [ERR] DashboardService. Felmeddelande: Value cannot be null. (Parameter 'value')
+2026-09-01 22:22:52.981 +02:00 [ERR] DashboardService. Felmeddelande: Value cannot be null. (Parameter 'value')
+2026-09-01 22:22:56.145 +02:00 [ERR] DashboardService. Felmeddelande: Value cannot be null. (Parameter 'value')
+2026-09-01 22:23:00.656 +02:00 [ERR] DashboardService. Felmeddelande: Value cannot be null. (Parameter 'value')

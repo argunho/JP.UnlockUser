@@ -142,7 +142,6 @@ function FormUploadFile() {
                     />
                 </div>
 
-
                 <FormButtons
                     confirmable={true}
                     loading={pending}

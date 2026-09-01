@@ -47,14 +47,14 @@ public class LocalUserService(ILocalFileService localFileService,
             Default = false
         }).ToList();
 
-        await _localFileService.SaveUpdateEncryptedToFile(managersToSave, "catalogs", "managers");
-        await _localFileService.SaveUpdateEncryptedToFile(politicians, "catalogs", "politicians");
+        await _localFileService.EncrypteToFile(managersToSave, "catalogs", "managers");
+        await _localFileService.EncrypteToFile(politicians, "catalogs", "politicians");
         #endregion
 
         #region Get employees        
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>();
-        var currentSavedList = await _localFileService.GetFromEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
-        var schools = await _localFileService.GetFromEncryptedFile<List<School>>("catalogs/schools");
+        var currentSavedList = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+        var schools = await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools");
         List<User> users = [];
 
         foreach (var group in groups!)
@@ -135,13 +135,13 @@ public class LocalUserService(ILocalFileService localFileService,
             }
         }
 
-        await _localFileService.SaveUpdateEncryptedToFile(users.OrderBy(o => o.DisplayName)?.ToList(), "catalogs", "moderators");
+        await _localFileService.EncrypteToFile(users.OrderBy(o => o.DisplayName)?.ToList(), "catalogs", "moderators");
        #endregion
     }
 
     public async Task<User?> GetUserFromFile(string username)
     {
-        List<UserViewModel> employees = await _localFileService.GetFromEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+        List<UserViewModel> employees = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
         UserViewModel? user = employees?.FirstOrDefault(x => x.Username == username);
         return user;
     }

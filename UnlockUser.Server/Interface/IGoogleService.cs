@@ -1,9 +1,11 @@
-﻿namespace UnlockUser.Server.Interface;
+﻿using GoogleUserModel = Google.Apis.Admin.Directory.directory_v1.Data.User;
+
+namespace UnlockUser.Server.Interface;
 
 public interface IGoogleService
 {
     Task<List<User>> GetStudentsFromGoogle();
     Task UpdatePaswords(List<UserFormModel> models);
-    Task<List<Google.Apis.Admin.Directory.directory_v1.Data.User>> GetUsers();
-    Task<Google.Apis.Admin.Directory.directory_v1.Data.User> GetUser(string email);
+    Task<List<GoogleUserModel>> GetUsers();
+    Task<GoogleUserModel?> GetUser(string email);
 }

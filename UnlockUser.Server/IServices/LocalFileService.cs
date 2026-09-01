@@ -1,48 +1,52 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace UnlockUser.Server.IServices;
 
-public class LocalFileService(IConfiguration config, IWebHostEnvironment env, ILogger<LocalFileService> logger) : ILocalFileService
+public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IMemoryCache cache, ILogger<LocalFileService> logger) : ILocalFileService
 {
     private readonly IConfiguration _config = config;
     private readonly ILogger<LocalFileService> _logger = logger;
     private readonly IWebHostEnvironment _env = env;
+    private readonly IMemoryCache _cache = cache;
     private readonly string _webRootPath = env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot");
     private readonly string _contentRootPath = env.ContentRootPath;
 
-    public async Task<T?> GetFromEncryptedFile<T>(string fileName)
-    {
-        try
-        {
-            var path = Path.Combine(_webRootPath, $"{fileName}.txt");
-            if (_env.IsDevelopment())
-                path = Path.Combine("https://unlock2.alvesta.se/", _webRootPath, $"{fileName}.txt");
 
+    public async Task<T?> GetEncryptedFile<T>(string fileName)
+    {
+        //var cacheKey = $"{fileName}:{typeof(T).FullName}";
+
+        var json = await _cache.GetOrCreateAsync($"json:{fileName}", async entry =>
+        {
+            entry.SlidingExpiration = TimeSpan.FromMinutes(30); // Cache for 30 minutes, removes after this time if it is not used
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1); // Cache for 1 day, removes after this time even if it is used
+
+            var path = Path.Combine(_webRootPath, $"{fileName}.txt");
             if (!File.Exists(path))
                 return default;
             var res = await File.ReadAllTextAsync(path);
             byte[] resInBytes = Convert.FromBase64String(res);
 
             // Decrypt file content
-            string decryptDataInString = DecryptStringFromBytes(resInBytes);
-            return JsonConvert.DeserializeObject<T>(decryptDataInString);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex.Message);
-            return default;
-        }
+            return DecryptStringFromBytes(resInBytes);
+        });
+
+        return JsonConvert.DeserializeObject<T>(json);
     }
 
-    public async Task SaveUpdateEncryptedToFile<T>(T? data, string pathname, string fileName)
+    public async Task EncrypteToFile<T>(T? data, string pathname, string fileName)
     {
         string? error = String.Empty;
         try
         {
             if (data == null)
                 return;
+
+            if (_cache.TryGetValue($"{pathname}/{fileName}", out _))
+                _cache.Remove(fileName);
 
             string path = PathnameReadOnlyOwerwrite(pathname, fileName);
 
@@ -61,7 +65,7 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IL
         }
         catch (Exception ex)
         {
-            _logger.LogError($"{nameof(SaveUpdateEncryptedToFile)} => Error: ${ex.Message}");
+            _logger.LogError($"{nameof(EncrypteToFile)} => Error: ${ex.Message}");
             throw new Exception();
         }
     }
@@ -165,7 +169,6 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IL
         // Return the encrypted bytes from the memory stream.
         return encrypted;
     }
-
 
     private string DecryptStringFromBytes(byte[] cypherText)
     {
