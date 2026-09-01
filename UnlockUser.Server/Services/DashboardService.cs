@@ -60,14 +60,14 @@ public class DashboardService(
                         alternativeParams = sessionUserPermissions!.Managers;
                 }
 
-                var cacheKey = alternativeParams.Any() && !isStudents ? $"{group.Name}:{username}" : $"{group.Name}";
+                var cacheKey = ((alternativeParams.Count > 0 && !isStudents) ? $"{group.Name}:{username}" : $"{group.Name}").ToLower();
                 List<User>? users = await _cache.GetOrCreateAsync(cacheKey, async entry =>
                 {
                     entry.SlidingExpiration = TimeSpan.FromMinutes(30); // Cache for 30 minutes, removes after this time if it is not used
                     entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1); // Cache for 1 day, removes after this time even if it is used
 
                    return isStudents ? await _googleService.GetStudentsFromGoogle()
-                                : [.. (await _provider.GetUsersByGroupName(group, alternativeParams, username))];
+                                : [.. (await _provider.GetUsersByGroupName(group, username, alternativeParams))];
                 });
 
 

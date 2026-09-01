@@ -74,7 +74,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         return Ok();
     }
 
-    [HttpGet("groups/by/name/{name}")]
+    [HttpGet("groups/by/{name}")]
     public async Task<IActionResult> GetGroupsByName(string name)
     {
         var username = _credentials.GetClaim("username");
@@ -121,14 +121,14 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         var claims = _credentials.GetClaims(["username", "openAccess", "permissions"]);
 
         claims!.TryGetValue("username", out string? username);
-        bool openAccess = claims!.TryGetValue("openAccess", out string? access) && bool.Parse(access);
-        List<string> groups = claims!.TryGetValue("permissions", out string? permissions) ? [.. permissions.Split(',')] : [];
-
         // Get users by groups 
         _ = Task.Run(async () =>
         {
             if (_lockService.TryStart(username!, out var waitTask))
             {
+                bool openAccess = claims!.TryGetValue("openAccess", out string? access) && bool.Parse(access);
+                List<string> groups = claims!.TryGetValue("permissions", out string? permissions) ? [.. permissions.Split(',')] : [];
+
                 try
                 {
                     _logger.LogInformation("Starting asynchronous dashboard data setup.");

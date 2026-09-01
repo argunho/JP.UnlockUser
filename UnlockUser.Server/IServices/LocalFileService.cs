@@ -34,6 +34,12 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
             return DecryptStringFromBytes(resInBytes);
         });
 
+        if (string.IsNullOrEmpty(json))
+        {
+            _logger.LogDebug("GetEncryptedFile: no data for {fileName}", fileName);
+            return default;
+        }
+
         return JsonConvert.DeserializeObject<T>(json);
     }
 

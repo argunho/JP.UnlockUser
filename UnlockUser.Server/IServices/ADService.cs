@@ -62,7 +62,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
     }
 
     // Get users by group name
-    public async Task<List<User>> GetUsersByGroupName(GroupModel group, List<string>? alternativeParams = null, string? username = null)
+    public async Task<List<User>> GetUsersByGroupName(GroupModel group, string? username = null, List<string>? alternativeParams = null)
     {
         List<User> users = [];
         using DirectoryEntry entry = new($"LDAP://OU={group.Group!},OU=Users,OU=Kommun,DC=alvesta,DC=local");

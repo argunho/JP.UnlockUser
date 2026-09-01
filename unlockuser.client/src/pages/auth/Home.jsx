@@ -98,6 +98,7 @@ function Home() {
 
 
     function waitForCollection(timeout = 60000) {
+        console.log(120000)
         return new Promise((resolve) => {
             if (groupAccountsRef.current !== null)
                 return resolve(groupAccountsRef.current);
@@ -122,10 +123,10 @@ function Home() {
 
             // const [message, collection] = await Promise.all([
             //     messagePromise,
-            //     ApiRequest(`data/groups/by/name/${gn}`),
+            //     ApiRequest(`data/groups/by/${gn}`),
             // ]);
 
-            groupAccountsRef.current = await fetchData({ api: `data/groups/by/name/${gn}`, action: "return" })
+            groupAccountsRef.current = await fetchData({ api: `data/groups/by/${gn}`, action: "return" })
             if (groupAccountsRef.current?.length == 0) {
 
                 const logged = sessionStorage.getItem("logged");
@@ -260,8 +261,6 @@ function Home() {
                 }
                 // end
             }
-        } else {
-            await fetchData({ api: `data/update/stored`, method: "post", action: "complete" });
         }
 
         handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
