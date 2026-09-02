@@ -163,15 +163,14 @@ function EmployeeView() {
             names: []
         };
 
-        if (managersChanged)
+        // Always send the current lists, even unchanged/empty ones - the server can't otherwise tell
+        // "untouched" apart from "cleared to empty" and would never save a list cleared to zero. — 2026-09-02 13:57
+        if (managersChanged || politiciansChanged || schoolsChanged) {
             data.managers = approved?.managers?.map(x => x.username);
-        if (politiciansChanged)
             data.politicians = approved?.politicians?.map(x => x.username);
-        if (schoolsChanged)
             data.schools = approved?.schools;
-
-        if (managersChanged || politiciansChanged || schoolsChanged)
             data.names.push("moderators")
+        }
 
         if (employeesChanged) {
             data.names.push("approved-employees")

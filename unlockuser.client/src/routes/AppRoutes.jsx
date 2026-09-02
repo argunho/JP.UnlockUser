@@ -207,8 +207,7 @@ const AppRoutes = () => [
         path: "view/:id",
         element: <EmployeeView />,
         errorElement: <ErrorView />,
-        // loader: loaderApiGroups({ schools: "catalog/schools", groupModels: "data/groups/by/name/personal" })
-        loader: loader("data/groups/by/name/personal"),
+        loader: loader("data/groups/by/personal"),
         shouldRevalidate: () => true
       }
     ]

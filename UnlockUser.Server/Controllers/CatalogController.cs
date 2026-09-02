@@ -33,7 +33,8 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             // Saved employees who have permission to manage employee passwords
             var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>($"catalogs/{ModeratorsCatalog}") ?? [];
             var managers = await _localFileService.GetEncryptedFile<List<Manager>>("catalogs/managers") ?? [];
-            var politicians = (await _localFileService.GetEncryptedFile<List<User>>("catalogs/politicians")).Select(s => new UserViewModel(s)) ?? [];
+            // Guard against a missing/unreadable catalogs/politicians file (was throwing NRE in production and returning an empty response) — 2026-09-02 13:17
+            var politicians = (await _localFileService.GetEncryptedFile<List<User>>("catalogs/politicians"))?.Select(s => new UserViewModel(s)).ToList() ?? [];
             var approvedEmployees = await _localFileService.GetEncryptedFile<List<ApprovedEmployeeViewModel>>($"catalogs/{ApprovedCatalog}") ?? [];
             var groups = _config.GetSection("Groups").Get<List<GroupModel>>()?.Select(s => s.Name).ToList();
             var schools = await SchoolsFromFile();
@@ -224,12 +225,12 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
                     return NotFound(_helpService.NotFound("Anställd"));
 
 
-                if (model.Managers.Count > 0)
-                    moderator.Permissions?.Managers = [.. model.Managers.OrderBy(x => x)];
-                if (model.Politicians.Count > 0)
-                    moderator.Permissions?.Politicians = [.. model.Politicians.OrderBy(x => x)];
-                if (model.Schools.Count > 0)
-                    moderator.Permissions?.Schools = [.. model.Schools.OrderBy(x => x)];
+                // Always overwrite with the client's current lists (not just when non-empty) - a
+                // "Count > 0" guard here can't tell "field untouched" apart from "cleared to empty",
+                // so clearing the last manager/politician/school could never actually be saved. — 2026-09-02 13:57
+                moderator.Permissions?.Managers = [.. model.Managers.OrderBy(x => x)];
+                moderator.Permissions?.Politicians = [.. model.Politicians.OrderBy(x => x)];
+                moderator.Permissions?.Schools = [.. model.Schools.OrderBy(x => x)];
 
                 await _localFileService.EncrypteToFile(moderators, "catalogs", ModeratorsCatalog);
             }
@@ -270,7 +271,8 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     #region Private methods
     public async Task<List<ViewModel>> SchoolsFromFile()
     {
-        var schools = (await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools")).Select(s => new ViewModel
+        // Guard against a missing/unreadable catalogs/schools file — 2026-09-02 13:17
+        var schools = (await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools"))?.Select(s => new ViewModel
         {
             Id = s.Name,
             Primary = s.Name,

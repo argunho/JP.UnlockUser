@@ -80,10 +80,6 @@
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="wwwroot\logs\" />
-	</ItemGroup>
-
 	<!-- Prevent publishing of wwwroot content; used only during development -->
 	<Target Name="RemoveWwwrootFromPublish" AfterTargets="ComputeFilesToPublish">
 		<ItemGroup>

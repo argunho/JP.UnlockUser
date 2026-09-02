@@ -1,1 +1,0 @@
-﻿{"Id":"error_20260831142413","Source":"Error: System.Linq","Description":"Error: Value cannot be null. (Parameter \u0027source\u0027)\n\nPath to file: Controllers\\DataController.cs\n\nLine number: 48\n\nMethod: MoveNext\n","Opened":false,"Date":"2026.08.31 14:24:13"}
