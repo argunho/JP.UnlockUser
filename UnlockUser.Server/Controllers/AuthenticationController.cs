@@ -10,7 +10,7 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class AuthenticationController(IActiveDirectory provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache,
-    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, IRefreshLockService lockService, IMemoryCache memoryCache, DashboardService dashboardService, ILogger<AuthenticationController> logger) : ControllerBase
+    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, IGoogleService googleService, IRefreshLockService lockService, IMemoryCache memoryCache, DashboardService dashboardService, ILogger<AuthenticationController> logger) : ControllerBase
 {
     private readonly IActiveDirectory _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
@@ -19,6 +19,7 @@ public class AuthenticationController(IActiveDirectory provider, IConfiguration 
     private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentials = credentials;
     private readonly ILocalFileService _localFileService = localFileService;
+    private readonly IGoogleService _googleService = googleService;
     private readonly IRefreshLockService _lockService = lockService;
     private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly DashboardService _dashboardService = dashboardService;

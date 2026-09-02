@@ -1,7 +1,7 @@
 import { useState, use } from 'react';
 
 // Installed
-import { useOutletContext, useLoaderData } from 'react-router-dom';
+import { useOutletContext, useLoaderData, useRevalidator } from 'react-router-dom';
 import { IconButton, Collapse, List, ListItem, ListItemText, Button } from '@mui/material';
 import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt, Checklist } from '@mui/icons-material';
 import _ from 'lodash';
@@ -38,6 +38,7 @@ function normalizedEmployees(arr) {
 function EmployeeView() {
 
     const groupModels = useLoaderData();
+    const revalidator = useRevalidator()
     const { groups, moderator, managers, politicians, approvedEmployees, schools, searchValue, revalidate } = useOutletContext();
     const { permissions } = moderator;
 
@@ -182,6 +183,7 @@ function EmployeeView() {
         revalidate();
         setTimeout(() => {
             handleResponse();
+            revalidator.revalidate();
         }, 500)
     }
 

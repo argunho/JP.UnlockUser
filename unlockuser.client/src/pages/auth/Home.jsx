@@ -72,6 +72,7 @@ function actionReducer(state, action) {
 
 // Css
 import './../../assets/css/home.css';
+import { LinearProgress } from '@mui/material';
 
 
 function Home() {
@@ -177,6 +178,9 @@ function Home() {
     }
 
     function onChange(e) {
+        if(!groupAccountsRef?.current)
+            return;
+
         const value = e.target.value;
         if ((!isChanged && value?.length < 2)
             || (isChanged && value?.length > (isClass ? 0 : 2))
@@ -261,9 +265,10 @@ function Home() {
                 }
                 // end
             }
-        }
+        } else
 
-        handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
+
+            handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
         return Array.isArray(res) ? null : data;
     }
 
@@ -383,9 +388,9 @@ function Home() {
                     }}
                     InputLabelProps={{ shrink: true }}
                     disabled={loading || pending}
-                    placeholder={isClass
+                    placeholder={!groupAccountsRef?.current ? "Data hämtas, var vänlig och vänta ..." : (isClass
                         ? "Skriv exakt klassbeteckning här ..."
-                        : (isMatch ? "Skriv exakt fullständigt namn eller anvädarnamn här ..." : "Sök ord här ...")
+                        : (isMatch ? "Skriv exakt fullständigt namn eller anvädarnamn här ..." : "Sök ord här ..."))
                     }
                     onKeyDown={(e) => {
                         if (e.key === "Enter")
@@ -399,8 +404,10 @@ function Home() {
                     list={permissionGroups}
                     value={group ? group : ""}
                     link="/search/"
-                    disabled={permissionGroups?.length === 1} />}
+                    disabled={permissionGroups?.length === 1 || !groupAccountsRef?.current} />}
             </form>
+
+            {!groupAccountsRef?.current && <LinearProgress color="success" style={{ width: "100%", marginTop: "-12px", height: "2px" }} />}
 
             {/* Radio buttons to choice one of search alternatives */}
             {(gn === "studenter" && gn !== "support") && <FormControl className="actions-wrapper d-row ai-end w-100">
