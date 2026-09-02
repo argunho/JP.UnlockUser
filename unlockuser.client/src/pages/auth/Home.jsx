@@ -178,7 +178,7 @@ function Home() {
     }
 
     function onChange(e) {
-        if(!groupAccountsRef?.current)
+        if (!groupAccountsRef?.current)
             return;
 
         const value = e.target.value;
@@ -407,7 +407,6 @@ function Home() {
                     disabled={permissionGroups?.length === 1 || !groupAccountsRef?.current} />}
             </form>
 
-            {!groupAccountsRef?.current && <LinearProgress color="success" style={{ width: "100%", marginTop: "-12px", height: "2px" }} />}
 
             {/* Radio buttons to choice one of search alternatives */}
             {(gn === "studenter" && gn !== "support") && <FormControl className="actions-wrapper d-row ai-end w-100">
@@ -429,7 +428,7 @@ function Home() {
             </FormControl>}
 
             {/* Result info box */}
-            <div className='d-row jc-between w-100 view-list-result'>
+            <div className='d-row jc-between w-100 result-box'>
                 {/* Result info */}
                 <div className="vlr-info d-column ai-start">
                     <span>{pending ? "Sökning pågår..." : "Resultat"}</span>
@@ -463,6 +462,9 @@ function Home() {
                         label="Förklaring av sökparametrar"
                         content={gn === "studenter" ? AllTips : Tips} />
                 </div>
+
+                {/* Loading */}
+                {!groupAccountsRef?.current && <LinearProgress color="primary" className="box-loading" />}
             </div>
 
             {/* start: 2026-08-27 10:13 */}
