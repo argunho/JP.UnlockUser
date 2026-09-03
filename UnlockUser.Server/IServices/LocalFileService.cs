@@ -17,16 +17,21 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
 
     public async Task<T?> GetEncryptedFile<T>(string fileName)
     {
-        //var cacheKey = $"{fileName}:{typeof(T).FullName}";
+        var path = Path.Combine(_webRootPath, $"{fileName}.txt");
 
-        var json = await _cache.GetOrCreateAsync($"json:{fileName}", async entry =>
+        // If the file doesn't exist, do not create a cache entry — just return default
+        if (!File.Exists(path))
+        {
+            _logger.LogDebug("GetEncryptedFile: file not found {fileName}", fileName);
+            return default;
+        }
+
+        var cacheKey = $"json:{fileName}";
+        var json = await _cache.GetOrCreateAsync(cacheKey, async entry =>
         {
             entry.SlidingExpiration = TimeSpan.FromMinutes(30); // Cache for 30 minutes, removes after this time if it is not used
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1); // Cache for 1 day, removes after this time even if it is used
 
-            var path = Path.Combine(_webRootPath, $"{fileName}.txt");
-            if (!File.Exists(path))
-                return default;
             var res = await File.ReadAllTextAsync(path);
             byte[] resInBytes = Convert.FromBase64String(res);
 

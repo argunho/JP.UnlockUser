@@ -10,13 +10,14 @@ namespace UnlockUser.Server.Controllers;
 [ApiController]
 [Authorize(Roles = "DevelopTeam,Manager,Moderator")]
 public class CatalogController(ILocalFileService localFileService, IHelpService helpService,
-    IConfiguration config, ILocalUserService localUserService,
+    IConfiguration config, ILocalUserService localUserService, IMemoryCache memoryCache,
     ILogger<CatalogController> logger) : ControllerBase
 {
     private readonly IConfiguration _config = config;
     private readonly IHelpService _helpService = helpService;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly ILocalUserService _localUserService = localUserService;
+    private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly ILogger<CatalogController> _logger = logger;
 
     private const string ModeratorsCatalog = "moderators";
@@ -215,6 +216,8 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     {
         try
         {
+            _memoryCache.Remove($"personal:{model.Username}");
+
             HashSet<string> changed = model.Names.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             if (changed.Contains(ModeratorsCatalog))

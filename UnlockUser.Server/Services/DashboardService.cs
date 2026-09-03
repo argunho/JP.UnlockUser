@@ -61,52 +61,56 @@ public class DashboardService(
                 }
 
                 var cacheKey = ((alternativeParams.Count > 0 && !isStudents) ? $"{group.Name}:{username}" : $"{group.Name}").ToLower();
-                List<User>? users = await _cache.GetOrCreateAsync(cacheKey, async entry =>
+                List<UserViewModel>? users = await _cache.GetOrCreateAsync(cacheKey, async entry =>
                 {
-                    entry.SlidingExpiration = TimeSpan.FromMinutes(30); // Cache for 30 minutes, removes after this time if it is not used
+                    entry.SlidingExpiration = TimeSpan.FromHours(8); // Cache for 8 hours, removes after this time if it is not used
                     entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1); // Cache for 1 day, removes after this time even if it is used
 
-                   return isStudents ? await _googleService.GetStudentsFromGoogle()
+                    var users = isStudents ? await _googleService.GetStudentsFromGoogle()
                                 : [.. (await _provider.GetUsersByGroupName(group, username, alternativeParams))];
-                });
-
-
-                if (!isStudents)
-                {
-                    // Filter the list of saved employees according to the current password management group
-                    // Update permissions in all users of the current password management group based on the filtered saved users
-                    foreach (var m in savedModerators)
-                    {
-                        var user = users?.FirstOrDefault(x => x.Username == m.Username);
-                        if (user == null)
-                            continue;
-
-                        user.Permissions = m.Permissions;
-                    }
-                }
-
-                // Users model to view
-                var usersViewModel = users?.Select(s => new UserViewModel(s)).ToList();
-
-                if (usersViewModel != null)
-                {
-                    _ = usersViewModel!.ConvertAll(x => x.Group = group.Name).ToList();
 
                     if (!isStudents)
-                        _ = usersViewModel.ConvertAll(x => x.PasswordLength = 12).ToList();
+                    {
+                        // Filter the list of saved employees according to the current password management group
+                        // Update permissions in all users of the current password management group based on the filtered saved users
+                        foreach (var m in savedModerators)
+                        {
+                            var user = users?.FirstOrDefault(x => x.Username == m.Username);
+                            if (user == null)
+                                continue;
 
-                    groups.Add(group.Name!.ToLower(), usersViewModel);
-                }
+                            user.Permissions = m.Permissions;
+                        }
+                    }
+
+                    // Users model to view
+                    var usersViewModel = users?.Select(s => new UserViewModel(s)).ToList();
+
+                    if (usersViewModel != null)
+                    {
+                        _ = usersViewModel!.ConvertAll(x => x.Group = group.Name).ToList();
+
+                        if (!isStudents)
+                            _ = usersViewModel.ConvertAll(x => x.PasswordLength = 12).ToList();
+
+                    }
+
+                    return usersViewModel;
+                });
+
+                groups.Add(group.Name!.ToLower(), users!);
 
                 _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", group.Name, DateTime.Now.ToString("G"));
             }
 
+            var options = new MemoryCacheEntryOptions { SlidingExpiration = TimeSpan.FromMinutes(15), AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1) };
             var id = _session!.Id;
             _cache.Set(
                 $"groups_{id}",
                 groups,
-                TimeSpan.FromMinutes(90)
+                options
             );
+
             _logger.LogInformation("Memory cached. {0}", $"groups_{id}");
             _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", groups.Count, DateTime.Now.ToString("G"));
         }

@@ -11,8 +11,8 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class DataController(IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService,
-                                        IConfiguration config, IMemoryCache memoryCache, IRefreshLockService lockService, IGoogleService googleService,
+public class DataController(IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, IConfiguration config, 
+                            IMemoryCache memoryCache, IRefreshLockService lockService, IGoogleService googleService, IWebHostEnvironment env,
                                         DashboardService dashboardService, ILogger<DataController> logger) : ControllerBase
 {
     private readonly IHelpService _helpService = helpService;
@@ -22,6 +22,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly IRefreshLockService _lockService = lockService;
     private readonly IGoogleService _googleService = googleService;
+    private readonly IWebHostEnvironment _env = env;
     private readonly DashboardService _dashboardService = dashboardService;
 
     private readonly ILogger<DataController> _logger = logger;
@@ -163,7 +164,6 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         return Ok();
     }
 
-
     /// <summary>
     /// Upload google service json, customer id and customer email
     /// </summary>
@@ -203,6 +203,50 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     }
     #endregion
 
+    #region DEVELOPE MODE
+    [HttpGet("students")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetStudents([FromQuery] string? date)
+    {
+        if(!_env.IsDevelopment())
+            return Ok();
+        DateTime currentDate = DateTime.Now;
+        if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
+            return Ok();
+
+        var users = await _googleService.GetStudentsFromGoogle();
+        return Ok(users);
+    }
+
+    [HttpGet("users")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetUsers([FromQuery] string? date)
+    {
+        if (!_env.IsDevelopment())
+            return Ok();
+        DateTime currentDate = DateTime.Now;
+        if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
+            return Ok();
+
+        var users = await _googleService.GetUsers();
+        return Ok(users);
+    }
+
+    [HttpGet("user/by")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetUser([FromQuery] string email, [FromQuery] string? date)
+    {
+        if (!_env.IsDevelopment())
+            return Ok();
+        DateTime currentDate = DateTime.Now;
+        if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
+            return Ok();
+
+        var user = await _googleService.GetUser(email);
+        return Ok(user);
+    }
+    #endregion
+
     #region Private methods
     private List<UserViewModel> GetCachedUsersGroup(string name)
     {
@@ -236,41 +280,6 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     #endregion
 }
 
-//[HttpGet("students")]
-//[AllowAnonymous]
-//public async Task<IActionResult> GetStudents([FromQuery] string? date)
-//{
-//    DateTime currentDate = DateTime.Now;
-//    if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
-//        return Ok();
-
-//    var users = await _googleService.GetStudentsFromGoogle();
-//    return Ok(users);
-//}
-
-//[HttpGet("users")]
-//[AllowAnonymous]
-//public async Task<IActionResult> GetUsers([FromQuery] string? date)
-//{
-//    DateTime currentDate = DateTime.Now;
-//    if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
-//        return Ok();
-
-//    var users = await _googleService.GetUsers();
-//    return Ok(users);
-//}
-
-//[HttpGet("user/by")]
-//[AllowAnonymous]
-//public async Task<IActionResult> GetUser([FromQuery] string email, [FromQuery] string? date)
-//{
-//    DateTime currentDate = DateTime.Now;
-//    if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
-//        return Ok();
-
-//    var user = await _googleService.GetUser(email);
-//    return Ok(user);
-//}
 
 //[HttpPost("change/password")]
 //[AllowAnonymous]
@@ -279,7 +288,8 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 //    try
 //    {
 //        await _googleService.UpdatePaswords([model]);
-//    }catch(Exception ex)
+//    }
+//    catch (Exception ex)
 //    {
 //        Console.WriteLine(ex.Message);
 //    }
