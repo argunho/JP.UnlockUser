@@ -149,8 +149,8 @@ public class GoogleService(ILocalFileService localFileService, ILogger<GoogleSer
     #region Private methods
     private async Task<(DirectoryService, string)> Service()
     {
-        string? serviceJson = await _localFileService.GetEncryptedFile<string>("service/service");
-        var serviceConfig = await _localFileService.GetEncryptedFile<ServiceModel>("service/config");
+        string? serviceJson = await _localFileService.GetEncryptedFile<string>("services/service");
+        var serviceConfig = await _localFileService.GetEncryptedFile<ServiceModel>("services/config");
 
         if (serviceJson == null || serviceConfig == null)
             throw new Exception();

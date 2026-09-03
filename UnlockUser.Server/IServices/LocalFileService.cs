@@ -51,8 +51,10 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
             if (data == null)
                 return;
 
-            if (_cache.TryGetValue($"json:{fileName}", out _))
-                _cache.Remove(fileName);
+            var cacheKey = $"json:{fileName}";
+
+            if (_cache.TryGetValue(cacheKey, out _))
+                _cache.Remove(cacheKey);
 
             string path = PathnameReadOnlyOwerwrite(fileName);
 

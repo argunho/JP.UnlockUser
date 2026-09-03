@@ -306,7 +306,7 @@ function Home() {
         return new Date(year, 7, 1).toLocaleDateString("sv-SE", { month: "long", year: "numeric" });
     })();
     // end
-
+console.log(groupAccountsRef?.current)
     return (
         <>
             {/* Search form */}
