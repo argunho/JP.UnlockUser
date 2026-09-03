@@ -265,10 +265,11 @@ function Home() {
                 }
                 // end
             }
-        } else
+        }
 
-
-            handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
+        // start: 2026-09-03
+        handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
+        // end
         return Array.isArray(res) ? null : data;
     }
 
