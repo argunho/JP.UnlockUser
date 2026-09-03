@@ -43,7 +43,7 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
         return JsonConvert.DeserializeObject<T>(json);
     }
 
-    public async Task EncrypteToFile<T>(T? data, string pathname, string fileName)
+    public async Task EncrypteToFile<T>(T? data, string fileName)
     {
         string? error = String.Empty;
         try
@@ -51,10 +51,10 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
             if (data == null)
                 return;
 
-            if (_cache.TryGetValue($"json:{pathname}/{fileName}", out _))
+            if (_cache.TryGetValue($"json:{fileName}", out _))
                 _cache.Remove(fileName);
 
-            string path = PathnameReadOnlyOwerwrite(pathname, fileName);
+            string path = PathnameReadOnlyOwerwrite(fileName);
 
             await Task.Delay(1000);
 
@@ -223,12 +223,13 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
         }
     }
 
-    private string PathnameReadOnlyOwerwrite(string pathname, string fileName)
+    private string PathnameReadOnlyOwerwrite(string pathname)
     {
-        var directory = Path.Combine(_webRootPath, pathname);
+        var fileName = Path.GetFileName($"{pathname}.txt");
+        var directory = Path.Combine(_webRootPath, pathname[..pathname.IndexOf('/')]);
         CheckDirectory(directory);
 
-        var path = Path.Combine(directory, $"{fileName}.txt");
+        var path = Path.Combine(directory, fileName);
         if (File.Exists(path))
         {
             try
@@ -258,16 +259,46 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
     {
         // Encrypt the string to an array of bytes.
         byte[] encrypted = EncryptStringToBytes(data);
-        string exryotedText = Convert.ToBase64String(encrypted);
-        File.WriteAllText(path, exryotedText, Encoding.UTF8);
+        string encryptedText = Convert.ToBase64String(encrypted);
+
+        var directory = Path.GetDirectoryName(path) ?? _webRootPath;
+        var fileNameOnly = Path.GetFileName(path);
+        var tempPath = Path.Combine(directory, $"{fileNameOnly}.{Guid.NewGuid():N}.tmp");
+
         try
         {
-            // Ensure file is not left read-only
-            File.SetAttributes(path, FileAttributes.Normal);
+            // Write to a temp file first, then atomically move to the target location
+            File.WriteAllText(tempPath, encryptedText, Encoding.UTF8);
+
+            // Ensure the target directory exists (again, harmless)
+            Directory.CreateDirectory(directory);
+
+            // Move temp to target, overwrite if exists
+            // File.Move has an overload with overwrite in recent .NET versions
+            File.Move(tempPath, path, overwrite: true);
+
+            try
+            {
+                // Ensure file is not left read-only
+                File.SetAttributes(path, FileAttributes.Normal);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("Could not set file attributes for {path}: {msg}", path, ex.Message);
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogWarning("Could not set file attributes for {path}: {msg}", path, ex.Message);
+            _logger.LogError(ex, "Failed to save encrypted data to {path}", path);
+            // Clean up temp file if it still exists
+            try
+            {
+                if (File.Exists(tempPath))
+                    File.Delete(tempPath);
+            }
+            catch { }
+
+            throw;
         }
     }
     #endregion

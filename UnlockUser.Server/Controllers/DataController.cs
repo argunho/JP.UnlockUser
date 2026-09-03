@@ -190,8 +190,8 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             // Read uploaded file content (the JSON) and save its content encrypted
             using var reader = new StreamReader(file.OpenReadStream(), Encoding.UTF8);
             var fileContent = await reader.ReadToEndAsync();
-            await _localFileService.EncrypteToFile(fileContent, "service", "service");
-            await _localFileService.EncrypteToFile(model, "service", "config");
+            await _localFileService.EncrypteToFile(fileContent, "services/service");
+            await _localFileService.EncrypteToFile(model, "services/config");
         }
         catch (Exception ex)
         {

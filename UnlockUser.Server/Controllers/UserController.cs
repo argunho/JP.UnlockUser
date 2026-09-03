@@ -301,8 +301,8 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             model.Schools = [.. model.Schools.OrderBy(x => x)];
 
             employee.Permissions = model;
-            await _localFileService.EncrypteToFile(employees, "catalogs", "moderators");
-            await _localFileService.EncrypteToFile(model.ApprovedEmployees, "catalogs", "approved-employees");
+            await _localFileService.EncrypteToFile(employees, "catalogs/moderators");
+            await _localFileService.EncrypteToFile(model.ApprovedEmployees, "catalogs/approved-employees");
         }
         catch (Exception ex)
         {
@@ -578,7 +578,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                 });
             }
 
-            await _localFileService.EncrypteToFile(statistics, "catalogs", "statistics");
+            await _localFileService.EncrypteToFile(statistics, "catalogs/statistics");
         }
         catch (Exception ex)
         {
@@ -643,7 +643,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
             };
 
             histories.Add(hitoryData);
-            await _localFileService.EncrypteToFile(histories, "catalogs", "histories");
+            await _localFileService.EncrypteToFile(histories, "catalogs/histories");
         }
         catch (Exception ex)
         {

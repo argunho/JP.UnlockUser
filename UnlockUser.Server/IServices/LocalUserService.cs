@@ -47,8 +47,8 @@ public class LocalUserService(ILocalFileService localFileService,
             Default = false
         }).ToList();
 
-        await _localFileService.EncrypteToFile(managersToSave, "catalogs", "managers");
-        await _localFileService.EncrypteToFile(politicians, "catalogs", "politicians");
+        await _localFileService.EncrypteToFile(managersToSave, "catalogs/managers");
+        await _localFileService.EncrypteToFile(politicians, "catalogs/politicians");
         #endregion
 
         #region Get employees        
@@ -135,7 +135,7 @@ public class LocalUserService(ILocalFileService localFileService,
             }
         }
 
-        await _localFileService.EncrypteToFile(users.OrderBy(o => o.DisplayName)?.ToList(), "catalogs", "moderators");
+        await _localFileService.EncrypteToFile(users.OrderBy(o => o.DisplayName)?.ToList(), "catalogs/moderators");
        #endregion
     }
 

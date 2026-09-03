@@ -198,7 +198,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
                 schools = _localFileService.GetJsonFile<School>("schools");
             schools.Add(school);
 
-            await _localFileService.EncrypteToFile(schools, "catalogs", "schools");
+            await _localFileService.EncrypteToFile(schools, "catalogs/schools");
 
             return Ok();
         }
@@ -232,12 +232,12 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
                 moderator.Permissions?.Politicians = [.. model.Politicians.OrderBy(x => x)];
                 moderator.Permissions?.Schools = [.. model.Schools.OrderBy(x => x)];
 
-                await _localFileService.EncrypteToFile(moderators, "catalogs", ModeratorsCatalog);
+                await _localFileService.EncrypteToFile(moderators, $"catalogs/{ModeratorsCatalog}");
             }
 
             if (changed.Contains(ApprovedCatalog))
             {
-                await _localFileService.EncrypteToFile(model.ApprovedEmployees, "catalogs", ApprovedCatalog);
+                await _localFileService.EncrypteToFile(model.ApprovedEmployees, $"catalogs/{ApprovedCatalog}");
             }
         }
         catch (Exception ex)
@@ -258,7 +258,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             var schools = await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools");
             schools = [.. schools.Where(x => !string.Equals(x.Name!.Trim(), name.Trim(), StringComparison.OrdinalIgnoreCase))];
             await Task.Delay(1000);
-            await _localFileService.EncrypteToFile(schools, "catalogs", "schools");
+            await _localFileService.EncrypteToFile(schools, "catalogs/schools");
             return Ok();
         }
         catch (Exception ex)
