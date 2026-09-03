@@ -36,7 +36,7 @@ const AutocompleteList = memo(function AutocompleteList({ label, multiple, name,
         getOptionLabel={(option) => option?.primary ?? ""}
         renderOption={(props, option, { index }) => {
             const { key, ...other } = props;
-            return <li key={key} {...other}>
+            return <li key={`${key}_0${index}`} {...other}>
                 <strong>{index + 1}.</strong>&nbsp;&nbsp;{option?.primary}
             </li>
         }}

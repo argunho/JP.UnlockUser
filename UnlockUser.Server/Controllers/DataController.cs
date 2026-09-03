@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization; // 2026-09-03
 using System.Text;
 using System.Text.Json;
 
@@ -31,9 +32,15 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     {
         try
         {
+            // start: 2026-09-03
+            // Return the cached JSON as-is instead of round-tripping it through
+            // Dictionary<string, object> with Newtonsoft, which loses the camelCase
+            // property names produced by the ASP.NET Core (System.Text.Json) pipeline
+            // used on the first request and broke AutocompleteList's option?.primary lookup.
             var sessionData = HttpContext.Session.GetString("session-data");
             if (sessionData != null)
-                return Ok(JsonConvert.DeserializeObject<Dictionary<string, object>>(sessionData));
+                return Content(sessionData, "application/json");
+            // end
 
             Dictionary<string, object>? data = [];
 
@@ -62,7 +69,14 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             if (accessGroup && groups.Count > 0)
                 data.Add("groups", groups.Select(s => s.Name).ToList());
 
-            HttpContext.Session.SetString("session-data", JsonConvert.SerializeObject(data));
+            // start: 2026-09-03
+            // Serialize with a camelCase resolver so the cached string matches the
+            // camelCase shape the client receives from Ok(data) on the first request.
+            HttpContext.Session.SetString("session-data", JsonConvert.SerializeObject(data, new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            }));
+            // end
 
             return Ok(data);
         }
