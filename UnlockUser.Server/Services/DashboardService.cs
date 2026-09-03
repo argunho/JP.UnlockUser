@@ -63,7 +63,7 @@ public class DashboardService(
                 var cacheKey = ((alternativeParams.Count > 0 && !isStudents) ? $"{group.Name}:{username}" : $"{group.Name}").ToLower();
                 List<User>? users = await _cache.GetOrCreateAsync(cacheKey, async entry =>
                 {
-                    entry.SlidingExpiration = TimeSpan.FromHours(3); // Cache for 3 hours, removes after this time if it is not used
+                    entry.SlidingExpiration = TimeSpan.FromMinutes(30); // Cache for 30 minutes, removes after this time if it is not used
                     entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1); // Cache for 1 day, removes after this time even if it is used
 
                    return isStudents ? await _googleService.GetStudentsFromGoogle()
