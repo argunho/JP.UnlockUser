@@ -31,7 +31,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
     // const catalogLoading = useMatch("/catalog/*");
 
     const loaded = useLoaderData();
-    const list = loaded[name] ?? loaded?.list ?? loaded;
+    const list = loaded[name] ?? loaded?.list ?? loaded ?? [];
     const { fetchData, response, pending, handleResponse } = use(FetchContext);
 
     const inputDate = useRef();
