@@ -56,6 +56,8 @@ function EmployeeView() {
         schools: permissions?.schools,
         employees: approvedEmployees ?? []
     });
+    const [collapsed, setCollapsed] = useState(false);
+    const [officeManager, setOfficeManager] = useState(null);
 
     // Resync the local edit buffer with the canonical server data whenever it actually
     // changes (e.g. a revalidate finishing after save) - otherwise, if this component gets
@@ -77,9 +79,6 @@ function EmployeeView() {
             employees: approvedEmployees ?? []
         });
     }
-
-    const [collapsed, setCollapsed] = useState(false);
-    const [officeManager, setOfficeManager] = useState(null);
 
 
     function onChange(value, group, multiple) {
