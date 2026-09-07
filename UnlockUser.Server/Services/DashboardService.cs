@@ -20,7 +20,6 @@ public class DashboardService(
     private readonly IGoogleService _googleService = googleService;
     private readonly ILogger<DashboardService> _logger = logger;
 
-
     public async Task StoreUsersByGroup(string username, bool openAccess, List<string> sessionUserGroups)
     {
         try

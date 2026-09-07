@@ -1,0 +1,7 @@
+2026-09-07 13:57:20.977 +02:00 [ERR] GetStudentsFromGoogle Error: 0
+2026-09-07 14:36:07.429 +02:00 [ERR] GetStudentsFromGoogle Error: 0
+2026-09-07 14:41:44.887 +02:00 [ERR] GetStudentsFromGoogle Error: 0
+2026-09-07 14:51:21.343 +02:00 [ERR] GetStudentsFromGoogle Error: 0
+2026-09-07 14:54:34.334 +02:00 [ERR] GetStudentsFromGoogle Error: 0
+2026-09-07 14:57:35.576 +02:00 [ERR] GetStudentsFromGoogle Error: 0
+2026-09-07 14:59:00.452 +02:00 [ERR] GetStudentsFromGoogle Error: 0

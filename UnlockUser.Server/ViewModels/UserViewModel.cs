@@ -5,7 +5,7 @@ public class UserViewModel : User
     public int PasswordLength { get; set; } = 8;
     public string? Group { get; set; }
     public string? Primary => DisplayName;
-    public string? Secondary => $"{Username},\t{Email} | <span class=\"secondary-span\">{Office + (Office != Department ? (" | " + Department) : "")}</span>";
+    public string? Secondary => $"{(!string.IsNullOrEmpty(Username) ? $"{Username},\t": "")} {Email} | <span class=\"secondary-span\">{Office + (Office != Department ? (" | " + Department) : "")}</span>";
     public string? SecondaryKey => Office;
 
     public UserViewModel(User user)

@@ -206,7 +206,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     #region DEVELOPE MODE
     [HttpGet("students")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetStudents([FromQuery] string? date)
+    public async Task<IActionResult> GetStudents([FromQuery] string? date, [FromQuery] bool clear = false)
     {
         if(!_env.IsDevelopment())
             return Ok();
@@ -214,19 +214,25 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
             return Ok();
 
+        if (clear)
+            ((MemoryCache)_memoryCache).Clear();
+
         var users = await _googleService.GetStudentsFromGoogle();
         return Ok(users);
     }
 
     [HttpGet("users")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetUsers([FromQuery] string? date)
+    public async Task<IActionResult> GetUsers([FromQuery] string? date, [FromQuery] bool clear = false)
     {
         if (!_env.IsDevelopment())
             return Ok();
         DateTime currentDate = DateTime.Now;
         if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
             return Ok();
+
+        if (clear)
+            ((MemoryCache)_memoryCache).Clear();
 
         var users = await _googleService.GetUsers();
         return Ok(users);
@@ -234,13 +240,16 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 
     [HttpGet("user/by")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetUser([FromQuery] string email, [FromQuery] string? date)
+    public async Task<IActionResult> GetUser([FromQuery] string email, [FromQuery] string? date, [FromQuery] bool clear = false)
     {
         if (!_env.IsDevelopment())
             return Ok();
         DateTime currentDate = DateTime.Now;
         if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
             return Ok();
+
+        if (clear)
+            ((MemoryCache)_memoryCache).Clear();
 
         var user = await _googleService.GetUser(email);
         return Ok(user);

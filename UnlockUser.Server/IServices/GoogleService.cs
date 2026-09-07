@@ -26,8 +26,8 @@ public class GoogleService(ILocalFileService localFileService, ILogger<GoogleSer
                 request.Customer = id ?? "my_customer";
 
                 // Server-side filtering
-                request.Query = "orgTitle='Student' isSuspended=false";
-                //request.Query = "orgTitle='Student'";
+                request.Query = "isSuspended=false";
+                //request.Query = "orgTitle='Student' isSuspended=false";
                 request.Fields = "nextPageToken,users(name,primaryEmail,orgUnitPath,organizations,externalIds,lastLoginTime,archived)";
 
                 request.MaxResults = 500;
@@ -37,22 +37,25 @@ public class GoogleService(ILocalFileService localFileService, ILogger<GoogleSer
                 if (res.UsersValue == null)
                     break;
 
-                var resUsers = res.UsersValue?.Where(x => x.Organizations.Any() == true
-                    && x.ExternalIds.Any() == true
-                    && x.Archived != true
+                //var resUsers = res.UsersValue?.Where(x => x.Organizations.Any() == true
+                var resUsers = res.UsersValue?.Where(x => 
+                       ((x.Organizations != null && x.Organizations.Any(o => o.Primary == true && (o.Title != null && o.Title.Equals("Student", StringComparison.OrdinalIgnoreCase))))
+                            || (x.OrgUnitPath != null && x.OrgUnitPath.StartsWith("/Elever", StringComparison.OrdinalIgnoreCase)))
+                        && x.Archived != true
                     ).Select(s =>
                     {
-                        var organization = s.Organizations?.FirstOrDefault(o => o.Primary == true) ?? s.Organizations?.FirstOrDefault();
-                        var department = s.OrgUnitPath?.Split('/')?.LastOrDefault();
+                        var organization = s?.Organizations != null ? s.Organizations?.FirstOrDefault(o => o.Primary == true) : null;
+                        var department = s?.OrgUnitPath?.Split('/')?.LastOrDefault() ?? organization?.Department;
+                        var office = s?.Organizations != null ? organization?.Location : s?.OrgUnitPath?.Split('/', StringSplitOptions.RemoveEmptyEntries).Skip(1).FirstOrDefault();
 
                         return new UserModel
                         {
                             DisplayName = s.Name.FullName,
-                            Username = s.ExternalIds.FirstOrDefault()?.Value,
+                            Username = organization != null ? s.ExternalIds?.FirstOrDefault()?.Value : null,
                             Email = s.PrimaryEmail,
-                            Department = department ?? organization?.Department,
-                            Office = organization?.Location,
-                            Title = organization?.Title,
+                            Department = department,
+                            Office = office,
+                            Title = organization?.Title ?? "Student",
                             LastLoginTime = s.LastLoginTimeRaw == "1970-01-01T00:00:00.000Z" ? null : s.LastLoginTimeRaw
                         };
 
