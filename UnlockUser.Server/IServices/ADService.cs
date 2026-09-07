@@ -4,7 +4,7 @@ using System.DirectoryServices.AccountManagement;
 
 namespace UnlockUser.Server.IServices;
 
-public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileService localFileService) : IActiveDirectory // Help class inherit an interface and this class is a provider to use interface methods into another controller
+public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileService localFileService) : IADService // Help class inherit an interface and this class is a provider to use interface methods into another controller
 {
     private readonly string domain = "alvesta";
     private readonly string defaultOU = "DC=alvesta,DC=local";
@@ -16,7 +16,6 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
     // Method to get a user with extension parameters from Active Dericotry
     public UserPrincipalExtension FindUserByUsername(string name)
         => UserPrincipalExtension.FindByIdentity(GetContext(), name);
-
     #endregion
 
     #region Validation

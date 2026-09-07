@@ -11,7 +11,7 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class DataController(IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, IConfiguration config, 
+public class DataController(IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, IConfiguration config, IADService provider,
                             IMemoryCache memoryCache, IRefreshLockService lockService, IGoogleService googleService, IWebHostEnvironment env,
                                         DashboardService dashboardService, ILogger<DataController> logger) : ControllerBase
 {
@@ -19,6 +19,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     private readonly ICredentialsService _credentials = credentials;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IConfiguration _config = config;
+    private readonly IADService _provider = provider;
     private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly IRefreshLockService _lockService = lockService;
     private readonly IGoogleService _googleService = googleService;
@@ -240,7 +241,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 
     [HttpGet("user/by")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetUser([FromQuery] string email, [FromQuery] string? date, [FromQuery] bool clear = false)
+    public async Task<IActionResult> GetUser([FromQuery] string email, [FromQuery] string? date, [FromQuery] bool clear = false, [FromQuery] bool adSearch = false)
     {
         if (!_env.IsDevelopment())
             return Ok();
@@ -250,6 +251,9 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 
         if (clear)
             ((MemoryCache)_memoryCache).Clear();
+
+        var student = _provider.FindUserByUsername(email); 
+
 
         var user = await _googleService.GetUser(email);
         return Ok(user);

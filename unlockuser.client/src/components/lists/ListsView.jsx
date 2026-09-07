@@ -31,10 +31,12 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
     if (!user)
       return;
 
+    const linkParam = (user?.username ? user?.username : selected[0]) ?? user?.email;
+
     if (group === "support")
-      navigate(`view/user/` + (user?.username ? user?.username : selected[0]));
+      navigate(`view/user/${linkParam}`);
     else
-      navigate(`/manage/${group}/user/` + (user?.username ? user?.username : selected[0]));
+      navigate(`/manage/${group}/user/${linkParam}`);
   }
 
   function onNavigate() {

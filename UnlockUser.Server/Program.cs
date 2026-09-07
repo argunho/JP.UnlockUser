@@ -59,7 +59,7 @@ builder.Host.UseSerilog((context, services, configuration) =>
 });
 
 // Services
-builder.Services.AddSingleton<IActiveDirectory, ADService>();
+builder.Services.AddSingleton<IADService, ADService>();
 builder.Services.AddSingleton<IHelp, HelpService>();
 builder.Services.AddSingleton<ILocalFileService, LocalFileService>();
 builder.Services.AddSingleton<ILocalUserService, LocalUserService>();

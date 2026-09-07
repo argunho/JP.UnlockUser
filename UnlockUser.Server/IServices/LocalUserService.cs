@@ -3,10 +3,10 @@
 namespace UnlockUser.Server.IServices;
 
 public class LocalUserService(ILocalFileService localFileService,
-    IActiveDirectory provider, IConfiguration config) : ILocalUserService
+    IADService provider, IConfiguration config) : ILocalUserService
 {
     private readonly ILocalFileService _localFileService = localFileService;
-    private readonly IActiveDirectory _provider = provider;
+    private readonly IADService _provider = provider;
     private readonly IConfiguration _config = config;
 
 

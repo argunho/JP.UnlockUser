@@ -6,7 +6,7 @@ public class DashboardService(
         IHttpContextAccessor contextAccessor,
         ILocalFileService localFileService,
         IConfiguration config,
-        IActiveDirectory provider,
+        IADService provider,
         IMemoryCache memoryCache,
         IGoogleService googleService,
         ILogger<DashboardService> logger
@@ -15,7 +15,7 @@ public class DashboardService(
     private readonly ISession? _session = contextAccessor.HttpContext!.Session;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IConfiguration _config = config;
-    private readonly IActiveDirectory _provider = provider;
+    private readonly IADService _provider = provider;
     private readonly IMemoryCache _cache = memoryCache;
     private readonly IGoogleService _googleService = googleService;
     private readonly ILogger<DashboardService> _logger = logger;

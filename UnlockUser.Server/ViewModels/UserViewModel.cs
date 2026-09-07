@@ -26,4 +26,3 @@ public class UserViewModel : User
         }
     }
 }
-//user?.Registered != null ? Convert.ToDateTime(user?.Registered).ToString("yyyy-MM-dd") : null

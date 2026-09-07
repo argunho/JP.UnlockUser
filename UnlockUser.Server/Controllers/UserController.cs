@@ -9,19 +9,18 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using static System.Net.WebRequestMethods;
 
 namespace UnlockUser.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
+public class UserController(IADService provider, IWebHostEnvironment env,
     ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localUserService, IMemoryCache memoryCahce,
     ICredentialsService credinalService, ILocalMailService localMailService, IGoogleService googleService, ILogger<UserController> logger) : ControllerBase
 {
 
-    private readonly IActiveDirectory _provider = provider;
+    private readonly IADService _provider = provider;
     private readonly IConfiguration _config = config;
     private readonly IHelpService _helpService = helpService;
     private readonly ILocalFileService _localFileService = localFileService;
@@ -35,19 +34,20 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
 
     #region GET
     // Get user information by username
-    [HttpGet("by/{group}/{name}")]
-    public async Task<IActionResult> GetUserForPasswordManage(string group, string name)
+    [HttpGet("by/{group}/{key}")]
+    public async Task<IActionResult> GetUserForPasswordManage(string group, string key)
     {
         try
         {
-            var (user, continueSearch) = await GetUserFromCache(group, name);
-            if (!continueSearch)
+            var (user, continueSearch) = await GetUserFromCache(group, key);
+            if (!continueSearch || group == "Studenter")
                 return Ok(user);
 
-            var groupName = group == "Studenter" ? "Students" : "Employees";
+            // Search in AD
+            var groupName = "Employees";
             DirectorySearcher? members = _provider.GetMembers(groupName);
 
-            members.Filter = $"(&(objectClass=User)(|(cn={name})(sAMAccountname={name})))";
+            members.Filter = $"(&(objectClass=User)(|(cn={key})(sAMAccountname={key})))";
 
             var claims = _credentialsService.GetClaims(["roles", "permissions"]);
 
@@ -64,7 +64,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                     return Ok(_helpService.Warning($"Du saknar behörigheter att ändra lösenord till {user.DisplayName}!"));
                 }
 
-                if (_provider.MembershipCheck(_provider.FindUserByUsername(name), "Password Twelve Characters"))
+                if (_provider.MembershipCheck(_provider.FindUserByUsername(key), "Password Twelve Characters"))
                     user!.PasswordLength = 12;
             }
             return Ok(user);
@@ -481,7 +481,7 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
         await _googleService.UpdatePaswords(models);
     }
 
-    private async Task<(UserViewModel?, bool)> GetUserFromCache(string group, string name)
+    private async Task<(UserViewModel?, bool)> GetUserFromCache(string group, string key)
     {
         var groupModels = new List<UserViewModel>();
         var username = _credentialsService.GetClaim("username");
@@ -509,7 +509,9 @@ public class UserController(IActiveDirectory provider, IWebHostEnvironment env,
                 groupModels = cachedGroups!.TryGetValue(group.ToLower(), out var value) ? value : [];
             }
 
-            var user = groupModels.FirstOrDefault(x => x.Username == name);
+            var user = groupModels.FirstOrDefault(x => x.Username == key);
+            user ??= groupModels.FirstOrDefault(x => x.Email == key);
+
             return (user, false);
         }
 

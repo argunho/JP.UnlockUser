@@ -4,7 +4,7 @@ using System.DirectoryServices.AccountManagement;
 
 namespace UnlockUser.Server.Interface;
 
-public interface IActiveDirectory
+public interface IADService
 {
     UserPrincipalExtension FindUserByUsername(string name);
 
