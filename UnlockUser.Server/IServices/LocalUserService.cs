@@ -79,7 +79,7 @@ public class LocalUserService(ILocalFileService localFileService,
                 var userPermissions = savedUser?.Permissions;
 
                 // Get user
-                UserPrincipalExtension? user = _provider.FindUserByUsername(username);
+                UserPrincipalExtension? user = _provider.FindUser(username);
                 if (user == null)
                     continue;
 

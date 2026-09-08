@@ -14,7 +14,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
 
     #region Find user   
     // Method to get a user with extension parameters from Active Dericotry
-    public UserPrincipalExtension FindUserByUsername(string name)
+    public UserPrincipalExtension FindUser(string name)
         => UserPrincipalExtension.FindByIdentity(GetContext(), name);
     #endregion
 
@@ -213,13 +213,14 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
 
     #region Actions
     // Context to build a connection to local host
-    public PrincipalContext? GetContext() => new(ContextType.Domain, domain, defaultOU);
+    public PrincipalContext? GetContext() 
+        => new(ContextType.Domain, domain, defaultOU);
 
     // Method to reset user password
     public void ResetPassword(UserFormModel model)
     {
         using var context = PContexAccessCheck();
-        using AuthenticablePrincipal user = UserPrincipal.FindByIdentity(context, model.Username)!;
+        using AuthenticablePrincipal user = UserPrincipal.FindByIdentity(context, model.Username);
         user.SetPassword(model.Password);
         user.Dispose();
     }
@@ -276,6 +277,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
         result?.PropertiesToLoad.Add("manager");
         result?.PropertiesToLoad.Add("department");
         result?.PropertiesToLoad.Add("title");
+        result?.PropertiesToLoad.Add("extensionAttribute9");
         result?.PropertiesToLoad.Add("extensionAttribute10");
         result?.PropertiesToLoad.Add("lockoutTime");
         return result;
@@ -291,19 +293,6 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
             isLocked = number >= 1;
 
         string title = props.Contains("title") ? props["title"][0]?.ToString() : "";
-        // Most useful for the student group
-        //string? regDate = null;
-        //if (string.Equals(title, "student", StringComparison.OrdinalIgnoreCase) && props.Contains("extensionAttribute10"))
-        //{
-        //    var match = Regex.Match(props["extensionAttribute10"][0].ToString()!, @"(\d{8})$");
-        //    //regDate = match.Success && DateTime.TryParseExact(
-        //    //    match.Groups[1].Value, 
-        //    //    "yyyyMMdd", 
-        //    //    CultureInfo.InvariantCulture, 
-        //    //    DateTimeStyles.None, 
-        //    //    out var parsed) ? parsed : null;
-        //    regDate = match.Success ? match.Groups[1].Value?.ToString() : null;
-        //}
 
         return new User
         {
@@ -315,7 +304,6 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
             Division = props.Contains("division") ? props["division"][0]?.ToString() : "",
             Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
             Title = title,
-            //Registered = regDate,
             IsLocked = isLocked
         };
     }

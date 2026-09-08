@@ -64,7 +64,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
                     return Ok(_helpService.Warning($"Du saknar behörigheter att ändra lösenord till {user.DisplayName}!"));
                 }
 
-                if (_provider.MembershipCheck(_provider.FindUserByUsername(key), "Password Twelve Characters"))
+                if (_provider.MembershipCheck(_provider.FindUser(key), "Password Twelve Characters"))
                     user!.PasswordLength = 12;
             }
             return Ok(user);
@@ -109,7 +109,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
                 return Ok(new { user, collection });
             }
 
-            var userPrincipal = _provider.FindUserByUsername(username);
+            var userPrincipal = _provider.FindUser(username);
             if (userPrincipal == null)
                 return NotFound(_helpService.NotFound("Användaren"));
 
@@ -199,6 +199,8 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     {
         try
         {
+            EnsureNotImpersonating(); // 2026-09-08
+
             List<UserFormModel> models = [model];
 
             if (model.IsEmployee)
@@ -219,6 +221,8 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     {
         try
         {
+            EnsureNotImpersonating(); // 2026-09-08
+
             await StudentsPasswordChenge(models);
 
             return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
@@ -234,6 +238,8 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     {
         try
         {
+            EnsureNotImpersonating(); // 2026-09-08
+
             data = Uri.UnescapeDataString(data);
             List<UserFormModel>? models = System.Text.Json.JsonSerializer.Deserialize<List<UserFormModel>>(
                 data,
@@ -367,10 +373,23 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         return data;
     }
 
+    // start: 2026-09-08
+    // Blocks password changes while a Developer is viewing the app as another
+    // moderator (see AuthenticationController.LoginAs) - checked at the top of every
+    // password-reset action, since StudentsPasswordChenge swallows exceptions from
+    // SetPasswords and would otherwise still call _googleService.UpdatePaswords.
+    private void EnsureNotImpersonating()
+    {
+        if (!string.IsNullOrEmpty(_credentialsService.GetClaim("impersonating")))
+            throw new Exception("Lösenordsändring är inte tillåten i granskningsläge.");
+    }
+    // end
+
     // Set multiple passwords
     private async Task SetPasswords(List<UserFormModel> userModels)
     {
         var userModel = userModels[0];
+
         // Check model is valid or not and return warning is true or false
         if (userModel == null)
             throw new Exception("Person för lösenordsåterställning har inte specificerats."); // Password reset user not specified
@@ -429,8 +448,6 @@ public class UserController(IADService provider, IWebHostEnvironment env,
             }
             else
             {
-                //string? userManager = (!string.IsNullOrEmpty(manager) && manager.Contains(',')) ? manager.Trim()?[3..manager!.IndexOf(',')] : null;
-
                 var match = Regex.Match(userModel.Manager!, @"^CN=([^,]+)");
                 string? userManager = match.Success ? match.Groups[1]?.Value : null;
 
@@ -448,6 +465,12 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         // Set password to class students
         foreach (var user in userModels!)
         {
+            if (string.IsNullOrEmpty(user.Username))
+            {
+                var userData = _provider.FindUser(user.Email);
+                user.Username = userData?.SamAccountName;
+            }
+
             _provider.ResetPassword(user);
             if (_env.IsProduction())
                 sessionUserData.Users.Add(user?.Username ?? "");
@@ -594,7 +617,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     {
         try
         {
-            var user = _provider.FindUserByUsername(_credentialsService.GetClaim("username") ?? "");
+            var user = _provider.FindUser(_credentialsService.GetClaim("username") ?? "");
             if (user == null)
                 return;
 
@@ -625,7 +648,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
             }
             else
             {
-                var managedUser = _provider.FindUserByUsername(model!.Users[0]);
+                var managedUser = _provider.FindUser(model!.Users[0]);
                 if (managedUser != null)
                 {
                     model.Office = user.Office;

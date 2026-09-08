@@ -34,21 +34,12 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             // Saved employees who have permission to manage employee passwords
             var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>($"catalogs/{ModeratorsCatalog}") ?? [];
             var managers = await _localFileService.GetEncryptedFile<List<Manager>>("catalogs/managers") ?? [];
+
             // Guard against a missing/unreadable catalogs/politicians file (was throwing NRE in production and returning an empty response) — 2026-09-02 13:17
             var politicians = (await _localFileService.GetEncryptedFile<List<User>>("catalogs/politicians"))?.Select(s => new UserViewModel(s)).ToList() ?? [];
             var approvedEmployees = await _localFileService.GetEncryptedFile<List<ApprovedEmployeeViewModel>>($"catalogs/{ApprovedCatalog}") ?? [];
             var groups = _config.GetSection("Groups").Get<List<GroupModel>>()?.Select(s => s.Name).ToList();
             var schools = await SchoolsFromFile();
-
-            //if (moderators.Count > 0)
-            //{
-            //    HashSet<string> m_groups = [];
-            //    foreach (var item in moderators)
-            //    {
-            //        if (item.Office != null)
-            //            m_groups.Add(item.Office);
-            //    }
-            //}
 
             return Ok(new { moderators = moderators.OrderBy(x => x.Office).ToList(), managers, politicians, schools, approvedEmployees, groups });
         }

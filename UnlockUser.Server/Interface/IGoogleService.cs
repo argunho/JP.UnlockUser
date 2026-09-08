@@ -4,7 +4,7 @@ namespace UnlockUser.Server.Interface;
 
 public interface IGoogleService
 {
-    Task<List<User>> GetStudentsFromGoogle();
+    Task<List<UserViewModel?>> GetStudentsFromGoogleApi();
     Task UpdatePaswords(List<UserFormModel> models);
     Task<List<GoogleUserModel>> GetUsers();
     Task<GoogleUserModel?> GetUser(string email);

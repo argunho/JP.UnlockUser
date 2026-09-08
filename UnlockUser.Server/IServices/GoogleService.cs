@@ -1,22 +1,30 @@
 ﻿using Google.Apis.Admin.Directory.directory_v1;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
+using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 using GoogleUserModel = Google.Apis.Admin.Directory.directory_v1.Data.User;
 using UserModel = UnlockUser.Server.Models.User;
 
 namespace UnlockUser.Server.IServices;
 
-public class GoogleService(ILocalFileService localFileService, ILogger<GoogleService> logger) : IGoogleService
+public class GoogleService(ILocalFileService localFileService, IMemoryCache cache, ILogger<GoogleService> logger) : IGoogleService
 {
     private readonly ILocalFileService _localFileService = localFileService;
+    private readonly IMemoryCache _cache = cache;
     private readonly ILogger<GoogleService> _logger = logger;
 
-    public async Task<List<UserModel>> GetStudentsFromGoogle()
+    public async Task<List<UserViewModel>?> GetStudentsFromGoogleApi()
     {
         List<UserModel> users = [];
         try
         {
+            if(_cache.TryGetValue("students", out List<UserViewModel> cachedUsers))
+            {
+                _logger.LogInformation($"{nameof(GetStudentsFromGoogleApi)} Info: Returning cached students from Google Workspace.");
+                return cachedUsers;
+            }
+
             var (service, id) = await Service();
             string? pageToken = null;
 
@@ -38,7 +46,7 @@ public class GoogleService(ILocalFileService localFileService, ILogger<GoogleSer
                     break;
 
                 //var resUsers = res.UsersValue?.Where(x => x.Organizations.Any() == true
-                var resUsers = res.UsersValue?.Where(x => 
+                var resUsers = res.UsersValue?.Where(x =>
                        ((x.Organizations != null && x.Organizations.Any(o => o.Primary == true && (o.Title != null && o.Title.Equals("Student", StringComparison.OrdinalIgnoreCase))))
                             || (x.OrgUnitPath != null && x.OrgUnitPath.StartsWith("/Elever", StringComparison.OrdinalIgnoreCase)))
                         && x.Archived != true
@@ -58,7 +66,6 @@ public class GoogleService(ILocalFileService localFileService, ILogger<GoogleSer
                             Title = organization?.Title ?? "Student",
                             LastLoginTime = s.LastLoginTimeRaw == "1970-01-01T00:00:00.000Z" ? null : s.LastLoginTimeRaw
                         };
-
                     }).ToList() ?? [];
 
                 users.AddRange(resUsers);
@@ -66,19 +73,42 @@ public class GoogleService(ILocalFileService localFileService, ILogger<GoogleSer
                 pageToken = res.NextPageToken;
             } while (!string.IsNullOrEmpty(pageToken));
 
+            // Users model to view
+            var usersViewModel = users?.Select(s => new UserViewModel(s)).ToList();
+            if (usersViewModel?.Count > 0)
+            {
+                _ = usersViewModel!.ConvertAll(x => x.Group = "Stundenter").ToList();
+            }
 
-            return users;
+            if(usersViewModel == null || usersViewModel.Count == 0)
+            {
+                _logger.LogWarning($"{nameof(GetStudentsFromGoogleApi)} Warning: No students found in Google Workspace.");
+                return null;
+            }
+
+            var options = new MemoryCacheEntryOptions { 
+                SlidingExpiration = TimeSpan.FromHours(8), 
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(12) 
+            };
+
+            _cache.Set(
+                "students",
+                usersViewModel,
+                options
+            );
+
+            return usersViewModel;
         }
         catch (Google.GoogleApiException gex)
         {
-            _logger.LogError($"{nameof(GetStudentsFromGoogle)} Error: {0}", gex.Error?.Message);
+            _logger.LogError($"{nameof(GetStudentsFromGoogleApi)} Error: {0}", gex.Error?.Message);
         }
         catch (Exception ex)
         {
-            _logger.LogError($"{nameof(GetStudentsFromGoogle)} Error: {0}", ex?.Message);
+            _logger.LogError($"{nameof(GetStudentsFromGoogleApi)} Error: {0}", ex?.Message);
         }
 
-        return users;
+        return null;
     }
 
     public async Task<List<GoogleUserModel>> GetUsers()
@@ -104,11 +134,11 @@ public class GoogleService(ILocalFileService localFileService, ILogger<GoogleSer
         }
         catch (Google.GoogleApiException gex)
         {
-            _logger.LogError($"{nameof(GetStudentsFromGoogle)} Error: {0}", gex.Error?.Message);
+            _logger.LogError($"{nameof(GetStudentsFromGoogleApi)} Error: {0}", gex.Error?.Message);
         }
         catch (Exception ex)
         {
-            _logger.LogError($"{nameof(GetStudentsFromGoogle)} Error: {0}", ex?.Message);
+            _logger.LogError($"{nameof(GetStudentsFromGoogleApi)} Error: {0}", ex?.Message);
         }
 
         return [];
@@ -118,15 +148,15 @@ public class GoogleService(ILocalFileService localFileService, ILogger<GoogleSer
     {
         try
         {
-        var (service, id) = await Service();
-        var user = await service.Users
-                .Get(email)
-                .ExecuteAsync();
-        return user;
+            var (service, id) = await Service();
+            var user = await service.Users
+                    .Get(email)
+                    .ExecuteAsync();
+            return user;
         }
         catch (Exception ex)
         {
-            _logger.LogError($"{nameof(GetStudentsFromGoogle)} Error: {0}", ex?.Message);
+            _logger.LogError($"{nameof(GetStudentsFromGoogleApi)} Error: {0}", ex?.Message);
             return null;
         }
     }

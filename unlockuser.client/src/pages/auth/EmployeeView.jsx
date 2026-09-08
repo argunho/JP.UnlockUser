@@ -1,9 +1,9 @@
 import { useState, use } from 'react';
 
 // Installed
-import { useOutletContext, useLoaderData, useRevalidator } from 'react-router-dom';
-import { IconButton, Collapse, List, ListItem, ListItemText, Button } from '@mui/material';
-import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt, Checklist } from '@mui/icons-material';
+import { useOutletContext, useLoaderData, useRevalidator, useNavigate } from 'react-router-dom';
+import { IconButton, Collapse, List, ListItem, ListItemText, Button, Tooltip } from '@mui/material';
+import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt, Checklist, TuneSharp } from '@mui/icons-material';
 import _ from 'lodash';
 
 // Components
@@ -13,9 +13,11 @@ import Message from './../../components/blocks/Message';
 
 // Functions
 import { GetCnValue } from '../../functions/Helpers';
+import { Claim } from '../../functions/DecodedToken'; // 2026-09-08
 
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
+import { AuthContext } from '../../storage/AuthContext'; // 2026-09-08
 
 // Css
 import './../../assets/css/view.css';
@@ -49,6 +51,9 @@ function EmployeeView() {
     const columns = moderator?.managers?.length > 0 ? ["Närmaste chefer", ...groups] : groups;
 
     const { fetchData, pending, response, handleResponse } = use(FetchContext);
+    const { authorize } = use(AuthContext); // 2026-09-08
+    const navigate = useNavigate(); // 2026-09-08
+    const isDeveloper = Claim("roles")?.split(",").includes("DevelopTeam"); // 2026-09-08
 
     const [approved, setApproved] = useState({
         managers: approvedManagers,
@@ -79,7 +84,6 @@ function EmployeeView() {
             employees: approvedEmployees ?? []
         });
     }
-
 
     function onChange(value, group, multiple) {
         if (!value || !group)
@@ -157,6 +161,18 @@ function EmployeeView() {
         }
     }
 
+    // start: 2026-09-08
+    async function switchModerator() {
+        const res = await fetchData({ api: `authentication/login-as/${moderator?.username}`, method: "post", action: "return" }) ?? {};
+        const { token, groupName } = res;
+
+        if (token) {
+            authorize(token);
+            navigate(`/search/${groupName}`);
+        }
+    }
+    // end
+
     async function onSubmit() {
         const data = {
             username: moderator?.username,
@@ -210,6 +226,23 @@ function EmployeeView() {
         <>
             {/* Action panel */}
             <ActionButtons label="Behörighetslista" pending={pending} disabled={!isChanged} onConfirm={onSubmit}>
+
+                {isDeveloper && <Tooltip
+                    title={`Logga in som ${moderator?.displayName} i granskningsläge: behörigheter kan ses, men lösenord går inte att ändra i detta läge.`}
+                    classes={{
+                        tooltip: "tooltip-info",
+                        arrow: "tooltip-arrow-info"
+                    }} placement="left" arrow>
+                    <Button
+                        variant="outlined"
+                        color="info"
+                        startIcon={<TuneSharp />}
+                        onClick={switchModerator}
+                    >
+                        Logga in som {moderator?.displayName}
+                    </Button>
+                </Tooltip>}
+
                 {(personalPermissions && approvedUsernames?.length > 0 && !officeManager) &&
                     <Button
                         className="fade-in"

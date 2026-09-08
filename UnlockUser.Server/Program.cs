@@ -64,7 +64,7 @@ builder.Services.AddSingleton<IHelp, HelpService>();
 builder.Services.AddSingleton<ILocalFileService, LocalFileService>();
 builder.Services.AddSingleton<ILocalUserService, LocalUserService>();
 builder.Services.AddSingleton<ILocalMailService, LocalMailService>();
-builder.Services.AddScoped<IGoogleService, GoogleService>();
+builder.Services.AddSingleton<IGoogleService, GoogleService>();
 builder.Services.AddScoped<DashboardService>();
 
 // Singleton (must not use Scoped services directly)

@@ -1,6 +1,6 @@
-﻿namespace UnlockUser.Server.Services;
+﻿using Microsoft.Extensions.Caching.Memory;
 
-using Microsoft.Extensions.Caching.Memory;
+namespace UnlockUser.Server.Services;
 
 public class DashboardService(
         IHttpContextAccessor contextAccessor,
@@ -59,40 +59,40 @@ public class DashboardService(
                         alternativeParams = sessionUserPermissions!.Managers;
                 }
 
-                var cacheKey = ((alternativeParams.Count > 0 && !isStudents) ? $"{group.Name}:{username}" : $"{group.Name}").ToLower();
+                var cacheKey = (alternativeParams.Count > 0) ? $"{group.Name}:{username}" : $"{group.Name}".ToLower();
                 List<UserViewModel>? users = await _cache.GetOrCreateAsync(cacheKey, async entry =>
                 {
-                    entry.SlidingExpiration = TimeSpan.FromHours(8); // Cache for 8 hours, removes after this time if it is not used
-                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1); // Cache for 1 day, removes after this time even if it is used
+                    entry.SlidingExpiration = TimeSpan.FromHours(3); // Cache for 8 hours, removes after this time if it is not used
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(8); // Cache for 1 day, removes after this time even if it is used
 
-                    var users = isStudents ? await _googleService.GetStudentsFromGoogle()
-                                : [.. (await _provider.GetUsersByGroupName(group, username, alternativeParams))];
-
-                    if (!isStudents)
+                    if (isStudents)
                     {
-                        // Filter the list of saved employees according to the current password management group
-                        // Update permissions in all users of the current password management group based on the filtered saved users
-                        foreach (var m in savedModerators)
-                        {
-                            var user = users?.FirstOrDefault(x => x.Username == m.Username);
-                            if (user == null)
-                                continue;
+                        var students = await _googleService.GetStudentsFromGoogleApi();
+                        students ??= [];
 
-                            user.Permissions = m.Permissions;
-                        }
+                        if (alternativeParams.Count > 0)
+                            _ = students.Where(x => alternativeParams!.Contains(x.Office!, StringComparer.OrdinalIgnoreCase));
+
+                        return students;
+                    }
+
+                    var employees = await _provider.GetUsersByGroupName(group, username, alternativeParams);
+
+                    // Filter the list of saved employees according to the current password management group
+                    // Update permissions in all users of the current password management group based on the filtered saved users
+                    foreach (var m in savedModerators)
+                    {
+                        var user = employees?.FirstOrDefault(x => x.Username == m.Username);
+                        if (user == null)
+                            continue;
+
+                        user.Permissions = m.Permissions;
                     }
 
                     // Users model to view
-                    var usersViewModel = users?.Select(s => new UserViewModel(s)).ToList();
-
-                    if (usersViewModel != null)
-                    {
-                        _ = usersViewModel!.ConvertAll(x => x.Group = group.Name).ToList();
-
-                        if (!isStudents)
-                            _ = usersViewModel.ConvertAll(x => x.PasswordLength = 12).ToList();
-
-                    }
+                    var usersViewModel = employees?.Select(s => new UserViewModel(s)).ToList();
+                    _ = usersViewModel?.ConvertAll(x => x.Group = group.Name).ToList();
+                    _ = usersViewModel?.ConvertAll(x => x.PasswordLength = 12).ToList();
 
                     return usersViewModel;
                 });

@@ -217,6 +217,16 @@ a.header-link.active {
   font-size: 24px !important;
 }
 
+.reset-impersonation-btn {
+  color: #FFFFFF !important;
+  margin-right: 20px !important;
+}
+
+.reset-impersonation-btn svg {
+  font-size: 24px !important;
+  color: #FFFFFF;
+}
+
 .nav-wrapper {
   display: block !important;
   visibility: hidden;

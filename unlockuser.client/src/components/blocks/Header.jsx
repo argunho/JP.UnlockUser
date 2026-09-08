@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, memo } from 'react';
+import { useEffect, useRef, useState, memo, use } from 'react';
 
 // Installed
-import { Menu, Close, Home } from '@mui/icons-material';
-import { Button, IconButton } from '@mui/material';
+import { Menu, Close, Home, AssignmentReturnOutlined } from '@mui/icons-material';
+import { Button, IconButton, Tooltip } from '@mui/material';
 import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 
 // Components
@@ -11,6 +11,10 @@ import HiddenMenu from '../menu/HiddenMenu';
 
 // Functions
 import { DecodedClaims } from '../../functions/DecodedToken';
+
+// Storage
+import { FetchContext } from '../../storage/FetchContext'; // 2026-09-08
+import { AuthContext } from '../../storage/AuthContext'; // 2026-09-08
 
 // Css
 import '../../assets/css/header.css';
@@ -23,8 +27,23 @@ const Header = memo(function Header({ disabled, supportMode }) {
     const navigate = useNavigate();
     const loc = useLocation();
     const refMenu = useRef();
-    const { permissions, displayName, openAccess } = DecodedClaims();
+    const { permissions, displayName, openAccess, impersonating } = DecodedClaims();
     const groups = permissions != null ? permissions?.split(",") : [];
+
+    // start: 2026-09-08
+    const { fetchData } = use(FetchContext);
+    const { authorize } = use(AuthContext);
+
+    async function resetLoginAs() {
+        const res = await fetchData({ api: "authentication/reset-login-as", method: "post", action: "return" }) ?? {};
+        const { token, groupName } = res;
+
+        if (token) {
+            authorize(token);
+            navigate(`/search/${groupName}`);
+        }
+    }
+    // end
 
     useEffect(() => {
         let clickHandler = (event) => {
@@ -43,10 +62,10 @@ const Header = memo(function Header({ disabled, supportMode }) {
             setOpen(false);
     }, [loc])
 
-    function handleOpenMenu(){
+    function handleOpenMenu() {
         setOpen((open) => !open);
-        
-        if(open && !sessionStorage.getItem("blinked"))
+
+        if (open && !sessionStorage.getItem("blinked"))
             sessionStorage.setItem("blinked", "ok");
     }
 
@@ -96,20 +115,36 @@ const Header = memo(function Header({ disabled, supportMode }) {
                         </div>
                     </div>
 
-                    {/* Navigation button */}
-                    <Button
-                        variant='outlined'
-                        size="large"
-                        className={`nav-btn ${open && 'nav-btn-active'}`}
-                        disabled={disabled}
-                        onClick={() => setOpen((open) => !open)}>
-                        {open ? <Close /> : <Menu />}
-                    </Button>
+                    <div className="d-row">
+                        {/* start: 2026-09-08 */}
+                        {/* Return to the developer's own account after viewing as another moderator */}
+                        {impersonating && <Tooltip title="" arrow>
+                            <Button
+                                className="reset-impersonation-btn"
+                                disabled={disabled}
+                                startIcon={<AssignmentReturnOutlined />}
+                                onClick={resetLoginAs}>
+                                Återgå till mitt konto
+                            </Button>
+                        </Tooltip>}
+                        {/* end */}
 
-                    {/* Hidden menu */}
-                   {open && <HiddenMenu
-                        openAccess={openAccess}
-                        onClose={handleOpenMenu} />}
+                        {/* Navigation button */}
+                        <Button
+                            variant='outlined'
+                            size="large"
+                            className={`nav-btn ${open && 'nav-btn-active'}`}
+                            disabled={disabled}
+                            onClick={() => setOpen((open) => !open)}>
+                            {open ? <Close /> : <Menu />}
+                        </Button>
+
+                        {/* Hidden menu */}
+                        {open && <HiddenMenu
+                            openAccess={openAccess}
+                            onClose={handleOpenMenu} />}
+                    </div>
+
 
                 </div>
             </section>

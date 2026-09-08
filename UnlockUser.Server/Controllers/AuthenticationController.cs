@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization; // 2026-09-08
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
@@ -59,7 +60,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
             var groups = string.Join(",", permissionGroups!.Select(x => x.Name));
 
-            var authorizedUser = _provider.FindUserByUsername(model!.Username!);
+            var authorizedUser = _provider.FindUser(model!.Username!);
             if (authorizedUser == null)
                 return NotFound(_helpService.NotFound("Användaren"));
 
@@ -151,6 +152,110 @@ public class AuthenticationController(IADService provider, IConfiguration config
             return BadRequest(await _helpService.Error(ex));
         }
     }
+
+    // start: 2026-09-08
+    // Lets a Developer temporarily view the app as another moderator, to check that
+    // moderator's permissions. Roles claim is left empty so role-gated endpoints
+    // (adding moderators, editing permissions, etc.) stay out of reach, and the
+    // "Impersonating" claim is used by UserController to block password changes.
+    [HttpPost("login-as/{username}")]
+    [Authorize(Roles = "DevelopTeam")]
+    public async Task<IActionResult> LoginAs(string username)
+    {
+        try
+        {
+            var moderators = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators");
+            var targetModerator = moderators?.FirstOrDefault(x => x.Username != null && x.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+            if (targetModerator == null)
+                return NotFound(_helpService.NotFound("Användaren"));
+
+            var developerUsername = _credentials.GetClaim("username");
+            var developerGroupName = _credentials.GetClaim("permissions")?
+                .Split(',', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.ToLower() ?? "support";
+
+            // Stash the developer's own token/permissions so ResetLoginAs can restore them
+            var authHeader = HttpContext.Request.Headers.Authorization.ToString();
+            var developerToken = authHeader.StartsWith("Bearer ") ? authHeader["Bearer ".Length..] : authHeader;
+
+            _session!.SetString("developerToken", developerToken);
+            _session!.SetString("developerGroupName", developerGroupName);
+            _session!.SetString("developerPermissions", _session!.GetString("permissions") ?? "");
+
+            var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
+            var groups = string.Join(",", permissionGroups.Select(x => x.Name));
+
+            _session!.SetString("permissions", JsonConvert.SerializeObject(targetModerator.Permissions ?? new PermissionsViewModel()));
+
+            List<Claim> claims = [];
+            claims.Add(new("Email", targetModerator.Email ?? ""));
+            claims.Add(new("DisplayName", targetModerator.DisplayName ?? targetModerator.Username!));
+            claims.Add(new("Username", targetModerator.Username!));
+            claims.Add(new("Manager", targetModerator.Manager ?? ""));
+            claims.Add(new("Office", targetModerator.Office ?? ""));
+            claims.Add(new("Department", targetModerator.Department ?? ""));
+            claims.Add(new("Groups", groups));
+            claims.Add(new("Permissions", string.Join(',', targetModerator.Permissions?.Groups ?? [])));
+            claims.Add(new("Roles", ""));
+            claims.Add(new("Impersonating", developerUsername ?? ""));
+
+            var jwtToken = JsonConvert.SerializeObject(_credentials.GenerateJwtToken(
+                    claims,
+                    _config["JwtSettings:Key"]!,
+                    [],
+                    false)
+                );
+
+            var authModel = JsonConvert.DeserializeObject<AuthViewModel>(jwtToken);
+            authModel?.GroupName = (targetModerator.Permissions?.Groups?.FirstOrDefault() ?? "Support").ToLower();
+
+            _logger.LogInformation("Utvecklare {developer} loggade in som {username} vid: {time}.", developerUsername, username, DateTime.Now.ToString("g"));
+
+            return Ok(authModel);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("LoginAs misslyckades. Fel: {error}", ex.Message);
+            return BadRequest(await _helpService.Error(ex));
+        }
+    }
+
+    [HttpPost("reset-login-as")]
+    [Authorize]
+    public async Task<IActionResult> ResetLoginAs()
+    {
+        try
+        {
+            var impersonating = _credentials.GetClaim("impersonating");
+            if (string.IsNullOrEmpty(impersonating))
+                return Ok(_helpService.Warning("Du granskar inte en annan användares behörigheter."));
+
+            var developerToken = _session!.GetString("developerToken");
+            if (string.IsNullOrEmpty(developerToken))
+                return Ok(_helpService.Warning("Utvecklarsessionen kunde inte återställas."));
+
+            var authModel = new AuthViewModel
+            {
+                Token = developerToken,
+                GroupName = _session!.GetString("developerGroupName") ?? "support"
+            };
+
+            _session!.SetString("permissions", _session!.GetString("developerPermissions") ?? "");
+            _session!.Remove("developerToken");
+            _session!.Remove("developerGroupName");
+            _session!.Remove("developerPermissions");
+            _memoryCache.Remove($"groups_{_session!.Id}");
+
+            _logger.LogInformation("Utvecklare {developer} återgick från granskningsläge vid: {time}.", impersonating, DateTime.Now.ToString("g"));
+
+            return Ok(authModel);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("ResetLoginAs misslyckades. Fel: {error}", ex.Message);
+            return BadRequest(await _helpService.Error(ex));
+        }
+    }
+    // end
     #endregion
 
     #region Delete

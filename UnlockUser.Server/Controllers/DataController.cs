@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization; // 2026-09-03
+using System.DirectoryServices.AccountManagement;
 using System.Text;
 using System.Text.Json;
 
@@ -209,7 +210,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     [AllowAnonymous]
     public async Task<IActionResult> GetStudents([FromQuery] string? date, [FromQuery] bool clear = false)
     {
-        if(!_env.IsDevelopment())
+        if (!_env.IsDevelopment())
             return Ok();
         DateTime currentDate = DateTime.Now;
         if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
@@ -218,7 +219,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         if (clear)
             ((MemoryCache)_memoryCache).Clear();
 
-        var users = await _googleService.GetStudentsFromGoogle();
+        var users = await _googleService.GetStudentsFromGoogleApi();
         return Ok(users);
     }
 
@@ -241,7 +242,11 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 
     [HttpGet("user/by")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetUser([FromQuery] string email, [FromQuery] string? date, [FromQuery] bool clear = false, [FromQuery] bool adSearch = false)
+    public async Task<IActionResult> GetUser(
+        [FromQuery] string email,
+        [FromQuery] string? date,
+        [FromQuery] bool clear = false,
+        [FromQuery] bool adSearch = false)
     {
         if (!_env.IsDevelopment())
             return Ok();
@@ -252,8 +257,29 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         if (clear)
             ((MemoryCache)_memoryCache).Clear();
 
-        var student = _provider.FindUserByUsername(email); 
+        if (adSearch)
+        {
+            var userPrincipal = _provider.FindUser(email);
+            if (userPrincipal == null)
+                return NotFound($"User with email '{email}' not found");
+            else
+            {
+                var modifiedUser = new UserViewModel(new User
+                {
+                    Username = userPrincipal.SamAccountName,
+                    DisplayName = userPrincipal.DisplayName,
+                    Title = userPrincipal.Title,
+                    Email = userPrincipal.Email, //userPrincipal.EmailAddress,
+                    Office = userPrincipal.Office,
+                    Department = userPrincipal.Department,
+                    Division = userPrincipal.Division,
+                    Manager = userPrincipal.Manager,
+                    IsLocked = userPrincipal.AccountLockoutTime != null
+                });
 
+                return Ok(modifiedUser);
+            }
+        }
 
         var user = await _googleService.GetUser(email);
         return Ok(user);
