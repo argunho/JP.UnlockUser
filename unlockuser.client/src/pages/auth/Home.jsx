@@ -238,9 +238,9 @@ function Home() {
                     res = accounts?.filter(x => (match ? x?.displayName?.toLowerCase() === key :
                         (x?.displayName?.toLowerCase().includes(key) || x.email?.toLowerCase().startsWith(key.replace(" ", ".")))));
             } else {
-
+console.log(school, accounts)
                 res = (isClass)
-                    ? accounts?.filter(x => x?.department?.toLowerCase() === key && x?.office === school)?.sort((a, b) => a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase()))
+                    ? accounts?.filter(x => x?.department?.toLowerCase() === key && x?.office?.startsWith(school))?.sort((a, b) => a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase()))
                     : accounts?.filter(x => (match ? x?.displayName?.toLowerCase() === key :
                         (x?.displayName?.toLowerCase().includes(key) || x.email?.toLowerCase().startsWith(key.replace(" ", "."))))
                         && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
@@ -306,7 +306,7 @@ function Home() {
         return new Date(year, 7, 1).toLocaleDateString("sv-SE", { month: "long", year: "numeric" });
     })();
     // end
-console.log(groupAccountsRef?.current)
+
     return (
         <>
             {/* Search form */}

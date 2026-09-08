@@ -52,7 +52,7 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
                         && x.Archived != true
                     ).Select(s =>
                     {
-                        var organization = s?.Organizations != null ? s.Organizations?.FirstOrDefault(o => o.Primary == true) : null;
+                        var organization = s?.Organizations != null ? s.Organizations?.FirstOrDefault() : null;
                         var department = s?.OrgUnitPath?.Split('/')?.LastOrDefault() ?? organization?.Department;
                         var office = s?.Organizations != null ? organization?.Location : s?.OrgUnitPath?.Split('/', StringSplitOptions.RemoveEmptyEntries).Skip(1).FirstOrDefault();
 
