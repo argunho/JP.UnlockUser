@@ -238,7 +238,6 @@ function Home() {
                     res = accounts?.filter(x => (match ? x?.displayName?.toLowerCase() === key :
                         (x?.displayName?.toLowerCase().includes(key) || x.email?.toLowerCase().startsWith(key.replace(" ", ".")))));
             } else {
-console.log(school, accounts)
                 res = (isClass)
                     ? accounts?.filter(x => x?.department?.toLowerCase() === key && x?.office?.startsWith(school))?.sort((a, b) => a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase()))
                     : accounts?.filter(x => (match ? x?.displayName?.toLowerCase() === key :
@@ -267,9 +266,9 @@ console.log(school, accounts)
             }
         }
 
-        // start: 2026-09-03
-        handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
-        // end
+        
+        handleDispatch("users", Array.isArray(res) ? res : [], "RESULT"); // 2026-09-03
+
         return Array.isArray(res) ? null : data;
     }
 

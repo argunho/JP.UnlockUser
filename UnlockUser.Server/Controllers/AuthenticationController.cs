@@ -169,17 +169,17 @@ public class AuthenticationController(IADService provider, IConfiguration config
             if (targetModerator == null)
                 return NotFound(_helpService.NotFound("Användaren"));
 
-            var developerUsername = _credentials.GetClaim("username");
-            var developerGroupName = _credentials.GetClaim("permissions")?
+            var suppUsername = _credentials.GetClaim("username");
+            var suppGroupName = _credentials.GetClaim("permissions")?
                 .Split(',', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.ToLower() ?? "support";
 
-            // Stash the developer's own token/permissions so ResetLoginAs can restore them
+            // Stash the support agent's own token/permissions so ResetLoginAs can restore them
             var authHeader = HttpContext.Request.Headers.Authorization.ToString();
-            var developerToken = authHeader.StartsWith("Bearer ") ? authHeader["Bearer ".Length..] : authHeader;
+            var suppToken = authHeader.StartsWith("Bearer ") ? authHeader["Bearer ".Length..] : authHeader;
 
-            _session!.SetString("developerToken", developerToken);
-            _session!.SetString("developerGroupName", developerGroupName);
-            _session!.SetString("developerPermissions", _session!.GetString("permissions") ?? "");
+            _session!.SetString("suppToken", suppToken);
+            _session!.SetString("suppGroupName", suppGroupName);
+            _session!.SetString("suppPermissions", _session!.GetString("permissions") ?? "");
 
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
             var groups = string.Join(",", permissionGroups.Select(x => x.Name));
@@ -196,7 +196,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
             claims.Add(new("Groups", groups));
             claims.Add(new("Permissions", string.Join(',', targetModerator.Permissions?.Groups ?? [])));
             claims.Add(new("Roles", ""));
-            claims.Add(new("Impersonating", developerUsername ?? ""));
+            claims.Add(new("Impersonating", suppUsername ?? ""));
 
             var jwtToken = JsonConvert.SerializeObject(_credentials.GenerateJwtToken(
                     claims,
@@ -208,7 +208,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
             var authModel = JsonConvert.DeserializeObject<AuthViewModel>(jwtToken);
             authModel?.GroupName = (targetModerator.Permissions?.Groups?.FirstOrDefault() ?? "Support").ToLower();
 
-            _logger.LogInformation("Utvecklare {developer} loggade in som {username} vid: {time}.", developerUsername, username, DateTime.Now.ToString("g"));
+            _logger.LogInformation("Utvecklare {developer} loggade in som {username} vid: {time}.", suppUsername, username, DateTime.Now.ToString("g"));
 
             return Ok(authModel);
         }

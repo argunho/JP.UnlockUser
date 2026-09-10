@@ -53,7 +53,7 @@ function EmployeeView() {
     const { fetchData, pending, response, handleResponse } = use(FetchContext);
     const { authorize } = use(AuthContext); // 2026-09-08
     const navigate = useNavigate(); // 2026-09-08
-    const isDeveloper = Claim("roles")?.split(",").includes("DevelopTeam"); // 2026-09-08
+    const isDeveloper = Claim("roles")?.split(",").includes("Moderator"); // 2026-09-08
 
     const [approved, setApproved] = useState({
         managers: approvedManagers,
