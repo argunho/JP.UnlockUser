@@ -227,21 +227,6 @@ function EmployeeView() {
             {/* Action panel */}
             <ActionButtons label="Behörighetslista" pending={pending} disabled={!isChanged} onConfirm={onSubmit}>
 
-                {isDeveloper && <Tooltip
-                    title={`Logga in som ${moderator?.displayName} i granskningsläge: behörigheter kan ses, men lösenord går inte att ändra i detta läge.`}
-                    classes={{
-                        tooltip: "tooltip-info",
-                        arrow: "tooltip-arrow-info"
-                    }} placement="left" arrow>
-                    <Button
-                        variant="outlined"
-                        color="info"
-                        startIcon={<TuneSharp />}
-                        onClick={switchModerator}
-                    >
-                        Logga in som {moderator?.displayName}
-                    </Button>
-                </Tooltip>}
 
                 {(personalPermissions && approvedUsernames?.length > 0 && !officeManager) &&
                     <Button
@@ -260,6 +245,24 @@ function EmployeeView() {
                     onClick={() => handleShowByOffice(null)}>
                     Stänga
                 </Button>}
+
+                {isDeveloper && <Tooltip
+                    title={`Logga in som ${moderator?.displayName} i granskningsläge: behörigheter kan ses, men lösenord går inte att ändra i detta läge.`}
+                    classes={{
+                        tooltip: "tooltip-info",
+                        arrow: "tooltip-arrow-info"
+                    }} 
+                    placement="left" arrow>
+                    <Button
+                        variant="outlined"
+                        color="info"
+                        startIcon={<TuneSharp />}
+                        onClick={switchModerator}
+                    >
+                        Logga in som {moderator?.displayName}
+                    </Button>
+                </Tooltip>}
+
             </ActionButtons>
 
             {/* Hidden collapse block. Result of employee search */}

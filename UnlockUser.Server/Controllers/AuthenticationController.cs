@@ -189,8 +189,30 @@ public class AuthenticationController(IADService provider, IConfiguration config
 
             _session!.SetString("permissions", JsonConvert.SerializeObject(targetModerator.Permissions ?? new PermissionsViewModel()));
 
-            // Support agent's cached group lists are keyed by session id, which stays the same across login-as; drop them so GetGroupsByName rebuilds under the impersonated user's permissions
-            _memoryCache.Remove($"groups_{_session!.Id}"); // 2026-09-18
+            // start: 2026-09-18
+            // Support agent's cached group lists are keyed by session id, which stays the same across
+            // login-as. Drop the stale entry and rebuild it right away under the impersonated user's
+            // own permissions (openAccess: false), same as the eager warm-up PostLogin does.
+            _memoryCache.Remove($"groups_{_session!.Id}");
+            _ = Task.Run(async () =>
+            {
+                if (_lockService.TryStart(username, out var waitTask))
+                {
+                    try
+                    {
+                        await _dashboardService.StoreUsersByGroup(username, false, targetModerator.Permissions?.Groups ?? []);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Failed to set up dashboard data for login-as. Error: {ex.Message}");
+                    }
+                    finally
+                    {
+                        _lockService.Finish(username);
+                    }
+                }
+            });
+            // end
 
             List<Claim> claims = [];
             claims.Add(new("Email", targetModerator.Email ?? ""));
