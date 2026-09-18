@@ -140,3 +140,263 @@
 2026-09-18 12:07:48.784 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 12:07:48.
 2026-09-18 12:08:39.309 +02:00 [INF] Memory cached. groups_56039dec-5185-b1bc-d72c-ad786d1e704a
 2026-09-18 12:08:39.369 +02:00 [INF] Gruppdata har laddats ner. Group: 1. Tid: 2026-09-18 12:08:39.
+2026-09-18 12:10:42.030 +02:00 [INF] Autentisering utförd vid: 2026-09-18 12:10. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 12:10:42.132 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 12:10:42.590 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 12:10:42.
+2026-09-18 12:10:42.590 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 12:10:42.
+2026-09-18 13:50:49.903 +02:00 [INF] Autentisering utförd vid: 2026-09-18 13:50. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 13:50:50.059 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 13:50:50.709 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 13:50:50.
+2026-09-18 13:50:50.709 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 13:50:50.
+2026-09-18 13:51:06.177 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 13:51:06.
+2026-09-18 13:51:25.465 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 13:51:25.
+2026-09-18 13:51:35.592 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 13:51:35.
+2026-09-18 13:51:39.155 +02:00 [INF] Memory cached. groups_31f19bb9-bc3f-e0a8-b46d-8fc7d5692ed5
+2026-09-18 13:51:39.158 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 13:51:39.
+2026-09-18 13:51:39.172 +02:00 [INF] Dashboard data setup completed.
+2026-09-18 13:52:15.229 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 13:52.
+2026-09-18 13:53:09.642 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-09-18 13:53:09.648 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 13:53:09.
+2026-09-18 13:53:13.145 +02:00 [INF] Memory cached. groups_31f19bb9-bc3f-e0a8-b46d-8fc7d5692ed5
+2026-09-18 13:53:13.148 +02:00 [INF] Gruppdata har laddats ner. Group: 1. Tid: 2026-09-18 13:53:13.
+2026-09-18 13:53:45.958 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-09-18 13:53.
+2026-09-18 13:54:28.319 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 13:54:28.
+2026-09-18 13:54:28.324 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 13:54:28.
+2026-09-18 13:54:28.328 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 13:54:28.
+2026-09-18 13:54:30.566 +02:00 [INF] Memory cached. groups_31f19bb9-bc3f-e0a8-b46d-8fc7d5692ed5
+2026-09-18 13:54:30.569 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 13:54:30.
+2026-09-18 13:55:10.614 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 13:55.
+2026-09-18 13:55:17.913 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 13:55:17.
+2026-09-18 13:56:16.948 +02:00 [INF] Memory cached. groups_31f19bb9-bc3f-e0a8-b46d-8fc7d5692ed5
+2026-09-18 13:56:16.999 +02:00 [INF] Gruppdata har laddats ner. Group: 1. Tid: 2026-09-18 13:56:16.
+2026-09-18 13:56:17.007 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-09-18 13:56.
+2026-09-18 13:56:17.810 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 13:56:17.
+2026-09-18 13:56:17.813 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 13:56:17.
+2026-09-18 13:56:17.815 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 13:56:17.
+2026-09-18 13:57:08.960 +02:00 [INF] Memory cached. groups_31f19bb9-bc3f-e0a8-b46d-8fc7d5692ed5
+2026-09-18 13:57:08.979 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 13:57:08.
+2026-09-18 13:59:04.692 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 13:59.
+2026-09-18 13:59:13.227 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 13:59:13.
+2026-09-18 13:59:26.879 +02:00 [INF] Memory cached. groups_31f19bb9-bc3f-e0a8-b46d-8fc7d5692ed5
+2026-09-18 13:59:26.883 +02:00 [INF] Gruppdata har laddats ner. Group: 1. Tid: 2026-09-18 13:59:26.
+2026-09-18 13:59:33.008 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-09-18 13:59.
+2026-09-18 13:59:33.438 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 13:59:33.
+2026-09-18 13:59:33.441 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 13:59:33.
+2026-09-18 13:59:33.444 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 13:59:33.
+2026-09-18 13:59:38.682 +02:00 [INF] Memory cached. groups_31f19bb9-bc3f-e0a8-b46d-8fc7d5692ed5
+2026-09-18 13:59:38.690 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 13:59:38.
+2026-09-18 13:59:38.701 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 13:59:38.
+2026-09-18 13:59:38.706 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 13:59:38.
+2026-09-18 13:59:38.711 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 13:59:38.
+2026-09-18 13:59:42.108 +02:00 [INF] Memory cached. groups_31f19bb9-bc3f-e0a8-b46d-8fc7d5692ed5
+2026-09-18 13:59:42.110 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 13:59:42.
+2026-09-18 14:17:07.708 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 14:17:07.
+2026-09-18 14:17:07.712 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 14:17:07.
+2026-09-18 14:17:07.716 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 14:17:07.
+2026-09-18 14:17:11.528 +02:00 [INF] Memory cached. groups_31f19bb9-bc3f-e0a8-b46d-8fc7d5692ed5
+2026-09-18 14:17:11.530 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 14:17:11.
+2026-09-18 14:17:59.369 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 14:17.
+2026-09-18 14:18:20.991 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 14:18:20.
+2026-09-18 14:18:24.052 +02:00 [INF] Memory cached. groups_31f19bb9-bc3f-e0a8-b46d-8fc7d5692ed5
+2026-09-18 14:18:24.054 +02:00 [INF] Gruppdata har laddats ner. Group: 1. Tid: 2026-09-18 14:18:24.
+2026-09-18 14:21:26.005 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 14:21:25.
+2026-09-18 14:21:26.005 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 14:21:25.
+2026-09-18 14:23:09.032 +02:00 [INF] Autentisering utförd vid: 2026-09-18 14:23. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 14:23:09.078 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 14:23:09.543 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 14:23:09.
+2026-09-18 14:23:09.544 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 14:23:09.
+2026-09-18 14:23:24.946 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 14:23:24.
+2026-09-18 14:23:41.777 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 14:23:41.
+2026-09-18 14:23:53.418 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 14:23:53.
+2026-09-18 14:23:56.343 +02:00 [INF] Memory cached. groups_ecab78af-73b2-cca4-0d0f-f3c5d8342812
+2026-09-18 14:23:56.345 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 14:23:56.
+2026-09-18 14:23:56.353 +02:00 [INF] Dashboard data setup completed.
+2026-09-18 14:24:37.709 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 14:24.
+2026-09-18 14:24:48.079 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-09-18 14:24.
+2026-09-18 14:24:48.456 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 14:24:48.
+2026-09-18 14:24:48.462 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 14:24:48.
+2026-09-18 14:24:48.466 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 14:24:48.
+2026-09-18 14:24:53.859 +02:00 [INF] Memory cached. groups_ecab78af-73b2-cca4-0d0f-f3c5d8342812
+2026-09-18 14:24:53.865 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 14:24:53.
+2026-09-18 14:24:53.884 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 14:24:53.
+2026-09-18 14:24:53.900 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 14:24:53.
+2026-09-18 14:24:53.920 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 14:24:53.
+2026-09-18 14:25:07.249 +02:00 [INF] Memory cached. groups_ecab78af-73b2-cca4-0d0f-f3c5d8342812
+2026-09-18 14:25:07.322 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 14:25:07.
+2026-09-18 17:14:22.886 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 17:14.
+2026-09-18 17:19:45.847 +02:00 [INF] Autentisering utförd vid: 2026-09-18 17:19. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 17:19:46.020 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 17:20:15.845 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 17:20:15.
+2026-09-18 17:20:15.845 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 17:20:15.
+2026-09-18 17:20:29.949 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 17:20:29.
+2026-09-18 17:20:47.487 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 17:20:47.
+2026-09-18 17:20:59.721 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 17:20:59.
+2026-09-18 17:21:05.942 +02:00 [INF] Memory cached. groups_ebc51284-6536-c7eb-324d-b0ee3d32cbe4
+2026-09-18 17:21:05.954 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 17:21:05.
+2026-09-18 17:21:05.968 +02:00 [INF] Dashboard data setup completed.
+2026-09-18 17:21:56.616 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 17:21.
+2026-09-18 17:31:50.731 +02:00 [INF] Autentisering utförd vid: 2026-09-18 17:31. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 17:31:50.845 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 17:32:21.946 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 17:32:21.
+2026-09-18 17:32:21.946 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 17:32:21.
+2026-09-18 17:32:32.684 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 17:32:32.
+2026-09-18 17:32:47.390 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 17:32:47.
+2026-09-18 17:33:02.247 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 17:33:02.
+2026-09-18 17:33:08.265 +02:00 [INF] Memory cached. groups_8e0dcfea-e1de-c50e-479a-1a24d443cb11
+2026-09-18 17:33:08.299 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 17:33:08.
+2026-09-18 17:33:08.305 +02:00 [INF] Dashboard data setup completed.
+2026-09-18 17:33:33.827 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 17:33.
+2026-09-18 18:44:51.140 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 18:44:51.140 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 18:45:08.227 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 18:45:08.229 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 18:45:08.366 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 18:45:08.
+2026-09-18 18:45:08.366 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 18:45:08.
+2026-09-18 18:45:11.987 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 18:45:34.589 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 18:46:42.057 +02:00 [INF] Autentisering utförd vid: 2026-09-18 18:46. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 18:46:42.091 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:16:00.101 +02:00 [INF] Autentisering utförd vid: 2026-09-18 19:16. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 19:16:00.261 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:16:00.916 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 19:16:00.
+2026-09-18 19:16:00.916 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 19:16:00.
+2026-09-18 19:16:19.594 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 19:16:19.
+2026-09-18 19:16:38.143 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 19:16:38.
+2026-09-18 19:16:50.290 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 19:16:50.
+2026-09-18 19:16:50.293 +02:00 [INF] Memory cached. groups_cd161b79-e762-ee4f-c97d-1ad90c1c1d73
+2026-09-18 19:16:50.295 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 19:16:50.
+2026-09-18 19:16:50.304 +02:00 [INF] Dashboard data setup completed.
+2026-09-18 19:17:34.521 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 19:17.
+2026-09-18 19:17:43.738 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:17:48.441 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:18:21.055 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:18:28.499 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:18:43.420 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:18:47.068 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:18:59.893 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-09-18 19:18.
+2026-09-18 19:19:00.340 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:19:00.340 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:19:00.934 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:20:17.658 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:21:36.946 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:22:12.181 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:25:18.050 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:26:09.454 +02:00 [INF] Autentisering utförd vid: 2026-09-18 19:26. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 19:26:09.459 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:26:20.355 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 19:26:20.
+2026-09-18 19:26:31.376 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 19:26:31.
+2026-09-18 19:26:31.376 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 19:26:31.
+2026-09-18 19:26:32.540 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 19:26:32.
+2026-09-18 19:26:41.592 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 19:26:41.
+2026-09-18 19:26:41.632 +02:00 [INF] Memory cached. groups_cd161b79-e762-ee4f-c97d-1ad90c1c1d73
+2026-09-18 19:26:41.634 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 19:26:41.
+2026-09-18 19:26:41.641 +02:00 [INF] Dashboard data setup completed.
+2026-09-18 19:40:04.802 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:40:04.885 +02:00 [INF] Autentisering utförd vid: 2026-09-18 19:40. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 19:40:30.238 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 19:40:30.
+2026-09-18 19:40:30.237 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 19:40:30.
+2026-09-18 19:40:45.776 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 19:40:45.
+2026-09-18 19:41:03.381 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 19:41:03.
+2026-09-18 19:41:14.011 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 19:41:14.
+2026-09-18 19:41:14.014 +02:00 [INF] Memory cached. groups_27e23a20-8d08-5511-40c0-70db28599513
+2026-09-18 19:41:14.016 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 19:41:14.
+2026-09-18 19:41:14.025 +02:00 [INF] Dashboard data setup completed.
+2026-09-18 19:43:25.469 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:43:25.469 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 19:43.
+2026-09-18 19:44:05.463 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:44:05.464 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:44:26.242 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:44:28.653 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:44:30.806 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:44:41.146 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:46:10.418 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:46:15.101 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 19:47:23.596 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 20:50:36.914 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 20:50:36.990 +02:00 [INF] Autentisering utförd vid: 2026-09-18 20:50. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 20:51:03.227 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 20:51:03.
+2026-09-18 20:51:03.227 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 20:51:03.
+2026-09-18 20:51:23.921 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 20:51:23.
+2026-09-18 20:51:46.546 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 20:51:46.
+2026-09-18 20:52:07.145 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 20:52:07.
+2026-09-18 20:52:07.155 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 20:52:07.
+2026-09-18 20:52:07.170 +02:00 [INF] Dashboard data setup completed.
+2026-09-18 20:52:50.279 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 20:52.
+2026-09-18 20:58:38.267 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 20:58:38.343 +02:00 [INF] Autentisering utförd vid: 2026-09-18 20:58. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 20:58:39.046 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 20:58:39.
+2026-09-18 20:58:39.046 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 20:58:39.
+2026-09-18 20:59:01.226 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 20:59:01.
+2026-09-18 20:59:24.228 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 20:59:24.
+2026-09-18 20:59:44.971 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 20:59:44.
+2026-09-18 20:59:44.978 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 20:59:44.
+2026-09-18 20:59:44.994 +02:00 [INF] Dashboard data setup completed.
+2026-09-18 21:00:26.384 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 21:00.
+2026-09-18 21:02:03.903 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-09-18 21:02.
+2026-09-18 21:02:43.694 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 21:02.
+2026-09-18 21:06:04.145 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 21:06:04.224 +02:00 [INF] Autentisering utförd vid: 2026-09-18 21:06. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 21:06:05.073 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 21:06:05.
+2026-09-18 21:06:05.073 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 21:06:05.
+2026-09-18 21:06:27.802 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 21:06:27.
+2026-09-18 21:06:49.599 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 21:06:49.
+2026-09-18 21:07:07.393 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 21:07:07.
+2026-09-18 21:07:07.397 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 21:07:07.
+2026-09-18 21:07:07.406 +02:00 [INF] Dashboard data setup completed.
+2026-09-18 21:08:14.149 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 21:08.
+2026-09-18 21:09:37.959 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-09-18 21:09.
+2026-09-18 21:10:11.012 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 21:10.
+2026-09-18 21:12:57.750 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 21:12:57.834 +02:00 [INF] Autentisering utförd vid: 2026-09-18 21:12. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 21:12:58.669 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 21:12:58.
+2026-09-18 21:12:58.669 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 21:12:58.
+2026-09-18 21:13:21.076 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 21:13:21.
+2026-09-18 21:13:42.454 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 21:13:42.
+2026-09-18 21:14:04.721 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 21:14:04.
+2026-09-18 21:14:04.732 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 21:14:04.
+2026-09-18 21:14:04.745 +02:00 [INF] Dashboard data setup completed.
+2026-09-18 21:14:50.109 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 21:14.
+2026-09-18 21:15:47.854 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-09-18 21:15.
+2026-09-18 21:16:04.103 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 21:16.
+2026-09-18 21:23:07.457 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 21:23:07.536 +02:00 [INF] Autentisering utförd vid: 2026-09-18 21:23. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 21:23:08.267 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 21:23:08.
+2026-09-18 21:23:08.267 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 21:23:08.
+2026-09-18 21:23:27.579 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 21:23:27.
+2026-09-18 21:23:46.379 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 21:23:46.
+2026-09-18 21:24:03.590 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 21:24:03.
+2026-09-18 21:24:03.631 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 21:24:03.
+2026-09-18 21:24:03.639 +02:00 [INF] Dashboard data setup completed.
+2026-09-18 21:32:37.100 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 21:32.
+2026-09-18 21:36:02.263 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 21:36:02.
+2026-09-18 21:36:02.263 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 21:36:02.
+2026-09-18 21:37:22.754 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 21:37:22.907 +02:00 [INF] Autentisering utförd vid: 2026-09-18 21:37. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 21:37:23.911 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 21:37:23.
+2026-09-18 21:37:46.397 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 21:37:46.
+2026-09-18 21:38:07.320 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 21:38:07.
+2026-09-18 21:38:31.060 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 21:38:31.
+2026-09-18 21:38:31.064 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 21:38:31.
+2026-09-18 21:38:31.072 +02:00 [INF] Dashboard data setup completed.
+2026-09-18 21:39:21.690 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 21:39.
+2026-09-18 21:42:09.895 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 21:42:09.
+2026-09-18 21:42:09.895 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 21:42:09.
+2026-09-18 21:43:42.065 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 21:43:42.197 +02:00 [INF] Autentisering utförd vid: 2026-09-18 21:43. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 21:43:43.083 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 21:43:43.
+2026-09-18 21:44:03.406 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 21:44:03.
+2026-09-18 21:44:24.659 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 21:44:24.
+2026-09-18 21:44:44.725 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 21:44:44.
+2026-09-18 21:44:44.738 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 21:44:44.
+2026-09-18 21:44:44.756 +02:00 [INF] Dashboard data setup completed.
+2026-09-18 21:45:12.285 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 21:45.
+2026-09-18 21:54:27.151 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-18 21:54:27.230 +02:00 [INF] Autentisering utförd vid: 2026-09-18 21:54. Department: IT avdelning. Office: IT avdelning.
+2026-09-18 21:54:32.521 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 21:54:32.
+2026-09-18 21:54:32.521 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-18 21:54:32.
+2026-09-18 21:54:52.437 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-18 21:54:52.
+2026-09-18 21:55:23.883 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-18 21:55:23.
+2026-09-18 21:55:50.674 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-18 21:55:50.
+2026-09-18 21:55:50.679 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-18 21:55:50.
+2026-09-18 21:55:50.693 +02:00 [INF] Dashboard data setup completed.
+2026-09-18 21:56:11.320 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-18 21:56.

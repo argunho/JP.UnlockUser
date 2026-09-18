@@ -80,6 +80,8 @@ function Home() {
 
     const permissionGroups = Claim("permissions")?.split(",");
     const openAccess = Claim("openAccess");
+    const username = Claim("username");
+    const impersonating = Claim("impersonating") != null;
 
     const { schools, group: groupName } = useOutletContext();
     const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
@@ -125,7 +127,7 @@ function Home() {
             //     ApiRequest(`data/groups/by/${gn}`),
             // ]);
 
-            groupAccountsRef.current = await fetchData({ api: `data/groups/by/${gn}`, action: "return" })
+            groupAccountsRef.current = await fetchData({ api: `data/groups/by/${gn}/${username}/${impersonating}`, action: "return" })
             if (groupAccountsRef.current?.length == 0) {
 
                 const logged = sessionStorage.getItem("logged");

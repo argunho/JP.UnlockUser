@@ -11,7 +11,7 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class AuthenticationController(IADService provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache,
-    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, IGoogleService googleService, IRefreshLockService lockService, IMemoryCache memoryCache, DashboardService dashboardService, ILogger<AuthenticationController> logger) : ControllerBase
+    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, IMemoryCache memoryCache, DashboardService dashboardService, ILogger<AuthenticationController> logger) : ControllerBase
 {
     private readonly IADService _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
@@ -20,8 +20,6 @@ public class AuthenticationController(IADService provider, IConfiguration config
     private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentials = credentials;
     private readonly ILocalFileService _localFileService = localFileService;
-    private readonly IGoogleService _googleService = googleService;
-    private readonly IRefreshLockService _lockService = lockService;
     private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly DashboardService _dashboardService = dashboardService;
     private readonly ILogger<AuthenticationController> _logger = logger;
@@ -89,6 +87,15 @@ public class AuthenticationController(IADService provider, IConfiguration config
             //var userPermissions = moderators.Select(s => s.Permissions).ToList();
 
             List<Claim> claims = [];
+            bool openAccess = roles.IndexOf("Moderator") > -1;
+            if (openAccess)
+                claims.Add(new("OpenAccess", "ok")); //
+
+
+            // Get employees lis by user permissions groups 
+            _ = Task.Run(async () => await _dashboardService.StoreUsersByGroup(model.Username, currentModerator?.Permissions?.Groups, openAccess));
+
+
             claims.Add(new("Email", authorizedUser.EmailAddress));
             claims.Add(new("DisplayName", authorizedUser.DisplayName));
             claims.Add(new("Username", authorizedUser.Name!));
@@ -99,14 +106,11 @@ public class AuthenticationController(IADService provider, IConfiguration config
             claims.Add(new("Permissions", string.Join(',', currentModerator?.Permissions?.Groups ?? [])));
             claims.Add(new("Roles", string.Join(",", roles)));
 
-            bool openAccess = roles.IndexOf("Moderator") > -1;
-            if (openAccess)
-                claims.Add(new("OpenAccess", "ok")); //
 
             // Save hashed credentials in session to validate user on other requests
             if (_session != null)
             {
-                byte[] protectedPassword = DpapiProtector.Protect(model.Password);
+                byte[] protectedPassword = DpapiProtector.Protect(model.Password!);
                 _session.Set("adminPassword", protectedPassword);
                 _session.SetString("adminUsername", model.Username);
             }
@@ -123,28 +127,6 @@ public class AuthenticationController(IADService provider, IConfiguration config
             var authModel = JsonConvert.DeserializeObject<AuthViewModel>(jwtToken);
 
             authModel?.GroupName = (permissionGroups?.FirstOrDefault()?.Name ?? "Support").ToLower();
-
-            // Get users by groups 
-            _ = Task.Run(async () =>
-            {
-                if (_lockService.TryStart(model.Username, out var waitTask))
-                {
-                    try
-                    {
-                        _logger.LogInformation("Starting asynchronous dashboard data setup.");
-                        await _dashboardService.StoreUsersByGroup(model.Username, openAccess, currentModerator?.Permissions?.Groups!);
-                        _logger.LogInformation("Dashboard data setup completed.");
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError($"Failed to set up dashboard data. Error: {ex.Message}");
-                    }
-                    finally
-                    {
-                        _lockService.Finish(model.Username);
-                    }
-                }
-            });
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
             return Ok(authModel);
@@ -193,25 +175,11 @@ public class AuthenticationController(IADService provider, IConfiguration config
             // Support agent's cached group lists are keyed by session id, which stays the same across
             // login-as. Drop the stale entry and rebuild it right away under the impersonated user's
             // own permissions (openAccess: false), same as the eager warm-up PostLogin does.
-            _memoryCache.Remove($"groups_{_session!.Id}");
-            _ = Task.Run(async () =>
-            {
-                if (_lockService.TryStart(username, out var waitTask))
-                {
-                    try
-                    {
-                        await _dashboardService.StoreUsersByGroup(username, false, targetModerator.Permissions?.Groups ?? []);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError($"Failed to set up dashboard data for login-as. Error: {ex.Message}");
-                    }
-                    finally
-                    {
-                        _lockService.Finish(username);
-                    }
-                }
-            });
+            //_memoryCache.Remove($"groups_{_session!.Id}");
+            //_ = Task.Run(async () =>
+            //{
+            //    await _dashboardService.StoreUsersByGroup(username, targetModerator.Permissions?.Groups, false);
+            //});
             // end
 
             List<Claim> claims = [];

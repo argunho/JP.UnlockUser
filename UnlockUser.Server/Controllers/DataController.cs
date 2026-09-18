@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Google.Apis.Admin.Directory.directory_v1.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization; // 2026-09-03
-using System.DirectoryServices.AccountManagement;
 using System.Text;
 using System.Text.Json;
 
@@ -91,43 +91,59 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         return Ok();
     }
 
-    [HttpGet("groups/by/{group}")]
-    public async Task<IActionResult> GetGroupsByName(string group)
+    [HttpGet("groups/by/{group}/{username}/{impersonating}")]
+    public async Task<IActionResult> GetGroupsByName(string group, string username, bool impersonating = false)
     {
-        var username = _credentials.GetClaim("username");
+        try
+        {
+            if (impersonating)
+            {
+                _memoryCache.TryGetValue(group, out List<UserViewModel>? users);
+                if (users == null)
+                    return Ok();
 
-        bool isLoading = _lockService.IsLocked(username!);
+                var (alternativeParams, isStudents) = await _dashboardService.GetParams(group!, username);
+                if (isStudents)
+                    users = [.. users.Where(x => alternativeParams!.Contains(x.Office!, StringComparer.OrdinalIgnoreCase))];
+                else
+                {
+                    users = [.. users.Where(x =>
+                    {
+                        if (x.Manager == null) return false;
+                        var m = x.Manager.Trim();
+                        // ensure there's enough length for a start index of 3
+                        if (m.Length <= 3) return false;
+                        var comma = m.IndexOf(',');
+                        // ensure comma exists and is after the start index
+                        if (comma <= 3) return false;
+                        var part = m.Substring(3, comma - 3);
+                        return alternativeParams!.Contains(part, StringComparer.OrdinalIgnoreCase);
+                    })];
+                }
 
-        if (isLoading)
-            await Task.WhenAny(_lockService.GetWaitTask(username!), Task.Delay(90000));
+                return Ok(users);
+            }
 
-        var group_members = GetCachedUsersGroup(group);
-        if (group_members.Count > 0)
+            bool isLoading = _lockService.IsLocked(username!);
+            if (isLoading)
+                await Task.WhenAny(_lockService.GetWaitTask(username!), Task.Delay(90000));
+
+            var group_members = await GetCachedUsersGroup(group);
             return Ok(group_members);
 
-        if (_lockService.TryStart(username!, out var waitTask))
+        }
+        catch (Exception ex)
         {
-            try
-            {
-                var claim_roles = _credentials.GetClaim("roles");
-                var roles = claim_roles?.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                bool openAccess = roles.Contains("Moderator", StringComparer.OrdinalIgnoreCase);
-
-                await _dashboardService.StoreUsersByGroup(username!, openAccess, [group]);
-
-                group_members = GetCachedUsersGroup(group);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Failed to set up dashboard data. Error: {ex.Message}");
-            }
-            finally
-            {
-                _lockService.Finish(username!);
-            }
+            await _helpService.Error(ex);
+            return Ok();
         }
 
-        return Ok(group_members);
+
+        //if (group_members.Count > 0)
+        //await _dashboardService.StoreUsersByGroup();
+
+
+        //return Ok(group_members);
     }
     #endregion
 
@@ -135,33 +151,8 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     [HttpPost("update/stored")]
     public async Task<IActionResult> UpdateStoredData()
     {
-        var claims = _credentials.GetClaims(["username", "openAccess", "permissions"]);
-
-        claims!.TryGetValue("username", out string? username);
         // Get users by groups 
-        _ = Task.Run(async () =>
-        {
-            if (_lockService.TryStart(username!, out var waitTask))
-            {
-                bool openAccess = claims!.TryGetValue("openAccess", out string? access) && bool.Parse(access);
-                List<string> groups = claims!.TryGetValue("permissions", out string? permissions) ? [.. permissions.Split(',')] : [];
-
-                try
-                {
-                    _logger.LogInformation("Starting asynchronous dashboard data setup.");
-                    await _dashboardService.StoreUsersByGroup(username!, openAccess, groups!);
-                    _logger.LogInformation("Dashboard data setup completed.");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Failed to set up dashboard data. Error: {ex.Message}");
-                }
-                finally
-                {
-                    _lockService.Finish(username!);
-                }
-            }
-        });
+        _ = Task.Run(async () => await _dashboardService.StoreUsersByGroup());
 
         return Ok();
     }
@@ -264,7 +255,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                 return NotFound($"User with email '{email}' not found");
             else
             {
-                var modifiedUser = new UserViewModel(new User
+                var modifiedUser = new UserViewModel(new Models.User
                 {
                     Username = userPrincipal.SamAccountName,
                     DisplayName = userPrincipal.DisplayName,
@@ -287,15 +278,20 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     #endregion
 
     #region Private methods
-    private List<UserViewModel> GetCachedUsersGroup(string name)
+    private async Task<List<UserViewModel>> GetCachedUsersGroup(string group)
     {
+        var isImpersonating = _credentials.GetClaim("Impersonating") != null;
+
         var group_members = new List<UserViewModel>();
         var id = HttpContext.Session.Id;
-        if (_memoryCache.TryGetValue(
-            $"groups_{id}",
-            out Dictionary<string, List<UserViewModel>>? cachedGroups))
+
+        if (isImpersonating)
+            await _dashboardService.StoreUsersByGroup();
+
+
+        if (_memoryCache.TryGetValue($"groups_{id}", out Dictionary<string, List<UserViewModel>>? cachedGroups))
         {
-            bool supportModel = string.Equals(name.ToString(), "Support", StringComparison.OrdinalIgnoreCase);
+            bool supportModel = string.Equals(group.ToString(), "Support", StringComparison.OrdinalIgnoreCase);
             if (supportModel)
             {
                 List<string?> groups = [.. _config.
@@ -310,7 +306,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             }
             else
             {
-                group_members = cachedGroups!.TryGetValue(name.ToLower(), out var value) ? value : [];
+                group_members = cachedGroups!.TryGetValue(group.ToLower(), out var value) ? value : [];
             }
         }
 
@@ -318,20 +314,3 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     }
     #endregion
 }
-
-
-//[HttpPost("change/password")]
-//[AllowAnonymous]
-//public async Task<IActionResult> ChangePassword(UserFormModel model)
-//{
-//    try
-//    {
-//        await _googleService.UpdatePaswords([model]);
-//    }
-//    catch (Exception ex)
-//    {
-//        Console.WriteLine(ex.Message);
-//    }
-
-//    return Ok();
-//}

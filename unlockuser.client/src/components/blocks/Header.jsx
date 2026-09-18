@@ -36,11 +36,13 @@ const Header = memo(function Header({ disabled, supportMode }) {
 
     async function resetLoginAs() {
         const res = await fetchData({ api: "authentication/reset-login-as", method: "post", action: "return" }) ?? {};
-        const { token, groupName } = res;
+        // const { token, groupName } = res;
+        const { token } = res;
 
         if (token) {
             authorize(token);
-            navigate(`/search/${groupName}`);
+            // navigate(`/search/${groupName}`);
+            navigate(`/`);
         }
     }
     // end
