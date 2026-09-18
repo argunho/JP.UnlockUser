@@ -5,7 +5,7 @@ import _ from "lodash";
 import { SearchOffSharp, SearchSharp, Close, List } from '@mui/icons-material';
 import {
     Button, FormControl, FormControlLabel, Tooltip, IconButton,
-    Radio, RadioGroup, TextField, Checkbox, InputAdornment
+    Radio, RadioGroup, TextField, Checkbox, InputAdornment, LinearProgress
 } from '@mui/material';
 import { useOutletContext, NavLink, useNavigate, useLocation } from 'react-router-dom'; //, useSearchParams
 
@@ -72,8 +72,6 @@ function actionReducer(state, action) {
 
 // Css
 import './../../assets/css/home.css';
-import { LinearProgress } from '@mui/material';
-
 
 function Home() {
 
@@ -305,6 +303,8 @@ function Home() {
         return new Date(year, 7, 1).toLocaleDateString("sv-SE", { month: "long", year: "numeric" });
     })();
     // end
+
+    console.log(groupAccountsRef?.current)
 
     return (
         <>

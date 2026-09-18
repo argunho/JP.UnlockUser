@@ -85,6 +85,9 @@ public class AuthenticationController(IADService provider, IConfiguration config
             if (currentModerator != null)
                 _session!.SetString("permissions", JsonConvert.SerializeObject(currentModerator?.Permissions));
 
+            //var userManagers = moderators.Select(s => s.Managers).ToList();
+            //var userPermissions = moderators.Select(s => s.Permissions).ToList();
+
             List<Claim> claims = [];
             claims.Add(new("Email", authorizedUser.EmailAddress));
             claims.Add(new("DisplayName", authorizedUser.DisplayName));
@@ -159,7 +162,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
     // (adding moderators, editing permissions, etc.) stay out of reach, and the
     // "Impersonating" claim is used by UserController to block password changes.
     [HttpPost("login-as/{username}")]
-    [Authorize(Roles = "DevelopTeam")]
+    [Authorize(Roles = "Support,DevelopTeam")]
     public async Task<IActionResult> LoginAs(string username)
     {
         try
@@ -185,6 +188,9 @@ public class AuthenticationController(IADService provider, IConfiguration config
             var groups = string.Join(",", permissionGroups.Select(x => x.Name));
 
             _session!.SetString("permissions", JsonConvert.SerializeObject(targetModerator.Permissions ?? new PermissionsViewModel()));
+
+            // Support agent's cached group lists are keyed by session id, which stays the same across login-as; drop them so GetGroupsByName rebuilds under the impersonated user's permissions
+            _memoryCache.Remove($"groups_{_session!.Id}"); // 2026-09-18
 
             List<Claim> claims = [];
             claims.Add(new("Email", targetModerator.Email ?? ""));
@@ -229,23 +235,23 @@ public class AuthenticationController(IADService provider, IConfiguration config
             if (string.IsNullOrEmpty(impersonating))
                 return Ok(_helpService.Warning("Du granskar inte en annan användares behörigheter."));
 
-            var developerToken = _session!.GetString("developerToken");
-            if (string.IsNullOrEmpty(developerToken))
+            var suppToken = _session!.GetString("suppToken");
+            if (string.IsNullOrEmpty(suppToken))
                 return Ok(_helpService.Warning("Utvecklarsessionen kunde inte återställas."));
 
             var authModel = new AuthViewModel
             {
-                Token = developerToken,
-                GroupName = _session!.GetString("developerGroupName") ?? "support"
+                Token = suppToken,
+                GroupName = _session!.GetString("suppGroupName") ?? "support"
             };
 
-            _session!.SetString("permissions", _session!.GetString("developerPermissions") ?? "");
-            _session!.Remove("developerToken");
-            _session!.Remove("developerGroupName");
-            _session!.Remove("developerPermissions");
+            _session!.SetString("permissions", _session!.GetString("suppPermissions") ?? "");
+            _session!.Remove("suppToken");
+            _session!.Remove("suppGroupName");
+            _session!.Remove("suppPermissions");
             _memoryCache.Remove($"groups_{_session!.Id}");
 
-            _logger.LogInformation("Utvecklare {developer} återgick från granskningsläge vid: {time}.", impersonating, DateTime.Now.ToString("g"));
+            _logger.LogInformation("Utvecklare {moderator} återgick från granskningsläge vid: {time}.", impersonating, DateTime.Now.ToString("g"));
 
             return Ok(authModel);
         }

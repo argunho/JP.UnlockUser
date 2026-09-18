@@ -141,9 +141,9 @@ public class LocalUserService(ILocalFileService localFileService,
 
     public async Task<User?> GetUserFromFile(string username)
     {
-        List<UserViewModel> employees = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
-        UserViewModel? user = employees?.FirstOrDefault(x => x.Username == username);
-        return user;
+        List<UserViewModel> moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+        UserViewModel? moderator = moderators?.FirstOrDefault(x => x.Username == username);
+        return moderator;
     }
 
     public async Task<List<Manager>> GetUsersManagers(string username, string groupName)

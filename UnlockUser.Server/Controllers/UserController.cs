@@ -164,14 +164,14 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     {
         try
         {
-            List<School> schools = [];
+            List<SchoolViewModel> schools = [];
             List<ViewModel> managers = [];
             var username = _credentialsService.GetClaim("username");
             var user = await _localUserService.GetUserFromFile(username!);
             if (user == null)
                 return Ok(new { schools, managers });
 
-            schools = [.. (await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools"))?
+            schools = [.. (await _localFileService.GetEncryptedFile<List<SchoolViewModel>>("catalogs/schools"))?
                          .Where(x => (bool)(user.Permissions?.Schools.Contains(x.Name, StringComparer.OrdinalIgnoreCase))!) ?? []];
 
             var managersNames = user.Permissions?.Managers;

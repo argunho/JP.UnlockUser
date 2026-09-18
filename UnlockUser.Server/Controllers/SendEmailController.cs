@@ -22,14 +22,6 @@ public class SendEmailController(ILocalMailService service, IHelpService helpSer
             if (!ModelState.IsValid)
                 return Ok(_helpService.Invalid());
 
-            //var receivers = model.Group switch
-            //{
-            //    "Studenter" => "Students",
-            //    "Personal" => "Employee",
-            //    "Politiker" => "Politicians",
-            //    _ => null
-            //};
-
             HashSet<string> receivers = [];
             if (!string.IsNullOrEmpty(model.Group) && !string.Equals(model.Group, "Ingen", StringComparison.OrdinalIgnoreCase))
             {

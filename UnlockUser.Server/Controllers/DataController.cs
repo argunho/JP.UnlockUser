@@ -91,8 +91,8 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         return Ok();
     }
 
-    [HttpGet("groups/by/{name}")]
-    public async Task<IActionResult> GetGroupsByName(string name)
+    [HttpGet("groups/by/{group}")]
+    public async Task<IActionResult> GetGroupsByName(string group)
     {
         var username = _credentials.GetClaim("username");
 
@@ -101,7 +101,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         if (isLoading)
             await Task.WhenAny(_lockService.GetWaitTask(username!), Task.Delay(90000));
 
-        var group_members = GetCachedUsersGroup(name);
+        var group_members = GetCachedUsersGroup(group);
         if (group_members.Count > 0)
             return Ok(group_members);
 
@@ -113,9 +113,9 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                 var roles = claim_roles?.Split(',', StringSplitOptions.RemoveEmptyEntries);
                 bool openAccess = roles.Contains("Moderator", StringComparer.OrdinalIgnoreCase);
 
-                await _dashboardService.StoreUsersByGroup(username!, openAccess, [name]);
+                await _dashboardService.StoreUsersByGroup(username!, openAccess, [group]);
 
-                group_members = GetCachedUsersGroup(name);
+                group_members = GetCachedUsersGroup(group);
             }
             catch (Exception ex)
             {

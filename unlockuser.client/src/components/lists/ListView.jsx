@@ -1,12 +1,13 @@
 // Installed
 import { List, ListItem, ListItemText, ListItemAvatar, Avatar } from '@mui/material';
 
-function ListView({ list, avatar }) {
+function ListView({ list: items, avatar, fullWith = true }) {
 
     return (
-        <List className="w-100">
-            {list.map((item, index) => {
-                return <ListItem key={index}>
+        <List className="d-row w-100" style={{ flexWrap: "wrap" }}>
+            {items.map((item, index) => {
+                return <ListItem key={index} 
+                    className={`list-item${fullWith || ((index + 1) === items?.length && (items?.length % 2) !== 0) ? " w-100 last" : ""}`}>
                     {avatar && <ListItemAvatar>
                         <Avatar>
                             {avatar}

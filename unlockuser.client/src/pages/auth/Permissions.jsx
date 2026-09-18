@@ -11,7 +11,6 @@ import Message from '../../components/blocks/Message';
 // Functions
 import { Claim } from '../../functions/DecodedToken';
 
-
 function Permissions() {
 
     const { schools, managers } = useLoaderData();
@@ -30,12 +29,12 @@ function Permissions() {
             <div className="form-wrapper w-100">
                 {schools?.length > 0 && <>
                     <Typography mt={2} variant="h5">Studenter</Typography>
-                    <ListView list={schools} avatar={<School />} />
+                    <ListView list={schools} avatar={<School />} fullWith={false} />
                 </>}
 
                 {managers?.length > 0 && <>
                     <Typography mt={3} variant="h5">Personal</Typography>
-                    <ListView list={managers} avatar={<MapsHomeWork />} />
+                    <ListView list={managers} avatar={<MapsHomeWork />} fullWith={false} />
                 </>}
             </div>
         </>

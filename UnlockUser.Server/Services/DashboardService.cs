@@ -30,10 +30,10 @@ public class DashboardService(
             List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
             // Saved employees who have permission to manage employee passwords
-            var savedModerators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+            var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
 
             // Currentsession user permissions
-            var sessionUserPermissions = savedModerators.FirstOrDefault(x => x.Username == username)?.Permissions;
+            var sessionUserPermissions = moderators.FirstOrDefault(x => x.Username == username)?.Permissions;
 
             // Lopp of all employees groups
             foreach (var group in passwordManageGroups)
@@ -80,7 +80,7 @@ public class DashboardService(
 
                     // Filter the list of saved employees according to the current password management group
                     // Update permissions in all users of the current password management group based on the filtered saved users
-                    foreach (var m in savedModerators)
+                    foreach (var m in moderators)
                     {
                         var user = employees?.FirstOrDefault(x => x.Username == m.Username);
                         if (user == null)

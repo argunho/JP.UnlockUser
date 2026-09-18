@@ -1,0 +1,5 @@
+2026-09-17 21:02:32.796 +02:00 [ERR] DashboardService. Felmeddelande: startIndex cannot be larger than length of string. (Parameter 'startIndex')
+2026-09-17 21:02:48.080 +02:00 [ERR] DashboardService. Felmeddelande: startIndex cannot be larger than length of string. (Parameter 'startIndex')
+2026-09-17 21:02:50.468 +02:00 [ERR] DashboardService. Felmeddelande: startIndex cannot be larger than length of string. (Parameter 'startIndex')
+2026-09-17 21:32:26.592 +02:00 [ERR] DashboardService. Felmeddelande: startIndex cannot be larger than length of string. (Parameter 'startIndex')
+2026-09-17 21:32:52.210 +02:00 [ERR] DashboardService. Felmeddelande: startIndex cannot be larger than length of string. (Parameter 'startIndex')
