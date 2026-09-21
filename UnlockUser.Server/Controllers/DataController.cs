@@ -148,7 +148,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             if (isLoading)
                 await Task.WhenAny(_lockService.GetWaitTask(username!), Task.Delay(90000));
 
-            var group_members = await GetCachedUsersGroup(group);
+            group_members = await GetCachedUsersGroup(group);
             return Ok(group_members);
 
         }
