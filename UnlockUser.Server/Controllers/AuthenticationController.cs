@@ -58,6 +58,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
             var groups = string.Join(",", permissionGroups!.Select(x => x.Name));
 
+            //model.Username = "970117arij"; //// !!!!!!!!!!
             var authorizedUser = _provider.FindUser(model!.Username!);
             if (authorizedUser == null)
                 return NotFound(_helpService.NotFound("Användaren"));
@@ -93,7 +94,8 @@ public class AuthenticationController(IADService provider, IConfiguration config
 
 
             // Get employees lis by user permissions groups 
-            _ = Task.Run(async () => await _dashboardService.StoreUsersByGroup(model.Username, currentModerator?.Permissions?.Groups, openAccess));
+            //_ = Task.Run(async () => await _dashboardService.StoreUsersByGroup(model.Username, currentModerator?.Permissions?.Groups, openAccess));
+           await _dashboardService.StoreUsersByGroup(model.Username, currentModerator?.Permissions?.Groups, openAccess);
 
 
             claims.Add(new("Email", authorizedUser.EmailAddress));

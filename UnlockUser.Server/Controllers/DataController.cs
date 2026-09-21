@@ -1,5 +1,4 @@
-﻿using Google.Apis.Admin.Directory.directory_v1.Data;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
@@ -96,6 +95,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     {
         try
         {
+            List<UserViewModel> group_members = [];
             if (impersonating)
             {
                 _memoryCache.TryGetValue(group, out List<UserViewModel>? users);
@@ -107,18 +107,38 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                     users = [.. users.Where(x => alternativeParams!.Contains(x.Office!, StringComparer.OrdinalIgnoreCase))];
                 else
                 {
-                    users = [.. users.Where(x =>
+                    List<string> approvedEmployeeUsernames = [];
+
+                    var approvedEmployees = await _localFileService.GetEncryptedFile<List<ApprovedEmployeeViewModel>>("catalogs/approved-employees") ?? [];
+                    if (approvedEmployees?.Count > 0)
                     {
-                        if (x.Manager == null) return false;
+                        approvedEmployees.RemoveAll(x => !x.Moderators!.Contains(username!));
+                        approvedEmployeeUsernames.AddRange([.. approvedEmployees.Select(s => s.Username!)]);
+                    }
+
+                    if(approvedEmployeeUsernames?.Count > 0)
+                        group_members = [.. users.Where(x => approvedEmployeeUsernames.Contains(x.Username!))];
+
+                   
+                    group_members.AddRange([.. users.Where(x =>
+                    {
+                        if (x.Manager == null || approvedEmployeeUsernames.Contains(x.Username!)) 
+                            return false;
+
                         var m = x.Manager.Trim();
+
                         // ensure there's enough length for a start index of 3
-                        if (m.Length <= 3) return false;
+                        if (m.Length <= 3) 
+                            return false;
                         var comma = m.IndexOf(',');
+
                         // ensure comma exists and is after the start index
-                        if (comma <= 3) return false;
+                        if (comma <= 3) 
+                            return false;
+
                         var part = m.Substring(3, comma - 3);
                         return alternativeParams!.Contains(part, StringComparer.OrdinalIgnoreCase);
-                    })];
+                    })]);
                 }
 
                 return Ok(users);
@@ -137,13 +157,6 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             await _helpService.Error(ex);
             return Ok();
         }
-
-
-        //if (group_members.Count > 0)
-        //await _dashboardService.StoreUsersByGroup();
-
-
-        //return Ok(group_members);
     }
     #endregion
 
@@ -280,14 +293,9 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     #region Private methods
     private async Task<List<UserViewModel>> GetCachedUsersGroup(string group)
     {
-        var isImpersonating = _credentials.GetClaim("Impersonating") != null;
 
         var group_members = new List<UserViewModel>();
         var id = HttpContext.Session.Id;
-
-        if (isImpersonating)
-            await _dashboardService.StoreUsersByGroup();
-
 
         if (_memoryCache.TryGetValue($"groups_{id}", out Dictionary<string, List<UserViewModel>>? cachedGroups))
         {

@@ -113,8 +113,28 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
                     users.Add(user!);
                 else if (isEmployee && !users.Exists(x => x.Username == user.Username!))
                 {
-                    if (alternativeParams!.Contains(user.Manager!.Trim()?[3..user.Manager.IndexOf(',')], StringComparer.OrdinalIgnoreCase) &&
-                        (approvedEmployeeUsernames.Count > 0 && approvedEmployeeUsernames.Contains(user.Username!)))
+                    if(approvedEmployeeUsernames.Count > 0 && approvedEmployeeUsernames.Contains(user.Username!))
+                    {
+                        users.Add(user);
+                        continue;
+                    }
+
+                    if (user.Manager == null) 
+                        continue;
+                    var m = user.Manager.Trim();
+
+                    // ensure there's enough length for a start index of 3
+                    if (m.Length <= 3)
+                        continue;
+                    var comma = m.IndexOf(',');
+
+                    // ensure comma exists and is after the start index
+                    if (comma <= 3)
+                        continue;
+
+                    var part = m.Substring(3, comma - 3);
+                    //(alternativeParams!.Contains(user.Manager!.Trim()?[3..user.Manager.IndexOf(',')], StringComparer.OrdinalIgnoreCase)
+                    if(alternativeParams!.Contains(part, StringComparer.OrdinalIgnoreCase))
                     {
                         users.Add(user);
                     }

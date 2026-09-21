@@ -59,10 +59,6 @@ public class DashboardService(
                 // Saved employees who have permission to manage employee passwords
                 var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
 
-
-                // Currentsession user permissions
-                //var sessionUserPermissions = moderators.FirstOrDefault(x => x.Username == username)?.Permissions;
-
                 // Lopp of all employees groups
                 foreach (var group in passwordManageGroups)
                 {

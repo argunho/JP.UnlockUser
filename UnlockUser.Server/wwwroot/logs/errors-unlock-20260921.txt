@@ -1,0 +1,2 @@
+2026-09-21 09:35:33.949 +02:00 [ERR] DashboardService. Failed to set up dashboard data. Error: startIndex cannot be larger than length of string. (Parameter 'startIndex')
+2026-09-21 09:58:56.729 +02:00 [ERR] DashboardService. Failed to set up dashboard data. Error: startIndex cannot be larger than length of string. (Parameter 'startIndex')
