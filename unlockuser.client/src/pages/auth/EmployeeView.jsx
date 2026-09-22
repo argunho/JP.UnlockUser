@@ -203,6 +203,9 @@ function EmployeeView() {
     }
 
     function handleShowByOffice(username) {
+        console.log(username)
+        if(!groupModels) return;
+        
         setOfficeManager(username);
         setCollapsed((collapsed) => !collapsed);
     }
@@ -215,13 +218,14 @@ function EmployeeView() {
     const isChanged = managersChanged || politiciansChanged || schoolsChanged || employeesChanged;
 
     const searchTerm = searchValue?.toLowerCase();
+    console.log("groupModels", groupModels)
     const employeesToView = searchValue?.length >= 3
         ? groupModels?.filter(x => x.username != moderator.username && !approvedUsernames.includes(x?.username)
             && [x?.primary, x?.username, x?.department, x?.office].some(field => field?.toLowerCase().includes(searchTerm)))
         : groupModels?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedUsernames.includes(x.username));
 
     const personalPermissions = permissions.groups?.includes("Personal");
-
+    console.log(personalPermissions, collapsed, employeesToView)
     return (
         <>
             {/* Action panel */}
@@ -251,7 +255,7 @@ function EmployeeView() {
                     classes={{
                         tooltip: "tooltip-info",
                         arrow: "tooltip-arrow-info"
-                    }} 
+                    }}
                     placement="left" arrow>
                     <Button
                         variant="outlined"
@@ -266,7 +270,11 @@ function EmployeeView() {
             </ActionButtons>
 
             {/* Hidden collapse block. Result of employee search */}
-            {personalPermissions && <Collapse in={searchValue?.length >= 3 || collapsed} className='d-row w-100' timeout="auto" unmountOnExit>
+            {personalPermissions && <Collapse
+                in={searchValue?.length >= 3 || collapsed}
+                className='d-row w-100'
+                timeout="auto"
+                unmountOnExit>
 
                 {/* List of employees */}
                 {employeesToView?.length > 0 && <List className="collapse-wrapper d-row jc-start w-100">
@@ -372,6 +380,7 @@ function EmployeeView() {
                                             </IconButton>}
                                     </li>
                                 })}
+
                                 {/* Personals managers list */}
                                 {(column === "Personal" && !disabled) && approved?.managers?.map((item, index) => (
                                     <li className="w-100 d-row jc-between" key={index}>

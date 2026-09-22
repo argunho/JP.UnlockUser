@@ -67,8 +67,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
             bool openAccess = false;
             bool limitedAccess = false;
 
-            List<string> roles = [];
-
+            HashSet<string> roles = [];
 
             void OpenAccess()
             {
@@ -132,7 +131,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
                 _session.SetString("adminUsername", model.Username);
             }
 
-            var authModel = ConfigureAuthModel(claims, roles, permissionGroups?.FirstOrDefault()?.Name!);
+            var authModel = ConfigureAuthModel(claims, [.. roles], permissionGroups?.FirstOrDefault()?.Name!);
 
             _logger.LogInformation("Autentisering utförd vid: {time}. Department: {department}. Office: {office}.", DateTime.Now.ToString("g"), authorizedUser.Department, authorizedUser.Office);
 

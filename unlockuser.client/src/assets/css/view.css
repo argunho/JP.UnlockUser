@@ -72,9 +72,9 @@ li.li-collapse .secondary-span {
     margin-top: 0 !important;
 }
 
-.view-list-wrapper>.li-disabled svg 
-.collapse-wrapper>.li-disabled svg {
-    margin-right: 20px;
+.view-list-wrapper>.li-disabled>svg 
+.collapse-wrapper>.li-disabled>svg {
+    margin-right: 30px !important;
 }
 
 

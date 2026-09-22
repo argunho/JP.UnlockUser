@@ -90,8 +90,9 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         return Ok();
     }
 
+    [HttpGet("groups/by/{group}")]
     [HttpGet("groups/by/{group}/{username}/{impersonating}")]
-    public async Task<IActionResult> GetGroupsByName(string group, string username, bool impersonating = false)
+    public async Task<IActionResult> GetGroupsByName(string group, string? username = null, bool impersonating = false)
     {
         try
         {
@@ -144,6 +145,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                 return Ok(users);
             }
 
+            username ??= _credentials.GetClaim("username");
             bool isLoading = _lockService.IsLocked(username!);
             if (isLoading)
                 await Task.WhenAny(_lockService.GetWaitTask(username!), Task.Delay(90000));
@@ -158,6 +160,8 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             return Ok();
         }
     }
+    
+    
     #endregion
 
     #region POST

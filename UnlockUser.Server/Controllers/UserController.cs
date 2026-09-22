@@ -39,7 +39,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     {
         try
         {
-            var (user, continueSearch) = await GetUserFromCache(group, key);
+            var (user, continueSearch) = await GetUserFromCache(key, group);
             if (!continueSearch || group == "Studenter")
                 return Ok(user);
 
@@ -93,14 +93,14 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         }
     }
 
-    [HttpGet("by/{username}")]
-    [Authorize(Roles = "ITGroup,DevelopTeam")]
-    public async Task<IActionResult> GetUserByUsername(string username)
+    [HttpGet("by/{key}")]
+    [Authorize(Roles = "ITGroup,DevelopTeam,KCGroup")]
+    public async Task<IActionResult> GetUserByUsername(string key)
     {
         try
         {
             var collection = new List<UserViewModel>();
-            var (user, continueSearch) = await GetUserFromCache("support", username);
+            var (user, continueSearch) = await GetUserFromCache(key);
             if (!continueSearch)
             {
                 if (user != null && user.Permissions?.Groups.Count > 0)
@@ -109,11 +109,11 @@ public class UserController(IADService provider, IWebHostEnvironment env,
                 return Ok(new { user, collection });
             }
 
-            var userPrincipal = _provider.FindUser(username);
+            var userPrincipal = _provider.FindUser(key);
             if (userPrincipal == null)
                 return NotFound(_helpService.NotFound("Användaren"));
 
-            var cachedUser = await _localUserService.GetUserFromFile(username);
+            var cachedUser = await _localUserService.GetUserFromFile(key);
             var modifiedUser = new UserViewModel(new User
             {
                 Username = userPrincipal.SamAccountName,
@@ -514,18 +514,16 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         await _googleService.UpdatePaswords(models);
     }
 
-    private async Task<(UserViewModel?, bool)> GetUserFromCache(string group, string key)
+    private async Task<(UserViewModel?, bool)> GetUserFromCache(string key, string? group = null)
     {
         var groupModels = new List<UserViewModel>();
-        var username = _credentialsService.GetClaim("username");
 
         var id = HttpContext.Session.Id;
         if (_memoryCache.TryGetValue(
             $"groups_{id}",
             out Dictionary<string, List<UserViewModel>>? cachedGroups))
         {
-            bool supportModel = string.Equals(group.ToString(), "Overview", StringComparison.OrdinalIgnoreCase);
-            if (supportModel)
+            if (string.IsNullOrEmpty(group))
             {
                 List<string?> groups = [.. _config.
                    GetSection("Groups")

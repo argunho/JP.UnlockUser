@@ -1,0 +1,1 @@
+﻿{"Id":"error_20260922150552","Source":"Error: System.Collections.Concurrent","Description":"Error: Value cannot be null. (Parameter \u0027key\u0027)\n\nPath to file: IServices\\RefreshLockService.cs\n\nLine number: 34\n\nMethod: IsLocked\n","Opened":false,"Date":"2026.09.22 15:05:52"}

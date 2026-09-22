@@ -58,7 +58,7 @@ function Overview() {
     const { fetchData, response } = use(FetchContext);
     const { groups, schools, managers, politicians } = user?.permissions ?? {};
 
-    const accessToPasswordManage = permissions.split(',').find(x => x === user.group) != null;
+    const accessToPasswordManage = permissions.split(',').find(x => x === user?.group) != null;
     const hasPermission = groups?.length > 0;
     const isEmployee = user?.passwordLength > 8;
 
