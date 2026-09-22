@@ -32,7 +32,10 @@ function AppLayout() {
   const [open, setOpen] = useState(!!modalMessage);
 
   const permissions = Claim("permissions")?.split(',');
-  const openAccess = Claim("openAccess");
+  const access =  {
+    open: Claim("openAccess"),
+    limited: Claim("limitedAccess")
+  }
 
   const urls = new Set(Links.filter(x => x.access).map(link => link.url));
 
@@ -48,7 +51,7 @@ function AppLayout() {
 
   useEffect(() => {
     if (((loc.pathname === "/search" || loc.pathname === "/") && !!permissions) 
-          || (urls.has(loc.pathname) && !openAccess)) { // 2026-08-28 16:05
+          || (urls.has(loc.pathname) && !access.open)) { // 2026-08-28 16:05
       navigate(`/search/${permissions?.[0]?.toLowerCase()}`, { replace: true });
     }
   }, [loc])

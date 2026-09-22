@@ -27,8 +27,13 @@ const Header = memo(function Header({ disabled, supportMode }) {
     const navigate = useNavigate();
     const loc = useLocation();
     const refMenu = useRef();
-    const { permissions, displayName, openAccess, impersonating } = DecodedClaims();
+    const { permissions, displayName, openAccess, limitedAccess, impersonating } = DecodedClaims();
     const groups = permissions != null ? permissions?.split(",") : [];
+    const access = openAccess || limitedAccess ?
+        {
+            open: openAccess,
+            limited: limitedAccess
+        } : null;
 
     // start: 2026-09-08
     const { fetchData } = use(FetchContext);
@@ -71,7 +76,7 @@ const Header = memo(function Header({ disabled, supportMode }) {
             sessionStorage.setItem("blinked", "ok");
     }
 
-    const switchMenuColor = loc.pathname.toLowerCase().includes("support") || supportMode;
+    const switchMenuColor = loc.pathname.toLowerCase().includes("overview") || supportMode;
 
     return (
         <header className='header-container w-100 d-column'>
@@ -96,11 +101,11 @@ const Header = memo(function Header({ disabled, supportMode }) {
                             {/* Menu */}
                             <span className="d-row">
                                 {/* Support */}
-                                {openAccess && <Button component={NavLink}
+                                {access && <Button component={NavLink}
                                     disabled={disabled}
                                     className="header-link"
-                                    to="/search/support"
-                                >Support</Button>}
+                                    to="/search/overview"
+                                >Översikt</Button>}
 
                                 {/* Groups */}
                                 {groups?.map((name, ind) => {
@@ -143,7 +148,7 @@ const Header = memo(function Header({ disabled, supportMode }) {
 
                         {/* Hidden menu */}
                         {open && <HiddenMenu
-                            openAccess={openAccess}
+                            access={access}
                             onClose={handleOpenMenu} />}
                     </div>
 

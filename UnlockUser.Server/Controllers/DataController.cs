@@ -299,7 +299,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 
         if (_memoryCache.TryGetValue($"groups_{id}", out Dictionary<string, List<UserViewModel>>? cachedGroups))
         {
-            bool supportModel = string.Equals(group.ToString(), "Support", StringComparison.OrdinalIgnoreCase);
+            bool supportModel = string.Equals(group.ToString(), "Overview", StringComparison.OrdinalIgnoreCase);
             if (supportModel)
             {
                 List<string?> groups = [.. _config.

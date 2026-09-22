@@ -8,7 +8,7 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/catalog")]
 [Route("api/catalogs")]
 [ApiController]
-[Authorize(Roles = "DevelopTeam,Manager,Moderator")]
+[Authorize(Roles = "DevelopTeam,Manager,ITGroup")]
 public class CatalogController(ILocalFileService localFileService, IHelpService helpService,
     IConfiguration config, ILocalUserService localUserService, IMemoryCache memoryCache,
     ILogger<CatalogController> logger) : ControllerBase
@@ -74,6 +74,9 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         try
         {
             List<Statistics> data = await _localFileService.GetEncryptedFile<List<Statistics>>("catalogs/statistics");
+            if (data == null || data?.Count == 0)
+                return Ok();
+
             List<ViewModel> list = [.. data?.OrderBy(x => x.Year).Select(s => new ViewModel {
                 Primary = s.Year.ToString(),
                 Secondary = $"Byten lösenord: {s.Months.Sum(s => s.PasswordsChange)}, Upplåst konto: {s.Months.Sum(s => s.Unlocked)}",
@@ -109,7 +112,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         try
         {
             var histories = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories");
-            if (histories.Count == 0)
+            if (histories == null || histories.Count == 0)
                 return Ok();
 
             var historiesToView = histories?.OrderByDescending(x => x.Date).Select(s => new ViewModel

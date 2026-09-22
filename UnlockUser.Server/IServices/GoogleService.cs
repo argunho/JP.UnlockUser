@@ -77,7 +77,7 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
             var usersViewModel = users?.Select(s => new UserViewModel(s)).ToList();
             if (usersViewModel?.Count > 0)
             {
-                _ = usersViewModel!.ConvertAll(x => x.Group = "Stundenter").ToList();
+                _ = usersViewModel!.ConvertAll(x => x.Group = "Studenter").ToList();
             }
 
             if(usersViewModel == null || usersViewModel.Count == 0)

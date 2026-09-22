@@ -13,7 +13,7 @@ import { Links } from '../../models/Links';
 // Css
 import '../../assets/css/hidden-menu.css';
 
-function HiddenMenu({ openAccess, onClose }) {
+function HiddenMenu({ access, onClose }) {
 
     return (
         <>
@@ -32,7 +32,7 @@ function HiddenMenu({ openAccess, onClose }) {
                     </div>
 
                     {/* Loop links */}
-                    {(openAccess ? Links : Links.filter(x => !x.access)).map((link, ind) => {
+                    {(access?.open ? Links : (access?.limited ? Links.filter(x => !x.permission) : Links.filter(x => !x.access))).map((link, ind) => {
                         return <NavLink
                             key={ind}
                             to={link.url}

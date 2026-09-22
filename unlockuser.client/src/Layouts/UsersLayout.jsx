@@ -93,7 +93,8 @@ function UsersLayout() {
                 {/* Tab menu */}
                 <TabPanel
                     primary={id ? moderator?.displayName : "Moderators"}
-                    secondary={secondaryRow} initialsView={!!id}>
+                    secondary={secondaryRow} 
+                    initialsView={!!id}>
 
                     {/* Tooltip message */}
                     {(id && showSearch) && <Tooltip title="Sök efter en anställd för att lägga till personen i listan över godkända anställda för den valda personen."

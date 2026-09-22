@@ -76,7 +76,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     }
 
     [HttpGet("saved/{username}")]
-    [Authorize(Roles = "Moderator, DevelopTeam")]
+    [Authorize(Roles = "ITGroup,DevelopTeam")]
     public async Task<IActionResult> GetCachedUser(string username)
     {
         try
@@ -94,7 +94,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     }
 
     [HttpGet("by/{username}")]
-    [Authorize(Roles = "Moderator, DevelopTeam")]
+    [Authorize(Roles = "ITGroup,DevelopTeam")]
     public async Task<IActionResult> GetUserByUsername(string username)
     {
         try
@@ -149,7 +149,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     }
 
     [HttpGet("groups")]
-    [Authorize(Roles = "DevelopTeam,Manager,Moderator")]
+    [Authorize(Roles = "DevelopTeam,Manager,ITGroup")]
     public List<string?> GetGrous()
     {
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
@@ -292,7 +292,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     }
 
     [HttpPut("update/permissions/{username}")]
-    [Authorize(Roles = "DevelopTeam,Manager,Moderator")]
+    [Authorize(Roles = "DevelopTeam,Manager,ITGroup")]
     public async Task<IActionResult> PutUpdateEmployeeSchool(string username, PermissionsViewModel model)
     {
         try
@@ -428,7 +428,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         _logger.LogInformation("Permission validation for the admin role.");
 
         // Check current user permission
-        if (!roles.Contains("Moderator", StringComparer.OrdinalIgnoreCase))
+        if (!roles.Contains("ITGroup", StringComparer.OrdinalIgnoreCase))
         {
             var permissionsJson = HttpContext.Session.GetString("permissions");
 
@@ -437,9 +437,19 @@ public class UserController(IADService provider, IWebHostEnvironment env,
                 : JsonConvert.DeserializeObject<PermissionsViewModel>(permissionsJson);
 
             string warningMessage = "Du saknar behörigheter att ändra lösenord till";
-            if (group!.Equals("Students", StringComparison.OrdinalIgnoreCase))
+            if (group!.Equals("Studenter", StringComparison.OrdinalIgnoreCase))
             {
-                if (!permissions!.Schools.Contains(office, StringComparer.OrdinalIgnoreCase))
+                bool isMatch = false;
+                foreach(var school in permissions!.Schools)
+                {
+                    if(office.StartsWith(school, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isMatch = true;
+                        break;
+                    }
+                }
+
+                if (!isMatch)
                     throw new Exception($"{warningMessage} {department} {office}");
             }
             else if (string.IsNullOrEmpty(userModel.Manager))
@@ -514,7 +524,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
             $"groups_{id}",
             out Dictionary<string, List<UserViewModel>>? cachedGroups))
         {
-            bool supportModel = string.Equals(group.ToString(), "Support", StringComparison.OrdinalIgnoreCase);
+            bool supportModel = string.Equals(group.ToString(), "Overview", StringComparison.OrdinalIgnoreCase);
             if (supportModel)
             {
                 List<string?> groups = [.. _config.

@@ -54,7 +54,7 @@ const messages = {
 function Overview() {
     const { user, collection } = useLoaderData();
 
-    const { permissions, openAccess } = DecodedClaims();
+    const { permissions, openAccess, limitedAccess } = DecodedClaims();
     const { fetchData, response } = use(FetchContext);
     const { groups, schools, managers, politicians } = user?.permissions ?? {};
 
@@ -90,9 +90,9 @@ function Overview() {
 
     // start: 2026-08-28 15:26
     useEffect(() => {
-        if (!openAccess)
+        if (!openAccess && !limitedAccess)
             navigate("/search", { replace: true });
-    }, [openAccess])
+    }, [openAccess, limitedAccess])
     // end
 
     async function onSubmit() {

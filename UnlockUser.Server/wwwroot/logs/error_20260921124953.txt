@@ -1,0 +1,1 @@
+﻿{"Id":"error_20260921124953","Source":"Error: UnlockUser.Server","Description":"Error: Du saknar beh\u00F6righeter att \u00E4ndra l\u00F6senord till \n\nPath to file: Controllers\\UserController.cs\n\nLine number: 447\n\nMethod: MoveNext\n","Opened":false,"Date":"2026.09.21 12:49:53"}

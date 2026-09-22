@@ -72,7 +72,7 @@ const AppRoutes = () => [
         errorElement: <ErrorView />
       },
       {
-        path: "search/support/view/user/:id",
+        path: "search/overview/view/user/:id",
         element: <Overview />,
         errorElement: <ErrorView />,
         loader: loaderById("user/by")

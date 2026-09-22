@@ -4,7 +4,7 @@ import { useEffect, useActionState, useState, use } from 'react';
 // Installed Checkbox, FormControlLabel,
 import { TextField, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import ContactSupportIcon from '@mui/icons-material/ContactSupport';
+import { ContactSupport } from '@mui/icons-material';
 
 // Components
 import Message from '../../components/blocks/Message';
@@ -122,7 +122,7 @@ function Login() {
 
     {/* contacts link button  */}
     <IconButton className="login-contacts-link" onClick={() => navigate("/contacts")} disabled={pending}>
-      <ContactSupportIcon />
+      <ContactSupport />
     </IconButton>
 
     {/* Response */}

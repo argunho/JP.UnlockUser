@@ -58,18 +58,40 @@ public class AuthenticationController(IADService provider, IConfiguration config
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
             var groups = string.Join(",", permissionGroups!.Select(x => x.Name));
 
-            //model.Username = "970117arij"; //// !!!!!!!!!!
+            //model.Username = "030827wild"; //// !!!!!!!!!!
             var authorizedUser = _provider.FindUser(model!.Username!);
             if (authorizedUser == null)
                 return NotFound(_helpService.NotFound("Användaren"));
 
-            List<string> roles = [];
-            if (_provider.MembershipCheck(authorizedUser, "Azure-Utvecklare Test"))
-                roles.Add("DevelopTeam");
+            List<Claim> claims = [];
+            bool openAccess = false;
+            bool limitedAccess = false;
 
-            if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning")
-                    || roles.Contains("DevelopTeam", StringComparer.OrdinalIgnoreCase))
-                roles.Add("Moderator");
+            List<string> roles = [];
+
+
+            void OpenAccess()
+            {
+                roles.Add("ITGroup");
+                claims.Add(new("OpenAccess", "ok"));
+                openAccess = true;
+            }
+
+            if (_provider.MembershipCheck(authorizedUser, "Azure-Utvecklare Test"))
+            {
+                roles.Add("DevelopTeam");
+                OpenAccess();
+            }
+            else if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning"))
+            {
+                OpenAccess();
+            }
+            else if (_provider.MembershipCheck(authorizedUser, "TEIS Kontaktcenter"))
+            {
+                roles.Add("KCGroup");
+                claims.Add(new("LimitedAccess", "ok"));
+                limitedAccess = true;
+            }
 
             var userGroups = _provider.GetUserGroups(authorizedUser);
             permissionGroups?.RemoveAll(x => !userGroups.Contains(x.PermissionGroup!));
@@ -78,24 +100,17 @@ public class AuthenticationController(IADService provider, IConfiguration config
             // Failed! Permission missed
             if (permissionGroups.Count == 0 && roles.Count == 0)
                 return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
+            else
+                roles.Add("Moderator");
 
             var moderators = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators");
             var currentModerator = moderators?.FirstOrDefault(x => x.Username != null && x.Username.Equals(authorizedUser?.Name.ToString(), StringComparison.OrdinalIgnoreCase));
             if (currentModerator != null)
                 _session!.SetString("permissions", JsonConvert.SerializeObject(currentModerator?.Permissions));
 
-            //var userManagers = moderators.Select(s => s.Managers).ToList();
-            //var userPermissions = moderators.Select(s => s.Permissions).ToList();
-
-            List<Claim> claims = [];
-            bool openAccess = roles.IndexOf("Moderator") > -1;
-            if (openAccess)
-                claims.Add(new("OpenAccess", "ok")); //
-
 
             // Get employees lis by user permissions groups 
-            //_ = Task.Run(async () => await _dashboardService.StoreUsersByGroup(model.Username, currentModerator?.Permissions?.Groups, openAccess));
-           await _dashboardService.StoreUsersByGroup(model.Username, currentModerator?.Permissions?.Groups, openAccess);
+            _ = Task.Run(async () => await _dashboardService.StoreUsersByGroup(model.Username, currentModerator?.Permissions?.Groups, openAccess || limitedAccess));
 
 
             claims.Add(new("Email", authorizedUser.EmailAddress));
@@ -117,18 +132,9 @@ public class AuthenticationController(IADService provider, IConfiguration config
                 _session.SetString("adminUsername", model.Username);
             }
 
+            var authModel = ConfigureAuthModel(claims, roles, permissionGroups?.FirstOrDefault()?.Name!);
+
             _logger.LogInformation("Autentisering utförd vid: {time}. Department: {department}. Office: {office}.", DateTime.Now.ToString("g"), authorizedUser.Department, authorizedUser.Office);
-
-            var jwtToken = JsonConvert.SerializeObject(_credentials.GenerateJwtToken(
-                    claims,
-                    _config["JwtSettings:Key"]!,
-                    [.. roles.Distinct()],
-                    false)
-                );
-
-            var authModel = JsonConvert.DeserializeObject<AuthViewModel>(jwtToken);
-
-            authModel?.GroupName = (permissionGroups?.FirstOrDefault()?.Name ?? "Support").ToLower();
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
             return Ok(authModel);
@@ -146,7 +152,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
     // (adding moderators, editing permissions, etc.) stay out of reach, and the
     // "Impersonating" claim is used by UserController to block password changes.
     [HttpPost("login-as/{username}")]
-    [Authorize(Roles = "Support,DevelopTeam")]
+    [Authorize(Roles = "Moderator,DevelopTeam")]
     public async Task<IActionResult> LoginAs(string username)
     {
         try
@@ -158,7 +164,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
 
             var suppUsername = _credentials.GetClaim("username");
             var suppGroupName = _credentials.GetClaim("permissions")?
-                .Split(',', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.ToLower() ?? "support";
+                .Split(',', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.ToLower() ?? "moderator";
 
             // Stash the support agent's own token/permissions so ResetLoginAs can restore them
             var authHeader = HttpContext.Request.Headers.Authorization.ToString();
@@ -173,16 +179,6 @@ public class AuthenticationController(IADService provider, IConfiguration config
 
             _session!.SetString("permissions", JsonConvert.SerializeObject(targetModerator.Permissions ?? new PermissionsViewModel()));
 
-            // start: 2026-09-18
-            // Support agent's cached group lists are keyed by session id, which stays the same across
-            // login-as. Drop the stale entry and rebuild it right away under the impersonated user's
-            // own permissions (openAccess: false), same as the eager warm-up PostLogin does.
-            //_memoryCache.Remove($"groups_{_session!.Id}");
-            //_ = Task.Run(async () =>
-            //{
-            //    await _dashboardService.StoreUsersByGroup(username, targetModerator.Permissions?.Groups, false);
-            //});
-            // end
 
             List<Claim> claims = [];
             claims.Add(new("Email", targetModerator.Email ?? ""));
@@ -196,15 +192,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
             claims.Add(new("Roles", ""));
             claims.Add(new("Impersonating", suppUsername ?? ""));
 
-            var jwtToken = JsonConvert.SerializeObject(_credentials.GenerateJwtToken(
-                    claims,
-                    _config["JwtSettings:Key"]!,
-                    [],
-                    false)
-                );
-
-            var authModel = JsonConvert.DeserializeObject<AuthViewModel>(jwtToken);
-            authModel?.GroupName = (targetModerator.Permissions?.Groups?.FirstOrDefault() ?? "Support").ToLower();
+            var authModel = ConfigureAuthModel(claims, [], targetModerator.Permissions!.Groups?.FirstOrDefault()!);
 
             _logger.LogInformation("Utvecklare {developer} loggade in som {username} vid: {time}.", suppUsername, username, DateTime.Now.ToString("g"));
 
@@ -297,7 +285,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
 
     #region Helpers
     // Protection against account blocking after several unsuccessful attempts to authenticate
-    public string? ProtectAccount(int attempt)
+    private string? ProtectAccount(int attempt)
     {
         var blockTime = _session?.GetString("LoginBlockTime") ?? null;
         if (attempt >= 3)
@@ -321,6 +309,21 @@ public class AuthenticationController(IADService provider, IConfiguration config
         var timeLeft = new DateTime(Math.Abs(timeLeftTicks));
 
         return timeLeft.ToString("T");
+    }
+
+    private AuthViewModel ConfigureAuthModel(List<Claim> claims, List<string> roles, string group = null)
+    {
+        var jwtToken = JsonConvert.SerializeObject(_credentials.GenerateJwtToken(
+         claims,
+         _config["JwtSettings:Key"]!,
+         [.. roles.Distinct()],
+         false)
+     );
+
+        var authModel = JsonConvert.DeserializeObject<AuthViewModel>(jwtToken);
+        authModel?.GroupName = (group ?? "overview").ToLower();
+
+        return authModel;
     }
     #endregion
 }

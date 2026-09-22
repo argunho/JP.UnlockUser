@@ -36,3 +36,251 @@
 2026-09-21 10:01:07.773 +02:00 [INF] Autentisering utförd vid: 2026-09-21 10:01. Department: UF Stab IT. Office: UF Stab IT.
 2026-09-21 10:01:34.578 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 10:01:34.
 2026-09-21 10:01:34.578 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 10:01:34.
+2026-09-21 10:56:21.797 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-21 10:56:22.012 +02:00 [INF] End save process. catalogs/managers
+2026-09-21 10:56:23.024 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-21 10:56:23.049 +02:00 [INF] End save process. catalogs/politicians
+2026-09-21 10:56:35.786 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-21 10:56:35.800 +02:00 [INF] End save process. catalogs/moderators
+2026-09-21 10:57:30.526 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 10:57:38.816 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-21 10:57:38.
+2026-09-21 10:57:46.440 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-21 10:57:46.
+2026-09-21 10:57:46.443 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-09-21 10:57:46.444 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-21 10:57:46.
+2026-09-21 10:57:46.446 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-21 10:57:46.
+2026-09-21 10:57:46.450 +02:00 [INF] Dashboard data setup completed.
+2026-09-21 10:57:46.463 +02:00 [INF] Autentisering utförd vid: 2026-09-21 10:57. Department: IT avdelning. Office: IT avdelning.
+2026-09-21 10:57:46.769 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 10:57:46.
+2026-09-21 10:57:46.769 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 10:57:46.
+2026-09-21 11:44:02.554 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-21 11:44:03.006 +02:00 [INF] End save process. catalogs/managers
+2026-09-21 11:44:04.033 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-21 11:44:04.062 +02:00 [INF] End save process. catalogs/politicians
+2026-09-21 11:44:19.127 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-21 11:44:19.145 +02:00 [INF] End save process. catalogs/moderators
+2026-09-21 11:44:50.382 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 11:44:50.802 +02:00 [INF] Autentisering utförd vid: 2026-09-21 11:44. Department: IT avdelning. Office: IT avdelning.
+2026-09-21 11:44:51.185 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 11:44:51.
+2026-09-21 11:44:51.185 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 11:44:51.
+2026-09-21 11:48:26.938 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-21 11:48:27.271 +02:00 [INF] End save process. catalogs/managers
+2026-09-21 11:48:28.287 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-21 11:48:28.321 +02:00 [INF] End save process. catalogs/politicians
+2026-09-21 11:48:40.479 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-21 11:48:40.522 +02:00 [INF] End save process. catalogs/moderators
+2026-09-21 11:49:21.585 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 11:49:29.991 +02:00 [INF] Autentisering utförd vid: 2026-09-21 11:49. Department: IT avdelning. Office: IT avdelning.
+2026-09-21 11:49:30.327 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 11:49:30.
+2026-09-21 11:49:30.327 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 11:49:30.
+2026-09-21 11:49:36.243 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-21 11:49:36.
+2026-09-21 11:49:58.701 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-21 11:49:58.
+2026-09-21 11:49:58.706 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-09-21 11:49:58.707 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-21 11:49:58.
+2026-09-21 11:49:58.710 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-21 11:49:58.
+2026-09-21 11:49:58.714 +02:00 [INF] Dashboard data setup completed.
+2026-09-21 11:53:57.607 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-21 11:53:57.951 +02:00 [INF] End save process. catalogs/managers
+2026-09-21 11:53:58.969 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-21 11:53:59.002 +02:00 [INF] End save process. catalogs/politicians
+2026-09-21 11:54:13.385 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-21 11:54:13.412 +02:00 [INF] End save process. catalogs/moderators
+2026-09-21 11:54:25.890 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 11:54:29.035 +02:00 [INF] Autentisering utförd vid: 2026-09-21 11:54. Department: IT avdelning. Office: IT avdelning.
+2026-09-21 11:54:29.422 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 11:54:29.
+2026-09-21 11:54:29.422 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 11:54:29.
+2026-09-21 11:54:35.847 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-21 11:54:35.
+2026-09-21 11:54:41.934 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-21 11:54:41.
+2026-09-21 11:54:41.937 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-09-21 11:54:41.939 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-21 11:54:41.
+2026-09-21 11:54:41.940 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-21 11:54:41.
+2026-09-21 11:54:41.944 +02:00 [INF] Dashboard data setup completed.
+2026-09-21 11:59:27.702 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-21 11:59:28.065 +02:00 [INF] End save process. catalogs/managers
+2026-09-21 11:59:29.077 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-21 11:59:29.111 +02:00 [INF] End save process. catalogs/politicians
+2026-09-21 11:59:37.995 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 11:59:38.127 +02:00 [INF] Autentisering utförd vid: 2026-09-21 11:59. Department: IT avdelning. Office: IT avdelning.
+2026-09-21 11:59:38.454 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 11:59:38.
+2026-09-21 11:59:38.454 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 11:59:38.
+2026-09-21 11:59:40.141 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-21 11:59:40.155 +02:00 [INF] End save process. catalogs/moderators
+2026-09-21 11:59:45.035 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-21 11:59:45.
+2026-09-21 11:59:50.022 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-21 11:59:50.
+2026-09-21 11:59:50.028 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-09-21 11:59:50.029 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-21 11:59:50.
+2026-09-21 11:59:50.030 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-21 11:59:50.
+2026-09-21 11:59:50.034 +02:00 [INF] Dashboard data setup completed.
+2026-09-21 12:01:28.845 +02:00 [INF] Password change initiated at 2026-09-21 12:01. Moderator: 790822asla
+2026-09-21 12:01:29.086 +02:00 [INF] Permission validation for the admin role.
+2026-09-21 12:01:30.670 +02:00 [INF] Permissions validated. Starting to set a new password for UnlockUser.Server.FormModels.UserFormModel at 2026-09-21 12:01.
+2026-09-21 12:01:38.942 +02:00 [INF] Password change finished at 2026-09-21 12:01. Moderator: 790822asla
+2026-09-21 12:46:29.673 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-21 12:46:29.969 +02:00 [INF] End save process. catalogs/managers
+2026-09-21 12:46:30.977 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-21 12:46:31.038 +02:00 [INF] End save process. catalogs/politicians
+2026-09-21 12:46:48.034 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-21 12:46:48.057 +02:00 [INF] End save process. catalogs/moderators
+2026-09-21 12:46:56.858 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 12:46:56.898 +02:00 [INF] Autentisering utförd vid: 2026-09-21 12:46. Department: UF Stab IT. Office: UF Stab IT.
+2026-09-21 12:46:57.213 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 12:46:57.
+2026-09-21 12:46:57.213 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 12:46:57.
+2026-09-21 12:47:03.280 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-21 12:47:03.
+2026-09-21 12:47:03.287 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-09-21 12:47:03.289 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-21 12:47:03.
+2026-09-21 12:47:03.292 +02:00 [INF] Gruppdata har laddats ner. Group: 2. Tid: 2026-09-21 12:47:03.
+2026-09-21 12:47:03.300 +02:00 [INF] Dashboard data setup completed.
+2026-09-21 12:48:40.509 +02:00 [INF] Password change initiated at 2026-09-21 12:48. Moderator: 970117arij
+2026-09-21 12:48:41.323 +02:00 [INF] Permission validation for the admin role.
+2026-09-21 12:50:33.674 +02:00 [INF] Password change initiated at 2026-09-21 12:50. Moderator: 970117arij
+2026-09-21 12:50:33.916 +02:00 [INF] Permission validation for the admin role.
+2026-09-21 12:59:01.163 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-21 12:59:01.320 +02:00 [INF] End save process. catalogs/managers
+2026-09-21 12:59:02.338 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-21 12:59:02.358 +02:00 [INF] End save process. catalogs/politicians
+2026-09-21 12:59:18.858 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-21 12:59:18.887 +02:00 [INF] End save process. catalogs/moderators
+2026-09-21 13:19:46.488 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-21 13:19:46.664 +02:00 [INF] End save process. catalogs/managers
+2026-09-21 13:19:47.680 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-21 13:19:47.701 +02:00 [INF] End save process. catalogs/politicians
+2026-09-21 13:20:04.550 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-21 13:20:04.564 +02:00 [INF] End save process. catalogs/moderators
+2026-09-21 13:23:15.493 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 13:23:15.530 +02:00 [INF] Autentisering utförd vid: 2026-09-21 13:23. Department: IT avdelning. Office: IT avdelning.
+2026-09-21 13:23:15.863 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 13:23:15.
+2026-09-21 13:23:15.863 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 13:23:15.
+2026-09-21 13:23:20.219 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-21 13:23:20.
+2026-09-21 13:23:25.039 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-21 13:23:25.
+2026-09-21 13:23:25.042 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-09-21 13:23:25.043 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-21 13:23:25.
+2026-09-21 13:23:25.044 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-21 13:23:25.
+2026-09-21 13:23:25.047 +02:00 [INF] Dashboard data setup completed.
+2026-09-21 13:54:24.350 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 13:54:24.354 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-21 13:54:24.
+2026-09-21 13:54:24.357 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-21 13:54:24.
+2026-09-21 13:54:24.359 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-21 13:54:24.
+2026-09-21 13:54:24.360 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-21 13:54:24.
+2026-09-21 13:54:24.361 +02:00 [INF] Dashboard data setup completed.
+2026-09-21 13:54:24.362 +02:00 [INF] Autentisering utförd vid: 2026-09-21 13:54. Department: IT avdelning. Office: IT avdelning.
+2026-09-21 13:54:24.571 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 13:54:24.
+2026-09-21 13:54:24.571 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 13:54:24.
+2026-09-21 13:55:16.118 +02:00 [INF] Password change initiated at 2026-09-21 13:55. Moderator: 790822asla
+2026-09-21 13:55:16.573 +02:00 [INF] Permission validation for the admin role.
+2026-09-21 13:56:28.749 +02:00 [INF] Permissions validated. Starting to set a new password for UnlockUser.Server.FormModels.UserFormModel at 2026-09-21 13:56.
+2026-09-21 13:58:19.797 +02:00 [INF] Password change finished at 2026-09-21 13:58. Moderator: 790822asla
+2026-09-21 15:08:36.533 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-21 15:08:36.718 +02:00 [INF] End save process. catalogs/managers
+2026-09-21 15:08:37.734 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-21 15:08:37.762 +02:00 [INF] End save process. catalogs/politicians
+2026-09-21 15:08:48.437 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-21 15:08:48.454 +02:00 [INF] End save process. catalogs/moderators
+2026-09-21 15:09:24.676 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-21 15:09:24.840 +02:00 [INF] End save process. catalogs/managers
+2026-09-21 15:09:25.846 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-21 15:09:25.869 +02:00 [INF] End save process. catalogs/politicians
+2026-09-21 15:09:35.969 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 15:09:36.101 +02:00 [INF] Autentisering utförd vid: 2026-09-21 15:09. Department: UF Stab IT. Office: UF Stab IT.
+2026-09-21 15:09:36.461 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 15:09:36.
+2026-09-21 15:09:36.461 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 15:09:36.
+2026-09-21 15:09:39.533 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-21 15:09:39.542 +02:00 [INF] End save process. catalogs/moderators
+2026-09-21 15:09:42.812 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-21 15:09:42.
+2026-09-21 15:09:51.420 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-21 15:09:51.
+2026-09-21 15:09:51.422 +02:00 [INF] Gruppdata har laddats ner. Group: 2. Tid: 2026-09-21 15:09:51.
+2026-09-21 15:09:51.425 +02:00 [INF] Dashboard data setup completed.
+2026-09-21 15:10:39.084 +02:00 [INF] Password change initiated at 2026-09-21 15:10. Moderator: 970117arij
+2026-09-21 15:15:08.274 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-21 15:15:09.050 +02:00 [INF] End save process. catalogs/managers
+2026-09-21 15:15:10.469 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-21 15:15:10.558 +02:00 [INF] End save process. catalogs/politicians
+2026-09-21 15:15:28.374 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-21 15:15:28.401 +02:00 [INF] End save process. catalogs/moderators
+2026-09-21 15:16:04.339 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 15:16:04.425 +02:00 [INF] Autentisering utförd vid: 2026-09-21 15:16. Department: UF Stab IT. Office: UF Stab IT.
+2026-09-21 15:16:05.322 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 15:16:05.
+2026-09-21 15:16:05.322 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 15:16:05.
+2026-09-21 15:16:14.506 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-21 15:16:14.
+2026-09-21 15:16:14.514 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-09-21 15:16:14.516 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-21 15:16:14.
+2026-09-21 15:16:14.518 +02:00 [INF] Gruppdata har laddats ner. Group: 2. Tid: 2026-09-21 15:16:14.
+2026-09-21 15:16:14.526 +02:00 [INF] Dashboard data setup completed.
+2026-09-21 15:16:43.616 +02:00 [INF] Password change initiated at 2026-09-21 15:16. Moderator: 970117arij
+2026-09-21 15:16:44.206 +02:00 [INF] Permission validation for the admin role.
+2026-09-21 15:20:09.297 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-21 15:20:09.552 +02:00 [INF] End save process. catalogs/managers
+2026-09-21 15:20:10.564 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-21 15:20:10.607 +02:00 [INF] End save process. catalogs/politicians
+2026-09-21 15:20:17.951 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 15:20:18.090 +02:00 [INF] Autentisering utförd vid: 2026-09-21 15:20. Department: UF Stab IT. Office: UF Stab IT.
+2026-09-21 15:20:18.381 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 15:20:18.
+2026-09-21 15:20:18.381 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 15:20:18.
+2026-09-21 15:20:25.178 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-21 15:20:25.189 +02:00 [INF] End save process. catalogs/moderators
+2026-09-21 15:20:25.532 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-21 15:20:25.
+2026-09-21 15:20:34.485 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-21 15:20:34.
+2026-09-21 15:20:34.487 +02:00 [INF] Gruppdata har laddats ner. Group: 2. Tid: 2026-09-21 15:20:34.
+2026-09-21 15:20:34.490 +02:00 [INF] Dashboard data setup completed.
+2026-09-21 15:20:56.068 +02:00 [INF] Password change initiated at 2026-09-21 15:20. Moderator: 970117arij
+2026-09-21 15:20:56.397 +02:00 [INF] Permission validation for the admin role.
+2026-09-21 15:21:15.886 +02:00 [INF] Permissions validated. Starting to set a new password for UnlockUser.Server.FormModels.UserFormModel at 2026-09-21 15:21.
+2026-09-21 15:21:22.757 +02:00 [INF] Password change finished at 2026-09-21 15:21. Moderator: 970117arij
+2026-09-21 19:13:43.932 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-21 19:13:44.071 +02:00 [INF] End save process. catalogs/managers
+2026-09-21 19:13:45.080 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-21 19:13:45.099 +02:00 [INF] End save process. catalogs/politicians
+2026-09-21 19:16:06.024 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 19:16:06.196 +02:00 [INF] Autentisering utförd vid: 2026-09-21 19:16. Department: IT avdelning. Office: IT avdelning.
+2026-09-21 19:16:06.503 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 19:16:06.
+2026-09-21 19:16:06.503 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 19:16:06.
+2026-09-21 19:16:20.017 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-21 19:16:20.
+2026-09-21 19:16:35.162 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-21 19:16:35.
+2026-09-21 19:16:45.310 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-21 19:16:45.
+2026-09-21 19:16:45.312 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-21 19:16:45.
+2026-09-21 19:16:45.317 +02:00 [INF] Dashboard data setup completed.
+2026-09-21 19:16:56.226 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-21 19:16:56.237 +02:00 [INF] End save process. catalogs/moderators
+2026-09-21 19:16:56.239 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-09-21 19:19:03.799 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-21 19:19:03.956 +02:00 [INF] End save process. catalogs/managers
+2026-09-21 19:19:04.960 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-21 19:19:04.989 +02:00 [INF] End save process. catalogs/politicians
+2026-09-21 19:20:37.238 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-21 19:20:37.254 +02:00 [INF] End save process. catalogs/moderators
+2026-09-21 19:20:47.838 +02:00 [INF] Starting process to save file catalogs/histories
+2026-09-21 19:20:47.844 +02:00 [INF] End save process. catalogs/histories
+2026-09-21 19:21:14.473 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 19:21:14.569 +02:00 [INF] Autentisering utförd vid: 2026-09-21 19:21. Department: IT avdelning. Office: IT avdelning.
+2026-09-21 19:21:14.913 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 19:21:14.
+2026-09-21 19:21:14.913 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 19:21:14.
+2026-09-21 19:21:28.616 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-21 19:21:28.
+2026-09-21 19:21:43.852 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-21 19:21:43.
+2026-09-21 19:21:43.856 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-09-21 19:21:43.857 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-21 19:21:43.
+2026-09-21 19:21:43.858 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-21 19:21:43.
+2026-09-21 19:21:43.863 +02:00 [INF] Dashboard data setup completed.
+2026-09-21 19:29:10.635 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-21 19:29.
+2026-09-21 19:30:13.223 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-09-21 19:30.
+2026-09-21 20:15:27.216 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 20:15:27.
+2026-09-21 20:15:27.216 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 20:15:27.
+2026-09-21 20:24:16.637 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 20:24:16.
+2026-09-21 20:24:16.637 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 20:24:16.
+2026-09-21 20:28:12.616 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 20:32:31.154 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 20:35:23.759 +02:00 [INF] Autentisering utförd vid: 2026-09-21 20:35. Department: Kontaktcenter. Office: Kontaktcenter.
+2026-09-21 20:35:24.105 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 20:35:24.
+2026-09-21 20:35:24.106 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 20:35:24.
+2026-09-21 20:37:41.133 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 20:44:41.543 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 20:44:44.575 +02:00 [INF] Autentisering utförd vid: 2026-09-21 20:44. Department: Kontaktcenter. Office: Kontaktcenter.
+2026-09-21 20:44:44.971 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 20:44:44.
+2026-09-21 20:44:44.971 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 20:44:44.
+2026-09-21 20:47:06.988 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 20:55:07.231 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-21 20:55:18.820 +02:00 [INF] Autentisering utförd vid: 2026-09-21 20:55. Department: Kontaktcenter. Office: Kontaktcenter.
+2026-09-21 20:55:19.165 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 20:55:19.
+2026-09-21 20:55:19.165 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-21 20:55:19.
+2026-09-21 20:55:33.141 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-21 20:55:33.
+2026-09-21 20:55:47.104 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-21 20:55:47.
+2026-09-21 20:56:00.327 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-21 20:56:00.
+2026-09-21 20:56:00.329 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-21 20:56:00.
+2026-09-21 20:56:00.334 +02:00 [INF] Dashboard data setup completed.

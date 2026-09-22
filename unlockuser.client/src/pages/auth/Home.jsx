@@ -229,20 +229,32 @@ function Home() {
 
         const accounts = groupAccountsRef.current;
 
+        // start: 2026-09-22
+        // Shared predicate for the two near-identical filters below.
+        // checkUsernameOnMatch keeps the small behavior difference between the two original branches.
+        const matchesKey = (x, { checkUsernameOnMatch = false } = {}) => {
+            const displayName = x?.displayName?.toLowerCase();
+            const username = x?.username?.toLowerCase();
+
+            if (match)
+                return checkUsernameOnMatch ? (displayName === key || username === key) : displayName === key;
+
+            const email = x?.email?.toLowerCase();
+            return displayName?.includes(key) || email?.startsWith(key.replace(" ", ".")) || username?.startsWith(key);
+        };
+        // end
+
         let res = null;
         if (accounts?.length > 0) {
-            if (gn === "support") {
+            if (gn === "overview") {
                 if (byOffice)
                     res = accounts?.filter(x => x?.office?.toLowerCase().includes(key));
                 else
-                    res = accounts?.filter(x => (match ? x?.displayName?.toLowerCase() === key :
-                        (x?.displayName?.toLowerCase().includes(key) || x.email?.toLowerCase().startsWith(key.replace(" ", ".")))));
+                    res = accounts?.filter(x => matchesKey(x, { checkUsernameOnMatch: true })); // 2026-09-22
             } else {
                 res = (isClass)
                     ? accounts?.filter(x => x?.department?.toLowerCase() === key && x?.office?.startsWith(school))?.sort((a, b) => a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase()))
-                    : accounts?.filter(x => (match ? x?.displayName?.toLowerCase() === key :
-                        (x?.displayName?.toLowerCase().includes(key) || x.email?.toLowerCase().startsWith(key.replace(" ", "."))))
-                        && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0)));
+                    : accounts?.filter(x => matchesKey(x) && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0))); // 2026-09-22
 
                 // start: 2026-08-27 09:57
                 if (isClass && res?.length > 0 && res.find(x => !x.lastLoginTime) !== null) {
@@ -336,13 +348,13 @@ function Home() {
                     autoSave="off"
                     defaultValue={formState?.name ?? ""}
                     onChange={onChange}
-                    className={`${gn !== "support" ? "search-wrapper " : ""}w-100`}
+                    className={`${gn !== "overview" ? "search-wrapper " : ""}w-100`}
                     InputProps={{
                         maxLength: 30,
                         minLength: 2,
                         endAdornment: <InputAdornment position="end">
                             {/* Checkbox and search by office */}
-                            {gn === "support" && <FormControlLabel
+                            {gn === "overview" && <FormControlLabel
                                 control={<Checkbox
                                     name="match"
                                     disabled={pending}
@@ -401,7 +413,7 @@ function Home() {
                 />
 
                 {/* Choose group */}
-                {(permissionGroups?.length > 1 && gn !== "support") && <DropdownMenu
+                {(permissionGroups?.length > 1 && gn !== "overview") && <DropdownMenu
                     label="Hanteras"
                     list={permissionGroups}
                     value={group ? group : ""}
@@ -411,7 +423,7 @@ function Home() {
 
 
             {/* Radio buttons to choice one of search alternatives */}
-            {(gn === "studenter" && gn !== "support") && <FormControl className="actions-wrapper d-row ai-end w-100">
+            {(gn === "studenter" && gn !== "overview") && <FormControl className="actions-wrapper d-row ai-end w-100">
                 <RadioGroup
                     row
                     name="row-radio-buttons-group">

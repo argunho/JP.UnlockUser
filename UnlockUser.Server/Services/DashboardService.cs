@@ -26,21 +26,22 @@ public class DashboardService(
     private readonly ILogger<DashboardService> _logger = logger;
 
 
-    public async Task StoreUsersByGroup(string? username = null, List<string>? sessionUserGroups = null, bool openAccess = false)
+    public async Task StoreUsersByGroup(string? username = null, List<string>? sessionUserGroups = null, bool access = false)
     {
         _logger.LogInformation("Starting asynchronous dashboard data setup.");
 
         // Session users calims data
         if (string.IsNullOrEmpty(username))
         {
-            var claims = _credentials.GetClaims(["username", "openAccess", "permissions"]);
+            var claims = _credentials.GetClaims(["username", "openAccess", "limitedAccess", "permissions"]);
             if (claims == null)
             {
                 _logger.LogWarning("No claims available from credentials; aborting StoreUsersByGroup.");
                 return;
             }
             claims.TryGetValue("username", out username);
-            openAccess = claims!.TryGetValue("openAccess", out string? access) && bool.Parse(access);
+            access = (claims!.TryGetValue("openAccess", out string? _access)
+                    || claims!.TryGetValue("limitedAccess", out _access)) && bool.Parse(_access);
             sessionUserGroups ??= claims!.TryGetValue("permissions", out string? permissions) ? [.. permissions.Split(',')] : [];
         }
 
@@ -63,10 +64,10 @@ public class DashboardService(
                 foreach (var group in passwordManageGroups)
                 {
                     // If the user is not a member of the support group and not a member of the current password management group, continue
-                    if (!openAccess && !sessionUserGroups!.Contains(group.Name, StringComparer.OrdinalIgnoreCase))
+                    if (!access && !sessionUserGroups!.Contains(group.Name, StringComparer.OrdinalIgnoreCase))
                         continue;
 
-                    var (alternativeParams, isStudents) = await GetParams(group.Name!, username, openAccess);
+                    var (alternativeParams, isStudents) = await GetParams(group.Name!, username, access);
 
 
                     var cacheKey = (alternativeParams.Count > 0) ? $"{group.Name}:{username}" : $"{group.Name}".ToLower();
@@ -147,7 +148,7 @@ public class DashboardService(
         List<string>? alternativeParams = [];
 
         // Verify whether the current password management group is the student group
-        bool isStudents = string.Equals(group, "Students", StringComparison.OrdinalIgnoreCase) 
+        bool isStudents = string.Equals(group, "Students", StringComparison.OrdinalIgnoreCase)
             || string.Equals(group, "studenter", StringComparison.OrdinalIgnoreCase);
 
         // If the user is not a member of the support group set limited params
