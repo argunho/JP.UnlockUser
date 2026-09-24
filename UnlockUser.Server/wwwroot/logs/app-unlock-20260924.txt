@@ -120,3 +120,24 @@
 2026-09-24 10:57:17.613 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-24 10:57:17.
 2026-09-24 10:57:17.617 +02:00 [INF] Dashboard data setup completed.
 2026-09-24 10:59:06.269 +02:00 [INF] Utvecklare 810305fred loggade in som 810305fred vid: 2026-09-24 10:59.
+2026-09-24 12:37:05.505 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-24 12:37:05.683 +02:00 [INF] Autentisering utförd vid: 2026-09-24 12:37. Department: IT avdelning. Office: IT avdelning.
+2026-09-24 12:37:06.072 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-24 12:37:06.
+2026-09-24 12:37:06.072 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-24 12:37:06.
+2026-09-24 12:37:23.790 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-24 12:37:23.
+2026-09-24 12:37:37.245 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-24 12:37:37.
+2026-09-24 12:37:49.584 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-24 12:37:49.
+2026-09-24 12:37:49.586 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-24 12:37:49.
+2026-09-24 12:37:49.591 +02:00 [INF] Dashboard data setup completed.
+2026-09-24 12:40:32.368 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-24 12:40.
+2026-09-24 12:48:24.355 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-24 12:48:24.498 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-09-24 12:48. Department: IT avdelning. Office: IT avdelning.
+2026-09-24 12:48:32.194 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-24 12:48:32.
+2026-09-24 12:48:32.194 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-24 12:48:32.
+2026-09-24 12:48:43.509 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-24 12:48:43.
+2026-09-24 12:49:02.104 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-24 12:49:02.
+2026-09-24 12:49:12.862 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-24 12:49:12.
+2026-09-24 12:49:12.867 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-24 12:49:12.
+2026-09-24 12:49:12.873 +02:00 [INF] Dashboard data setup completed.
+2026-09-24 12:50:23.319 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-09-24 12:50.
+2026-09-24 12:50:50.796 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-09-24 12:50.

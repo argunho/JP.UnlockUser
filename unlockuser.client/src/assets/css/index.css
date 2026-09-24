@@ -50,6 +50,7 @@ body {
     min-height: 100vh;
     position: relative;
     overflow: visible;
+    overflow-y: visible !important;
 }
 
 div#root {

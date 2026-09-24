@@ -470,7 +470,8 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         Data sessionUserData = await GetLogData(group!, office!, department!);
         var message = new StringBuilder();
 
-        _logger.LogInformation("Permissions validated. Starting to set a new password for {users} at {dateTime}.", string.Join(",", userModels), DateTime.Now.ToString("g"));
+        _logger.LogInformation("Permissions validated. Starting to set a new password for {users} at {dateTime}.", 
+            string.Join(",", userModels.Select(s => s.Username).ToList()), DateTime.Now.ToString("g"));
 
         // Set password to class students
         foreach (var user in userModels!)

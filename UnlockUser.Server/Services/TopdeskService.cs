@@ -8,7 +8,7 @@ public partial class TopdeskService
 {
     private static readonly string _baseURL = "https://alvesta.topdesk.net/tas/api/";
     private static readonly string _username = "api_servicedesk";
-    private static readonly string _password = Environment.GetEnvironmentVariable("TOPDESK_PASSWORD") ?? ""; // 2026-09-24
+    private static readonly string _password = Environment.GetEnvironmentVariable("TopdeskPassword") ?? ""; // 2026-09-24
 
     public static async Task<Dictionary<string, object>?> SendData<T>(T? data, string api, HttpMethod? method = null) where T : class
     {

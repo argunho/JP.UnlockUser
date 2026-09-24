@@ -145,6 +145,8 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                         var part = m.Substring(3, comma - 3);
                         return alternativeParams!.Contains(part, StringComparer.OrdinalIgnoreCase);
                     })]);
+
+                    return Ok(group_members);
                 }
 
                 return Ok(users);

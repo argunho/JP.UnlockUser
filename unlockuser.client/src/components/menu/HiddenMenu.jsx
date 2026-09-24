@@ -61,7 +61,7 @@ function HiddenMenu({ access, onClose }) {
                         return <NavLink
                             key={ind}
                             {...props}
-                            className={({ isActive }) => `hm-link d-row jc-start w-100 "${isActive ? " active" : ""}${(link?.blink && !sessionStorage.getItem("blinked")) ? " blink-color" : ""}`}>
+                            className={({ isActive }) => `hm-link d-row jc-start w-100 "${(isActive && link?.url) ? " active" : ""}${(link?.blink && !sessionStorage.getItem("blinked")) ? " blink-color" : ""}`}>
                             <link.icon /> {link.label}
                         </NavLink>
                     })}

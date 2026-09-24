@@ -135,7 +135,8 @@ public class AuthenticationController(IADService provider, IConfiguration config
 
             var authModel = ConfigureAuthModel(claims, [.. roles], permissionGroups?.FirstOrDefault()?.Name!);
 
-            _logger.LogInformation("Autentisering utförd vid: {time}. Department: {department}. Office: {office}.", DateTime.Now.ToString("g"), authorizedUser.Department, authorizedUser.Office);
+            _logger.LogInformation("Autentisering utförd vid: {time}. User: {username}. Department: {department}. Office: {office}.", 
+                model.Username, DateTime.Now.ToString("g"), authorizedUser.Department, authorizedUser.Office);
 
             // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
             return Ok(authModel);
