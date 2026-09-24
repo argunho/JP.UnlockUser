@@ -24,7 +24,7 @@ public class TopdeskController(
 
 
     #region POST
-    [HttpPost("case/kc")]
+    [HttpPost("case/kc-group")]
     [Authorize(Roles = "Developteam,ITGroup,KCGroup")]
     public async Task<IActionResult> PostKCCase(CaseFormModel model)
     {
@@ -115,12 +115,54 @@ public class TopdeskController(
     }
 
 
-    [HttpPost("case/moderator")]
+    [HttpPost("case")]
     [Authorize]
-    public async Task<IActionResult> PostModeratorCase(IncidentCase model)
+    public async Task<IActionResult> PostModeratorCase(CaseFormModel model)
     {
+        try
+        {
+            if (model.Text == null)
+                return Ok(_help.Warning("Text fält är obligatoriskt att fylla i."));
 
-        return Ok();
+            // Case caller data (current user)
+            var claims = _credentials.GetClaims(["email", "displayName"]);
+            claims.TryGetValue("email", out string? email);
+            claims.TryGetValue("displayName", out string? name);
+
+            var date = DateTime.Now;
+            StringBuilder _case = new();
+            _case.Append("<br/><b>Beskrivning:</b><br/>");
+
+            if (model.Text != null)
+                _case.Append($"<br/><br/>{model.Text}");
+            _case.Append("<br/><br/>");
+            _case.Append($"<b>Ärendet har registrerats av {name}.</b>");
+
+            string description = "UnlockUser: {model.Title}";
+
+            IncidentCase incident = new()
+            {
+                Description = description,
+                Caller = new Caller
+                {
+                    Email = email ?? null,
+                    DynamicName = name ?? null,
+                },
+                TargetDate = date.AddHours(7).ToString("O")[..23],
+                Request = _case.ToString()
+            };
+
+            var res = await TopdeskService.SendData(incident, "incidents");
+
+            return Ok();
+
+        }
+        catch (Exception ex)
+        {
+
+            _logger.LogInformation("Something went wrong. Error: => {0}. Function: {1}", ex.Message, nameof(PostKCCase));
+            return BadRequest(await _help.Error(ex));
+        }
     }
     #endregion
 }

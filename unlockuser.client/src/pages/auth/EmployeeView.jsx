@@ -10,7 +10,7 @@ import _ from 'lodash';
 import AutocompleteList from '../../components/lists/AutocompleteList';
 import ActionButtons from './../../components/blocks/ActionButtons';
 import Message from './../../components/blocks/Message';
-import ModalForm from './../../components/modals/ModalForm';
+import ModalCaseForm from './../../components/modals/ModalCaseForm';
 
 // Functions
 import { GetCnValue } from '../../functions/Helpers';
@@ -203,21 +203,8 @@ function EmployeeView() {
         await fetchData({ api: `catalogs/update/changed`, method: "put", data: data, action: "success" });
     }
 
-    async function onCaseSubmit(formData) {
-        if (!caseModal) {
-            setCaseModal(true);
-            return;
-        }
-
-        setCaseModal(false);
-
-        const data = {
-            username: moderator?.username,
-            approvedEmployees: approved?.employees,
-            ...formData
-        };
-
-        await fetchData({ api: `topdesk/case/kc`, method: "post", data: data, action: "success" });
+    function onCaseSubmit() {
+        setCaseModal(true);
     }
 
     function onRevalidate() {
@@ -461,7 +448,14 @@ function EmployeeView() {
             </>}
 
             {/* Form modal */}
-            {caseModal && <ModalForm label="Kompletterande information (frivilligt)" onSubmit={onCaseSubmit} onClose={() => setCaseModal(false)} />}
+            {caseModal && <ModalCaseForm
+                props={{
+                    username: moderator?.username,
+                    approvedEmployees: approved?.employees
+                }}
+                label="Kompletterande information (frivilligt)"
+                api="kc-group"
+                onClose={() => setCaseModal(false)} />}
 
             {/* Success modal */}
             {success && <ModalSuccess onClose={onRevalidate} />}

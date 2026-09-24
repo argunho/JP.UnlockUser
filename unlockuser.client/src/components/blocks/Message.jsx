@@ -5,7 +5,7 @@ import { Alert } from "@mui/material";
 // start: 2026-08-31 09:41
 // Closing is self-contained state, not a ref-based DOM mutation: mutating
 // ref.current.style directly bypasses React and gets lost/overridden on re-render.
-function Message({ res, cancel, close = true, styles }) {
+function Message({ children, res, cancel, close = true, styles }) {
 
     const [closed, setClosed] = useState(false);
 
@@ -28,6 +28,8 @@ function Message({ res, cancel, close = true, styles }) {
             {...props}>
 
             <p className="res-message w-100" dangerouslySetInnerHTML={{ __html: msg?.replaceAll("\n", "<br/>").replaceAll("\n\r", "<br/>") }}></p>
+
+            {children}
         </Alert>
 }
 

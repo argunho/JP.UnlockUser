@@ -99,7 +99,7 @@ pre {
 .modal-actions {
   padding: 10px 15px !important;
   margin: 10px 0 0 0 !important;
-  border-top: 2px solid var(--color-primary);
+  border-top: 2px solid var(--color-gray);
 }
 
 .modal-svg {

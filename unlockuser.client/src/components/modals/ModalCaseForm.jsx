@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, use } from 'react';
 
 // Installed
 import { Close } from "@mui/icons-material";
@@ -6,13 +6,16 @@ import {
     IconButton, Dialog, DialogActions, DialogContent, DialogTitle, TextField, FormControl
 } from "@mui/material";
 import FormButtons from '../forms/FormButtons';
+import { FetchContext } from '../../storage/FetchContext';
 
 // Components
 
 
-function ModalForm({ label, onSubmit, onClose }) {
+function ModalCaseForm({ props, label, required, api, onClose }) {
 
     const [formData, setFormData] = useState({});
+
+    const { fetchData } = use(FetchContext);
 
     function onChange(e) {
         const value = e.target.value;
@@ -23,7 +26,21 @@ function ModalForm({ label, onSubmit, onClose }) {
             [name]: value
         })
     }
-console.log(label)
+
+    async function onSubmit() {
+        const param = api ? api : "";
+        onClose();
+        const data = {
+            ...props,
+            ...formData
+        };
+        console.log(data, `topdesk/case/${param}`)
+
+        await fetchData({ api: `topdesk/case/${param}`, method: "post", data: data, action: "success" });
+    }
+
+    const textLgh = required ? 50 : 5;
+
     return <Dialog
         open={true}
         onClose={onClose}
@@ -51,46 +68,50 @@ console.log(label)
         {/* start: 2026-09-24 */}
         {/* MUI removes top padding of DialogContent after DialogTitle, so the floating labels were clipped */}
         <DialogContent className="w-100 modal-content-wrapper">
-        {/* end */}
+            {/* end */}
             <FormControl fullWidth style={{ marginBottom: "30px" }}>
                 <TextField
                     label="Titel"
-                    required={true}
                     name="title"
-                    placeholder="Tillägg till standardtiteln på ärendet (3–20 tecken)" // 2026-09-24
+                    placeholder="Tillägg till standardtiteln på ärendet (3–50 tecken)" // 2026-09-24
                     inputProps={{
                         minLength: 3,
-                        maxlength: 20
+                        maxlength: 50
                     }}
-                    onChange={onChange}
+                    required={required}
                     className="field w-100"
+                    onChange={onChange}
+                    error={formData?.title?.length > 50}
+                    helperText={`${formData?.title?.length ?? 0}/50`}
                 />
             </FormControl>
 
             <FormControl fullWidth style={{ marginBottom: "30px" }}>
                 <TextField
                     label="Text"
-                    required={true}
                     name="text"
                     // start: 2026-09-24
                     multiline
                     rows={10}
-                    onChange={onChange}
                     // end
-                    placeholder="Beskriv ärendet (minst 5 tecken)" // 2026-09-24
+                    placeholder={`Beskriv ärendet (minst ${textLgh} tecken)`} // 2026-09-24
                     inputProps={{
-                        minLength: 5
+                        minLength: textLgh
                     }}
+                    required={required}
                     className="field w-100"
+                    onChange={onChange}   
+                    error={formData?.text?.length > 0 && textLgh > formData?.text?.length}                
+                    helperText={`${formData?.text?.length ?? 0}/${textLgh}`}
                 />
             </FormControl>
 
         </DialogContent>
 
         <DialogActions className="jc-between modal-actions" >
-            <FormButtons confirmable={true} onSubmit={() => onSubmit(formData)}/>
+            <FormButtons confirmable={true} onSubmit={onSubmit} />
         </DialogActions>
     </Dialog>
 }
 
-export default ModalForm;
+export default ModalCaseForm;

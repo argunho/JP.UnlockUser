@@ -51,6 +51,17 @@
     background-color: rgba(204, 0, 00, 0.2);
 }
 
+.message-box .action-wrapper {
+    padding: 0 !important;
+    margin-top: 30px !important;
+    background-color: transparent !important;
+    border: unset !important;
+}
+
+.message-box .action-wrapper button{
+    margin: 0 !important;
+}
+
 .form-wrapper div[role="presentation"] {
     box-shadow: 0 0 1px 1px #dfd7d7;
     background-color: #FFFFFF !important;

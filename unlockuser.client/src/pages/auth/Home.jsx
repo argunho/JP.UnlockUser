@@ -1,4 +1,4 @@
-import { useEffect, use, useReducer, useRef, useActionState } from 'react';
+import { useEffect, use, useReducer, useRef, useActionState, useState } from 'react';
 import _ from "lodash";
 
 // Installed
@@ -16,6 +16,8 @@ import AutocompleteList from './../../components/lists/AutocompleteList';
 import ListLoading from './../../components/lists/ListLoading';
 import ListsView from './../../components/lists/ListsView';
 import Message from '../../components/blocks/Message';
+import ActionButtons from './../../components/blocks/ActionButtons';
+import ModalCaseForm from '../../components/modals/ModalCaseForm';
 
 // Functions
 import { Claim } from '../../functions/DecodedToken';
@@ -90,12 +92,13 @@ function Home() {
     const navigate = useNavigate();
     const loc = useLocation();
     const key = loc.state?.key;
-    // const [ searchParams ] = useSearchParams();
-    // const name = searchParams.get('name') ?? null;
-
     const refSubmit = useRef(null);
     const refAutocomplete = useRef(null);
     const groupAccountsRef = useRef(null);
+
+    const [caseModal, setCaseModal] = useState(false);
+    // const [ searchParams ] = useSearchParams();
+    // const name = searchParams.get('name') ?? null;
 
 
     function waitForCollection(timeout = 60000) {
@@ -277,7 +280,7 @@ function Home() {
             }
         }
 
-        
+
         handleDispatch("users", Array.isArray(res) ? res : [], "RESULT"); // 2026-09-03
 
         return Array.isArray(res) ? null : data;
@@ -307,7 +310,13 @@ function Home() {
             "\n\n Försök att justera din sökning eller kontrollera stavningen." +
             "\n\n\n <span style='color: #cc0000;font-style: normal;font-weight:bold'>Observera!</span> Om du tidigare under den pågående sessionen kunde hitta personen men inte längre kan göra det, kan det bero på att tiden för personsökningen har löpt ut." +
             "\n<a href='/session/logout' style='color: var(--color-active)'>Logga ut</a> och logga in igen för att fortsätta använda webbplatsen."
-    }} cancel={onReset} />;
+    }} cancel={onReset} >
+        <ActionButtons action={{
+            name: "Registrtera ärende i Topdesk",
+            color: "warning",
+            confirm: false
+        }} onClick={() => setCaseModal(true)} />
+    </Message>;
 
     // start: 2026-08-27 10:13
     const schoolYearStartLabel = (() => {
@@ -503,6 +512,9 @@ function Home() {
                 group={gn}
                 multiple={isClass}
             />}
+
+            {/* Form modal */}
+            {caseModal && <ModalCaseForm label="Ärende formulär" onClose={() => setCaseModal(false)} required={true} />}
         </>
     )
 }
