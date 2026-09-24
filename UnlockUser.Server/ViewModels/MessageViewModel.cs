@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace UnlockUser.Server.Models;
+namespace UnlockUser.Server.ViewModels;
 
 public class MessageViewModel
 {

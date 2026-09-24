@@ -5,7 +5,7 @@ import { Alert } from "@mui/material";
 // start: 2026-08-31 09:41
 // Closing is self-contained state, not a ref-based DOM mutation: mutating
 // ref.current.style directly bypasses React and gets lost/overridden on re-render.
-function Message({ res, cancel, styles }) {
+function Message({ res, cancel, close = true, styles }) {
 
     const [closed, setClosed] = useState(false);
 
@@ -13,7 +13,7 @@ function Message({ res, cancel, styles }) {
     const msg = res === 0 || res?.msg === "0" ? "Inget data finns att visa ..." : (error ? res.error : res?.msg);
     const color = res == 0 ? "warning" : (error ? "error" : (res?.color ?? "success"));
 
-    let props = cancel ? { onClose: () => cancel(msg || error) } : { onClose: () => setClosed(true) };
+    let props = cancel ? { onClose: () => cancel(msg || error) } : (close ? { onClose: () => setClosed(true) } : null);
 
     if (typeof msg === "boolean" || closed)
         return null;

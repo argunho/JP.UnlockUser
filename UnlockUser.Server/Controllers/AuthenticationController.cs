@@ -10,13 +10,14 @@ namespace UnlockUser.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthenticationController(IADService provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache,
+public class AuthenticationController(IADService provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache, IHostEnvironment env,
     IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, IMemoryCache memoryCache, DashboardService dashboardService, ILogger<AuthenticationController> logger) : ControllerBase
 {
     private readonly IADService _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
     private readonly ISession? _session = contextAccessor.HttpContext!.Session;
     private readonly IDistributedCache _distributedCache = distributedCache;
+    private readonly IHostEnvironment _env = env;
     private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentials = credentials;
     private readonly ILocalFileService _localFileService = localFileService;
@@ -58,7 +59,8 @@ public class AuthenticationController(IADService provider, IConfiguration config
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
             var groups = string.Join(",", permissionGroups!.Select(x => x.Name));
 
-            //model.Username = "030827wild"; //// !!!!!!!!!!
+            //if (_env.IsDevelopment())
+            //    model.Username = "810305fred"; // !!!
             var authorizedUser = _provider.FindUser(model!.Username!);
             if (authorizedUser == null)
                 return NotFound(_helpService.NotFound("Användaren"));
@@ -99,7 +101,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
             // Failed! Permission missed
             if (permissionGroups.Count == 0 && roles.Count == 0)
                 return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
-            else
+            else if (permissionGroups.Count > 0)
                 roles.Add("Moderator");
 
             var moderators = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators");
@@ -150,15 +152,18 @@ public class AuthenticationController(IADService provider, IConfiguration config
     // moderator's permissions. Roles claim is left empty so role-gated endpoints
     // (adding moderators, editing permissions, etc.) stay out of reach, and the
     // "Impersonating" claim is used by UserController to block password changes.
+    [HttpPost("login-as/kc-group")]
     [HttpPost("login-as/{username}")]
-    [Authorize(Roles = "Moderator,DevelopTeam")]
-    public async Task<IActionResult> LoginAs(string username)
+    [Authorize(Roles = "ITGroup,DevelopTeam")]
+    public async Task<IActionResult> LoginAs(string? username = null)
     {
         try
         {
+            bool kcGroupLogin = string.IsNullOrEmpty(username);
+            username ??= _credentials.GetClaim("username");
             var moderators = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators");
             var targetModerator = moderators?.FirstOrDefault(x => x.Username != null && x.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
-            if (targetModerator == null)
+            if (targetModerator == null && !kcGroupLogin) // 2026-09-24
                 return NotFound(_helpService.NotFound("Användaren"));
 
             var suppUsername = _credentials.GetClaim("username");
@@ -176,22 +181,36 @@ public class AuthenticationController(IADService provider, IConfiguration config
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
             var groups = string.Join(",", permissionGroups.Select(x => x.Name));
 
-            _session!.SetString("permissions", JsonConvert.SerializeObject(targetModerator.Permissions ?? new PermissionsViewModel()));
+            // start: 2026-09-24
+            // KC group login has no target moderator record: take the profile fields from the caller's own claims
+            _session!.SetString("permissions", JsonConvert.SerializeObject(kcGroupLogin ? new PermissionsViewModel() : targetModerator?.Permissions ?? new PermissionsViewModel()));
 
-
+            List<string>? permissions = kcGroupLogin ? [] : targetModerator!.Permissions?.Groups;
             List<Claim> claims = [];
-            claims.Add(new("Email", targetModerator.Email ?? ""));
-            claims.Add(new("DisplayName", targetModerator.DisplayName ?? targetModerator.Username!));
-            claims.Add(new("Username", targetModerator.Username!));
-            claims.Add(new("Manager", targetModerator.Manager ?? ""));
-            claims.Add(new("Office", targetModerator.Office ?? ""));
-            claims.Add(new("Department", targetModerator.Department ?? ""));
+            claims.Add(new("Email", (kcGroupLogin ? _credentials.GetClaim("email") : targetModerator!.Email) ?? ""));
+            claims.Add(new("DisplayName", kcGroupLogin ? "Kontaktcenter" : targetModerator!.DisplayName ?? targetModerator.Username!));
+            claims.Add(new("Username", username!));
+            claims.Add(new("Manager", (kcGroupLogin ? _credentials.GetClaim("manager") : targetModerator!.Manager) ?? ""));
+            claims.Add(new("Office", (kcGroupLogin ? _credentials.GetClaim("office") : targetModerator!.Office) ?? ""));
+            claims.Add(new("Department", (kcGroupLogin ? _credentials.GetClaim("department") : targetModerator!.Department) ?? ""));
+            // end
             claims.Add(new("Groups", groups));
-            claims.Add(new("Permissions", string.Join(',', targetModerator.Permissions?.Groups ?? [])));
-            claims.Add(new("Roles", ""));
+            claims.Add(new("Permissions", string.Join(',', permissions ?? [])));
+            if (kcGroupLogin)
+            {
+                claims.Add(new("Roles", "KCGroup"));
+                claims.Add(new("LimitedAccess", "ok"));
+            }
+            else
+                claims.Add(new("Roles", "Moderator"));
+
             claims.Add(new("Impersonating", suppUsername ?? ""));
 
-            var authModel = ConfigureAuthModel(claims, [], targetModerator.Permissions!.Groups?.FirstOrDefault()!);
+            // start: 2026-09-24
+            // KCGroup needs a real role claim in the JWT, otherwise [Authorize(Roles = "...KCGroup")] endpoints return 403
+            List<string> tokenRoles = kcGroupLogin ? ["KCGroup"] : [];
+            var authModel = ConfigureAuthModel(claims, tokenRoles, permissions?.FirstOrDefault()!);
+            // end
 
             _logger.LogInformation("Utvecklare {developer} loggade in som {username} vid: {time}.", suppUsername, username, DateTime.Now.ToString("g"));
 
@@ -228,7 +247,6 @@ public class AuthenticationController(IADService provider, IConfiguration config
             _session!.Remove("suppToken");
             _session!.Remove("suppGroupName");
             _session!.Remove("suppPermissions");
-            _memoryCache.Remove($"groups_{_session!.Id}");
 
             _logger.LogInformation("Utvecklare {moderator} återgick från granskningsläge vid: {time}.", impersonating, DateTime.Now.ToString("g"));
 

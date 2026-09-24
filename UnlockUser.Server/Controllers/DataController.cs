@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization; // 2026-09-03
+using System.CodeDom;
 using System.Text;
 using System.Text.Json;
 
@@ -97,7 +98,11 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         try
         {
             List<UserViewModel> group_members = [];
-            if (impersonating)
+            // start: 2026-09-24
+            // KC group has full access like a real KC login, so it uses the regular session cache path below (supports "overview")
+            bool kcGroup = _credentials.GetClaim("roles")?.Contains("KCGroup", StringComparison.OrdinalIgnoreCase) ?? false;
+            // end
+            if (impersonating && !kcGroup) // 2026-09-24
             {
                 _memoryCache.TryGetValue(group, out List<UserViewModel>? users);
                 if (users == null)
@@ -150,7 +155,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             if (isLoading)
                 await Task.WhenAny(_lockService.GetWaitTask(username!), Task.Delay(90000));
 
-            group_members = await GetCachedUsersGroup(group);
+            group_members = await _dashboardService.GetStoredUsersGroup(group);
             return Ok(group_members);
 
         }
@@ -291,38 +296,6 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 
         var user = await _googleService.GetUser(email);
         return Ok(user);
-    }
-    #endregion
-
-    #region Private methods
-    private async Task<List<UserViewModel>> GetCachedUsersGroup(string group)
-    {
-
-        var group_members = new List<UserViewModel>();
-        var id = HttpContext.Session.Id;
-
-        if (_memoryCache.TryGetValue($"groups_{id}", out Dictionary<string, List<UserViewModel>>? cachedGroups))
-        {
-            bool supportModel = string.Equals(group.ToString(), "Overview", StringComparison.OrdinalIgnoreCase);
-            if (supportModel)
-            {
-                List<string?> groups = [.. _config.
-                   GetSection("Groups")
-                   .Get<List<GroupModel>>()?
-                   .Select(s => s.Name)!
-                   .Where(x => !string.IsNullOrWhiteSpace(x))
-                   .Cast<string>()!
-                 ];
-
-                group_members = [.. groups.SelectMany(g => cachedGroups!.TryGetValue(g.ToLower(), out var value) ? value : [])];
-            }
-            else
-            {
-                group_members = cachedGroups!.TryGetValue(group.ToLower(), out var value) ? value : [];
-            }
-        }
-
-        return group_members;
     }
     #endregion
 }

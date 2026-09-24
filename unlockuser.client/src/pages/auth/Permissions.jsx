@@ -24,7 +24,7 @@ function Permissions() {
             {/* Message */}
             {(schools?.length == 0 && managers?.length == 0) && <Message res={{ 
                 color: "warning", 
-                msg: `Din roll/roller är ${roles}, men du saknar behörighet att ändra lösenord för annan personal/studenter.`}} />}
+                msg: `Du har rollen/rollerna ${roles}, men saknar behörighet att ändra lösenord för andra anställda eller elever.`}} close={false} />}
 
             <div className="form-wrapper w-100">
                 {schools?.length > 0 && <>

@@ -23,6 +23,7 @@ function UsersLayout() {
     const loaded = useLoaderData();
     const { moderators, groups } = loaded;
 
+
     const navigation = useNavigation();
     const { group, id } = useParams();
     const revalidator = useRevalidator();

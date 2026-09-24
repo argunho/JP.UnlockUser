@@ -208,7 +208,7 @@ const AppRoutes = () => [
         element: <EmployeeView />,
         errorElement: <ErrorView />,
         loader: loader("data/groups/by/personal"),
-        shouldRevalidate: () => true
+        // shouldRevalidate: () => true
       }
     ]
   },

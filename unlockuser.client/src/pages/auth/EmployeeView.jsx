@@ -10,17 +10,21 @@ import _ from 'lodash';
 import AutocompleteList from '../../components/lists/AutocompleteList';
 import ActionButtons from './../../components/blocks/ActionButtons';
 import Message from './../../components/blocks/Message';
+import ModalForm from './../../components/modals/ModalForm';
 
 // Functions
 import { GetCnValue } from '../../functions/Helpers';
-import { Claim } from '../../functions/DecodedToken'; // 2026-09-08
 
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
 import { AuthContext } from '../../storage/AuthContext'; // 2026-09-08
 
+// Functions
+import { Claim } from '../../functions/DecodedToken';
+
 // Css
 import './../../assets/css/view.css';
+import ModalSuccess from './../../components/modals/ModalSuccess';
 
 function sortedValues(arr, key) {
     return [...(arr ?? [])]
@@ -30,7 +34,6 @@ function sortedValues(arr, key) {
 
 // approvedEmployees entries are { username, moderators } objects on both sides (loaded catalog vs local state),
 // so comparing them needs both the entry order and each entry's moderators order normalized - a plain
-// sortedValues(..., "username") turns one side into bare username strings and never matches.
 function normalizedEmployees(arr) {
     return [...(arr ?? [])]
         .map(x => ({ username: x.username, moderators: [...(x.moderators ?? [])].sort() }))
@@ -43,6 +46,10 @@ function EmployeeView() {
     const revalidator = useRevalidator()
     const { groups, moderator, managers, politicians, approvedEmployees, schools, searchValue, revalidate } = useOutletContext();
     const { permissions } = moderator;
+    const access = {
+        open: Claim("openAccess"),
+        limited: Claim("limitedAccess")
+    };
 
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
     const approvedPoliticians = permissions.groups?.includes("Politiker") ?
@@ -50,10 +57,9 @@ function EmployeeView() {
     const approvedUsernames = approvedEmployees?.filter(x => x.moderators?.includes(moderator.username)).map((emp) => emp.username) ?? [];
     const columns = moderator?.managers?.length > 0 ? ["Närmaste chefer", ...groups] : groups;
 
-    const { fetchData, pending, response, handleResponse } = use(FetchContext);
+    const { fetchData, pending, response, handleResponse, success } = use(FetchContext);
     const { authorize } = use(AuthContext); // 2026-09-08
     const navigate = useNavigate(); // 2026-09-08
-    const isDeveloper = Claim("roles")?.split(",").includes("Moderator"); // 2026-09-08
 
     const [approved, setApproved] = useState({
         managers: approvedManagers,
@@ -63,6 +69,7 @@ function EmployeeView() {
     });
     const [collapsed, setCollapsed] = useState(false);
     const [officeManager, setOfficeManager] = useState(null);
+    const [caseModal, setCaseModal] = useState(false);
 
     // Resync the local edit buffer with the canonical server data whenever it actually
     // changes (e.g. a revalidate finishing after save) - otherwise, if this component gets
@@ -173,7 +180,7 @@ function EmployeeView() {
     }
     // end
 
-    async function onSubmit() {
+    async function onChangeSubmit() {
         const data = {
             username: moderator?.username,
             names: []
@@ -194,6 +201,26 @@ function EmployeeView() {
         }
 
         await fetchData({ api: `catalogs/update/changed`, method: "put", data: data, action: "success" });
+    }
+
+    async function onCaseSubmit(formData) {
+        if (!caseModal) {
+            setCaseModal(true);
+            return;
+        }
+
+        setCaseModal(false);
+
+        const data = {
+            username: moderator?.username,
+            approvedEmployees: approved?.employees,
+            ...formData
+        };
+
+        await fetchData({ api: `topdesk/case/kc`, method: "post", data: data, action: "success" });
+    }
+
+    function onRevalidate() {
         setCollapsed(false);
         revalidate();
         setTimeout(() => {
@@ -203,9 +230,8 @@ function EmployeeView() {
     }
 
     function handleShowByOffice(username) {
-        console.log(username)
-        if(!groupModels) return;
-        
+        if (!groupModels) return;
+
         setOfficeManager(username);
         setCollapsed((collapsed) => !collapsed);
     }
@@ -218,54 +244,64 @@ function EmployeeView() {
     const isChanged = managersChanged || politiciansChanged || schoolsChanged || employeesChanged;
 
     const searchTerm = searchValue?.toLowerCase();
-    console.log("groupModels", groupModels)
+
     const employeesToView = searchValue?.length >= 3
         ? groupModels?.filter(x => x.username != moderator.username && !approvedUsernames.includes(x?.username)
             && [x?.primary, x?.username, x?.department, x?.office].some(field => field?.toLowerCase().includes(searchTerm)))
         : groupModels?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedUsernames.includes(x.username));
 
     const personalPermissions = permissions.groups?.includes("Personal");
-    console.log(personalPermissions, collapsed, employeesToView)
+
     return (
         <>
             {/* Action panel */}
-            <ActionButtons label="Behörighetslista" pending={pending} disabled={!isChanged} onConfirm={onSubmit}>
+            <ActionButtons
+                label="Behörighetslista"
+                pending={pending}
+                disabled={!isChanged}
+                action={access?.limited ? {
+                    name: "Registrtera ärende i Topdesk",
+                    color: "warning",
+                    confirm: false
+                } : null}
+                onClick={access?.open ? onChangeSubmit : onCaseSubmit}>
 
+                {access?.open && <>
+                    {(personalPermissions && approvedUsernames?.length > 0 && !officeManager) &&
+                        <Button
+                            className="fade-in"
+                            startIcon={collapsed ? <Close color="error" /> : <Checklist />}
+                            color={collapsed ? "default" : "primary"}
+                            disabled={!!searchValue}
+                            onClick={() => setCollapsed((collapsed) => !collapsed)}>
+                            Godkända enskilda anställda
+                        </Button>}
 
-                {(personalPermissions && approvedUsernames?.length > 0 && !officeManager) &&
-                    <Button
+                    {(collapsed && officeManager) && <Button
+                        startIcon={<Close />}
+                        color="error"
                         className="fade-in"
-                        startIcon={collapsed ? <Close color="error" /> : <Checklist />}
-                        color={collapsed ? "default" : "primary"}
-                        disabled={!!searchValue}
-                        onClick={() => setCollapsed((collapsed) => !collapsed)}>
-                        Godkända enskilda anställda
+                        onClick={() => handleShowByOffice(null)}>
+                        Stänga
                     </Button>}
 
-                {(collapsed && officeManager) && <Button
-                    startIcon={<Close />}
-                    color="error"
-                    className="fade-in"
-                    onClick={() => handleShowByOffice(null)}>
-                    Stänga
-                </Button>}
-
-                {isDeveloper && <Tooltip
-                    title={`Logga in som ${moderator?.displayName} i granskningsläge: behörigheter kan ses, men lösenord går inte att ändra i detta läge.`}
-                    classes={{
-                        tooltip: "tooltip-info",
-                        arrow: "tooltip-arrow-info"
-                    }}
-                    placement="left" arrow>
-                    <Button
-                        variant="outlined"
-                        color="info"
-                        startIcon={<TuneSharp />}
-                        onClick={switchModerator}
-                    >
-                        Logga in som {moderator?.displayName}
-                    </Button>
-                </Tooltip>}
+                    <Tooltip
+                        title={`Logga in som ${moderator?.displayName} i granskningsläge: behörigheter kan ses, men lösenord går inte att ändra i detta läge.`}
+                        classes={{
+                            tooltip: "tooltip-info",
+                            arrow: "tooltip-arrow-info"
+                        }}
+                        placement="left" arrow>
+                        <Button
+                            variant="outlined"
+                            color="info"
+                            startIcon={<TuneSharp />}
+                            onClick={switchModerator}
+                        >
+                            Logga in som {moderator?.displayName}
+                        </Button>
+                    </Tooltip>
+                </>}
 
             </ActionButtons>
 
@@ -375,7 +411,8 @@ function EmployeeView() {
                                                 color={checked ? "success" : "default"}
                                                 onClick={() => checked
                                                     ? onDelete(manager?.username, "managers", "username")
-                                                    : onChange(manager?.username, "managers", false)}>
+                                                    : onChange(manager?.username, "managers", false)}
+                                                disabled={!access?.open}>
                                                 {checked ? <CheckBox /> : <CheckBoxOutlineBlank />}
                                             </IconButton>}
                                     </li>
@@ -422,6 +459,12 @@ function EmployeeView() {
                 </div>
 
             </>}
+
+            {/* Form modal */}
+            {caseModal && <ModalForm label="Kompletterande information (frivilligt)" onSubmit={onCaseSubmit} onClose={() => setCaseModal(false)} />}
+
+            {/* Success modal */}
+            {success && <ModalSuccess onClose={onRevalidate} />}
         </>
     )
 }

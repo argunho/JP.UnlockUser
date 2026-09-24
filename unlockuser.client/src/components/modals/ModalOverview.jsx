@@ -6,15 +6,16 @@ import { DialogTitle } from '@mui/material';
 function ModalOverview({ children, open = true, item, onClose }) {
 
     return <Dialog open={open}
-        onClose={onClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        className="modal-overview w-100"
-        sx={{
-            zIndex: 3000
-        }}
-        id="modal-view"
-    >
+                onClose={onClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                className="modal-overview w-100"
+                sx={{
+                    zIndex: 3000
+                }}
+                id="modal-view"
+            >
+                
         <DialogTitle
             id="dialog-title"
             className="modal-label"

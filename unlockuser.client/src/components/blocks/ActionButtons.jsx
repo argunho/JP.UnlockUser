@@ -6,12 +6,19 @@ import { Button } from '@mui/material';
 // Css
 import ModalConfirm from '../modals/ModalConfirm';
 
-function ActionButtons({ children, label, pending, disabled, onConfirm }) {
+function ActionButtons({ children, label, pending, disabled, action, onClick }) {
 
   const [confirm, setConfirm] = useState(false);
 
+  function handleClick(){
+    if(action.confirm)
+      setConfirm(true);
+    else
+      onClick();
+  }
+
   function handleConfirm() {
-    onConfirm();
+    onClick();
     setConfirm(false);
   }
 
@@ -22,10 +29,19 @@ function ActionButtons({ children, label, pending, disabled, onConfirm }) {
         {label && <p className="label">{label}</p>}
 
         <div className="d-row">
+
           {children && children}
-          <Button variant="contained" className="save" onClick={() => setConfirm(true)} disabled={pending || disabled}>
-            Spara ändringar
+
+          {/* Button to save/update changed data */}
+          <Button
+            variant="contained"
+            className="save"
+            color={action?.color ?? "primary"}
+            onClick={handleClick}
+            disabled={pending || disabled}>
+            {action?.name ?? "Spara ändringar"}
           </Button>
+
         </div>
       </div>
 

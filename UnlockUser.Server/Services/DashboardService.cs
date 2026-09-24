@@ -40,8 +40,11 @@ public class DashboardService(
                 return;
             }
             claims.TryGetValue("username", out username);
-            access = (claims!.TryGetValue("openAccess", out string? _access)
-                    || claims!.TryGetValue("limitedAccess", out _access)) && bool.Parse(_access);
+            // start: 2026-09-24
+            // OpenAccess/LimitedAccess claims hold "ok" (not a bool) and exist only when access is granted
+            access = (claims.TryGetValue("openAccess", out string? openAccess) && !string.IsNullOrEmpty(openAccess))
+                    || (claims.TryGetValue("limitedAccess", out string? limitedAccess) && !string.IsNullOrEmpty(limitedAccess));
+            // end
             sessionUserGroups ??= claims!.TryGetValue("permissions", out string? permissions) ? [.. permissions.Split(',')] : [];
         }
 
@@ -163,5 +166,35 @@ public class DashboardService(
         }
 
         return (alternativeParams, isStudents);
+    }
+
+    public async Task<List<UserViewModel>> GetStoredUsersGroup(string group)
+    {
+
+        var group_members = new List<UserViewModel>();
+        var id = _session?.Id;
+
+        if (_cache.TryGetValue($"groups_{id}", out Dictionary<string, List<UserViewModel>>? cachedGroups))
+        {
+            bool supportModel = string.Equals(group.ToString(), "Overview", StringComparison.OrdinalIgnoreCase);
+            if (supportModel)
+            {
+                List<string?> groups = [.. _config.
+                   GetSection("Groups")
+                   .Get<List<GroupModel>>()?
+                   .Select(s => s.Name)!
+                   .Where(x => !string.IsNullOrWhiteSpace(x))
+                   .Cast<string>()!
+                 ];
+
+                group_members = [.. groups.SelectMany(g => cachedGroups!.TryGetValue(g.ToLower(), out var value) ? value : [])];
+            }
+            else
+            {
+                group_members = cachedGroups!.TryGetValue(group.ToLower(), out var value) ? value : [];
+            }
+        }
+
+        return group_members;
     }
 }

@@ -72,7 +72,6 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
 
 
     function handleDropdown(index) {
-        console.log(index)
         setCollapsedIndex(index === collapsedIndex ? null : index);
     }
 

@@ -115,7 +115,7 @@ main,
     padding: 0 !important;
     overflow-x: hidden;
     overflow-y: visible;
-    padding: 0 15px !important;
+    padding: 0 15px 25px 15px !important;
     width: -webkit-fill-available !important;
     width: -moz-available !important;
     flex: 1;

@@ -1,8 +1,9 @@
+import { use } from 'react';
+
 // Installed
-// import { LiveHelp, Logout, Close, FactCheck, Settings, School, WorkHistory, ErrorOutline, BarChart, Home, MenuBook, UploadFile, Info, ForwardToInbox } from '@mui/icons-material';
 import { Close } from '@mui/icons-material';
-import { IconButton, ClickAwayListener } from '@mui/material';
-import { NavLink } from 'react-router-dom';
+import { IconButton, ClickAwayListener, Button } from '@mui/material';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 // Components
 import Logotype from '../blocks/Logotype';
@@ -10,10 +11,31 @@ import Logotype from '../blocks/Logotype';
 // Models
 import { Links } from '../../models/Links';
 
+// Storage
+import { FetchContext } from './../../storage/FetchContext';
+import { AuthContext } from './../../storage/AuthContext';
+
 // Css
 import '../../assets/css/hidden-menu.css';
 
 function HiddenMenu({ access, onClose }) {
+
+    const { fetchData } = use(FetchContext);
+    const { authorize } = use(AuthContext);
+
+    const navigate = useNavigate();
+
+    async function switchModerator() {
+        const res = await fetchData({ api: `authentication/login-as/kc-group`, method: "post", action: "return" }) ?? {};
+        const { token } = res;
+
+        if (token) {
+            authorize(token);
+            navigate(`/search/overview`);
+        }
+    }
+
+
 
     return (
         <>
@@ -33,9 +55,12 @@ function HiddenMenu({ access, onClose }) {
 
                     {/* Loop links */}
                     {(access?.open ? Links : (access?.limited ? Links.filter(x => !x.permission) : Links.filter(x => !x.access))).map((link, ind) => {
+
+                        const props = link?.url ? { to: link.url } : { component: Button, onClick: switchModerator };
+
                         return <NavLink
                             key={ind}
-                            to={link.url}
+                            {...props}
                             className={({ isActive }) => `hm-link d-row jc-start w-100 "${isActive ? " active" : ""}${(link?.blink && !sessionStorage.getItem("blinked")) ? " blink-color" : ""}`}>
                             <link.icon /> {link.label}
                         </NavLink>

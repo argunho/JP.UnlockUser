@@ -8,7 +8,7 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/catalog")]
 [Route("api/catalogs")]
 [ApiController]
-[Authorize(Roles = "DevelopTeam,Manager,ITGroup")]
+[Authorize]
 public class CatalogController(ILocalFileService localFileService, IHelpService helpService,
     IConfiguration config, ILocalUserService localUserService, IMemoryCache memoryCache,
     ILogger<CatalogController> logger) : ControllerBase
@@ -27,6 +27,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     #region GET
     // Get stored  employees who have permission to manage employee passwords nby group name
     [HttpGet]
+    [Authorize(Roles = "DevelopTeam,ITGroup,KCGroup")]
     public async Task<IActionResult> GetUsersByGroupName()
     {
         try
@@ -53,6 +54,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
     // Get groups
     [HttpGet("groups")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> GetGroups()
     {
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>()?.Select(s => s.Name).ToList();
@@ -61,6 +63,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
     // Get schools
     [HttpGet("schools")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> GetSchools()
     {
         var schools = await SchoolsFromFile();
@@ -69,6 +72,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
     // Get statistics
     [HttpGet("statistics")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> GetStatistics()
     {
         try
@@ -107,6 +111,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     
     // Get all logs history files
     [HttpGet("histories")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> GetTextFiles()
     {
         try
@@ -133,6 +138,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
     // Download history log file by id
     [HttpGet("history/{id}")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> GetHistoryFileById(string id)
     {
         var histories = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories");
@@ -152,6 +158,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
     // Download history file
     [HttpGet("history/download/by/{id}")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> DownloadFile(string id)
     {
         var items = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories");
@@ -169,6 +176,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
     #region POST
     [HttpPost("renew/saved")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> RenewSavedEmployeesList()
     {
         try
@@ -184,6 +192,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     }    
 
     [HttpPost("school")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> PostSchool(School school)
     {
         try
@@ -206,6 +215,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
     #region PUT
     [HttpPut("update/changed")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> PutChanged(CatalogsFormModel model)
     {
         try
@@ -248,6 +258,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
     #region DELETE
     [HttpDelete("school/{name}")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> DeleteSchool(string name)
     {
         try

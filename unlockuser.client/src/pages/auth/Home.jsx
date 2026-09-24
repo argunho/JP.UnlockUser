@@ -99,7 +99,6 @@ function Home() {
 
 
     function waitForCollection(timeout = 60000) {
-        console.log(120000)
         return new Promise((resolve) => {
             if (groupAccountsRef.current !== null)
                 return resolve(groupAccountsRef.current);

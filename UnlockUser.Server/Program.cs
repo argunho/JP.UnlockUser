@@ -66,6 +66,7 @@ builder.Services.AddSingleton<ILocalUserService, LocalUserService>();
 builder.Services.AddSingleton<ILocalMailService, LocalMailService>();
 builder.Services.AddSingleton<IGoogleService, GoogleService>();
 builder.Services.AddScoped<DashboardService>();
+builder.Services.AddScoped<TopdeskService>();
 
 // Singleton (must not use Scoped services directly)
 builder.Services.AddSingleton<IRefreshLockService, RefreshLockService>();

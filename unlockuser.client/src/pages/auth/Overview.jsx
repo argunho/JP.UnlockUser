@@ -208,7 +208,7 @@ function Overview() {
                             </IconButton>
                         </InputAdornment>
                     }}
-                    disabled={!accessToPasswordManage || !hasPermission}
+                    disabled={!hasPermission || (!openAccess && !limitedAccess)}
                     onKeyDown={(e) => {
                         if (e.key === "Enter")
                             onSubmit();
@@ -241,7 +241,7 @@ function Overview() {
                         ...message, msg: message?.msg
                             ?.replace(/\{name\}/g, `<span style="color: red">${user.displayName}</span>`)
                             ?.replace(/\{group\}/g, `<span style="color: red">${checked?.group}</span>`)
-                    }} />
+                    }} close={false}/>
                 </Alert>}
             </section>
 
