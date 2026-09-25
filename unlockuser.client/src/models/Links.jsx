@@ -1,6 +1,6 @@
-// Installed
+// Installed // LiveHelp,
 import {
-    LiveHelp, Logout, FactCheck, Settings, School,
+    Logout, FactCheck, Settings, School, 
     WorkHistory, ErrorOutline, BarChart, Home, MenuBook,
     UploadFile, Info, ForwardToInbox, PermPhoneMsg
 } from '@mui/icons-material';
