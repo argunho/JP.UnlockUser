@@ -18,6 +18,7 @@ import ListsView from './../../components/lists/ListsView';
 import Message from '../../components/blocks/Message';
 import ActionButtons from './../../components/blocks/ActionButtons';
 import ModalCaseForm from '../../components/modals/ModalCaseForm';
+import ModalSuccess from '../../components/modals/ModalSuccess';
 
 // Functions
 import { Claim } from '../../functions/DecodedToken';
@@ -75,6 +76,8 @@ function actionReducer(state, action) {
 // Css
 import './../../assets/css/home.css';
 
+
+
 function Home() {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
@@ -86,7 +89,7 @@ function Home() {
     const impersonating = Claim("impersonating") != null;
 
     const { schools, group: groupName } = useOutletContext();
-    const { response, pending: loading, fetchData, handleResponse } = use(FetchContext);
+    const { response, success, pending: loading, fetchData, handleResponse } = use(FetchContext);
     const gn = group ? group?.toLowerCase() : groupName;
 
     const navigate = useNavigate();
@@ -515,6 +518,9 @@ function Home() {
 
             {/* Form modal */}
             {caseModal && <ModalCaseForm label="Ärende formulär" onClose={() => setCaseModal(false)} required={true} />}
+
+            {/* Success modal */}
+            {success && <ModalSuccess onClose={() => handleResponse()} />}
         </>
     )
 }

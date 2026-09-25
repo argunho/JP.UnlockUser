@@ -69,7 +69,7 @@ function ModalCaseForm({ props, label, required, api, onClose }) {
         {/* MUI removes top padding of DialogContent after DialogTitle, so the floating labels were clipped */}
         <DialogContent className="w-100 modal-content-wrapper">
             {/* end */}
-            <FormControl fullWidth style={{ marginBottom: "30px" }}>
+            <FormControl fullWidth style={{ marginBottom: "10px" }}>
                 <TextField
                     label="Titel"
                     name="title"
@@ -86,7 +86,7 @@ function ModalCaseForm({ props, label, required, api, onClose }) {
                 />
             </FormControl>
 
-            <FormControl fullWidth style={{ marginBottom: "30px" }}>
+            <FormControl fullWidth style={{ marginBottom: 0 }}>
                 <TextField
                     label="Text"
                     name="text"

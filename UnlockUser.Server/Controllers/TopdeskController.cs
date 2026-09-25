@@ -10,6 +10,7 @@ namespace UnlockUser.Server.Controllers;
 [Authorize]
 public class TopdeskController(
     DashboardService dashboard,
+    TopdeskService topdesk,
     ICredentialsService credentials,
     ILocalFileService localFiles,
     IHelpService help,
@@ -17,6 +18,7 @@ public class TopdeskController(
     ILogger<TopdeskController> logger) : ControllerBase
 {
     private readonly DashboardService _dashboard = dashboard;
+    private readonly TopdeskService _topdesk = topdesk;
     private readonly ICredentialsService _credentials = credentials;
     private readonly ILocalFileService _localFiles = localFiles;
     private readonly IHelpService _help = help;
@@ -101,7 +103,7 @@ public class TopdeskController(
                 Request = _case.ToString()
             };
 
-            var res = await TopdeskService.SendData(incident, "incidents");
+           await _topdesk.SendData(incident, "incidents");
 
             return Ok();
 
@@ -125,20 +127,20 @@ public class TopdeskController(
                 return Ok(_help.Warning("Text fält är obligatoriskt att fylla i."));
 
             // Case caller data (current user)
-            var claims = _credentials.GetClaims(["email", "displayName"]);
+            var claims = _credentials.GetClaims(["email", "displayName", "office"]);
             claims.TryGetValue("email", out string? email);
             claims.TryGetValue("displayName", out string? name);
+            claims.TryGetValue("office", out string? office);
 
             var date = DateTime.Now;
             StringBuilder _case = new();
-            _case.Append("<br/><b>Beskrivning:</b><br/>");
+            _case.Append("<br/><br/><b>Ärende från UnlockUser.</b>");
+            _case.Append("<br/><br/><b>Beskrivning:</b><br/>");
 
-            if (model.Text != null)
-                _case.Append($"<br/><br/>{model.Text}");
-            _case.Append("<br/><br/>");
-            _case.Append($"<b>Ärendet har registrerats av {name}.</b>");
+            _case.Append($"<br/>{model.Text}");
+            _case.Append($"<br/><br/><b>Ärendet har registrerats av {name}. </b>");
 
-            string description = "UnlockUser: {model.Title}";
+            string description = $"UnlockUser: {model.Title ?? "Ärende"}";
 
             IncidentCase incident = new()
             {
@@ -152,10 +154,9 @@ public class TopdeskController(
                 Request = _case.ToString()
             };
 
-            var res = await TopdeskService.SendData(incident, "incidents");
+            await _topdesk.SendData(incident, "incidents");
 
             return Ok();
-
         }
         catch (Exception ex)
         {
