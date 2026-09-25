@@ -111,6 +111,20 @@ public class UserPrincipalExtension : UserPrincipal
         set { ExtensionSet("extensionAttribute10", value); }
     }
 
+    [DirectoryProperty("accountExpires")]
+    public string Expires
+    {
+        get
+        {
+            if (ExtensionGet("accountExpires").Length != 1)
+                return string.Empty;
+
+            return (string)ExtensionGet("accountExpires")[0]?.ToString();
+        }
+
+        set { ExtensionSet("accountExpires", value); }
+    }
+
     public static new UserPrincipalExtension FindByIdentity(PrincipalContext context, string identityValue)
     {
         return (UserPrincipalExtension)FindByIdentityWithType(context, typeof(UserPrincipalExtension), identityValue);

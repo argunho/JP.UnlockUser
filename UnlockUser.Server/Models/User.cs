@@ -12,6 +12,7 @@ public class User
     public string? Title { get; set; }
     public string? LastLoginTime { get; set; }
     public bool IsLocked { get; set; }
+    public DateTime? Expires { get; set; }
     public List<Manager> Managers { get; set; } = [];
     public PermissionsViewModel? Permissions { get; set; }
 }

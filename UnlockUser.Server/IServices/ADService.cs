@@ -299,6 +299,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
         result?.PropertiesToLoad.Add("title");
         result?.PropertiesToLoad.Add("extensionAttribute9");
         result?.PropertiesToLoad.Add("extensionAttribute10");
+        result?.PropertiesToLoad.Add("accountExpires");
         result?.PropertiesToLoad.Add("lockoutTime");
         return result;
     }
@@ -314,6 +315,32 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
 
         string title = props.Contains("title") ? props["title"][0]?.ToString() : "";
 
+        DateTime expires = DateTime.MinValue;
+        try
+        {
+            if (props.Contains("accountExpires"))
+            {
+                var raw = props["accountExpires"][0]?.ToString();
+                if (long.TryParse(raw, out long fileTime))
+                {
+                    // AD uses 0 or 0x7FFFFFFFFFFFFFFF to indicate 'never'
+                    if (fileTime == 0L || fileTime == 9223372036854775807L)
+                    {
+                        expires = DateTime.MaxValue;
+                    }
+                    else
+                    {
+                        expires = DateTime.FromFileTimeUtc(fileTime).ToLocalTime();
+                    }
+                }
+            }
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+
         return new User
         {
             Username = props["cn"][0].ToString(),
@@ -323,6 +350,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
             Office = props.Contains("physicalDeliveryOfficeName") ? props["physicalDeliveryOfficeName"][0]?.ToString() : "",
             Division = props.Contains("division") ? props["division"][0]?.ToString() : "",
             Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
+            Expires =  expires,
             Title = title,
             IsLocked = isLocked
         };

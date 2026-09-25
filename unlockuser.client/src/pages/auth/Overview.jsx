@@ -2,8 +2,11 @@ import { useEffect, useState, use, useRef } from 'react';
 
 // Installed
 import { useNavigate, useLoaderData } from 'react-router-dom';
-import { IconButton, TextField, InputAdornment, Alert, List, ListItem, ListItemIcon, ListItemText, Avatar } from '@mui/material';
-import { Edit, SearchSharp, SearchOffSharp, Label, AlternateEmail, Business, AccountBalance, Shield, ArrowForward } from '@mui/icons-material';
+import { IconButton, TextField, InputAdornment, Alert, List, ListItem, ListItemIcon, ListItemText, Avatar, Collapse } from '@mui/material';
+import {
+    Edit, SearchSharp, SearchOffSharp, Label, AlternateEmail,
+    Business, AccountBalance, Shield, ArrowForward, FactCheck, KeyboardArrowDown, KeyboardArrowUp
+} from '@mui/icons-material';
 
 // Components
 import TabPanel from '../../components/blocks/TabPanel';
@@ -14,6 +17,7 @@ import { DecodedClaims } from './../../functions/DecodedToken';
 
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
+import { Initials } from '../../functions/Helpers';
 
 const messages = {
     info: {
@@ -52,7 +56,7 @@ const messages = {
 
 
 function Overview() {
-    const { user, collection } = useLoaderData();
+    const { user, moderators, collection } = useLoaderData();
 
     const { permissions, openAccess, limitedAccess } = DecodedClaims();
     const { fetchData, response } = use(FetchContext);
@@ -75,18 +79,14 @@ function Overview() {
         }] : [])
     ];
 
-    const initials = (user?.displayName ?? user?.username ?? "")
-        .split(/[\s,]+/)
-        .filter(Boolean)
-        .slice(0, 2)
-        .map(word => word[0]?.toUpperCase())
-        .join("");
+    const initials = Initials(user?.displayName ?? user?.username ?? "");
 
     const navigate = useNavigate();
     const ref = useRef(null);
 
     const [message, setMessage] = useState(hasPermission ? messages?.info : messages?.noPermission);
     const [checked, setChecked] = useState(null);
+    const [collapsed, setCollapsed] = useState(false);
 
     // start: 2026-08-28 15:26
     useEffect(() => {
@@ -134,7 +134,7 @@ function Overview() {
     // If user not found
     if (!user)
         return <Message res={response ?? messages.none} cancel={() => navigate(-1)} />;
-
+    console.log("collection", collection, "user", user, "checked", checked, "moderators", moderators)
     return <>
         {/* Tab menu */}
         <TabPanel primary="Anvädarprofil" secondary={
@@ -177,6 +177,30 @@ function Overview() {
                         </ListItemIcon>
                         <ListItemText primary={value} secondary={label} />
                     </ListItem>)}
+
+                    {/* Moderators */}
+                    {moderators?.length > 0 &&
+                        <> <ListItem onClick={() => setCollapsed((open) => !open)} secondaryAction={collapsed ? <KeyboardArrowUp /> : <KeyboardArrowDown />}>
+                            <ListItemIcon className="profile-list-icon">
+                                <FactCheck />
+                            </ListItemIcon>
+                            <ListItemText primary={`Behöriga anställda (${moderators.length})`} secondary={`Anställda med behörighet att ändra lösenord för ${user?.displayName ?? user?.username}`} /> {/* 2026-09-25 */}
+
+                        </ListItem>
+                            <Collapse in={collapsed} className='d-row dropdown-block w-100' timeout="auto" unmountOnExit>
+                                <List style={{ margin: "0 20px" }}>
+                                    {moderators?.map((item, index) => {
+                                        const collapseProps = !!item?.link ? { onClick: () => navigate(item.link) } : null;
+                                        return <ListItem className="w-100" key={index} {...collapseProps}>
+                                            <ListItemIcon>
+                                                <Avatar className="profile-avatar-small">{Initials(item?.primary)}</Avatar>
+                                            </ListItemIcon>
+                                            <ListItemText primary={item?.primary} secondary={item?.secondary} />
+                                        </ListItem>
+                                    })}
+                                </List>
+                            </Collapse>
+                        </>}
                 </List>
             </section>
 
@@ -241,7 +265,7 @@ function Overview() {
                         ...message, msg: message?.msg
                             ?.replace(/\{name\}/g, `<span style="color: red">${user.displayName}</span>`)
                             ?.replace(/\{group\}/g, `<span style="color: red">${checked?.group}</span>`)
-                    }} close={false}/>
+                    }} close={false} />
                 </Alert>}
             </section>
 

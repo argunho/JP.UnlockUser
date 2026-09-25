@@ -1,0 +1,152 @@
+2026-09-25 08:48:01.831 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 08:48:02.164 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 08:48:03.177 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 08:48:03.220 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 08:49:39.227 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-25 08:49:39.261 +02:00 [INF] End save process. catalogs/moderators
+2026-09-25 08:52:20.220 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-25 08:52:20.388 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-09-25 08:52. Department: IT avdelning. Office: IT avdelning.
+2026-09-25 08:52:20.870 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 08:52:20.
+2026-09-25 08:52:20.870 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 08:52:20.
+2026-09-25 08:52:39.576 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-25 08:52:39.
+2026-09-25 08:52:59.612 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-25 08:52:59.
+2026-09-25 08:52:59.620 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-09-25 08:52:59.623 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-25 08:52:59.
+2026-09-25 08:52:59.628 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-25 08:52:59.
+2026-09-25 08:52:59.642 +02:00 [INF] Dashboard data setup completed.
+2026-09-25 09:29:29.547 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-25 09:29:29.720 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-09-25 09:29. Department: IT avdelning. Office: IT avdelning.
+2026-09-25 09:29:31.225 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 09:29:31.
+2026-09-25 09:29:31.225 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 09:29:31.
+2026-09-25 09:29:52.887 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-25 09:29:52.
+2026-09-25 09:30:14.264 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-25 09:30:14.
+2026-09-25 09:30:24.906 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-25 09:30:24.
+2026-09-25 09:30:24.908 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-25 09:30:24.
+2026-09-25 09:30:24.912 +02:00 [INF] Dashboard data setup completed.
+2026-09-25 10:14:03.602 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-25 10:14:03.807 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-09-25 10:14. Department: IT avdelning. Office: IT avdelning.
+2026-09-25 10:14:05.018 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 10:14:05.
+2026-09-25 10:14:05.018 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 10:14:05.
+2026-09-25 10:14:22.104 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-25 10:14:22.
+2026-09-25 10:14:41.867 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-25 10:14:41.
+2026-09-25 10:14:53.214 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-25 10:14:53.
+2026-09-25 10:14:53.217 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-25 10:14:53.
+2026-09-25 10:14:53.223 +02:00 [INF] Dashboard data setup completed.
+2026-09-25 10:22:31.297 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-25 10:22:31.530 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-09-25 10:22. Department: IT avdelning. Office: IT avdelning.
+2026-09-25 10:22:32.307 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 10:22:32.
+2026-09-25 10:22:32.307 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 10:22:32.
+2026-09-25 10:22:52.662 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-25 10:22:52.
+2026-09-25 10:23:11.744 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-25 10:23:11.
+2026-09-25 10:23:22.510 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-25 10:23:22.
+2026-09-25 10:23:22.515 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-25 10:23:22.
+2026-09-25 10:23:22.521 +02:00 [INF] Dashboard data setup completed.
+2026-09-25 10:28:45.398 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-25 10:28:45.572 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-09-25 10:28. Department: IT avdelning. Office: IT avdelning.
+2026-09-25 10:28:46.013 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 10:28:46.
+2026-09-25 10:28:46.013 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 10:28:46.
+2026-09-25 10:29:01.823 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-25 10:29:01.
+2026-09-25 10:29:19.562 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-25 10:29:19.
+2026-09-25 10:29:29.266 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-25 10:29:29.
+2026-09-25 10:29:29.267 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-25 10:29:29.
+2026-09-25 10:29:29.270 +02:00 [INF] Dashboard data setup completed.
+2026-09-25 10:34:22.816 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-25 10:34:22.986 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-09-25 10:34. Department: IT avdelning. Office: IT avdelning.
+2026-09-25 10:34:23.320 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 10:34:23.
+2026-09-25 10:34:23.320 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 10:34:23.
+2026-09-25 10:34:37.629 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-25 10:34:37.
+2026-09-25 10:34:53.156 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-25 10:34:53.
+2026-09-25 10:35:03.209 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-25 10:35:03.
+2026-09-25 10:35:03.216 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-25 10:35:03.
+2026-09-25 10:35:03.224 +02:00 [INF] Dashboard data setup completed.
+2026-09-25 10:59:11.952 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-25 10:59:12.094 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-09-25 10:59. Department: IT avdelning. Office: IT avdelning.
+2026-09-25 10:59:12.648 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 10:59:12.
+2026-09-25 10:59:12.648 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 10:59:12.
+2026-09-25 10:59:28.662 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-25 10:59:28.
+2026-09-25 10:59:46.062 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-25 10:59:46.
+2026-09-25 10:59:56.976 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-25 10:59:56.
+2026-09-25 10:59:56.979 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-25 10:59:56.
+2026-09-25 10:59:56.984 +02:00 [INF] Dashboard data setup completed.
+2026-09-25 11:50:51.231 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 11:50:51.750 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 11:50:52.767 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 11:50:52.811 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 12:03:44.581 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 12:03:44.956 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 12:03:45.968 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 12:03:46.023 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 12:35:27.856 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 12:35:28.274 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 12:35:29.291 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 12:35:29.336 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 12:38:29.354 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 12:38:29.719 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 12:38:31.786 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 12:38:31.817 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 13:48:12.723 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 13:48:13.343 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 13:48:14.398 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 13:48:14.492 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 18:24:48.008 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 18:24:48.610 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 18:24:49.684 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 18:24:49.806 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 21:16:18.213 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 21:16:18.578 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 21:16:19.590 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 21:16:19.723 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 21:20:01.510 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 21:20:01.734 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 21:20:02.756 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 21:20:02.796 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 21:26:21.483 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 21:26:21.746 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 21:26:22.765 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 21:26:22.799 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 21:34:22.631 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 21:34:23.093 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 21:34:24.114 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 21:34:24.155 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 21:38:55.569 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 21:38:56.065 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 21:38:57.085 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 21:38:57.205 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 21:54:49.062 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 21:54:50.157 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 21:55:15.094 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 21:55:15.180 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 21:56:37.568 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 21:56:37.951 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 21:56:48.235 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 21:56:48.290 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 21:58:06.179 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-25 21:58:06.458 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-09-25 21:58. Department: IT avdelning. Office: IT avdelning.
+2026-09-25 21:58:07.609 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 21:58:07.
+2026-09-25 21:58:07.609 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 21:58:07.
+2026-09-25 21:58:25.562 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-25 21:58:25.
+2026-09-25 21:58:45.358 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-25 21:58:45.
+2026-09-25 21:58:56.071 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-25 21:58:56.
+2026-09-25 21:58:56.073 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-25 21:58:56.
+2026-09-25 21:58:56.078 +02:00 [INF] Dashboard data setup completed.
+2026-09-25 22:00:24.852 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 22:00:25.130 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 22:00:26.140 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 22:00:26.197 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 22:04:06.356 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-25 22:04:06.377 +02:00 [INF] End save process. catalogs/moderators
+2026-09-25 22:06:25.385 +02:00 [INF] Starting process to save file catalogs/managers
+2026-09-25 22:06:25.657 +02:00 [INF] End save process. catalogs/managers
+2026-09-25 22:06:26.669 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-09-25 22:06:26.743 +02:00 [INF] End save process. catalogs/politicians
+2026-09-25 22:06:51.455 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-09-25 22:06:51.631 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-09-25 22:06. Department: IT avdelning. Office: IT avdelning.
+2026-09-25 22:06:52.428 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 22:06:52.
+2026-09-25 22:06:52.428 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-09-25 22:06:52.
+2026-09-25 22:07:05.489 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-09-25 22:07:05.
+2026-09-25 22:07:25.052 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-09-25 22:07:25.
+2026-09-25 22:07:36.197 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-09-25 22:07:36.
+2026-09-25 22:07:36.201 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-09-25 22:07:36.
+2026-09-25 22:07:36.209 +02:00 [INF] Dashboard data setup completed.
+2026-09-25 22:08:19.398 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-09-25 22:08:19.412 +02:00 [INF] End save process. catalogs/moderators

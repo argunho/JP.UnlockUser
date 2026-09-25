@@ -36,7 +36,6 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILocalUserService l
                 DateTime? lastUpdated = DateTime.TryParse(appConfig.LastUpdatedDate, out var parsed) ? parsed : null;
 
                 // Update employees in txt file
-
                 if (currentHour >= 6 && (lastUpdated == null || currentDate.Date != lastUpdated?.Date))
                 {
                     // Renew users saved list

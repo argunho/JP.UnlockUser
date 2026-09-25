@@ -166,9 +166,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             await _helpService.Error(ex);
             return Ok();
         }
-    }
-    
-    
+    }    
     #endregion
 
     #region POST

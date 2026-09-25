@@ -183,6 +183,14 @@ div.view h3:last-of-type {
   margin-right: 20px;
 }
 
+.profile-avatar-small {
+  width: 40px !important;
+  height: 40px !important;
+  font-size: 16px !important;
+  background-color: var(--color-primary) !important;
+  margin-right: 20px;
+}
+
 .profile-list {
   width: 100%;
 }

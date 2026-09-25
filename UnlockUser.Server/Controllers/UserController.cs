@@ -106,7 +106,17 @@ public class UserController(IADService provider, IWebHostEnvironment env,
                 if (user != null && user.Permissions?.Groups.Count > 0)
                     collection = GetGroupsCachedUsers();
 
-                return Ok(new { user, collection });
+                List<ViewModel?>? moderators = [.. (await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators"))
+                                .Where(x => x != null && x.Manager != null && string.Equals(x.Manager, user?.Manager, StringComparison.OrdinalIgnoreCase) 
+                                            && x.Permissions != null && x.Permissions.Groups.Contains(user?.Group, StringComparer.OrdinalIgnoreCase))
+                         .Select(s => new ViewModel
+                         {
+                             Id = s.Username,
+                             Primary = s.DisplayName,
+                             Secondary = $"{s.Office} > {(s.Department == s.Office ? s.Division : s.Department)}"
+                         }) ?? []]; ;
+
+                return Ok(new { user, moderators, collection });
             }
 
             var userPrincipal = _provider.FindUser(key);

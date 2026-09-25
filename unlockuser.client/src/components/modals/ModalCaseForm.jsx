@@ -39,7 +39,7 @@ function ModalCaseForm({ props, label, required, api, onClose }) {
         await fetchData({ api: `topdesk/case/${param}`, method: "post", data: data, action: "success" });
     }
 
-    const textLgh = required ? 50 : 5;
+    const textLgh = required ? 50 : 20;
 
     return <Dialog
         open={true}
@@ -82,7 +82,7 @@ function ModalCaseForm({ props, label, required, api, onClose }) {
                     className="field w-100"
                     onChange={onChange}
                     error={formData?.title?.length > 50}
-                    helperText={`${formData?.title?.length ?? 0}/50`}
+                    helperText={`${formData?.title?.length ?? 0}/50 - Max`}
                 />
             </FormControl>
 
@@ -102,7 +102,7 @@ function ModalCaseForm({ props, label, required, api, onClose }) {
                     className="field w-100"
                     onChange={onChange}   
                     error={formData?.text?.length > 0 && textLgh > formData?.text?.length}                
-                    helperText={`${formData?.text?.length ?? 0}/${textLgh}`}
+                    helperText={`${formData?.text?.length ?? 0}/${textLgh} - Min`}
                 />
             </FormControl>
 

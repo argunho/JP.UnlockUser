@@ -21,6 +21,7 @@ public class UserViewModel : User
             Division = user?.Division;
             Title = user?.Title;
             LastLoginTime = user?.LastLoginTime;
+            Expires = user?.Expires;
             IsLocked = user!.IsLocked || false;
             Permissions = user?.Permissions;
         }
