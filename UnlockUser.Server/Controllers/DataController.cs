@@ -127,7 +127,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
              
                     group_members.AddRange([.. users.Where(x =>
                     {
-                        if (x.Manager == null || approvedEmployeeUsernames.Contains(x.Username!)) 
+                        if (x.Manager == null || approvedEmployeeUsernames!.Contains(x.Username!)) 
                             return false;
 
                         var m = x.Manager.Trim();
