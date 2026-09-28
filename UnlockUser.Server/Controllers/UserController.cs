@@ -94,8 +94,9 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     }
 
     [HttpGet("by/{key}")]
+    [HttpGet("by/{key}/search/{search:bool}")]
     [Authorize(Roles = "ITGroup,DevelopTeam,KCGroup")]
-    public async Task<IActionResult> GetUserByUsername(string key)
+    public async Task<IActionResult> GetUserByUsername(string key, bool search = false)
     {
         try
         {
@@ -103,11 +104,14 @@ public class UserController(IADService provider, IWebHostEnvironment env,
             var (user, continueSearch) = await GetUserFromCache(key);
             if (!continueSearch)
             {
-                if (user != null && user.Permissions?.Groups.Count > 0)
+                if (user != null && user.Permissions?.Groups.Count > 0 && !search)
                     collection = GetGroupsCachedUsers();
 
-                List<ViewModel?>? moderators = [.. (await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators"))
-                                .Where(x => x != null && x.Manager != null && string.Equals(x.Manager, user?.Manager, StringComparison.OrdinalIgnoreCase) 
+                if (!search)
+                {
+                    List<ViewModel?>? moderators = [.. (await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators"))
+                                .Where(x => !string.Equals(x.Username, user.Username, StringComparison.OrdinalIgnoreCase)
+                                            && x != null && x.Manager != null && string.Equals(x.Manager, user?.Manager, StringComparison.OrdinalIgnoreCase)
                                             && x.Permissions != null && x.Permissions.Groups.Contains(user?.Group, StringComparer.OrdinalIgnoreCase))
                          .Select(s => new ViewModel
                          {
@@ -116,7 +120,10 @@ public class UserController(IADService provider, IWebHostEnvironment env,
                              Secondary = $"{s.Office} > {(s.Department == s.Office ? s.Division : s.Department)}"
                          }) ?? []]; ;
 
-                return Ok(new { user, moderators, collection });
+                    return Ok(new { user, moderators, collection });
+                }
+
+                return Ok(user);
             }
 
             var userPrincipal = _provider.FindUser(key);
@@ -450,9 +457,9 @@ public class UserController(IADService provider, IWebHostEnvironment env,
             if (group!.Equals("Studenter", StringComparison.OrdinalIgnoreCase))
             {
                 bool isMatch = false;
-                foreach(var school in permissions!.Schools)
+                foreach (var school in permissions!.Schools)
                 {
-                    if(office.StartsWith(school, StringComparison.OrdinalIgnoreCase))
+                    if (office.StartsWith(school, StringComparison.OrdinalIgnoreCase))
                     {
                         isMatch = true;
                         break;
@@ -480,7 +487,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         Data sessionUserData = await GetLogData(group!, office!, department!);
         var message = new StringBuilder();
 
-        _logger.LogInformation("Permissions validated. Starting to set a new password for {users} at {dateTime}.", 
+        _logger.LogInformation("Permissions validated. Starting to set a new password for {users} at {dateTime}.",
             string.Join(",", userModels.Select(s => s.Username).ToList()), DateTime.Now.ToString("g"));
 
         // Set password to class students

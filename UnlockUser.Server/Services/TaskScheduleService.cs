@@ -51,7 +51,7 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILocalUserService l
 
                         // Clean history file from old histories
                         var histories = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories");
-                        histories = [.. histories.Where(x => Convert.ToDateTime(x.Date) >= cutOffDate)];
+                        histories = [.. histories!.Where(x => Convert.ToDateTime(x.Date) >= cutOffDate)];
                         await _localFileService.EncrypteToFile(histories, "catalogs/histories");
 
                         // Remove old files

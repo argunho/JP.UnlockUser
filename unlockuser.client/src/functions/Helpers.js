@@ -25,3 +25,18 @@ export function Initials(name) {
 export function GetCnValue(dn) {
     return dn.match(/^CN=([^,]+)/)?.[1] ?? null;
 }
+
+export function ReplaceLetters(word) {
+  return  word?.toLowerCase().replaceAll("á", "a").replaceAll("ä", "a").replaceAll("å", "a")
+            .replaceAll("æ", "a").replaceAll("ö", "o").replaceAll("ø", "o").replaceAll("é", "e");
+}
+
+export function CheckEmail(email){
+    const check = /^([a-zA-Z0-9_\-.]+)@([a-zA-Z0-9_\-.]+)\.([a-zA-Z]{2,5})$/;
+    return check.test(email);
+}
+
+export function CheckUsername(value){
+    const check = /^\d{6}[a-z]{3,4}$/i;
+    return check.test(value);
+}

@@ -5,7 +5,7 @@ import { capitalize } from '@mui/material'
 import PasswordCategories from '../lists/PasswordCategories';
 
 // Functions
-import ReplaceLetters from './../../functions/ReplaceLetters';
+import { ReplaceLetters } from '../../functions/Helpers';
 
 const eng = /^[A-Za-z]+$/;
 const symbols = "!@?$&#^%*-,;._";

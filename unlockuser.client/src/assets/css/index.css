@@ -108,8 +108,7 @@ a:hover {
 }
 
 main,
-.container,
-.wrapper {
+.container {
     margin: 0 auto;
     width: 100% !important;
     max-width: var(--max-width) !important;
@@ -125,8 +124,7 @@ main,
 
 /* #region Flex */
 .d-row,
-.d-column,
-.d-column-jb .container {
+.d-column {
     justify-content: center;
     align-items: center;
     display: -ms-flexbox;
@@ -683,7 +681,7 @@ main,
     }
 }
 
-@media(max-width: 1920px) {
+@media(max-width: 1400px) {
     :root {
         --max-width: 1300px !important;
         --header-height: 200px !important;

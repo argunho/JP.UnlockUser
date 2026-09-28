@@ -221,13 +221,12 @@ div.view h3:last-of-type {
 }
 
 section.search {
-  max-width: 450px;
+  max-width: 520px;
   height: 100%;
   justify-self: flex-start !important;
   align-self: flex-start !important;
   margin-left: 0 !important;
 }
-
 /* #endregion */
 
 /* #region List */

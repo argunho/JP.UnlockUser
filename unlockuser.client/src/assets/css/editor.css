@@ -1,6 +1,5 @@
 .d-row,
-.d-column,
-.d-column-jb .container {
+.d-column {
     justify-content: center;
     align-items: center;
     display: -webkit-box;

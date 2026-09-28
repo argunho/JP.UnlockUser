@@ -34,7 +34,6 @@ function ModalCaseForm({ props, label, required, api, onClose }) {
             ...props,
             ...formData
         };
-        console.log(data, `topdesk/case/${param}`)
 
         await fetchData({ api: `topdesk/case/${param}`, method: "post", data: data, action: "success" });
     }
