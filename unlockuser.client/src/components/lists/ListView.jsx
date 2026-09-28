@@ -5,7 +5,6 @@ import { List, ListItem, ListItemText, ListItemAvatar, Avatar } from '@mui/mater
 import { Initials } from '../../functions/Helpers';
 
 function ListView({ list: items, avatar, initials, styles, fullWith = true, onClick }) {
-    console.log(initials)
     return (
         <List className="d-row w-100" style={{ flexWrap: "wrap", ...styles }}>
             {items.map((item, index) => {

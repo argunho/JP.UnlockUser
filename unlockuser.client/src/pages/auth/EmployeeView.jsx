@@ -11,6 +11,7 @@ import AutocompleteList from '../../components/lists/AutocompleteList';
 import ActionButtons from './../../components/blocks/ActionButtons';
 import Message from './../../components/blocks/Message';
 import ModalCaseForm from './../../components/modals/ModalCaseForm';
+import ModalSuccess from './../../components/modals/ModalSuccess';
 
 // Functions
 import { GetCnValue } from '../../functions/Helpers';
@@ -24,7 +25,6 @@ import { Claim } from '../../functions/DecodedToken';
 
 // Css
 import './../../assets/css/view.css';
-import ModalSuccess from './../../components/modals/ModalSuccess';
 
 function sortedValues(arr, key) {
     return [...(arr ?? [])]
@@ -247,7 +247,7 @@ function EmployeeView() {
                 pending={pending}
                 disabled={!isChanged}
                 action={access?.limited ? {
-                    name: "Registrtera ärende i Topdesk",
+                    name: "Registrera ärende i Topdesk",
                     color: "warning",
                     confirm: false
                 } : null}
@@ -303,13 +303,13 @@ function EmployeeView() {
                 {employeesToView?.length > 0 && <List className="collapse-wrapper d-row jc-start w-100">
                     {employeesToView?.map((emp, index) => {
                         const managerUsername = GetCnValue(emp.manager);
-                        const disabled = approved.managers.find(x => x.username === managerUsername) != null;
-                        const checked = approved.employees.find(x => x?.username === emp?.username) || disabled;
-
+                        const selected = approved.managers.find(x => x.username === managerUsername) != null && !emp.permissions || emp?.username == moderator?.username;
+                        const checked = approved.employees.find(x => x?.username === emp?.username) || selected;
+   
                         return <ListItem key={index} className="li-collapse"
                             secondaryAction={
                                 <IconButton
-                                    disabled={disabled}
+                                    disabled={selected}
                                     onClick={() => checked ? onDelete(emp?.username, "employees", "username") : onChange(emp?.username, "employees")}>
                                     {checked ? <CheckBox color="success" /> : <CheckBoxOutlineBlank />}
                                 </IconButton>

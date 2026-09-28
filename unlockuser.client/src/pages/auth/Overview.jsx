@@ -97,7 +97,7 @@ function Overview() {
             ? (equals ? collection.find(x => x.username === value || x.email === value)
                 : collection.filter(x => x?.displayName.toLowerCase().includes(value.toLowerCase())))
             : await fetchData({ api: `user/by/${value}/search/${true}`, method: "get", action: "return" });
-        console.log(res)
+
         if (Array.isArray(res) && res?.length > 1) {
             setMatched(res);
             return;

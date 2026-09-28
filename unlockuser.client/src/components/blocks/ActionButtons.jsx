@@ -11,7 +11,7 @@ function ActionButtons({ children, label, pending, disabled, action, onClick }) 
   const [confirm, setConfirm] = useState(false);
 
   function handleClick(){
-    if(action.confirm)
+    if(action?.confirm)
       setConfirm(true);
     else
       onClick();

@@ -109,8 +109,8 @@ public class UserController(IADService provider, IWebHostEnvironment env,
 
                 if (!search)
                 {
-                    List<ViewModel?>? moderators = [.. (await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators"))
-                                .Where(x => !string.Equals(x.Username, user.Username, StringComparison.OrdinalIgnoreCase)
+                    List<ViewModel?>? moderators = [.. (await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators") ?? [])
+                                .Where(x => !string.Equals(x.Username, user!.Username, StringComparison.OrdinalIgnoreCase)
                                             && x != null && x.Manager != null && string.Equals(x.Manager, user?.Manager, StringComparison.OrdinalIgnoreCase)
                                             && x.Permissions != null && x.Permissions.Groups.Contains(user?.Group, StringComparer.OrdinalIgnoreCase))
                          .Select(s => new ViewModel

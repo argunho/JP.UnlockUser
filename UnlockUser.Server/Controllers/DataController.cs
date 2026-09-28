@@ -124,8 +124,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 
                     if(approvedEmployeeUsernames?.Count > 0)
                         group_members = [.. users.Where(x => approvedEmployeeUsernames.Contains(x.Username!))];
-
-                   
+             
                     group_members.AddRange([.. users.Where(x =>
                     {
                         if (x.Manager == null || approvedEmployeeUsernames.Contains(x.Username!)) 
