@@ -91,6 +91,9 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
             }
         }
 
+        // Saved employees who have permission to manage employee passwords
+        var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+
         // Get all users by search group parameters
         foreach (SearchResult? result in res.FindAll().OfType<SearchResult>())
         {
@@ -102,22 +105,28 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
             if (isEmployeeGroup)
             {
                 var properties = props["memberOf"].OfType<string>() ?? [];
-                bool isMatch = properties.Any(x => x.Contains("Ciceron-Assistentanvändare", StringComparison.OrdinalIgnoreCase));
+                bool isPoliticianGroup = properties.Any(x => x.Contains("Ciceron-Assistentanvändare", StringComparison.OrdinalIgnoreCase));
 
-                if (isPolitician && !isMatch)
+                if (isPolitician && !isPoliticianGroup)
                     continue;
-                else if (isEmployee && isMatch)
+                else if (isEmployee && isPoliticianGroup)
                     continue;
+
+                var moderator = moderators.FirstOrDefault(x => string.Equals(x.Username, user.Username, StringComparison.OrdinalIgnoreCase));
+                if (moderator != null)
+                    user.Permissions = moderator.Permissions;
 
                 if (alternativeParams == null || alternativeParams?.Count == 0)
                     users.Add(user!);
                 else if (isEmployee && !users.Exists(x => x.Username == user.Username!))
                 {
-                    if(approvedEmployeeUsernames.Count > 0 && approvedEmployeeUsernames.Contains(user.Username!))
+                    if (approvedEmployeeUsernames.Count > 0 && approvedEmployeeUsernames.Contains(user.Username!))
                     {
                         users.Add(user);
                         continue;
                     }
+                    else if (moderator != null)
+                        continue;
 
                     if (user.Manager == null) 
                         continue;

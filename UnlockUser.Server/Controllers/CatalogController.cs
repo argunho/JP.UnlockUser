@@ -215,7 +215,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
     #region PUT
     [HttpPut("update/changed")]
-    [Authorize(Roles = "DevelopTeam,ITGroup")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")] 
     public async Task<IActionResult> PutChanged(CatalogsFormModel model)
     {
         try

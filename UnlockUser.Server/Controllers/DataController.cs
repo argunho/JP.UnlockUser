@@ -122,9 +122,11 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                         approvedEmployeeUsernames.AddRange([.. approvedEmployees.Select(s => s.Username!)]);
                     }
 
-                    if(approvedEmployeeUsernames?.Count > 0)
-                        group_members = [.. users.Where(x => approvedEmployeeUsernames.Contains(x.Username!))];
-             
+                    //users = [..users.Where(x => x.Permissions == null 
+                    //                || x.Permissions.Groups?.Count == 0 
+                    //                || approvedEmployeeUsernames.Contains(x.Username!))];
+
+
                     group_members.AddRange([.. users.Where(x =>
                     {
                         if (x.Manager == null || approvedEmployeeUsernames!.Contains(x.Username!)) 
@@ -144,6 +146,10 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                         var part = m.Substring(3, comma - 3);
                         return alternativeParams!.Contains(part, StringComparer.OrdinalIgnoreCase);
                     })]);
+
+                    if (approvedEmployeeUsernames?.Count > 0)
+                        group_members.AddRange([.. users.Where(x => approvedEmployeeUsernames.Contains(x.Username!))]);
+
 
                     return Ok(group_members);
                 }

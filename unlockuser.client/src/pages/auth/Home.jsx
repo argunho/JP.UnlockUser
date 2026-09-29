@@ -132,7 +132,10 @@ function Home() {
             //     ApiRequest(`data/groups/by/${gn}`),
             // ]);
 
-            groupAccountsRef.current = await fetchData({ api: `data/groups/by/${gn}/${username}/${impersonating}`, action: "return" })
+            const api = `data/groups/by/${gn}/${username}/${impersonating}`;
+            // navigate(loc.pathname, { replace: true, state: { api: api, key: key }});
+console.log(api)
+            groupAccountsRef.current = await fetchData({ api: api, action: "return" })
             if (groupAccountsRef.current?.length == 0) {
 
                 const logged = sessionStorage.getItem("logged");
@@ -259,7 +262,7 @@ function Home() {
             } else {
                 res = (isClass)
                     ? accounts?.filter(x => x?.department?.toLowerCase() === key && x?.office?.startsWith(school))?.sort((a, b) => a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase()))
-                    : accounts?.filter(x => matchesKey(x) && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0))); // 2026-09-22
+                    : accounts?.filter(x => matchesKey(x));// && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0))); // 2026-09-22
 
                 // start: 2026-08-27 09:57
                 if (isClass && res?.length > 0 && res.find(x => !x.lastLoginTime) !== null) {

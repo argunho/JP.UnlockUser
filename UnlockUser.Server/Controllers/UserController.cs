@@ -14,7 +14,7 @@ namespace UnlockUser.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+[Authorize(Roles = "Moderator,ITGroup,DevelopTeam,KCGroup,Manager")]
 public class UserController(IADService provider, IWebHostEnvironment env,
     ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localUserService, IMemoryCache memoryCahce,
     ICredentialsService credinalService, ILocalMailService localMailService, IGoogleService googleService, ILogger<UserController> logger) : ControllerBase
@@ -211,7 +211,8 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     #endregion
 
     #region POST
-    [HttpPost("reset/single/password")] // Reset password
+    [HttpPost("reset/single/password")]
+    [Authorize(Roles = "DevelopTeam,Moderator,ITGroup")] // Reset password
     public async Task<IActionResult> SetSinglePassword(UserFormModel model)
     {
         try
@@ -234,6 +235,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     }
 
     [HttpPost("reset/multiple/passwords")] // Reset class students passwords
+    [Authorize(Roles = "DevelopTeam,Moderator,ITGroup")]
     public async Task<IActionResult> SetMultiplePasswords(List<UserFormModel> models)
     {
         try
@@ -251,6 +253,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     }
 
     [HttpPost("reset/send/passwords")]
+    [Authorize(Roles = "DevelopTeam,Moderator,ITGroup")]
     public async Task<IActionResult> SetPasswordsSavePdf([FromForm] IFormFile file, [FromForm] string data, [FromForm] string label)
     {
         try
@@ -289,6 +292,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
 
     #region PUT
     [HttpPut("unlock/{username}")] // Unlock user
+    [Authorize(Roles = "DevelopTeam,Moderator,ITGroup")]
     public async Task<IActionResult> UnlockUser(string username)
     {
         try
@@ -405,13 +409,10 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     // Set multiple passwords
     private async Task SetPasswords(List<UserFormModel> userModels)
     {
-        var userModel = userModels[0];
-
         // Check model is valid or not and return warning is true or false
-        if (userModel == null)
-            throw new Exception("Person för lösenordsåterställning har inte specificerats."); // Password reset user not specified
+        var userModel = userModels[0] ?? throw new Exception("Person för lösenordsåterställning har inte specificerats.");
 
-        // CUrrent moderator claims
+        // Current moderator claims
         var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permissions"]);
         if (claims == null || userModels == null)
             throw new Exception("Ingen användare med behörighet för lösenordsåterställning har specificerats.");
@@ -453,13 +454,13 @@ public class UserController(IADService provider, IWebHostEnvironment env,
                 ? null
                 : JsonConvert.DeserializeObject<PermissionsViewModel>(permissionsJson);
 
-            string warningMessage = "Du saknar behörigheter att ändra lösenord till";
+            string warningMessage = "Du saknar behörigheter att ändra lösenord till.";
             if (group!.Equals("Studenter", StringComparison.OrdinalIgnoreCase))
             {
                 bool isMatch = false;
                 foreach (var school in permissions!.Schools)
                 {
-                    if (office.StartsWith(school, StringComparison.OrdinalIgnoreCase))
+                    if (office!.StartsWith(school, StringComparison.OrdinalIgnoreCase))
                     {
                         isMatch = true;
                         break;
@@ -495,7 +496,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         {
             if (string.IsNullOrEmpty(user.Username))
             {
-                var userData = _provider.FindUser(user.Email);
+                var userData = _provider.FindUser(user.Email!);
                 user.Username = userData?.SamAccountName;
             }
 
