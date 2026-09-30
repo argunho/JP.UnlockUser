@@ -60,7 +60,7 @@ public class TopdeskController(
             _case.Append("Behörigheten ska ge användaren möjlighet att godkänna åtkomst för namngivna användare att ändra/låsa upp lösenord för utvalda anställda i UnlockUser.");
             _case.Append("<br/><br/>");
             _case.Append("<b>Utvalda anställda:</b><br/>");
-            _case.Append("<ol>");
+            _case.Append("<ul>");
 
             int index = 1;
 
@@ -73,15 +73,15 @@ public class TopdeskController(
                 if (user == null)
                     continue;
 
-                _case.Append("<li>");
+                _case.Append("<li class=\"case-li\">");
                 _case.Append($"<b>Anställd: {(index < 10 ? "0" : "")}{index}</b><br/>");
                 _case.Append($"<b>&emsp;- Namn:</b> {user.DisplayName}<br/>");
                 _case.Append($"<b>&emsp;- Användarnamn:</b> {user.Username}<br/>");
-                _case.Append($"<b>&emsp;- E-postadress:</b> {user.Email}<br>");
+                _case.Append($"<b>&emsp;- E-postadress:</b> {user.Email}<br/><br/>");
                 _case.Append("</li>");
                 index++;
             }
-            _case.Append("</ol>");
+            _case.Append("</ul>");
             if (model.Text != null)
                 _case.Append($"<br/><br/>{model.Text}");
             _case.Append("<br/><br/>");
@@ -103,22 +103,25 @@ public class TopdeskController(
                 Request = _case.ToString()
             };
 
-           await _topdesk.SendData(incident, "incidents");
+            var res = await _topdesk.SendData(incident, "incidents");
+            if (res is not null)
+            {
+                model.Title = incident.Description;
+                model.Text = _case.ToString();
+                _ = Task.Run(async () => await SaveCase(res, model));
+            }
+
+            _logger.LogInformation("KC-case. Topdesk-ärende inskickat av {user}. Date: {date}", name, model.Date);
 
             return Ok();
-
         }
         catch (Exception ex)
         {
-
-            _logger.LogInformation("Something went wrong. Error: => {0}. Function: {1}", ex.Message, nameof(PostKCCase));
-            return BadRequest(await _help.Error(ex));
+            return BadRequest(await Error(ex, nameof(PostKCCase)));
         }
     }
 
-
     [HttpPost("case")]
-    [Authorize]
     public async Task<IActionResult> PostModeratorCase(CaseFormModel model)
     {
         try
@@ -128,7 +131,7 @@ public class TopdeskController(
 
             // Case caller data (current user)
             var claims = _credentials.GetClaims(["email", "displayName", "office"]);
-            claims.TryGetValue("email", out string? email);
+            claims!.TryGetValue("email", out string? email);
             claims.TryGetValue("displayName", out string? name);
             claims.TryGetValue("office", out string? office);
 
@@ -154,16 +157,51 @@ public class TopdeskController(
                 Request = _case.ToString()
             };
 
-            await _topdesk.SendData(incident, "incidents");
+            var res = await _topdesk.SendData(incident, "incidents");
+            if (res is not null)
+            {
+                model.Title = incident.Description;
+                model.Text = _case.ToString();
+                _ = Task.Run(async () => await SaveCase(res, model));
+            }
 
+            _logger.LogInformation("User-case. Topdesk-ärende inskickat av {user}. Date: {date}", email, model.Date);
             return Ok();
         }
         catch (Exception ex)
         {
-
-            _logger.LogInformation("Something went wrong. Error: => {0}. Function: {1}", ex.Message, nameof(PostKCCase));
-            return BadRequest(await _help.Error(ex));
+            return BadRequest(await Error(ex, nameof(PostModeratorCase)));
         }
+    }
+    #endregion
+
+
+    #region Helpers
+    private async Task SaveCase(Dictionary<string, object> res, CaseFormModel model)
+    {
+        try
+        {
+            string? number = null;
+            if (res.TryGetValue("number", out var num) && num != null)
+                number = num.ToString();
+
+            if (string.IsNullOrEmpty(number))
+                return;
+
+            var cases = await _localFiles.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
+            cases.Add(number, model);
+            await _localFiles.EncrypteToFile(cases, "catalogs/cases");
+        }
+        catch (Exception ex)
+        {
+            await Error(ex, nameof(SaveCase));
+        }
+    }
+
+    private async Task<object> Error(Exception ex, string name)
+    {
+        _logger.LogInformation("Something went wrong. Error: => {0}. Function: {1}", ex.Message, name);
+        return await _help.Error(ex);
     }
     #endregion
 }

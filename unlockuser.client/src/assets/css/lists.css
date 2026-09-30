@@ -49,12 +49,15 @@ ul>li:not(.pagination li, .dropdown-li, .box-wrapper li) {
     color: var(--color-dark-gray);
 }
 
-div[role="presentation"] li {
+div[role="presentation"] li:not(case) {
     width: 98% !important;
     margin: 1px auto !important;
-    height: 50px !important;
     border: unset !important;
     font-size: 18px !important;
+}
+
+div[role="presentation"] li:not(li.case-li) {
+    height: 50px !important;
 }
 
 .loop-list li>div>span {

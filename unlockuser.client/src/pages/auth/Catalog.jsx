@@ -1,7 +1,7 @@
 import { useState, use, Fragment, useRef, useEffect } from "react";
 
 // Installed
-import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText, Skeleton, Tooltip } from "@mui/material";
+import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText, Skeleton, Tooltip, Avatar } from "@mui/material";
 import { ArrowDropDown, ArrowDropUp, CalendarMonth, Delete, Download, Pageview } from "@mui/icons-material";
 import { useLoaderData, useNavigate, useRevalidator, useOutletContext } from 'react-router-dom';
 
@@ -193,7 +193,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                                 </div>
                             }
                         >
-                            <ListItemIcon>{ind + 1}</ListItemIcon>
+                            <Avatar sx={{ marginRight: "15px"}}>{ind + 1}</Avatar>
                             <ListItemText className="li-div"
                                 primary={<span dangerouslySetInnerHTML={{ __html: item?.primary }} />}
                                 secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }} />}
@@ -229,6 +229,11 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                 {download && <IconButton onClick={() => onDownload(model?.id)}>
                     <Download />
                 </IconButton>}
+
+                {/* Topdesk case - approve button */}
+                {model?.boolValue && <Button variant="contained" color="success">
+                    Godkänna
+                </Button>}
             </ModalOverview>}
         </>
     )

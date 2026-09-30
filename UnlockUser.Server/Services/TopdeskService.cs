@@ -43,7 +43,7 @@ public partial class TopdeskService(IConfiguration config)
                 return JsonConvert.DeserializeObject<Dictionary<string, object>>(responseBody["data"]?.ToString()!);
             }
 
-            return null;
+            return responseBody;
         }
         catch (Exception ex)
         {

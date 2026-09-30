@@ -35,8 +35,6 @@ function HiddenMenu({ access, onClose }) {
         }
     }
 
-
-
     return (
         <>
             <div className='background fade-in'></div>
@@ -57,12 +55,12 @@ function HiddenMenu({ access, onClose }) {
                     {(access?.open ? Links : (access?.limited ? Links.filter(x => !x.permission) : Links.filter(x => !x.access))).map((link, ind) => {
 
                         const props = link?.url ? { to: link.url } : { component: Button, onClick: switchModerator };
-
+                        
                         return <NavLink
                             key={ind}
                             {...props}
                             className={({ isActive }) => `hm-link d-row jc-start w-100 "${(isActive && link?.url) ? " active" : ""}${(link?.blink && !sessionStorage.getItem("blinked")) ? " blink-color" : ""}`}>
-                            <link.icon /> {link.label}
+                            <link.icon color={link?.color} /> {link.label}
                         </NavLink>
                     })}
                 </div>

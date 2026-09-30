@@ -40,8 +40,9 @@ button.modal-help-btn {
 
 .modal-desc {
   padding: 20px 30px !important;
+  min-height: 400px;
+  max-height: 80vh;
 }
-
 
 .MuiPaper-root:not(.alert):not(.MuiPaper-elevation) {
   padding: 20px 15px !important;
@@ -97,7 +98,7 @@ pre {
 }
 
 .modal-actions {
-  padding: 10px 15px !important;
+  padding: 20px 15px !important;
   margin: 10px 0 0 0 !important;
   border-top: 2px solid var(--color-gray);
 }

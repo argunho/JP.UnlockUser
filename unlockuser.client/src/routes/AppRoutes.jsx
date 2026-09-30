@@ -238,6 +238,12 @@ const AppRoutes = () => [
         loader: loader("catalog/histories")
       },
       {
+        path: 'cases',
+        element: <Catalog label="Topdesk ärende" api="catalog/cases" search={true} modal={true} disabled={true} />,
+        errorElement: <ErrorView />,
+        loader: loader("catalog/cases")
+      },
+      {
         path: 'errors',
         element: <Catalog label="Loggfiler" api="logs" download={true} />,
         errorElement: <ErrorView />,
