@@ -116,7 +116,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     {
         try
         {
-            Dictionary<string, CaseFormModel> cases = 
+            Dictionary<string, CaseFormModel> cases =
                 await _localFileService.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
             if (cases == null || cases?.Count == 0)
                 return Ok();
@@ -135,7 +135,6 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             return BadRequest(await _helpService.Error(ex)); ;
         }
     }
-
 
     // Get all logs history files
     [HttpGet("histories")]
@@ -217,7 +216,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         {
             return BadRequest(_helpService.Error(ex));
         }
-    }    
+    }
 
     [HttpPost("school")]
     [Authorize(Roles = "DevelopTeam,ITGroup")]
@@ -243,7 +242,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
     #region PUT
     [HttpPut("update/changed")]
-    [Authorize(Roles = "DevelopTeam,ITGroup")] 
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> PutChanged(CatalogsFormModel model)
     {
         try
@@ -295,6 +294,35 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             schools = [.. schools.Where(x => !string.Equals(x.Name!.Trim(), name.Trim(), StringComparison.OrdinalIgnoreCase))];
             await Task.Delay(1000);
             await _localFileService.EncrypteToFile(schools, "catalogs/schools");
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(await _helpService.Error(ex)); ;
+        }
+    }
+
+
+    [HttpDelete("case/{number}")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
+    public async Task<IActionResult> DeleteCase(string number)
+    {
+        try
+        {
+            Dictionary<string, CaseFormModel> cases =
+                await _localFileService.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
+            if (cases == null || cases?.Count == 0)
+                return Ok(_helpService.NotFound("Ärende"));
+
+            if (cases.ContainsKey(number))
+            {
+                cases.Remove(number);
+            }
+            else
+                return Ok(_helpService.NotFound("Ärende"));
+
+            await _localFileService.EncrypteToFile(cases, "catalogs/cases");
+
             return Ok();
         }
         catch (Exception ex)
