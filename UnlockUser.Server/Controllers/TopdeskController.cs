@@ -48,10 +48,9 @@ public class TopdeskController(
         }
         catch (Exception ex)
         {
-            return BadRequest(await _help.Error(ex)); ;
+            return BadRequest(await Error(ex, nameof(GetCases)));
         }
     }
-
     #endregion
 
     #region POST
@@ -202,8 +201,55 @@ public class TopdeskController(
             return BadRequest(await Error(ex, nameof(PostModeratorCase)));
         }
     }
+
+    [Authorize(Roles = "Developteam,ITGroup")]
+    [HttpPost("aprove/case")]
+    public async Task<IActionResult> PostApproveCase(string number)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(number))
+                return Ok(_help.Warning("Topdesk-ärendenummer saknas."));
+
+            return Ok();
+        }catch(Exception ex)
+        {
+            return BadRequest(await Error(ex, nameof(PostApproveCase)));
+        }
+    }
     #endregion
 
+    #region DELETE
+    [HttpDelete("case/{number}")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
+    public async Task<IActionResult> DeleteCase(string number)
+    {
+        try
+        {
+            Dictionary<string, CaseFormModel> cases =
+                await _localFile.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
+            if (cases == null || cases?.Count == 0)
+                return Ok(_help.NotFound("Ärende"));
+
+            if (cases.ContainsKey(number))
+            {
+                cases.Remove(number);
+            }
+            else
+                return Ok(_help.NotFound("Ärende"));
+
+            await _localFile.EncrypteToFile(cases, "catalogs/cases");
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(await Error(ex, nameof(DeleteCase)));
+        }
+    }
+
+
+    #endregion
 
     #region Helpers
     private async Task SaveCase(Dictionary<string, object> res, CaseFormModel model)
