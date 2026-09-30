@@ -1,5 +1,4 @@
 import { useEffect, use, useReducer, useRef, useActionState, useState } from 'react';
-import _ from "lodash";
 
 // Installed
 import { SearchOffSharp, SearchSharp, Close, List } from '@mui/icons-material';
@@ -38,6 +37,7 @@ const initialState = {
     group: "",
     users: null,
     isClass: false,
+    isSelected: false,
     isMatch: false,
     isChanged: false,
     byOffice: false,
@@ -58,7 +58,7 @@ function actionReducer(state, action) {
             };
         case "SEARCH_OPTION":
             return {
-                ...state, [action.name]: value, isChanged: value, users: null
+                ...state, [action.name]: value, isChanged: false, users: null
             };
         case "RESULT":
             return {
@@ -81,7 +81,7 @@ import './../../assets/css/home.css';
 function Home() {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { isClass, isMatch, isChanged, isCleaned, byOffice, users, group } = state;
+    const { isClass, isMatch, isSelected, isChanged, isCleaned, byOffice, users, group } = state;
 
     const permissionGroups = Claim("permissions")?.split(",");
     const openAccess = Claim("openAccess");
@@ -100,10 +100,7 @@ function Home() {
     const groupAccountsRef = useRef(null);
 
     const [caseModal, setCaseModal] = useState(false);
-    // const [ searchParams ] = useSearchParams();
-    // const name = searchParams.get('name') ?? null;
-
-
+console.log(isSelected)
     function waitForCollection(timeout = 60000) {
         return new Promise((resolve) => {
             if (groupAccountsRef.current !== null)
@@ -122,20 +119,7 @@ function Home() {
     // Get collection by group name
     async function get() {
         try {
-
-            // const messagePromise = shouldFetchMessage
-            //     ? ApiRequest("article/popup/message")
-            //     : Promise.resolve(null);
-
-            // const [message, collection] = await Promise.all([
-            //     messagePromise,
-            //     ApiRequest(`data/groups/by/${gn}`),
-            // ]);
-
-            const api = `data/groups/by/${gn}/${username}/${impersonating}`;
-            // navigate(loc.pathname, { replace: true, state: { api: api, key: key }});
-console.log(api)
-            groupAccountsRef.current = await fetchData({ api: api, action: "return" })
+            groupAccountsRef.current = await fetchData({ api: `data/groups/by/${gn}/${username}/${impersonating}`, action: "return" });
             if (groupAccountsRef.current?.length == 0) {
 
                 const logged = sessionStorage.getItem("logged");
@@ -148,11 +132,14 @@ console.log(api)
                         navigate("/session/expired");
                 }
             }
-
         } catch (error) {
             console.error(error);
         }
     }
+
+    useEffect(() => {
+        document.title = "UnlockUser | Sök";
+    }, []);
 
     useEffect(() => {
         if (!key) return;
@@ -164,12 +151,13 @@ console.log(api)
         handleDispatch("users", Array.isArray(res) ? res : [], "RESULT");
     }, [key])
 
-    useEffect(() => {
-        document.title = "UnlockUser | Sök";
-    }, []);
 
     useEffect(() => {
         get();
+
+        if(loc.state?.res){
+            handleDispatch("users", loc.state?.res, "RESULT"); 
+        }
     }, [gn])
 
     useEffect(() => {
@@ -189,10 +177,11 @@ console.log(api)
         if (!groupAccountsRef?.current)
             return;
 
-        const value = e.target.value;
-        if ((!isChanged && value?.length < 2)
-            || (isChanged && value?.length > (isClass ? 0 : 2))
-            || (isClass && !refAutocomplete?.current))
+        const lgh = e.target.value?.length;
+        const min = (isClass ? 0 : 2);
+        if(isClass && !refAutocomplete?.current)
+            return;
+        else if((isChanged && lgh > min) || (!isChanged && lgh === min))
             return;
 
         handleDispatch("isChanged", !isChanged);
@@ -205,30 +194,12 @@ console.log(api)
         const match = fd.get("match") === "on" ? true : false;
         const school = fd.get("school") ?? null;
 
+        if(!key || key?.length == 0)
+            return;
+        else if(isClass && (!school || school?.length == 0))
+            return;
+
         const data = { key: key, match, school };
-
-        // Navigate to search query page
-        // let navLink = `/search/${gn}?name=${name.replaceAll(" ", "%20")}`;
-        // if(match)
-        //     navLink += "&match=on";
-        // if(school)
-        //     navLink += `&school=${school}`;
-
-        // navigate(navLink, { replace: true });
-
-        let errors = [];
-        let error = null;
-
-        if (_.isEqual({ key: "", school: "" }, { key: key, school })) {
-            error = "Begäran avvisades. Inga ändringar gjordes i formulärets data."
-            return {
-                ...data,
-                error
-            }
-        }
-
-        if (errors?.length > 0)
-            return { ...data, errors };
 
         if (groupAccountsRef.current === null)
             await waitForCollection(120000);
@@ -286,9 +257,11 @@ console.log(api)
             }
         }
 
+        const foundUsers = Array.isArray(res) ? res : [];
+        handleDispatch("users", foundUsers, "RESULT"); // 2026-09-03
 
-        handleDispatch("users", Array.isArray(res) ? res : [], "RESULT"); // 2026-09-03
-
+        navigate(loc.pathname, { replace: true, state: { key: key, res: foundUsers }});
+            console.log("hello")
         return Array.isArray(res) ? null : data;
     }
 
@@ -298,13 +271,6 @@ console.log(api)
 
         dispatch({ type: "RESET" });
     }
-
-    const [formState, formAction, pending] = useActionState(onSubmit, {
-        name: "",
-        match: false,
-        school: "",
-        errors: null
-    });
 
     const noResultView = <Message res={{
         color: "warning", msg: "Inga resultat hittades." +
@@ -334,6 +300,8 @@ console.log(api)
 
     console.log(groupAccountsRef?.current)
 
+    const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
+
     return (
         <>
             {/* Search form */}
@@ -349,6 +317,7 @@ console.log(api)
                     disabled={loading || pending}
                     defValue={formState ? formState?.school : ""}
                     keyword="id"
+                    onClick={(val) => handleDispatch("isSelected", !!val)}
                     ref={refAutocomplete}
                 />}
 
@@ -415,7 +384,7 @@ console.log(api)
                         </InputAdornment>
                     }}
                     InputLabelProps={{ shrink: true }}
-                    disabled={loading || pending}
+                    disabled={loading || pending || (isClass && !isSelected)}
                     placeholder={!groupAccountsRef?.current ? "Data hämtas, var vänlig och vänta ..." : (isClass
                         ? "Skriv exakt klassbeteckning här ..."
                         : (isMatch ? "Skriv exakt fullständigt namn eller anvädarnamn här ..." : "Sök ord här ..."))
@@ -435,9 +404,8 @@ console.log(api)
                     disabled={permissionGroups?.length === 1 || !groupAccountsRef?.current} />}
             </form>
 
-
             {/* Radio buttons to choice one of search alternatives */}
-            {(gn === "studenter" && gn !== "overview") && <FormControl className="actions-wrapper d-row ai-end w-100">
+            {gn === "studenter" && <FormControl className="actions-wrapper d-row ai-end w-100">
                 <RadioGroup
                     row
                     name="row-radio-buttons-group">
@@ -495,6 +463,7 @@ console.log(api)
                 {!groupAccountsRef?.current && <LinearProgress color="primary" className="box-loading" />}
             </div>
 
+            {/* Info message */}
             {/* start: 2026-08-27 10:13 */}
             {(isClass && users?.length > 0 && !pending) && <Message
                 res={{
@@ -529,3 +498,25 @@ console.log(api)
 }
 
 export default Home;
+
+
+// Navigate to search query page
+// let navLink = `/search/${gn}?name=${name.replaceAll(" ", "%20")}`;
+// if(match)
+//     navLink += "&match=on";
+// if(school)
+//     navLink += `&school=${school}`;
+
+// navigate(navLink, { replace: true });
+        
+// const [ searchParams ] = useSearchParams();
+// const name = searchParams.get('name') ?? null;
+
+// const messagePromise = shouldFetchMessage
+//     ? ApiRequest("article/popup/message")
+//     : Promise.resolve(null);
+
+// const [message, collection] = await Promise.all([
+//     messagePromise,
+//     ApiRequest(`data/groups/by/${gn}`),
+// ]);

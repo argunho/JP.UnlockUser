@@ -12,7 +12,7 @@ const AutocompleteList = memo(function AutocompleteList({ label, multiple, name,
 
     function onChange(option){
         setValue(option);
-        onClick?.(keyword ? option[keyword] : option);
+        onClick?.(keyword ? option?.[keyword] : option); // 2026-09-30
     }
 
     return <Autocomplete

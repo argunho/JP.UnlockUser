@@ -407,10 +407,10 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     // end
 
     // Set multiple passwords
-    private async Task SetPasswords(List<UserFormModel> userModels)
+    private async Task SetPasswords(List<UserFormModel> models)
     {
         // Check model is valid or not and return warning is true or false
-        var userModel = userModels[0] ?? throw new Exception("Person för lösenordsåterställning har inte specificerats.");
+        var userModel = models[0] ?? throw new Exception("Person för lösenordsåterställning har inte specificerats.");
 
         // If password needs to confirm
         if (!string.IsNullOrEmpty(userModel.ConfirmPassword) 
@@ -473,14 +473,14 @@ public class UserController(IADService provider, IWebHostEnvironment env,
 
         _logger.LogInformation("Password change initiated at {dateTime}. Moderator: {user}", DateTime.Now.ToString("g"), username);
 
-        Data sessionUserData = await GetLogData(group!, office!, department!);
+        Data history = await GetLogData(group!, office!, department!);
         var message = new StringBuilder();
 
         _logger.LogInformation("Permissions validated. Starting to set a new password for {users} at {dateTime}.",
-            string.Join(",", userModels.Select(s => s.Username).ToList()), DateTime.Now.ToString("g"));
+            string.Join(",", models.Select(s => s.Username).ToList()), DateTime.Now.ToString("g"));
 
         // Set password to class students
-        foreach (var user in userModels!)
+        foreach (var user in models!)
         {
             // Most relevant for students
             if (string.IsNullOrEmpty(user.Username))
@@ -491,7 +491,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
 
             _provider.ResetPassword(user);
             if (_env.IsProduction())
-                sessionUserData.Users.Add(user?.Username ?? "");
+                history.Users.Add(user?.Username ?? "");
         }
 
         // Save/Update statistics
@@ -499,8 +499,8 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         {
             _ = Task.Run(async () =>
             {
-                await SaveHistoryLogFile(sessionUserData);
-                await SaveUpdateStatistics("PasswordsChange", userModels.Count);
+                await SaveHistoryLogFile(history);
+                await SaveUpdateStatistics("PasswordsChange", models.Count);
             });
         }
 
