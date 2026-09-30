@@ -14,7 +14,7 @@ namespace UnlockUser.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(Roles = "Moderator,ITGroup,DevelopTeam,KCGroup,Manager")]
+[Authorize(Roles = "Moderator,ITGroup,DevelopTeam,KCGroup")]
 public class UserController(IADService provider, IWebHostEnvironment env,
     ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localUserService, IMemoryCache memoryCahce,
     ICredentialsService credinalService, ILocalMailService localMailService, IGoogleService googleService, ILogger<UserController> logger) : ControllerBase
@@ -166,7 +166,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     }
 
     [HttpGet("groups")]
-    [Authorize(Roles = "DevelopTeam,Manager,ITGroup")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
     public List<string?> GetGrous()
     {
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
@@ -212,7 +212,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
 
     #region POST
     [HttpPost("reset/single/password")]
-    [Authorize(Roles = "DevelopTeam,Moderator,ITGroup")] // Reset password
+    [Authorize(Roles = "Moderator")] // Reset password
     public async Task<IActionResult> SetSinglePassword(UserFormModel model)
     {
         try
@@ -235,7 +235,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     }
 
     [HttpPost("reset/multiple/passwords")] // Reset class students passwords
-    [Authorize(Roles = "DevelopTeam,Moderator,ITGroup")]
+    [Authorize(Roles = "Moderator")]
     public async Task<IActionResult> SetMultiplePasswords(List<UserFormModel> models)
     {
         try
@@ -253,7 +253,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     }
 
     [HttpPost("reset/send/passwords")]
-    [Authorize(Roles = "DevelopTeam,Moderator,ITGroup")]
+    [Authorize(Roles = "Moderator")]
     public async Task<IActionResult> SetPasswordsSavePdf([FromForm] IFormFile file, [FromForm] string data, [FromForm] string label)
     {
         try
@@ -313,7 +313,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     }
 
     [HttpPut("update/permissions/{username}")]
-    [Authorize(Roles = "DevelopTeam,Manager,ITGroup")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> PutUpdateEmployeeSchool(string username, PermissionsViewModel model)
     {
         try
@@ -412,19 +412,14 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         // Check model is valid or not and return warning is true or false
         var userModel = userModels[0] ?? throw new Exception("Person för lösenordsåterställning har inte specificerats.");
 
-        // Current moderator claims
-        var claims = _credentialsService.GetClaims(["groups", "roles", "username", "permissions"]);
-        if (claims == null || userModels == null)
-            throw new Exception("Ingen användare med behörighet för lösenordsåterställning har specificerats.");
-
-        claims!.TryGetValue("username", out string? username);
-
         // If password needs to confirm
-        if (!string.IsNullOrEmpty(userModel.ConfirmPassword))
-        {
-            if (!string.Equals(userModel.Password, userModel.ConfirmPassword))
+        if (!string.IsNullOrEmpty(userModel.ConfirmPassword) 
+            && !string.Equals(userModel.Password, userModel.ConfirmPassword))
                 throw new Exception("Lösenord och bekräftelse av lösenord matchar inte.");
-        }
+
+        // Current moderator claims
+        var claims = _credentialsService.GetClaims(["groups", "roles", "username"]);
+        claims!.TryGetValue("username", out string? username);
 
         // Managed user credentials
         string? group = userModel.GroupName;
@@ -442,35 +437,26 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         var roles = claims != null && claims.TryGetValue("roles", out var r) && !string.IsNullOrEmpty(r)
                                 ? r.Split(',', StringSplitOptions.RemoveEmptyEntries) : [];
 
-        _logger.LogInformation("Password change initiated at {dateTime}. Moderator: {user}", DateTime.Now.ToString("g"), username);
-        _logger.LogInformation("Permission validation for the admin role.");
-
         // Check current user permission
         if (!roles.Contains("ITGroup", StringComparer.OrdinalIgnoreCase))
         {
-            var permissionsJson = HttpContext.Session.GetString("permissions");
+            var moderators = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators");
+            var permissions = moderators?.FirstOrDefault(x => x.Username != null 
+                            && x.Username.Equals(username, StringComparison.OrdinalIgnoreCase))?.Permissions;
 
-            var permissions = permissionsJson is null
-                ? null
-                : JsonConvert.DeserializeObject<PermissionsViewModel>(permissionsJson);
+            var approvedEmployees = await _localFileService.GetEncryptedFile<List<ApprovedEmployeeViewModel>>("catalogs/approved-employees") ?? [];
+            var approvedForCurrentModerator = approvedEmployees.Where(x => x.Moderators!.Contains(username!))?.Select(s => s.Username)?.ToList();
 
-            string warningMessage = "Du saknar behörigheter att ändra lösenord till.";
-            if (group!.Equals("Studenter", StringComparison.OrdinalIgnoreCase))
+            bool isModerator = moderators!.Exists(x => x.Username!.Equals(userModel.Username, StringComparison.OrdinalIgnoreCase));
+            bool isApproved = approvedForCurrentModerator!.Contains(userModel.Username, StringComparer.OrdinalIgnoreCase);
+
+            string warningMessage = "Du saknar behörigheter att ändra lösenord för";
+            if (group!.Equals("Studenter", StringComparison.OrdinalIgnoreCase) &&
+                !permissions!.Schools.Any(s => office!.StartsWith(s, StringComparison.OrdinalIgnoreCase)))
             {
-                bool isMatch = false;
-                foreach (var school in permissions!.Schools)
-                {
-                    if (office!.StartsWith(school, StringComparison.OrdinalIgnoreCase))
-                    {
-                        isMatch = true;
-                        break;
-                    }
-                }
-
-                if (!isMatch)
-                    throw new Exception($"{warningMessage} {department} {office}");
+                throw new Exception($"{warningMessage} {department} {office}");
             }
-            else if (string.IsNullOrEmpty(userModel.Manager))
+            else if ((string.IsNullOrEmpty(userModel.Manager) || isModerator) && !isApproved)
             {
                 throw new Exception($"{warningMessage} {userModel.Username}");
             }
@@ -485,6 +471,8 @@ public class UserController(IADService provider, IWebHostEnvironment env,
             }
         }
 
+        _logger.LogInformation("Password change initiated at {dateTime}. Moderator: {user}", DateTime.Now.ToString("g"), username);
+
         Data sessionUserData = await GetLogData(group!, office!, department!);
         var message = new StringBuilder();
 
@@ -494,6 +482,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         // Set password to class students
         foreach (var user in userModels!)
         {
+            // Most relevant for students
             if (string.IsNullOrEmpty(user.Username))
             {
                 var userData = _provider.FindUser(user.Email!);

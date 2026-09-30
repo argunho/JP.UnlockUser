@@ -59,8 +59,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
             var groups = string.Join(",", permissionGroups!.Select(x => x.Name));
 
-            //if (_env.IsDevelopment())
-            //    model.Username = "810305fred"; // !!!
+
             var authorizedUser = _provider.FindUser(model!.Username!);
             if (authorizedUser == null)
                 return NotFound(_helpService.NotFound("Användaren"));
@@ -106,9 +105,6 @@ public class AuthenticationController(IADService provider, IConfiguration config
 
             var moderators = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators");
             var currentModerator = moderators?.FirstOrDefault(x => x.Username != null && x.Username.Equals(authorizedUser?.Name.ToString(), StringComparison.OrdinalIgnoreCase));
-            if (currentModerator != null)
-                _session!.SetString("permissions", JsonConvert.SerializeObject(currentModerator?.Permissions));
-
 
             // Get employees lis by user permissions groups 
             _ = Task.Run(async () => await _dashboardService.StoreUsersByGroup(model.Username, currentModerator?.Permissions?.Groups, openAccess || limitedAccess));
