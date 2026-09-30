@@ -91,11 +91,16 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
 
 
     // Download series log file
-    async function downloadFile(e) {
+    async function onDownloadFile(e) {
         const blob = await fetchData({ api: `logs/download/by/date/${e.target.value}`, method: "get", action: "return", responseType: "blob" });
         DownloadFile(blob, `logs-${e.target.value.replaceAll("-", "")}.zip`);
     }
 
+    // Submit case
+    async function onSubmitCase(id) {
+        await fetchData({ api: `users/approve/case/${id}`, method: "post", action: "return" });
+
+    }
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
 
     return (
@@ -123,7 +128,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                     <input
                         type="date"
                         className="none"
-                        onChange={downloadFile}
+                        onChange={onDownloadFile}
                         disabled={pending}
                         ref={inputDate}
                         min={minDate}
@@ -193,7 +198,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                                 </div>
                             }
                         >
-                            <Avatar sx={{ marginRight: "15px"}}>{ind + 1}</Avatar>
+                            <Avatar sx={{ marginRight: "15px" }}>{ind + 1}</Avatar>
                             <ListItemText className="li-div"
                                 primary={<span dangerouslySetInnerHTML={{ __html: item?.primary }} />}
                                 secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }} />}
@@ -231,9 +236,9 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                 </IconButton>}
 
                 {/* Topdesk case - approve button */}
-                {/* {model?.boolValue && <Button variant="contained" color="success">
+                {model?.boolValue && <Button variant="contained" color="success" onClick={() => onSubmitCase(model?.primary)}>
                     Godkänna
-                </Button>} */}
+                </Button>}
             </ModalOverview>}
         </>
     )

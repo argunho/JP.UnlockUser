@@ -12,7 +12,7 @@ public class TopdeskController(
     DashboardService dashboard,
     TopdeskService topdesk,
     ICredentialsService credentials,
-    ILocalFileService localFiles,
+    ILocalFileService localFile,
     IHelpService help,
     IMemoryCache cache,
     ILogger<TopdeskController> logger) : ControllerBase
@@ -20,10 +20,39 @@ public class TopdeskController(
     private readonly DashboardService _dashboard = dashboard;
     private readonly TopdeskService _topdesk = topdesk;
     private readonly ICredentialsService _credentials = credentials;
-    private readonly ILocalFileService _localFiles = localFiles;
+    private readonly ILocalFileService _localFile = localFile;
     private readonly IHelpService _help = help;
     private readonly ILogger<TopdeskController> _logger = logger;
 
+    #region GET
+    // Get cases
+    [HttpGet("cases")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
+    public async Task<IActionResult> GetCases()
+    {
+        try
+        {
+            Dictionary<string, CaseFormModel> cases =
+                await _localFile.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
+            if (cases == null || cases?.Count == 0)
+                return Ok();
+
+            List<ViewModel> list = [.. cases?.Select(s => new ViewModel {
+                Primary = $"Ärende nummer: {s.Key}",
+                Secondary = s.Value.Date.ToString("g"),
+                Hidden = $"<h3>{s.Value.Title}</h3><br/>{s.Value.Text}",
+                BoolValue = s.Value.ApprovedEmployees?.Count > 0
+            })!];
+
+            return Ok(list);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(await _help.Error(ex)); ;
+        }
+    }
+
+    #endregion
 
     #region POST
     [HttpPost("case/kc-group")]
@@ -35,7 +64,7 @@ public class TopdeskController(
             if (model.ApprovedEmployees == null || model.ApprovedEmployees?.Count == 0)
                 return Ok(_help.Warning("Inga användare kunde hittas för godkännande."));
 
-            var moderators = await _localFiles.GetEncryptedFile<List<User>>("catalogs/moderators");
+            var moderators = await _localFile.GetEncryptedFile<List<User>>("catalogs/moderators");
             var moderator = moderators?.FirstOrDefault(x => x.Username != null && x.Username.Equals(model.Username?.ToString(), StringComparison.OrdinalIgnoreCase));
             if (moderator == null)
                 return Ok(_help.NotFound($"Användaren {model.Username}"));
@@ -188,9 +217,9 @@ public class TopdeskController(
             if (string.IsNullOrEmpty(number))
                 return;
 
-            var cases = await _localFiles.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
+            var cases = await _localFile.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
             cases.Add(number, model);
-            await _localFiles.EncrypteToFile(cases, "catalogs/cases");
+            await _localFile.EncrypteToFile(cases, "catalogs/cases");
         }
         catch (Exception ex)
         {
