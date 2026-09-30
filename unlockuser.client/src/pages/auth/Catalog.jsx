@@ -231,9 +231,9 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                 </IconButton>}
 
                 {/* Topdesk case - approve button */}
-                {model?.boolValue && <Button variant="contained" color="success">
+                {/* {model?.boolValue && <Button variant="contained" color="success">
                     Godkänna
-                </Button>}
+                </Button>} */}
             </ModalOverview>}
         </>
     )

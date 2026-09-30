@@ -50,9 +50,13 @@ function AppLayout() {
   }, []);
 
   useEffect(() => {
+    console.log(permissions)
     if (((loc.pathname === "/search" || loc.pathname === "/") && !!permissions) 
           || (urls.has(loc.pathname) && !access.open)) { // 2026-08-28 16:05
-      navigate(`/search/${permissions?.[0]?.toLowerCase()}`, { replace: true });
+
+      const gn = permissions?.[0]?.length > 0 ? permissions[0].toLowerCase() : "overview";
+
+      navigate(`/search/${gn}`, { replace: true });
     }
   }, [loc])
 

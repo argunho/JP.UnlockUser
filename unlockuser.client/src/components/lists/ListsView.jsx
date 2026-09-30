@@ -32,7 +32,6 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
       return;
 
     const linkParam = (user?.username ? user?.username : selected[0]) ?? user?.email;
-
     if (group === "overview")
       navigate(`view/user/${linkParam}`);
     else

@@ -124,7 +124,8 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             List<ViewModel> list = [.. cases?.Select(s => new ViewModel {
                 Primary = $"Ärende nummer: {s.Key}",
                 Secondary = s.Value.Date.ToString("g"),
-                Hidden = $"<h3>{s.Value.Title}</h3><br/>{s.Value.Text}"
+                Hidden = $"<h3>{s.Value.Title}</h3><br/>{s.Value.Text}",
+                BoolValue = s.Value.ApprovedEmployees?.Count > 0
             })!];
 
             return Ok(list);

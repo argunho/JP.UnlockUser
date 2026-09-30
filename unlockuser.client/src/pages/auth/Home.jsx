@@ -100,7 +100,7 @@ function Home() {
     const groupAccountsRef = useRef(null);
 
     const [caseModal, setCaseModal] = useState(false);
-console.log(isSelected)
+
     function waitForCollection(timeout = 60000) {
         return new Promise((resolve) => {
             if (groupAccountsRef.current !== null)
@@ -154,9 +154,9 @@ console.log(isSelected)
 
     useEffect(() => {
         get();
-
-        if(loc.state?.res){
-            handleDispatch("users", loc.state?.res, "RESULT"); 
+console.log("users", loc.state?.users)
+        if(loc.state?.users){
+            handleDispatch("users", loc.state?.users, "RESULT"); 
         }
     }, [gn])
 
@@ -226,6 +226,7 @@ console.log(isSelected)
         let res = null;
         if (accounts?.length > 0) {
             if (gn === "overview") {
+                console.log("byoffcie", byOffice)
                 if (byOffice)
                     res = accounts?.filter(x => x?.office?.toLowerCase().includes(key));
                 else
@@ -257,11 +258,7 @@ console.log(isSelected)
             }
         }
 
-        const foundUsers = Array.isArray(res) ? res : [];
-        handleDispatch("users", foundUsers, "RESULT"); // 2026-09-03
-
-        navigate(loc.pathname, { replace: true, state: { key: key, res: foundUsers }});
-            console.log("hello")
+        handleDispatch("users", Array.isArray(res) ? res : [], "RESULT"); // 2026-09-03
         return Array.isArray(res) ? null : data;
     }
 
@@ -298,7 +295,7 @@ console.log(isSelected)
     })();
     // end
 
-    console.log(groupAccountsRef?.current)
+    // console.log(groupAccountsRef?.current)
 
     const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
 
