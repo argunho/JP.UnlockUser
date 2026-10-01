@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Google.Apis.Admin.Directory.directory_v1.Data;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace UnlockUser.Server.Services;
 
@@ -195,5 +196,58 @@ public class DashboardService(
         }
 
         return group_members;
+    }
+
+    public async Task UpdateApprovedEmployees(string username, List<ApprovedEmployeeViewModel> newApproved)
+    {
+        var lockKey = "approved-change";
+        if (_lockService.TryStart(lockKey, out var waitTask))
+        {
+            try
+            {
+                var approved = await _localFileService.GetEncryptedFile<List<ApprovedEmployeeViewModel>>("catalogs/approved-employees") ?? [];
+                if (approved.Count > 0)
+                {
+                    foreach (var emp in newApproved)
+                    {
+                        var existing = approved.FirstOrDefault(x => x.Username!.Equals(emp.Username, StringComparison.OrdinalIgnoreCase));
+                        if (existing != null)
+                        {
+                            HashSet<string> moderators = [.. existing.Moderators!];
+                            moderators!.Add(username);
+                            existing.Moderators = [.. moderators];
+                        }
+                        else
+                        {
+                            approved.Add(emp);
+                        }
+                    }
+
+                    var currentApproved = approved.Where(x => x.Moderators!.Contains(username, StringComparer.OrdinalIgnoreCase));
+                    var currentApprovedToRemove = currentApproved.Where(x => !newApproved.Any(n => n.Username!.Equals(x.Username, StringComparison.OrdinalIgnoreCase))).ToList();
+                    foreach(var emp in currentApprovedToRemove)
+                    {
+                        HashSet<string> moderators = [.. emp.Moderators!];
+                        moderators.Remove(username);
+                        emp.Moderators = [.. moderators];
+                    }
+                    currentApprovedToRemove.Where(x => x.Moderators!.Count == 0).ToList().ForEach(x => approved.Remove(x));
+                }
+                else
+                    approved.AddRange(newApproved);
+
+                await _localFileService.EncrypteToFile(approved, "catalogs/approved-employees");
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"DashboardService. Failed to update approved-employees. Error: {ex.Message}");
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                _lockService.Finish(lockKey);
+            }
+        }
     }
 }

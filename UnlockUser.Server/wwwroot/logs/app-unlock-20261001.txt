@@ -1,0 +1,167 @@
+2026-10-01 08:11:13.138 +02:00 [INF] Starting process to save file catalogs/managers
+2026-10-01 08:11:13.778 +02:00 [INF] End save process. catalogs/managers
+2026-10-01 08:11:14.846 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-10-01 08:11:14.961 +02:00 [INF] End save process. catalogs/politicians
+2026-10-01 08:12:48.385 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-10-01 08:12:48.411 +02:00 [INF] End save process. catalogs/moderators
+2026-10-01 08:12:51.567 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-01 08:12:51.616 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-01 08:12. Department: IT avdelning. Office: IT avdelning.
+2026-10-01 08:12:52.100 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 08:12:52.
+2026-10-01 08:12:52.100 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 08:12:52.
+2026-10-01 08:12:57.610 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-01 08:12:57.
+2026-10-01 08:13:02.325 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-01 08:13:02.
+2026-10-01 08:13:02.328 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-10-01 08:13:02.329 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-01 08:13:02.
+2026-10-01 08:13:02.330 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-10-01 08:13:02.
+2026-10-01 08:13:02.333 +02:00 [INF] Dashboard data setup completed.
+2026-10-01 09:11:02.130 +02:00 [INF] Starting process to save file catalogs/managers
+2026-10-01 09:11:02.141 +02:00 [INF] End save process. catalogs/managers
+2026-10-01 09:11:03.148 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-10-01 09:11:03.161 +02:00 [INF] End save process. catalogs/politicians
+2026-10-01 09:11:11.832 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-10-01 09:11:11.844 +02:00 [INF] End save process. catalogs/moderators
+2026-10-01 09:11:11.846 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-10-01 09:35:19.158 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-01 09:35:19.211 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-01 09:35. Department: IT avdelning. Office: IT avdelning.
+2026-10-01 09:35:19.476 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 09:35:19.
+2026-10-01 09:35:19.476 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 09:35:19.
+2026-10-01 09:35:25.695 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-01 09:35:25.
+2026-10-01 09:35:31.015 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-01 09:35:31.
+2026-10-01 09:35:40.762 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-01 09:35:40.
+2026-10-01 09:35:40.776 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-10-01 09:35:40.
+2026-10-01 09:35:40.805 +02:00 [INF] Dashboard data setup completed.
+2026-10-01 09:36:55.665 +02:00 [INF] Utvecklare 790822asla loggade in som 790822asla vid: 2026-10-01 09:36.
+2026-10-01 09:37:00.834 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-10-01 09:37.
+2026-10-01 10:50:14.897 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-01 10:50:14.991 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-01 10:50. Department: IT avdelning. Office: IT avdelning.
+2026-10-01 10:50:16.006 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 10:50:16.
+2026-10-01 10:50:16.006 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 10:50:16.
+2026-10-01 10:50:22.537 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-01 10:50:22.
+2026-10-01 10:50:28.476 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-01 10:50:28.
+2026-10-01 10:50:38.279 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-01 10:50:38.
+2026-10-01 10:50:38.283 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-10-01 10:50:38.
+2026-10-01 10:50:38.288 +02:00 [INF] Dashboard data setup completed.
+2026-10-01 10:55:58.805 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 10:55:58.823 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 11:41:00.038 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-01 11:41:00.122 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-01 11:41. Department: IT avdelning. Office: IT avdelning.
+2026-10-01 11:41:00.468 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 11:41:00.
+2026-10-01 11:41:00.468 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 11:41:00.
+2026-10-01 11:41:06.812 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-01 11:41:06.
+2026-10-01 11:41:13.199 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-01 11:41:13.
+2026-10-01 11:41:22.622 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-01 11:41:22.
+2026-10-01 11:41:22.646 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-10-01 11:41:22.
+2026-10-01 11:41:22.660 +02:00 [INF] Dashboard data setup completed.
+2026-10-01 12:02:14.153 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-01 12:02:14.284 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-01 12:02. Department: IT avdelning. Office: IT avdelning.
+2026-10-01 12:02:14.621 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 12:02:14.
+2026-10-01 12:02:14.621 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 12:02:14.
+2026-10-01 12:02:21.798 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-01 12:02:21.
+2026-10-01 12:02:28.117 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-01 12:02:28.
+2026-10-01 12:02:37.746 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-01 12:02:37.
+2026-10-01 12:02:37.748 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-10-01 12:02:37.
+2026-10-01 12:02:37.752 +02:00 [INF] Dashboard data setup completed.
+2026-10-01 12:47:28.164 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-01 12:47:28.230 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-01 12:47. Department: IT avdelning. Office: IT avdelning.
+2026-10-01 12:47:28.571 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 12:47:28.
+2026-10-01 12:47:28.572 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 12:47:28.
+2026-10-01 12:47:34.688 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-01 12:47:34.
+2026-10-01 12:47:40.300 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-01 12:47:40.
+2026-10-01 12:47:49.992 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-01 12:47:49.
+2026-10-01 12:47:49.998 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-10-01 12:47:49.
+2026-10-01 12:47:50.006 +02:00 [INF] Dashboard data setup completed.
+2026-10-01 12:47:57.759 +02:00 [INF] Utvecklare 790822asla loggade in som 790822asla vid: 2026-10-01 12:47.
+2026-10-01 12:49:05.349 +02:00 [INF] KC-case. Topdesk-ärende inskickat av Kontaktcenter. Date: "2026-10-01T12:48:51.5053147+02:00"
+2026-10-01 12:49:09.793 +02:00 [INF] Starting process to save file catalogs/cases
+2026-10-01 12:49:09.815 +02:00 [INF] End save process. catalogs/cases
+2026-10-01 12:49:21.413 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-10-01 12:49.
+2026-10-01 12:54:46.277 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-01 12:54:46.350 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-01 12:54. Department: IT avdelning. Office: IT avdelning.
+2026-10-01 12:54:46.789 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 12:54:46.
+2026-10-01 12:54:46.789 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 12:54:46.
+2026-10-01 12:54:52.588 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-01 12:54:52.
+2026-10-01 12:54:59.486 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-01 12:54:59.
+2026-10-01 12:55:09.854 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-01 12:55:09.
+2026-10-01 12:55:09.856 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-10-01 12:55:09.
+2026-10-01 12:55:09.859 +02:00 [INF] Dashboard data setup completed.
+2026-10-01 12:55:43.586 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 12:55:43.603 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 13:20:10.600 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-01 13:20:10.690 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-01 13:20. Department: IT avdelning. Office: IT avdelning.
+2026-10-01 13:20:11.137 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 13:20:11.
+2026-10-01 13:20:11.137 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 13:20:11.
+2026-10-01 13:20:17.403 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-01 13:20:17.
+2026-10-01 13:20:23.765 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-01 13:20:23.
+2026-10-01 13:20:33.258 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-01 13:20:33.
+2026-10-01 13:20:33.261 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-10-01 13:20:33.
+2026-10-01 13:20:33.265 +02:00 [INF] Dashboard data setup completed.
+2026-10-01 13:21:41.317 +02:00 [INF] Utvecklare 790822asla loggade in som 790822asla vid: 2026-10-01 13:21.
+2026-10-01 13:22:46.185 +02:00 [INF] KC-case. Topdesk-ärende inskickat av Kontaktcenter. Date: "2026-10-01T13:22:37.5082504+02:00"
+2026-10-01 13:22:56.152 +02:00 [INF] Starting process to save file catalogs/cases
+2026-10-01 13:22:56.173 +02:00 [INF] End save process. catalogs/cases
+2026-10-01 13:23:11.794 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-10-01 13:23.
+2026-10-01 13:27:43.642 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 13:27:43.652 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 13:28:02.130 +02:00 [INF] Something went wrong. Error: => Response status code does not indicate success: 401 (Unauthorized).. Function: PostApproveCase
+2026-10-01 13:28:34.901 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 13:28:34.913 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 13:38:43.813 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-01 13:38:43.879 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-01 13:38. Department: IT avdelning. Office: IT avdelning.
+2026-10-01 13:38:44.227 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 13:38:44.
+2026-10-01 13:38:44.227 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 13:38:44.
+2026-10-01 13:38:51.315 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-01 13:38:51.
+2026-10-01 13:38:59.633 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-01 13:38:59.
+2026-10-01 13:39:09.957 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-01 13:39:09.
+2026-10-01 13:39:09.990 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-10-01 13:39:09.
+2026-10-01 13:39:10.003 +02:00 [INF] Dashboard data setup completed.
+2026-10-01 13:40:17.941 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 13:40:17.963 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 13:41:29.832 +02:00 [INF] Something went wrong. Error: => Cannot deserialize the current JSON array (e.g. [1,2,3]) into type 'System.Collections.Generic.Dictionary`2[System.String,System.Object]' because the type requires a JSON object (e.g. {"name":"value"}) to deserialize correctly.
+To fix this error either change the JSON to a JSON object (e.g. {"name":"value"}) or change the deserialized type to an array or a type that implements a collection interface (e.g. ICollection, IList) like List<T> that can be deserialized from a JSON array. JsonArrayAttribute can also be added to the type to force it to deserialize from a JSON array.
+Path '', line 1, position 1.. Function: PostApproveCase
+2026-10-01 13:42:03.801 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 13:42:03.807 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 13:44:30.310 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 13:44:30.517 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 13:50:25.395 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 13:50:25.499 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 13:50:25.765 +02:00 [INF] Something went wrong. Error: => Cannot deserialize the current JSON array (e.g. [1,2,3]) into type 'System.Collections.Generic.Dictionary`2[System.String,System.Object]' because the type requires a JSON object (e.g. {"name":"value"}) to deserialize correctly.
+To fix this error either change the JSON to a JSON object (e.g. {"name":"value"}) or change the deserialized type to an array or a type that implements a collection interface (e.g. ICollection, IList) like List<T> that can be deserialized from a JSON array. JsonArrayAttribute can also be added to the type to force it to deserialize from a JSON array.
+Path '', line 1, position 1.. Function: PostApproveCase
+2026-10-01 13:50:44.501 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 13:50:44.508 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 13:54:11.422 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 13:54:11.526 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 13:55:56.040 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 13:55:56.048 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 14:54:56.870 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 14:54:56.879 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 14:58:47.054 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 14:58:47.061 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 14:59:59.026 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 14:59:59.130 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 15:05:07.324 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 15:05:07.420 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 15:07:02.650 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 15:07:02.657 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 15:11:28.478 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 15:11:28.591 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 15:14:49.494 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 15:14:49.500 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 15:19:28.907 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 15:19:29.017 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 15:55:44.526 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-01 15:55:44.596 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-01 15:55. Department: IT avdelning. Office: IT avdelning.
+2026-10-01 15:55:45.045 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 15:55:45.
+2026-10-01 15:55:45.045 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-01 15:55:45.
+2026-10-01 15:55:50.911 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-01 15:55:50.
+2026-10-01 15:55:56.397 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-01 15:55:56.
+2026-10-01 15:56:10.756 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-01 15:56:10.
+2026-10-01 15:56:10.760 +02:00 [INF] Gruppdata har laddats ner. Group: 3. Tid: 2026-10-01 15:56:10.
+2026-10-01 15:56:10.765 +02:00 [INF] Dashboard data setup completed.
+2026-10-01 15:59:10.156 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 15:59:10.166 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 16:02:41.405 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 16:02:41.410 +02:00 [INF] End save process. catalogs/approved-employees
+2026-10-01 16:11:29.168 +02:00 [INF] Starting process to save file catalogs/approved-employees
+2026-10-01 16:11:29.175 +02:00 [INF] End save process. catalogs/approved-employees

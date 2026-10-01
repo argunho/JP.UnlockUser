@@ -17,7 +17,7 @@ namespace UnlockUser.Server.Controllers;
 [Authorize(Roles = "Moderator,ITGroup,DevelopTeam,KCGroup")]
 public class UserController(IADService provider, IWebHostEnvironment env,
     ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localUserService, IMemoryCache memoryCahce,
-    ICredentialsService credinalService, ILocalMailService localMailService, IGoogleService googleService, ILogger<UserController> logger) : ControllerBase
+    ICredentialsService credinalService, ILocalMailService localMailService, IGoogleService googleService,  DashboardService dashboard, ILogger<UserController> logger) : ControllerBase
 {
 
     private readonly IADService _provider = provider;
@@ -30,6 +30,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     private readonly ICredentialsService _credentialsService = credinalService;
     private readonly ILocalMailService _localMailService = localMailService;
     private readonly IGoogleService _googleService = googleService;
+    private readonly DashboardService _dashboard = dashboard;
     private readonly ILogger<UserController> _logger = logger;
 
     #region GET
@@ -314,22 +315,25 @@ public class UserController(IADService provider, IWebHostEnvironment env,
 
     [HttpPut("update/permissions/{username}")]
     [Authorize(Roles = "DevelopTeam,ITGroup")]
-    public async Task<IActionResult> PutUpdateEmployeeSchool(string username, PermissionsViewModel model)
+    [Obsolete("This method is deprecated. Use the new UpdateEmployeeSchool method instead.")]
+    public async Task<IActionResult> PutUpdateEmployeePermissions(string username, PermissionsViewModel model)
     {
         try
         {
-            var employees = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
-            var employee = employees.FirstOrDefault(x => x.Username == username);
-            if (employee == null)
+            var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+            var moderator = moderators.FirstOrDefault(x => x.Username == username);
+            if (moderator == null)
                 return NotFound(_helpService.NotFound("Anställd"));
 
             model.Managers = [.. model.Managers.OrderBy(x => x)];
             model.Politicians = [.. model.Politicians.OrderBy(x => x)];
             model.Schools = [.. model.Schools.OrderBy(x => x)];
 
-            employee.Permissions = model;
-            await _localFileService.EncrypteToFile(employees, "catalogs/moderators");
-            await _localFileService.EncrypteToFile(model.ApprovedEmployees, "catalogs/approved-employees");
+            moderator.Permissions = model;
+            await _localFileService.EncrypteToFile(moderators, "catalogs/moderators");
+
+            if(model.ApprovedEmployees?.Count > 0)
+                await _dashboard.UpdateApprovedEmployees(moderator.Username!, model.ApprovedEmployees);
         }
         catch (Exception ex)
         {

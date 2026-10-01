@@ -5,17 +5,21 @@ import { DialogTitle } from '@mui/material';
 
 function ModalOverview({ children, open = true, item, onClose }) {
 
+    const closeButton = <IconButton onClick={onClose} className="close-btn">
+        <Close />
+    </IconButton>;
+
     return <Dialog open={open}
-                onClose={onClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-                className="modal-overview w-100"
-                sx={{
-                    zIndex: 3000
-                }}
-                id="modal-view"
-            >
-                
+        onClose={onClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        className="modal-overview w-100"
+        sx={{
+            zIndex: 3000
+        }}
+        id="modal-view"
+    >
+
         <DialogTitle
             id="dialog-title"
             className="modal-label"
@@ -23,8 +27,13 @@ function ModalOverview({ children, open = true, item, onClose }) {
                 marginBottom: "20px",
                 backgroundColor: "var(--color-primary)",
                 color: "#FFFFFF"
-            }}
-            dangerouslySetInnerHTML={{ __html: item?.primary }}>
+            }}>
+            {/* start: 2026-10-01 */}
+            <div className="d-row jc-between ai-center">
+                <span dangerouslySetInnerHTML={{ __html: item?.primary ?? "" }} />
+                {children && closeButton}
+            </div>
+            {/* end */}
         </DialogTitle>
 
 
@@ -35,9 +44,7 @@ function ModalOverview({ children, open = true, item, onClose }) {
 
         <DialogActions className="modal-actions">
             {children}
-            <IconButton onClick={onClose}>
-                <Close />
-            </IconButton>
+            {!children && closeButton}
         </DialogActions>
     </Dialog>
 }

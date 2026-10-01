@@ -21,16 +21,8 @@ public partial class TopdeskService(IConfiguration config)
             var jsonModel = JsonConvert.SerializeObject(data, Formatting.Indented);
             var content = new StringContent(jsonModel, Encoding.UTF8);
 
-            var uri = Path.Combine(_baseURL, api);
-            using HttpRequestMessage httpRequest = new(method, uri);
 
-            var credentials = Encoding.ASCII.GetBytes($"{_username}:{_password}");
-
-            httpRequest.Headers.Authorization = new AuthenticationHeaderValue(
-                "Basic",
-                Convert.ToBase64String(credentials)
-            );
-            httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var httpRequest = GetHttpRequest(api, method);
             httpRequest.Content = content;
             httpRequest.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
@@ -57,9 +49,7 @@ public partial class TopdeskService(IConfiguration config)
         var client = new HttpClient();
         try
         {
-            var uri = Path.Combine(_baseURL, api);
-            using HttpRequestMessage httpRequest = new(HttpMethod.Get, uri);
-
+            var httpRequest = GetHttpRequest(api, HttpMethod.Get);
             var response = await client.SendAsync(httpRequest);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -71,4 +61,19 @@ public partial class TopdeskService(IConfiguration config)
             throw new Exception(ex.Message);
         }
     }
+
+    #region Helpers
+    private HttpRequestMessage GetHttpRequest(string api, HttpMethod method)
+    {
+        var uri = Path.Combine(_baseURL, api);      
+        var httpRequest = new HttpRequestMessage(method, uri);
+        var credentials = Encoding.ASCII.GetBytes($"{_username}:{_password}");
+        httpRequest.Headers.Authorization = new AuthenticationHeaderValue(
+            "Basic",
+            Convert.ToBase64String(credentials)
+        );  
+        httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        return httpRequest;
+    }
+    #endregion
 }

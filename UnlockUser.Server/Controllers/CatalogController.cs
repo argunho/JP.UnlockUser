@@ -11,13 +11,14 @@ namespace UnlockUser.Server.Controllers;
 [Authorize]
 public class CatalogController(ILocalFileService localFileService, IHelpService helpService,
     IConfiguration config, ILocalUserService localUserService, IMemoryCache memoryCache,
-    ILogger<CatalogController> logger) : ControllerBase
+    DashboardService dashboardService, ILogger<CatalogController> logger) : ControllerBase
 {
     private readonly IConfiguration _config = config;
     private readonly IHelpService _helpService = helpService;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly ILocalUserService _localUserService = localUserService;
     private readonly IMemoryCache _memoryCache = memoryCache;
+    private readonly DashboardService _dashboardService = dashboardService;
     private readonly ILogger<CatalogController> _logger = logger;
 
     private const string ModeratorsCatalog = "moderators";
@@ -244,7 +245,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
             if (changed.Contains(ApprovedCatalog))
             {
-                await _localFileService.EncrypteToFile(model.ApprovedEmployees, $"catalogs/{ApprovedCatalog}");
+                await _dashboardService.UpdateApprovedEmployees(model.Username!, model.ApprovedEmployees);
             }
         }
         catch (Exception ex)

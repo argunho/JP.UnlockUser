@@ -38,6 +38,7 @@ public class TopdeskController(
                 return Ok();
 
             List<ViewModel> list = [.. cases?.Select(s => new ViewModel {
+                Id = s.Key, // 2026-10-01
                 Primary = $"Ärende nummer: {s.Key}",
                 Secondary = s.Value.Date.ToString("g"),
                 Hidden = $"<h3>{s.Value.Title}</h3><br/>{s.Value.Text}",
@@ -55,7 +56,7 @@ public class TopdeskController(
 
     #region POST
     [HttpPost("case/kc-group")]
-    [Authorize(Roles = "Developteam,ITGroup,KCGroup")]
+    [Authorize(Roles = "DevelopTeam,ITGroup,KCGroup")]
     public async Task<IActionResult> PostKCCase(CaseFormModel model)
     {
         try
@@ -70,7 +71,7 @@ public class TopdeskController(
 
             // Case caller data (current user)
             var claims = _credentials.GetClaims(["email", "displayName"]);
-            claims.TryGetValue("email", out string? email);
+            claims!.TryGetValue("email", out string? email);
             claims.TryGetValue("displayName", out string? name);
 
 
@@ -202,17 +203,49 @@ public class TopdeskController(
         }
     }
 
-    [Authorize(Roles = "Developteam,ITGroup")]
-    [HttpPost("aprove/case")]
-    public async Task<IActionResult> PostApproveCase(string number)
+    [Authorize(Roles = "DevelopTeam,ITGroup")] // 2026-10-01
+    [HttpPost("approve/case/permissions")] // 2026-10-01
+    public async Task<IActionResult> PostApproveCase(CaseModel model)
     {
         try
         {
+            string? number = model.Number;
             if (string.IsNullOrEmpty(number))
                 return Ok(_help.Warning("Topdesk-ärendenummer saknas."));
+            //else if(model.Close && model.Message == null)
+            //    return Ok(_help.Warning("Meddelande saknas."));
+
+            Dictionary<string, CaseFormModel> cases =
+                await _localFile.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
+            if (cases == null || cases?.Count == 0 || !cases!.TryGetValue(number, out var caseToApprove))
+                return Ok(_help.NotFound("Ärende"));
+
+            await _dashboard.UpdateApprovedEmployees(caseToApprove.Username!, caseToApprove.ApprovedEmployees);
+
+            if (model.Close)
+            {
+                _ = Task.Run(async () =>
+                {
+                    var incident = new
+                {
+                    ProcessingStatus = new { 
+                        Id = "da371597-382a-4e29-979e-26b7f75e41dd" 
+                    }
+                };
+
+                //var email = _credentials.GetClaim("email");
+                //var userData = await _topdesk.GetData<List<Dictionary<string, object>>>($"persons/?email={email}");
+
+
+                await _topdesk.SendData(incident, $"incidents/number/{number}", HttpMethod.Put);
+                cases.Remove(number);
+                await _localFile.EncrypteToFile(cases, "catalogs/cases");
+            });
+        }
 
             return Ok();
-        }catch(Exception ex)
+        }
+        catch (Exception ex)
         {
             return BadRequest(await Error(ex, nameof(PostApproveCase)));
         }

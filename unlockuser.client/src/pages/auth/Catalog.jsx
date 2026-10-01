@@ -1,7 +1,9 @@
 import { useState, use, Fragment, useRef, useEffect } from "react";
 
 // Installed
-import { Button, CircularProgress, Collapse, IconButton, List, ListItem, ListItemIcon, ListItemText, Skeleton, Tooltip, Avatar } from "@mui/material";
+import { Button, CircularProgress, Collapse, 
+    IconButton, List, ListItem, ListItemIcon, 
+    ListItemText, Skeleton, Tooltip, Avatar, FormControlLabel, Checkbox } from "@mui/material";
 import { ArrowDropDown, ArrowDropUp, CalendarMonth, Delete, Download, Pageview } from "@mui/icons-material";
 import { useLoaderData, useNavigate, useRevalidator, useOutletContext } from 'react-router-dom';
 
@@ -13,6 +15,7 @@ import Message from "../../components/blocks/Message";
 import SearchFilter from "../../components/forms/SearchFilter";
 import ListLoading from "../../components/lists/ListLoading";
 import ModalOverview from "../../components/modals/ModalOverview";
+import FormButtons from "../../components/forms/FormButtons";
 
 // Hooks
 import usePagination from "../../hooks/usePagination";
@@ -47,6 +50,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
     const [collapsedIndex, setCollapsedIndex] = useState(null);
     const [searchWord, setSearchWord] = useState(null);
     const [model, setModel] = useState();
+    const [closeCase, setCloseCase] = useState(false);
 
     const minDate = minDateObj.toISOString().split("T")[0];
 
@@ -97,9 +101,20 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
     }
 
     // Submit case
-    async function onSubmitCase(id) {
-        await fetchData({ api: `users/approve/case/${id}`, method: "post", action: "return" });
-
+    async function onSubmitCase(number) {
+        const data = {
+            number: number,
+            close: closeCase
+        }
+        try {
+            await fetchData({ api: `topdesk/approve/case/permissions`, data: data, method: "post", action: "success" }); // 2026-10-01
+        } catch (error) {
+            console.error("Error submitting case:", error);
+        } finally {
+            setCloseCase(false);
+            setModel();
+            revalidator.revalidate();
+        }
     }
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
 
@@ -229,16 +244,36 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
             {(!open && (!list || list?.length == 0 || loading)) && <ListLoading rows={1} pending={loading} />}
 
             {/* Modal overview */}
-            {modal && <ModalOverview item={{ ...model, secondary: model?.hidden ?? model?.secondary }} open={!!model} onClose={() => setModel()}>
+            {modal && <ModalOverview
+                item={{ ...model, secondary: model?.hidden ?? model?.secondary }}
+                open={!!model} onClose={() => setModel()}
+            >
                 {/* Download button */}
                 {download && <IconButton onClick={() => onDownload(model?.id)}>
                     <Download />
                 </IconButton>}
 
-                {/* Topdesk case - approve button */}
-                {model?.boolValue && <Button variant="contained" color="success" onClick={() => onSubmitCase(model?.primary)}>
-                    Godkänna
-                </Button>}
+                {/* Top desk case - approve button */}
+                {model?.boolValue && <FormButtons
+                    label="Godkänna"
+                    confirmable={true}
+                    onSubmit={() => onSubmitCase(model?.id)}
+                    onCancel={() => setModel()}
+                    cancelLabel="Avbryt"
+                    confirmLabel="Bekräfta"
+                    color="primary"
+                    loading={pending}
+                    disabled={loading}>
+                    <FormControlLabel
+                        className='checkbox'
+                        control={<Checkbox
+                            name="check"
+                            disabled={pending || disabled} />}
+                        onChange={(e) => setCloseCase(e.target.checked)}
+                        checked={closeCase}
+                        label="Stänga även ärendet i Topdesk" />
+                </FormButtons>}
+
             </ModalOverview>}
         </>
     )
