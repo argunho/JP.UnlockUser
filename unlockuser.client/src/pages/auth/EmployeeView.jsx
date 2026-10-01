@@ -253,42 +253,40 @@ function EmployeeView() {
                 } : null}
                 onClick={access?.open ? onChangeSubmit : onCaseSubmit}>
 
-                {access?.open && <>
-                    {(personalPermissions && approvedUsernames?.length > 0 && !officeManager) &&
-                        <Button
-                            className="fade-in"
-                            startIcon={collapsed ? <Close color="error" /> : <Checklist />}
-                            color={collapsed ? "default" : "primary"}
-                            disabled={!!searchValue}
-                            onClick={() => setCollapsed((collapsed) => !collapsed)}>
-                            Godkända enskilda anställda
-                        </Button>}
-
-                    {(collapsed && officeManager) && <Button
-                        startIcon={<Close />}
-                        color="error"
+                {(personalPermissions && approvedUsernames?.length > 0 && !officeManager) &&
+                    <Button
                         className="fade-in"
-                        onClick={() => handleShowByOffice(null)}>
-                        Stänga
+                        startIcon={collapsed ? <Close color="error" /> : <Checklist />}
+                        color={collapsed ? "default" : "primary"}
+                        disabled={!!searchValue}
+                        onClick={() => setCollapsed((collapsed) => !collapsed)}>
+                        Godkända enskilda anställda
                     </Button>}
 
-                    <Tooltip
-                        title={`Logga in som ${moderator?.displayName} i granskningsläge: behörigheter kan ses, men lösenord går inte att ändra i detta läge.`}
-                        classes={{
-                            tooltip: "tooltip-info",
-                            arrow: "tooltip-arrow-info"
-                        }}
-                        placement="left" arrow>
-                        <Button
-                            variant="outlined"
-                            color="info"
-                            startIcon={<TuneSharp />}
-                            onClick={switchModerator}
-                        >
-                            Logga in som {moderator?.displayName}
-                        </Button>
-                    </Tooltip>
-                </>}
+                {(collapsed && officeManager) && <Button
+                    startIcon={<Close />}
+                    color="error"
+                    className="fade-in"
+                    onClick={() => handleShowByOffice(null)}>
+                    Stänga
+                </Button>}
+
+                {access?.open && <Tooltip
+                    title={`Logga in som ${moderator?.displayName} i granskningsläge: behörigheter kan ses, men lösenord går inte att ändra i detta läge.`}
+                    classes={{
+                        tooltip: "tooltip-info",
+                        arrow: "tooltip-arrow-info"
+                    }}
+                    placement="left" arrow>
+                    <Button
+                        variant="outlined"
+                        color="info"
+                        startIcon={<TuneSharp />}
+                        onClick={switchModerator}
+                    >
+                        Logga in som {moderator?.displayName}
+                    </Button>
+                </Tooltip>}
 
             </ActionButtons>
 
@@ -305,7 +303,7 @@ function EmployeeView() {
                         const managerUsername = GetCnValue(emp.manager);
                         const selected = approved.managers.find(x => x.username === managerUsername) != null && !emp.permissions || emp?.username == moderator?.username;
                         const checked = approved.employees.find(x => x?.username === emp?.username) || selected;
-   
+
                         return <ListItem key={index} className="li-collapse"
                             secondaryAction={
                                 <IconButton
