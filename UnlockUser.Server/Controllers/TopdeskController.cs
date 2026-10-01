@@ -107,6 +107,7 @@ public class TopdeskController(
                 _case.Append($"<b>&emsp;- Namn:</b> {user.DisplayName}<br/>");
                 _case.Append($"<b>&emsp;- Användarnamn:</b> {user.Username}<br/>");
                 _case.Append($"<b>&emsp;- E-postadress:</b> {user.Email}<br/><br/>");
+                _case.Append($"<b>&emsp;- Office:</b> {user.Office}<br/><br/>");
                 _case.Append("</li>");
                 index++;
             }
