@@ -44,10 +44,10 @@ public class UserController(IADService provider, IWebHostEnvironment env,
             UserViewModel? user = null;
             if (_memoryCache.TryGetValue(
                 $"{group}:{_credentialsService.GetClaim("username")}",
-                out Dictionary<string, List<UserViewModel>>? cachedGroups) || group == "Studenter")
+                out List<UserViewModel>? cached) || group == "Studenter")
             {
-                user = cachedGroups.Values.SelectMany(v => v).FirstOrDefault(x => x.Username == key)
-                                ?? cachedGroups.Values.SelectMany(v => v).FirstOrDefault(x => x.Email == key);
+                user = cached?.FirstOrDefault(x => x.Username == key)
+                                ?? cached?.FirstOrDefault(x => x.Email == key);
                 return Ok(user);
             }
 

@@ -158,8 +158,8 @@ public class DashboardService(
         var access = _credentials.GetClaim("openAccess") != null;
         var cacheKey = access ? group : $"{group}_{_credentials.GetClaim("username")}";
 
-        if (_cache.TryGetValue(cacheKey, out Dictionary<string, List<UserViewModel>>? cachedGroups))
-            return cachedGroups!.TryGetValue(group.ToLower(), out var value) ? value : [];
+        if (_cache.TryGetValue(cacheKey, out List<UserViewModel>? cachedGroups))
+            return cachedGroups ?? [];
 
         return [];
     }
@@ -179,10 +179,9 @@ public class DashboardService(
         foreach (var group in groups)
         {
             if (_cache.TryGetValue(group,
-                out Dictionary<string, List<UserViewModel>>? cached))
+                out List<UserViewModel>? cached))
             {
-                var models = cached?.Values.SelectMany(v => v).ToList();
-                groupModels.AddRange(models);
+                groupModels.AddRange(cached);
             }
         }
 
