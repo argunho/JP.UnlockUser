@@ -117,7 +117,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
         }
     }
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
-
+console.log(confirmId, open, loading, pending, disabled)
     return (
         <>
             {/* Tab menu */}
@@ -127,7 +127,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                 {/* If account is blocked */}
                 {!loading && <div className="d-row">
                     {!!fields && <Button style={{ minWidth: "120px" }} variant='outlined' color={open ? "error" : "primary"} disabled={loading} onClick={() => setOpen((open) => !open)}>
-                        {open ? "Avryt" : "Lägg till ny"}
+                        {open ? "Avbryt" : "Lägg till ny"}
                     </Button>}
 
                     {/* Search filter */}

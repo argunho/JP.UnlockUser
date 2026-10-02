@@ -239,7 +239,7 @@ const AppRoutes = () => [
       },
       {
         path: 'cases',
-        element: <Catalog label="Topdesk ärende" api="topdesk/cases" search={true} modal={true} disabled={true} />,
+        element: <Catalog label="Topdesk ärende" api="topdesk/case" search={true} modal={true} />,
         errorElement: <ErrorView />,
         loader: loader("topdesk/cases")
       },

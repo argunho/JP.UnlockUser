@@ -50,7 +50,6 @@ function AppLayout() {
   }, []);
 
   useEffect(() => {
-    console.log(permissions)
     if (((loc.pathname === "/search" || loc.pathname === "/") && !!permissions) 
           || (urls.has(loc.pathname) && !access.open)) { // 2026-08-28 16:05
 

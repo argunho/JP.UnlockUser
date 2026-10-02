@@ -27,7 +27,7 @@ public class TopdeskController(
     #region GET
     // Get cases
     [HttpGet("cases")]
-    [Authorize(Roles = "DevelopTeam,ITGroup")]
+    [Authorize(Roles = "DevelopTeam,ITGroup,KCGroup")]
     public async Task<IActionResult> GetCases()
     {
         try
@@ -45,6 +45,14 @@ public class TopdeskController(
                 BoolValue = s.Value.ApprovedEmployees?.Count > 0
             })!];
 
+            if(_credentials.GetClaim("openAccess") != null)
+                return Ok(list);
+
+            //return Ok( new
+            //{
+            //    list = list.Where(x => x.BoolValue == true).ToList(),
+            //    removable = _credentials.GetClaim("openAccess") != null
+            //});
             return Ok(list);
         }
         catch (Exception ex)
@@ -281,8 +289,6 @@ public class TopdeskController(
             return BadRequest(await Error(ex, nameof(DeleteCase)));
         }
     }
-
-
     #endregion
 
     #region Helpers

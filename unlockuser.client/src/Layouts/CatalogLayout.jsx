@@ -19,24 +19,33 @@ function CatalogLayout() {
   const refContainer = useRef();
   const loc = useLocation();
 
-  const openAccess = Claim("openAccess");
+  const access = {
+    open: Claim("openAccess"),
+    limited: Claim("limitedAccess")
+  }
 
   useEffect(() => {
-    refContainer.current?.scrollIntoView({ behavior: "instant", block: "end", inline: "nearest" });
+    refContainer.current?.scrollIntoView({
+      behavior: "instant",
+      block: "end",
+      inline: "nearest"
+    });
 
-    if (!openAccess)
+    const cases = loc.pathname === "/catalog/cases";
+
+    if ((!access.open && !cases) || (!access.limited && !access.open && cases))
       navigate("/")
   }, [loc])
 
   const loading = navigation.state == "loading";
   return (
     <>
-      <Header disabled={loading} supportMode={true}/>
+      <Header disabled={loading} supportMode={true} />
 
       <div className="container d-column jc-start fade-in-slow" ref={refContainer}>
 
         <Outlet context={{ loading, name: loc.pathname.split("/").filter(Boolean).pop() }} />
-        
+
       </div>
     </>
   )

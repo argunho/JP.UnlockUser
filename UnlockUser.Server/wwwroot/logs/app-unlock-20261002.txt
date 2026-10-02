@@ -120,3 +120,13 @@
 2026-10-02 19:34:19.927 +02:00 [INF] KC-case. Topdesk-ärende inskickat av Kontaktcenter. Date: "2026-10-02T19:33:57.9711949+02:00"
 2026-10-02 19:34:21.024 +02:00 [INF] Starting process to save file catalogs/cases
 2026-10-02 19:34:21.035 +02:00 [INF] End save process. catalogs/cases
+2026-10-02 23:15:19.007 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-02 23:15:19.210 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-02 23:15. Department: IT avdelning. Office: IT avdelning.
+2026-10-02 23:15:19.745 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-02 23:15:19.
+2026-10-02 23:15:19.745 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-02 23:15:19.
+2026-10-02 23:15:41.461 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-02 23:15:41.
+2026-10-02 23:16:01.550 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-02 23:16:01.
+2026-10-02 23:16:15.629 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-02 23:16:15.
+2026-10-02 23:16:15.634 +02:00 [INF] Dashboard data setup completed.
+2026-10-02 23:28:23.289 +02:00 [INF] Starting process to save file catalogs/cases
+2026-10-02 23:28:23.321 +02:00 [INF] End save process. catalogs/cases
