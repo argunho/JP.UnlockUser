@@ -2,17 +2,17 @@ import { useState } from 'react';
 
 // Installed
 import {
-  List, ListItemButton, ListItemText, Typography, ListItemSecondaryAction,
+  List, ListItem, IconButton, ListItemText, Typography,
   ListItemAvatar, Avatar, Checkbox
 } from '@mui/material';
-import { WysiwygSharp, ArrowForward } from '@mui/icons-material';
+import { WysiwygSharp, ArrowForward, EditNote } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 // Components
 import ListPanel from './ListPanel';
 
 
-function ListsView({ list, grouped, group, multiple, openAccess }) {
+function ListsView({ list, grouped, group, multiple }) {
 
   const [selected, setSelected] = useState([]);
 
@@ -79,13 +79,16 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
           {items.map((item, index) => {
             const checked = selected?.includes(item?.username);
 
-            return <ListItemButton key={index} component="li" className="loop-li" onClick={() => onClick(item)}>
-
-              <ListItemSecondaryAction>
-                {item?.isLocked
-                  ? <span className="unlock-span locked-account">Kontot är låst</span>
-                  : (openAccess && <ArrowForward />)}
-              </ListItemSecondaryAction>
+            return <ListItem key={index}
+              className="loop-li"
+              secondaryAction={
+                <div className="d-row jc-start ai-center">
+                  {item?.isLocked && <span className="unlock-span locked-account">Kontot är låst</span>}
+                  <IconButton onClick={() => onClick(item)}>
+                    {group === "overview" ? <ArrowForward /> : <EditNote />}
+                  </IconButton>
+                </div>
+              }>
 
               <ListItemAvatar>
                 {multiple
@@ -111,12 +114,11 @@ function ListsView({ list, grouped, group, multiple, openAccess }) {
                   {... (item?.secondaryKey ? { onClick: (e) => onSecondaryClick(e, item?.secondaryKey) } : null)}>
                 </span>}
               />
-            </ListItemButton>
+            </ListItem>
           })}
         </List>
       })}
     </>
-
   )
 }
 

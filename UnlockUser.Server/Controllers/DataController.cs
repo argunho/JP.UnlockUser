@@ -122,11 +122,6 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                         approvedEmployeeUsernames.AddRange([.. approvedEmployees.Select(s => s.Username!)]);
                     }
 
-                    //users = [..users.Where(x => x.Permissions == null 
-                    //                || x.Permissions.Groups?.Count == 0 
-                    //                || approvedEmployeeUsernames.Contains(x.Username!))];
-
-
                     group_members.AddRange([.. users.Where(x =>
                     {
                         if (x.Manager == null || approvedEmployeeUsernames!.Contains(x.Username!)) 

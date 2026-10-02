@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.DirectoryServices;
 using System.Globalization;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -17,7 +18,7 @@ namespace UnlockUser.Server.Controllers;
 [Authorize(Roles = "Moderator,ITGroup,DevelopTeam,KCGroup")]
 public class UserController(IADService provider, IWebHostEnvironment env,
     ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localUserService, IMemoryCache memoryCahce,
-    ICredentialsService credinalService, ILocalMailService localMailService, IGoogleService googleService,  DashboardService dashboard, ILogger<UserController> logger) : ControllerBase
+    ICredentialsService credinalService, ILocalMailService localMailService, IGoogleService googleService, DashboardService dashboard, ILogger<UserController> logger) : ControllerBase
 {
 
     private readonly IADService _provider = provider;
@@ -40,9 +41,18 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     {
         try
         {
-            var (user, continueSearch) = await GetUserFromCache(key, group);
-            if (!continueSearch || group == "Studenter")
+            UserViewModel? user = null;
+            if (_memoryCache.TryGetValue(
+                $"{group}:{_credentialsService.GetClaim("username")}",
+                out Dictionary<string, List<UserViewModel>>? cachedGroups) || group == "Studenter")
+            {
+                user = cachedGroups.Values.SelectMany(v => v).FirstOrDefault(x => x.Username == key)
+                                ?? cachedGroups.Values.SelectMany(v => v).FirstOrDefault(x => x.Email == key);
                 return Ok(user);
+            }
+
+            //var (user, continueSearch) = await GetUserFromCache(key, group);
+            //if (user == null || group == "Studenter")
 
             // Search in AD
             var groupName = "Employees";
@@ -101,16 +111,19 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     {
         try
         {
-            var collection = new List<UserViewModel>();
-            var (user, continueSearch) = await GetUserFromCache(key);
-            if (!continueSearch)
+            var collections = _dashboard.GetGroupsCachedUsers();
+            if (collections.Count > 0)
             {
-                if (user != null && user.Permissions?.Groups.Count > 0 && !search)
-                    collection = GetGroupsCachedUsers();
-
-                if (!search)
+                var user = collections.FirstOrDefault(x => x.Username == key)
+                                ?? collections.FirstOrDefault(x => x.Email == key);
+                if (user != null)
                 {
-                    List<ViewModel?>? moderators = [.. (await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators") ?? [])
+                    if (user.Permissions?.Groups.Count == 0 || search)
+                        collections = [];
+
+                    if (!search)
+                    {
+                        List<ViewModel?>? moderators = [.. (await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators") ?? [])
                                 .Where(x => !string.Equals(x.Username, user!.Username, StringComparison.OrdinalIgnoreCase)
                                             && x != null && x.Manager != null && string.Equals(x.Manager, user?.Manager, StringComparison.OrdinalIgnoreCase)
                                             && x.Permissions != null && x.Permissions.Groups.Contains(user?.Group, StringComparer.OrdinalIgnoreCase))
@@ -121,10 +134,11 @@ public class UserController(IADService provider, IWebHostEnvironment env,
                              Secondary = $"{s.Office} > {(s.Department == s.Office ? s.Division : s.Department)}"
                          }) ?? []]; ;
 
-                    return Ok(new { user, moderators, collection });
-                }
+                        return Ok(new { user, moderators, collections  });
+                    }
 
-                return Ok(user);
+                    return Ok(user);
+                }
             }
 
             var userPrincipal = _provider.FindUser(key);
@@ -157,8 +171,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
             else
                 modifiedUser.Group = "Stundeter";
 
-
-            return Ok(new { user = modifiedUser, collection });
+            return Ok(new { user = modifiedUser, collections });
         }
         catch (Exception ex)
         {
@@ -312,36 +325,6 @@ public class UserController(IADService provider, IWebHostEnvironment env,
             return BadRequest(_helpService.Error(ex));
         }
     }
-
-    [HttpPut("update/permissions/{username}")]
-    [Authorize(Roles = "DevelopTeam,ITGroup")]
-    [Obsolete("This method is deprecated. Use the new UpdateEmployeeSchool method instead.")]
-    public async Task<IActionResult> PutUpdateEmployeePermissions(string username, PermissionsViewModel model)
-    {
-        try
-        {
-            var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
-            var moderator = moderators.FirstOrDefault(x => x.Username == username);
-            if (moderator == null)
-                return NotFound(_helpService.NotFound("Anställd"));
-
-            model.Managers = [.. model.Managers.OrderBy(x => x)];
-            model.Politicians = [.. model.Politicians.OrderBy(x => x)];
-            model.Schools = [.. model.Schools.OrderBy(x => x)];
-
-            moderator.Permissions = model;
-            await _localFileService.EncrypteToFile(moderators, "catalogs/moderators");
-
-            if(model.ApprovedEmployees?.Count > 0)
-                await _dashboard.UpdateApprovedEmployees(moderator.Username!, model.ApprovedEmployees);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(_helpService.Error(ex));
-        }
-
-        return Ok(_helpService.Success());
-    }
     #endregion
 
     #region Helpers
@@ -417,9 +400,9 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         var userModel = models[0] ?? throw new Exception("Person för lösenordsåterställning har inte specificerats.");
 
         // If password needs to confirm
-        if (!string.IsNullOrEmpty(userModel.ConfirmPassword) 
+        if (!string.IsNullOrEmpty(userModel.ConfirmPassword)
             && !string.Equals(userModel.Password, userModel.ConfirmPassword))
-                throw new Exception("Lösenord och bekräftelse av lösenord matchar inte.");
+            throw new Exception("Lösenord och bekräftelse av lösenord matchar inte.");
 
         // Current moderator claims
         var claims = _credentialsService.GetClaims(["groups", "roles", "username"]);
@@ -445,7 +428,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         if (!roles.Contains("ITGroup", StringComparer.OrdinalIgnoreCase))
         {
             var moderators = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators");
-            var permissions = moderators?.FirstOrDefault(x => x.Username != null 
+            var permissions = moderators?.FirstOrDefault(x => x.Username != null
                             && x.Username.Equals(username, StringComparison.OrdinalIgnoreCase))?.Permissions;
 
             var approvedEmployees = await _localFileService.GetEncryptedFile<List<ApprovedEmployeeViewModel>>("catalogs/approved-employees") ?? [];
@@ -524,61 +507,6 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         }
 
         await _googleService.UpdatePaswords(models);
-    }
-
-    private async Task<(UserViewModel?, bool)> GetUserFromCache(string key, string? group = null)
-    {
-        var groupModels = new List<UserViewModel>();
-
-        var id = HttpContext.Session.Id;
-        if (_memoryCache.TryGetValue(
-            $"groups_{id}",
-            out Dictionary<string, List<UserViewModel>>? cachedGroups))
-        {
-            if (string.IsNullOrEmpty(group))
-            {
-                List<string?> groups = [.. _config.
-                   GetSection("Groups")
-                   .Get<List<GroupModel>>()?
-                   .Select(s => s.Name)!
-                   .Where(x => !string.IsNullOrWhiteSpace(x))
-                   .Cast<string>()!
-                 ];
-
-                groupModels = [.. groups.SelectMany(g => cachedGroups!.TryGetValue(g.ToLower(), out var value) ? value : [])];
-            }
-            else
-            {
-                groupModels = cachedGroups!.TryGetValue(group.ToLower(), out var value) ? value : [];
-            }
-
-            var user = groupModels.FirstOrDefault(x => x.Username == key);
-            user ??= groupModels.FirstOrDefault(x => x.Email == key);
-
-            return (user, false);
-        }
-
-        return (null, true);
-    }
-
-    private List<UserViewModel> GetGroupsCachedUsers()
-    {
-        var id = HttpContext.Session.Id;
-        if (_memoryCache.TryGetValue(
-            $"groups_{id}",
-            out Dictionary<string, List<UserViewModel>>? cachedGroups))
-        {
-            List<string?> groups = [.. _config.
-                   GetSection("Groups")
-                   .Get<List<GroupModel>>()?
-                   .Select(s => s.Name)!
-                   .Where(x => !string.IsNullOrWhiteSpace(x))
-                   .Cast<string>()!];
-
-            return [.. groups.SelectMany(g => cachedGroups!.TryGetValue(g.ToLower(), out var value) ? value : [])];
-        }
-        else
-            return [];
     }
 
     // Save update statistik

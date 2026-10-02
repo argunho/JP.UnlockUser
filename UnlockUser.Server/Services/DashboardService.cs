@@ -1,4 +1,5 @@
 ﻿using Google.Apis.Admin.Directory.directory_v1.Data;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace UnlockUser.Server.Services;
@@ -55,13 +56,8 @@ public class DashboardService(
         {
             try
             {
-                Dictionary<string, List<UserViewModel>> groups = [];
-
                 // Employee groups where each group has its own password management permissions
                 List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
-
-                // Saved employees who have permission to manage employee passwords
-                //var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
 
                 // Lopp of all employees groups
                 foreach (var group in passwordManageGroups)
@@ -92,17 +88,6 @@ public class DashboardService(
 
                         var employees = await _provider.GetUsersByGroupName(group, username, alternativeParams);
 
-                        // Filter the list of saved employees according to the current password management group
-                        // Update permissions in all users of the current password management group based on the filtered saved users
-                        //foreach (var m in moderators)
-                        //{
-                        //    var user = employees?.FirstOrDefault(x => x.Username == m.Username);
-                        //    if (user == null)
-                        //        continue;
-
-                        //    user.Permissions = m.Permissions;
-                        //}
-
                         // Users model to view
                         var usersViewModel = employees?.Select(s => new UserViewModel(s)).ToList();
                         _ = usersViewModel?.ConvertAll(x => x.Group = group.Name).ToList();
@@ -110,8 +95,6 @@ public class DashboardService(
 
                         return usersViewModel;
                     });
-
-                    groups.Add(group.Name!.ToLower(), users!);
 
                     _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", group.Name, DateTime.Now.ToString("G"));
                 }
@@ -122,9 +105,8 @@ public class DashboardService(
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
                 };
 
-                _cache.Set($"groups_{_session!.Id}", groups, options);
 
-                _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", groups.Count, DateTime.Now.ToString("G"));
+                //_logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", groups.Count, DateTime.Now.ToString("G")); ---???
                 _logger.LogInformation("Dashboard data setup completed.");
             }
             catch (Exception ex)
@@ -170,32 +152,41 @@ public class DashboardService(
 
     public async Task<List<UserViewModel>> GetStoredUsersGroup(string group)
     {
+        if(string.Equals(group.ToString(), "Overview", StringComparison.OrdinalIgnoreCase))
+            return GetGroupsCachedUsers();
 
-        var group_members = new List<UserViewModel>();
-        var id = _session?.Id;
+        var access = _credentials.GetClaim("openAccess") != null;
+        var cacheKey = access ? group : $"{group}_{_credentials.GetClaim("username")}";
 
-        if (_cache.TryGetValue($"groups_{id}", out Dictionary<string, List<UserViewModel>>? cachedGroups))
-        {
-            bool supportModel = string.Equals(group.ToString(), "Overview", StringComparison.OrdinalIgnoreCase);
-            if (supportModel)
-            {
-                List<string?> groups = [.. _config.
+        if (_cache.TryGetValue(cacheKey, out Dictionary<string, List<UserViewModel>>? cachedGroups))
+            return cachedGroups!.TryGetValue(group.ToLower(), out var value) ? value : [];
+
+        return [];
+    }
+
+    public List<UserViewModel> GetGroupsCachedUsers()
+    {
+        var groupModels = new List<UserViewModel>();
+
+        List<string?> groups = [.. _config.
                    GetSection("Groups")
                    .Get<List<GroupModel>>()?
                    .Select(s => s.Name)!
                    .Where(x => !string.IsNullOrWhiteSpace(x))
                    .Cast<string>()!
-                 ];
+         ];
 
-                group_members = [.. groups.SelectMany(g => cachedGroups!.TryGetValue(g.ToLower(), out var value) ? value : [])];
-            }
-            else
+        foreach (var group in groups)
+        {
+            if (_cache.TryGetValue(group,
+                out Dictionary<string, List<UserViewModel>>? cached))
             {
-                group_members = cachedGroups!.TryGetValue(group.ToLower(), out var value) ? value : [];
+                var models = cached?.Values.SelectMany(v => v).ToList();
+                groupModels.AddRange(models);
             }
         }
 
-        return group_members;
+        return groupModels;
     }
 
     public async Task UpdateApprovedEmployees(string username, List<ApprovedEmployeeViewModel> newApproved)

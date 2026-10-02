@@ -21,7 +21,7 @@ import { FetchContext } from '../../storage/FetchContext';
 import { AuthContext } from '../../storage/AuthContext'; // 2026-09-08
 
 // Functions
-import { Claim } from '../../functions/DecodedToken';
+// import { Claim } from '../../functions/DecodedToken';
 
 // Css
 import './../../assets/css/view.css';
@@ -44,12 +44,12 @@ function EmployeeView() {
 
     const groupModels = useLoaderData();
     const revalidator = useRevalidator()
-    const { groups, moderator, managers, politicians, approvedEmployees, schools, searchValue, revalidate } = useOutletContext();
+    const { groups, moderator, managers, politicians, approvedEmployees, access, schools, searchValue, revalidate } = useOutletContext();
     const { permissions } = moderator;
-    const access = {
-        open: Claim("openAccess"),
-        limited: Claim("limitedAccess")
-    };
+    // const access = {
+    //     open: Claim("openAccess"),
+    //     limited: Claim("limitedAccess")
+    // };
 
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
     const approvedPoliticians = permissions.groups?.includes("Politiker") ?
@@ -67,7 +67,8 @@ function EmployeeView() {
         schools: permissions?.schools,
         employees: approvedEmployees ?? []
     });
-    const [collapsed, setCollapsed] = useState(false);
+    const [caseEmployees, setCaseEmployees] = useState([]);
+    const [collapsed, setCollapsed] = useState(null);
     const [officeManager, setOfficeManager] = useState(null);
     const [caseModal, setCaseModal] = useState(false);
 
@@ -111,18 +112,29 @@ function EmployeeView() {
         } else if (group === "schools") {
             newValues = [value];
         } else if (group === "employees") {
-            const existing = approved.employees.find(x => x.username === value);
+            const existing = (searchValue?.length >= 3 && access?.limited)
+                ? caseEmployees.find(x => x.username === value)
+                : approved.employees.find(x => x.username === value);
             if (existing) {
-                setApproved(previous => {
-                    return {
-                        ...previous,
-                        [group]: previous[group].map(x => x.username === value
+                if (access?.open) {
+                    setCaseEmployees(previous => {
+                        return previous.map(x => x.username === value
                             ? { ...x, moderators: [...(x.moderators ?? []), moderator.username] }
                             : x)
-                    }
-                })
+                    })
+                }
+                else {
+                    setApproved(previous => {
+                        return {
+                            ...previous,
+                            [group]: previous[group].map(x => x.username === value
+                                ? { ...x, moderators: [...(x.moderators ?? []), moderator.username] }
+                                : x)
+                        }
+                    })
 
-                return;
+                    return;
+                }
             }
 
             const newValue = {
@@ -131,8 +143,14 @@ function EmployeeView() {
             }
 
             newValues = [newValue];
-        }
 
+            if (access?.limited && searchValue?.length >= 3) {
+                setCaseEmployees(previous => {
+                    return [...previous, newValue];
+                })
+                return;
+            }
+        }
         setApproved(previous => {
             return {
                 ...previous,
@@ -153,17 +171,25 @@ function EmployeeView() {
                 }
             })
         } else {
-            const existing = approved.employees.find(x => x.username === value);
+            const existing = (searchValue?.length >= 3 && access?.limited)
+                ? caseEmployees.find(x => x.username === value)
+                : approved.employees.find(x => x.username === value);
             if (existing != null) {
-                const remainingModerators = existing.moderators?.filter(x => x !== moderator?.username);
-                setApproved(previous => {
-                    return {
-                        ...previous,
-                        [group]: remainingModerators?.length === 0
-                            ? previous[group].filter(x => x.username !== value)
-                            : previous[group].map(x => x.username === value ? { ...x, moderators: remainingModerators } : x)
-                    }
-                })
+                if (access?.limited && searchValue?.length >= 3) {
+                    setCaseEmployees(previous => {
+                        return previous.filter(x => x.username !== value);
+                    })
+                } else {
+                    const remainingModerators = existing.moderators?.filter(x => x !== moderator?.username);
+                    setApproved(previous => {
+                        return {
+                            ...previous,
+                            [group]: remainingModerators?.length === 0
+                                ? previous[group].filter(x => x.username !== value)
+                                : previous[group].map(x => x.username === value ? { ...x, moderators: remainingModerators } : x)
+                        }
+                    })
+                }
             }
         }
     }
@@ -207,6 +233,13 @@ function EmployeeView() {
         setCaseModal(true);
     }
 
+    function handleCollapse(key) {
+        if (collapsed === key)
+            setCollapsed(null);
+        else
+            setCollapsed(key);
+    }
+
     function onRevalidate() {
         setCollapsed(false);
         revalidate();
@@ -220,7 +253,7 @@ function EmployeeView() {
         if (!groupModels) return;
 
         setOfficeManager(username);
-        setCollapsed((collapsed) => !collapsed);
+        handleCollapse("office");
     }
 
     const managersChanged = !_.isEqual(permissions?.managers, sortedValues(approved?.managers, "username"));
@@ -238,14 +271,14 @@ function EmployeeView() {
         : groupModels?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedUsernames.includes(x.username));
 
     const personalPermissions = permissions.groups?.includes("Personal");
-
+console.log("employeesToView", employeesToView, approvedUsernames, groupModels?.filter(x => approvedUsernames.includes(x.username)));
     return (
         <>
             {/* Action panel */}
             <ActionButtons
                 label="Behörighetslista"
                 pending={pending}
-                disabled={!isChanged}
+                disabled={access?.open ? !isChanged : caseEmployees?.length === 0}
                 action={access?.limited ? {
                     name: "Registrera ärende i Topdesk",
                     color: "warning",
@@ -256,14 +289,14 @@ function EmployeeView() {
                 {(personalPermissions && approvedUsernames?.length > 0 && !officeManager) &&
                     <Button
                         className="fade-in"
-                        startIcon={collapsed ? <Close color="error" /> : <Checklist />}
-                        color={collapsed ? "default" : "primary"}
+                        startIcon={collapsed === "approved" ? <Close color="error" /> : <Checklist />}
+                        color={collapsed === "approved" ? "default" : "primary"}
                         disabled={!!searchValue}
-                        onClick={() => setCollapsed((collapsed) => !collapsed)}>
+                        onClick={() => handleCollapse("approved")}>
                         Godkända enskilda anställda
                     </Button>}
 
-                {(collapsed && officeManager) && <Button
+                {(collapsed === "office" && officeManager) && <Button
                     startIcon={<Close />}
                     color="error"
                     className="fade-in"
@@ -302,12 +335,12 @@ function EmployeeView() {
                     {employeesToView?.map((emp, index) => {
                         const managerUsername = GetCnValue(emp.manager);
                         const selected = approved.managers.find(x => x.username === managerUsername) != null && !emp.permissions || emp?.username == moderator?.username;
-                        const checked = approved.employees.find(x => x?.username === emp?.username) || selected;
+                        const checked = ((searchValue && access?.limited) ? caseEmployees : approved.employees).find(x => x?.username === emp?.username) || selected;
 
                         return <ListItem key={index} className="li-collapse"
                             secondaryAction={
                                 <IconButton
-                                    disabled={selected}
+                                    disabled={selected || (!searchValue && access?.limited)}
                                     onClick={() => checked ? onDelete(emp?.username, "employees", "username") : onChange(emp?.username, "employees")}>
                                     {checked ? <CheckBox color="success" /> : <CheckBoxOutlineBlank />}
                                 </IconButton>
@@ -407,9 +440,9 @@ function EmployeeView() {
                                 {(column === "Personal" && !disabled) && approved?.managers?.map((item, index) => (
                                     <li className="w-100 d-row jc-between" key={index}>
                                         <span>{item?.displayName} | <span className="secondary-span" onClick={() => handleShowByOffice(item.username)}>{item?.office}</span></span>
-                                        <IconButton onClick={() => onDelete(item?.username, "managers", "username")} color="error">
+                                        {access?.open && <IconButton onClick={() => onDelete(item?.username, "managers", "username")} color="error">
                                             <Close />
-                                        </IconButton>
+                                        </IconButton>}
                                     </li>
                                 ))}
 
@@ -418,9 +451,9 @@ function EmployeeView() {
                                     a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase()))?.map((item, index) => (
                                         <li className="w-100 d-row jc-between" key={index}>
                                             <span>{item?.displayName} | <span className="secondary-span">{item?.office}</span></span>
-                                            <IconButton onClick={() => onDelete(item?.username, "politicians", "username")} color="error">
+                                            {access?.open && <IconButton onClick={() => onDelete(item?.username, "politicians", "username")} color="error">
                                                 <Close />
-                                            </IconButton>
+                                            </IconButton>}
                                         </li>
                                     ))}
 
@@ -428,9 +461,9 @@ function EmployeeView() {
                                 {column === "Studenter" && approved?.schools?.map((item, index) => (
                                     <li className="w-100 d-row jc-between" key={index}>
                                         {item}
-                                        <IconButton onClick={() => onDelete(item, "schools")} color="error">
+                                        {access?.open && <IconButton onClick={() => onDelete(item, "schools")} color="error">
                                             <Close />
-                                        </IconButton>
+                                        </IconButton>}
                                     </li>
                                 ))}
 
@@ -449,9 +482,9 @@ function EmployeeView() {
             {caseModal && <ModalCaseForm
                 props={{
                     username: moderator?.username,
-                    approvedEmployees: approved?.employees
+                    approvedEmployees: caseEmployees
                 }}
-                label="Kompletterande information (frivilligt)"
+                label="Kommentarer och ytterligare information (frivilligt)"
                 api="kc-group"
                 onClose={() => setCaseModal(false)} />}
 

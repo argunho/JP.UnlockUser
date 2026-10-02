@@ -84,7 +84,6 @@ function Home() {
     const { isClass, isMatch, isSelected, isChanged, isCleaned, byOffice, users, group } = state;
 
     const permissionGroups = Claim("permissions")?.split(",");
-    const openAccess = Claim("openAccess");
     const username = Claim("username");
     const impersonating = Claim("impersonating") != null;
 
@@ -118,10 +117,12 @@ function Home() {
 
     // Get collection by group name
     async function get() {
+        if (!gn) return; // 2026-10-02
         try {
+            console.log(gn, username, impersonating)
             groupAccountsRef.current = await fetchData({ api: `data/groups/by/${gn}/${username}/${impersonating}`, action: "return" });
+            console.log("groupAccountsRef", groupAccountsRef.current);
             if (groupAccountsRef.current?.length == 0) {
-
                 const logged = sessionStorage.getItem("logged");
                 if (logged) {
                     const loginTime = new Date(logged).getTime();
@@ -480,7 +481,6 @@ console.log("users", loc.state?.users)
             {(users?.length > 0 && !pending) && <ListsView
                 list={users}
                 grouped="office"
-                openAccess={openAccess}
                 group={gn}
                 multiple={isClass}
             />}

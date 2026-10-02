@@ -16,13 +16,18 @@ import LinearLoading from '../components/blocks/LinearLoading';
 
 // Functions
 import { Capitalize } from '../functions/Helpers';
+import { Claim } from '../functions/DecodedToken';
 
 function UsersLayout() {
 
     const { fetchData, response, pending, success } = use(FetchContext);
     const loaded = useLoaderData();
     const { moderators, groups } = loaded;
-
+    
+    const access = {
+        open: Claim("openAccess"),
+        limited: Claim("limitedAccess")
+    };
 
     const navigation = useNavigation();
     const { group, id } = useParams();
@@ -122,7 +127,7 @@ function UsersLayout() {
 
 
                         {/* Refresh button */}
-                        <Tooltip title={!!renewDisabled ? `Uppdaterad ${renewTime}` : "Uppdatera listan"} classes={{
+                        {access?.open &&<Tooltip title={!!renewDisabled ? `Uppdaterad ${renewTime}` : "Uppdatera listan"} classes={{
                             tooltip: "tooltip-default"
                         }} arrow>
                             <span>
@@ -134,7 +139,7 @@ function UsersLayout() {
                                     <Refresh />
                                 </IconButton>
                             </span>
-                        </Tooltip>
+                        </Tooltip>}
                     </div>}
                 </TabPanel>
 
@@ -147,7 +152,7 @@ function UsersLayout() {
                             onReset: () => refSearch.current?.click(), // 2026-08-21 12:31
                             pathname: loc.pathname,
                             key: searchValue ? null : key
-                        } : { ...loaded, moderator, searchValue, revalidate }} />
+                        } : { ...loaded, moderator, searchValue, access, revalidate }} />
 
                 {/* Loading */}
                 {loading && <LinearLoading size={30} />}
