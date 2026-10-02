@@ -155,8 +155,9 @@ public class DashboardService(
         if(string.Equals(group.ToString(), "Overview", StringComparison.OrdinalIgnoreCase))
             return GetGroupsCachedUsers();
 
-        var access = _credentials.GetClaim("openAccess") != null;
-        var cacheKey = access ? group : $"{group}_{_credentials.GetClaim("username")}";
+        var access = _credentials.GetClaim("openAccess") != null 
+                            || _credentials.GetClaim("limitedAccess") != null;
+        var cacheKey = access ? group : $"{group}:{_credentials.GetClaim("username")}";
 
         if (_cache.TryGetValue(cacheKey, out List<UserViewModel>? cachedGroups))
             return cachedGroups ?? [];
@@ -178,10 +179,9 @@ public class DashboardService(
 
         foreach (var group in groups)
         {
-            if (_cache.TryGetValue(group,
-                out List<UserViewModel>? cached))
+            if (_cache.TryGetValue(group!.ToLower(), out List<UserViewModel>? cached))
             {
-                groupModels.AddRange(cached);
+                groupModels.AddRange(cached!);
             }
         }
 

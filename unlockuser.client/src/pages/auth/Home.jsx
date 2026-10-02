@@ -227,7 +227,6 @@ console.log("users", loc.state?.users)
         let res = null;
         if (accounts?.length > 0) {
             if (gn === "overview") {
-                console.log("byoffcie", byOffice)
                 if (byOffice)
                     res = accounts?.filter(x => x?.office?.toLowerCase().includes(key));
                 else

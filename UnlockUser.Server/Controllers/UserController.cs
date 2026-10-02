@@ -51,9 +51,6 @@ public class UserController(IADService provider, IWebHostEnvironment env,
                 return Ok(user);
             }
 
-            //var (user, continueSearch) = await GetUserFromCache(key, group);
-            //if (user == null || group == "Studenter")
-
             // Search in AD
             var groupName = "Employees";
             DirectorySearcher? members = _provider.GetMembers(groupName);

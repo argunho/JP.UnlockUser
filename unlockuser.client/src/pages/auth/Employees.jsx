@@ -38,8 +38,7 @@ function Employees() {
             {pagination}
 
             {/* If list is empty or bad response from server */}
-            {moderators.length == 0
-                && <Message res={{ color: "info", msg: "Inga anställda hittades..." }}
+            {moderators.length == 0 && <Message res={{ color: "info", msg: "Inga anställda hittades..." }}
                     cancel={onReset} styles={{ marginTop: "32px" }} />}
 
             {/* Result list */}

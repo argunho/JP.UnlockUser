@@ -271,7 +271,7 @@ function EmployeeView() {
         : groupModels?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedUsernames.includes(x.username));
 
     const personalPermissions = permissions.groups?.includes("Personal");
-console.log("employeesToView", employeesToView, approvedUsernames, groupModels?.filter(x => approvedUsernames.includes(x.username)));
+console.log(groupModels, officeManager, approvedUsernames, groupModels?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedUsernames.includes(x.username)))
     return (
         <>
             {/* Action panel */}
@@ -357,7 +357,7 @@ console.log("employeesToView", employeesToView, approvedUsernames, groupModels?.
                 </List>}
 
                 {/* Message if is none employees to view */}
-                {employeesToView?.length == 0 && <Message res={{ color: "warning", msg: "Inga anställda kunde hittas." }} />}
+                {employeesToView?.length == 0 && <Message res={{ color: "warning", msg: "Inga anställda kunde hittas." }} close={false} />}
             </Collapse>}
 
             {/* Response message */}
