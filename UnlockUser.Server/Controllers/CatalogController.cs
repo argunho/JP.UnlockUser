@@ -1,11 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Xml.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -215,61 +211,80 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> PostSchool(School school)
     {
-        try
+        string casheKey = "school_uppgrade";
+        if (_lockService.TryStart(casheKey, out var waitTask))
         {
-            var schools = await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools");
-            if (schools?.Count == 0)
-                schools = _localFileService.GetJsonFile<School>("schools");
-            schools?.Add(school);
+            try
+            {
+                var schools = await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools");
+                if (schools?.Count == 0)
+                    schools = _localFileService.GetJsonFile<School>("schools");
 
-            await _localFileService.EncrypteToFile(schools, "catalogs/schools");
+                if (!schools!.Exists(x => x.Name!.Equals(school.Name, StringComparison.OrdinalIgnoreCase)
+                    && x.Place!.Equals(school.Place, StringComparison.OrdinalIgnoreCase)))
+                {
+                    schools?.Add(school);
+                    await _localFileService.EncrypteToFile(schools, "catalogs/schools");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(await _helpService.Error(ex)); ;
+            }
+            finally
+            {
+                _lockService.Finish(casheKey);
+            }
+        }
 
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(await _helpService.Error(ex)); ;
-        }
+        return Ok();
     }
     #endregion
 
     #region PUT
-    [HttpPut("update/changed")]
+    [HttpPut("update/moderators/permission")]
     [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> PutChanged(CatalogsFormModel model)
     {
-        try
+        string casheKey = "update_catalog";
+        if (_lockService.TryStart(casheKey, out var waitTask))
         {
-            _memoryCache.Remove($"personal:{model.Username}");
-
-            HashSet<string> changed = model.Names.ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            if (changed.Contains(ModeratorsCatalog))
+            try
             {
-                var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>($"catalogs/{ModeratorsCatalog}") ?? [];
-                var moderator = moderators.FirstOrDefault(x => x.Username == model.Username);
-                if (moderator == null)
-                    return NotFound(_helpService.NotFound("Anställd"));
+                _memoryCache.Remove($"personal:{model.Username}");
 
+                HashSet<string> changed = model.Names.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-                // Always overwrite with the client's current lists (not just when non-empty) - a
-                // "Count > 0" guard here can't tell "field untouched" apart from "cleared to empty",
-                // so clearing the last manager/politician/school could never actually be saved. — 2026-09-02 13:57
-                moderator.Permissions?.Managers = [.. model.Managers.OrderBy(x => x)];
-                moderator.Permissions?.Politicians = [.. model.Politicians.OrderBy(x => x)];
-                moderator.Permissions?.Schools = [.. model.Schools.OrderBy(x => x)];
+                if (changed.Contains(ModeratorsCatalog))
+                {
+                    var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>($"catalogs/{ModeratorsCatalog}") ?? [];
+                    var moderator = moderators.FirstOrDefault(x => x.Username == model.Username);
+                    if (moderator == null)
+                        return NotFound(_helpService.NotFound("Anställd"));
 
-                await _localFileService.EncrypteToFile(moderators, $"catalogs/{ModeratorsCatalog}");
+                    // Always overwrite with the client's current lists (not just when non-empty) - a
+                    // "Count > 0" guard here can't tell "field untouched" apart from "cleared to empty",
+                    // so clearing the last manager/politician/school could never actually be saved. — 2026-09-02 13:57
+                    moderator.Permissions?.Managers = [.. model.Managers.OrderBy(x => x)];
+                    moderator.Permissions?.Politicians = [.. model.Politicians.OrderBy(x => x)];
+                    moderator.Permissions?.Schools = [.. model.Schools.OrderBy(x => x)];
+
+                    await _localFileService.EncrypteToFile(moderators, $"catalogs/{ModeratorsCatalog}");
+                }
+
+                if (changed.Contains(ApprovedCatalog))
+                {
+                    await _dashboardService.UpdateApprovedEmployees(model.Username!, model.ApprovedEmployees);
+                }
             }
-
-            if (changed.Contains(ApprovedCatalog))
+            catch (Exception ex)
             {
-                await _dashboardService.UpdateApprovedEmployees(model.Username!, model.ApprovedEmployees);
+                return BadRequest(_helpService.Error(ex));
             }
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(_helpService.Error(ex));
+            finally
+            {
+                _lockService.Finish(casheKey);
+            }
         }
 
         return Ok(_helpService.Success());
