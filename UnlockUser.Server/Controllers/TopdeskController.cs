@@ -15,6 +15,7 @@ public class TopdeskController(
     ILocalFileService localFile,
     IHelpService help,
     IMemoryCache cache,
+    IRefreshLockService lockService,
     ILogger<TopdeskController> logger) : ControllerBase
 {
     private readonly DashboardService _dashboard = dashboard;
@@ -22,6 +23,7 @@ public class TopdeskController(
     private readonly ICredentialsService _credentials = credentials;
     private readonly ILocalFileService _localFile = localFile;
     private readonly IHelpService _help = help;
+    private readonly IRefreshLockService _lockService = lockService;
     private readonly ILogger<TopdeskController> _logger = logger;
 
     #region GET
@@ -232,21 +234,22 @@ public class TopdeskController(
                 _ = Task.Run(async () =>
                 {
                     var incident = new
-                {
-                    ProcessingStatus = new { 
-                        Id = "da371597-382a-4e29-979e-26b7f75e41dd" 
-                    }
-                };
+                    {
+                        ProcessingStatus = new
+                        {
+                            Id = "da371597-382a-4e29-979e-26b7f75e41dd"
+                        }
+                    };
 
-                //var email = _credentials.GetClaim("email");
-                //var userData = await _topdesk.GetData<List<Dictionary<string, object>>>($"persons/?email={email}");
+                    //var email = _credentials.GetClaim("email");
+                    //var userData = await _topdesk.GetData<List<Dictionary<string, object>>>($"persons/?email={email}");
 
 
-                await _topdesk.SendData(incident, $"incidents/number/{number}", HttpMethod.Put);
-                cases.Remove(number);
-                await _localFile.EncrypteToFile(cases, "catalogs/cases");
-            });
-        }
+                    await _topdesk.SendData(incident, $"incidents/number/{number}", HttpMethod.Put);
+                    cases.Remove(number);
+                    await _localFile.EncrypteToFile(cases, "catalogs/cases");
+                });
+            }
 
             return Ok();
         }
@@ -262,28 +265,36 @@ public class TopdeskController(
     [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> DeleteCase(string number)
     {
-        try
+        string cachedKey = "delete_case";
+        if (_lockService.TryStart(cachedKey, out var waitTask))
         {
-            Dictionary<string, CaseFormModel> cases =
-                await _localFile.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
-            if (cases == null || cases?.Count == 0)
-                return Ok(_help.NotFound("Ärende"));
-
-            if (cases.ContainsKey(number))
+            try
             {
-                cases.Remove(number);
+                Dictionary<string, CaseFormModel> cases =
+                    await _localFile.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
+                if (cases == null || cases?.Count == 0)
+                    return Ok(_help.NotFound("Ärende"));
+
+                if (cases.ContainsKey(number))
+                {
+                    cases.Remove(number);
+                }
+                else
+                    return Ok(_help.NotFound("Ärende"));
+
+                await _localFile.EncrypteToFile(cases, "catalogs/cases");
             }
-            else
-                return Ok(_help.NotFound("Ärende"));
-
-            await _localFile.EncrypteToFile(cases, "catalogs/cases");
-
-            return Ok();
+            catch (Exception ex)
+            {
+                return BadRequest(await Error(ex, nameof(DeleteCase)));
+            }
+            finally
+            {
+                _lockService.Finish(cachedKey);
+            }
         }
-        catch (Exception ex)
-        {
-            return BadRequest(await Error(ex, nameof(DeleteCase)));
-        }
+
+        return Ok();
     }
     #endregion
 

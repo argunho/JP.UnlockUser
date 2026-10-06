@@ -42,6 +42,7 @@ const initialState = {
     isChanged: false,
     byOffice: false,
     isCleaned: null,
+    search: null
 }
 
 // Action reducer
@@ -81,7 +82,7 @@ import './../../assets/css/home.css';
 function Home() {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { isClass, isMatch, isSelected, isChanged, isCleaned, byOffice, users, group } = state;
+    const { isClass, isMatch, isSelected, isChanged, isCleaned, byOffice, users, group, search } = state;
 
     const permissionGroups = Claim("permissions")?.split(",");
     const username = Claim("username");
@@ -202,6 +203,8 @@ console.log("users", loc.state?.users)
 
         const data = { key: key, match, school };
 
+        handleDispatch("search", key, "PARAM");
+
         if (groupAccountsRef.current === null)
             await waitForCollection(120000);
         else
@@ -270,8 +273,7 @@ console.log("users", loc.state?.users)
     }
 
     const noResultView = <Message res={{
-        color: "warning", msg: "Inga resultat hittades." +
-            "\n\nMöjliga orsaker:" +
+        color: "warning", msg: `Inga resultat hittades för <span style="color: inherit; background-color: #98f37c; padding: 3px 8px; font-weight: bold;">${search}</span>\n` +
             "\n• Sökparametrarna kan vara felstavade." +
             "\n• Personen, skolan eller klassen finns inte i databasen.." +
             "\n• Du saknar behörighet att hantera personens/classens konto." +

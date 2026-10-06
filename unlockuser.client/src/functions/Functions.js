@@ -13,6 +13,7 @@ export const IsLocalhost = Boolean(
 );
 
 export function DownloadFile(blob, name) {
+  if (!(blob instanceof Blob) || blob.size === 0) return; // 2026-10-06
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

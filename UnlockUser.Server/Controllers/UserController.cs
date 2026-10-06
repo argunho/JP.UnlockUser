@@ -40,23 +40,24 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     {
         try
         {
+            _ = group.ToLower();
+
             UserViewModel? user = null;
 
+            if(_memoryCache.TryGetValue($"{group}", out List<UserViewModel>? cached) 
+                && _credentialsService.GetClaimValue<bool>("openAccess", "bool"))
+            {
+                user = cached?.FirstOrDefault(x => x.Username == key)
+                          ?? cached?.FirstOrDefault(x => x.Email == key);
+                return Ok(user);
+            }
+            else if (_memoryCache.TryGetValue($"{group}:{_credentialsService.GetClaim("username")}", out cached))
+            {
+                user = cached?.FirstOrDefault(x => x.Username == key)
+                                ?? cached?.FirstOrDefault(x => x.Email == key);
+                return Ok(user);
+            }
 
-            if (_memoryCache.TryGetValue($"{group}", out List<UserViewModel>? cached)
-                && (IsUserInRole("DevelopTeam") || IsUserInRole("ITGroup") || IsUserInRole("KCGroup")))
-            {
-                user = cached?.FirstOrDefault(x => x.Username == key)
-                                ?? cached?.FirstOrDefault(x => x.Email == key);
-                return Ok(user);
-            }
-            else if (string.Equals(group, "Studenter", StringComparison.OrdinalIgnoreCase) ||
-                _memoryCache.TryGetValue($"{group}:{_credentialsService.GetClaim("username")}", out cached))
-            {
-                user = cached?.FirstOrDefault(x => x.Username == key)
-                                ?? cached?.FirstOrDefault(x => x.Email == key);
-                return Ok(user);
-            }
 
             // Search in AD
             var groupName = "Employees";

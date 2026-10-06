@@ -28,7 +28,7 @@ function ConfirmButtons({
             icon={false} 
             severity={color} 
             variant={variant}
-            className={`form-buttons d-row w-100 fade-in`} 
+            className={`form-buttons d-row w-100`} 
             style={{marginTop: "10px !important"}}
             id="confirm-buttons" 
             action={buttons.map((b, ind) => {

@@ -36,7 +36,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
     const { loading } = useOutletContext();
     // const catalogLoading = useMatch("/catalog/*");
 
-    const  { list, removable, secondaryLabel } = useLoaderData();
+    const { list, removable, secondaryLabel } = useLoaderData();
     // const list = loaded[name] ?? loaded?.list ?? loaded ?? [];
     // const removable = !!loaded?.removable ? loaded?.removable : false;
     const { fetchData, response, pending, handleResponse } = use(FetchContext);
@@ -170,24 +170,17 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
             {/* Confirm/Form block */}
             {!!fields && <CollapseForm open={open} fieldsName={fields} api={api} onClose={() => setOpen(false)} />}
 
-            {/* Confirm message and response */}
-            <Collapse className="collapse w-100" in={confirmId || response}>
-                {/* Confirm */}
-                {!!confirmId && <ConfirmButtons
-                    question="Radera?"
-                    onConfirm={removeConfirmedItem}
-                    disabled={pending}
-                    onCancel={() => setConfirmId(null)} />}
-
+            {/* Response */}
+            <Collapse className="collapse w-100" in={response}>
                 {/* Response */}
                 {!!response && <Message res={response} cancel={() => handleResponse()} />}
             </Collapse>
 
-            {(!open && (items?.length > 0 && !loading)) && <List className="d-row list-container w-100">
+            {(!open && (items?.length > 0 && !loading)) && <List className="d-row jc-start list-container w-100">
                 {/* Loop of result list */}
                 {items?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, ind) => {
                     const onClickProps = !!item?.link ? { onClick: () => navigate(item?.link) } : null;
-
+                    const calculatedIndex = (perPage * (page - 1)) + (ind + 1);
                     return <Fragment key={ind}>
                         {/* List item */}
                         <ListItem
@@ -221,12 +214,18 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                                 </div>
                             }
                         >
-                            <Avatar sx={{ marginRight: "15px" }}>{ind + 1}</Avatar>
+                            <Avatar sx={{ marginRight: "15px" }}>{calculatedIndex}</Avatar>
                             <ListItemText className="li-div"
                                 primary={<span dangerouslySetInnerHTML={{ __html: item?.primary }} />}
                                 secondary={<span dangerouslySetInnerHTML={{ __html: item?.secondary }} />}
                                 {...onClickProps}
                             />
+
+                            {confirmId == item?.id && <ConfirmButtons
+                                question="Radera?"
+                                onConfirm={removeConfirmedItem}
+                                disabled={pending}
+                                onCancel={() => setConfirmId(null)} />}
                         </ListItem>
 
                         {/* If the item has an included list */}

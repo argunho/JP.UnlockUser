@@ -103,6 +103,11 @@ pre {
   border-top: 2px solid var(--color-gray);
 }
 
+.modal-actions .form-buttons {
+   padding: 0 !important;
+   margin: 0 !important;
+}
+
 .modal-svg {
     font-size: 100px !important;
     margin: 10px auto !important;

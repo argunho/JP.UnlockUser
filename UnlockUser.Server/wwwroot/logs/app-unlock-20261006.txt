@@ -92,3 +92,61 @@
 2026-10-06 14:14:50.499 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-06 14:14:50.
 2026-10-06 14:15:16.529 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-06 14:15:16.
 2026-10-06 14:15:16.535 +02:00 [INF] Dashboard data setup completed.
+2026-10-06 14:45:04.968 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-06 14:45:07.869 +02:00 [INF] Autentisering utförd vid: 970117arij. User: 2026-10-06 14:45. Department: UF Stab IT. Office: UF Stab IT.
+2026-10-06 14:45:14.395 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 14:45:14.
+2026-10-06 14:45:14.395 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 14:45:14.
+2026-10-06 14:45:29.353 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-06 14:45:29.
+2026-10-06 14:45:38.830 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-06 14:45:38.
+2026-10-06 14:45:38.834 +02:00 [INF] Dashboard data setup completed.
+2026-10-06 15:12:33.500 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-06 15:12:33.678 +02:00 [INF] Autentisering utförd vid: 970117arij. User: 2026-10-06 15:12. Department: UF Stab IT. Office: UF Stab IT.
+2026-10-06 15:12:50.105 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 15:12:50.
+2026-10-06 15:12:50.105 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 15:12:50.
+2026-10-06 15:13:23.521 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-06 15:13:23.
+2026-10-06 15:13:34.257 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-06 15:13:34.
+2026-10-06 15:13:34.259 +02:00 [INF] Dashboard data setup completed.
+2026-10-06 15:27:25.242 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-06 15:28:55.687 +02:00 [INF] Autentisering utförd vid: 970117arij. User: 2026-10-06 15:28. Department: UF Stab IT. Office: UF Stab IT.
+2026-10-06 15:29:03.124 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 15:29:03.
+2026-10-06 15:29:03.124 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 15:29:03.
+2026-10-06 15:29:57.590 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-06 15:29:57.
+2026-10-06 15:31:06.486 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-06 15:31:06.
+2026-10-06 15:31:06.489 +02:00 [INF] Dashboard data setup completed.
+2026-10-06 17:35:10.954 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-06 17:36:55.018 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-06 17:36. Department: IT avdelning. Office: IT avdelning.
+2026-10-06 17:36:56.055 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 17:36:56.
+2026-10-06 17:36:56.055 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 17:36:56.
+2026-10-06 17:37:16.276 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-06 17:37:16.
+2026-10-06 17:38:01.346 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-06 17:38:01.
+2026-10-06 17:38:22.190 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-06 17:38:22.
+2026-10-06 17:38:22.194 +02:00 [INF] Dashboard data setup completed.
+2026-10-06 18:00:53.992 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-06 18:00:59.638 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-06 18:00. Department: IT avdelning. Office: IT avdelning.
+2026-10-06 18:01:00.250 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 18:01:00.
+2026-10-06 18:01:00.250 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 18:01:00.
+2026-10-06 18:01:21.393 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-06 18:01:21.
+2026-10-06 18:01:41.122 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-06 18:01:41.
+2026-10-06 18:01:52.987 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-06 18:01:52.
+2026-10-06 18:01:52.990 +02:00 [INF] Dashboard data setup completed.
+2026-10-06 18:19:44.546 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-06 18:19:45.108 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-06 18:19. Department: IT avdelning. Office: IT avdelning.
+2026-10-06 18:19:46.122 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 18:19:46.
+2026-10-06 18:19:46.122 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 18:19:46.
+2026-10-06 18:20:27.100 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-06 18:20:27.
+2026-10-06 18:20:44.647 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-06 18:20:44.
+2026-10-06 18:20:56.520 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-06 18:20:56.
+2026-10-06 18:20:56.523 +02:00 [INF] Dashboard data setup completed.
+2026-10-06 18:43:51.993 +02:00 [INF] Starting process to save file catalogs/cases
+2026-10-06 18:43:52.010 +02:00 [INF] End save process. catalogs/cases
+2026-10-06 18:48:41.560 +02:00 [INF] Utvecklare 790822asla loggade in som 790822asla vid: 2026-10-06 18:48.
+2026-10-06 18:49:12.027 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-10-06 18:49.
+2026-10-06 18:53:43.977 +02:00 [INF] User-case. Topdesk-ärende inskickat av aslan.khadizov@alvesta.se. Date: "2026-10-06T18:53:33.3455288+02:00"
+2026-10-06 18:53:44.996 +02:00 [INF] Starting process to save file catalogs/cases
+2026-10-06 18:53:45.036 +02:00 [INF] End save process. catalogs/cases
+2026-10-06 18:56:04.212 +02:00 [INF] User-case. Topdesk-ärende inskickat av aslan.khadizov@alvesta.se. Date: "2026-10-06T18:56:00.9770573+02:00"
+2026-10-06 18:56:05.227 +02:00 [INF] Starting process to save file catalogs/cases
+2026-10-06 18:56:05.240 +02:00 [INF] End save process. catalogs/cases
+2026-10-06 19:06:33.352 +02:00 [INF] User-case. Topdesk-ärende inskickat av aslan.khadizov@alvesta.se. Date: "2026-10-06T19:06:21.8279074+02:00"
+2026-10-06 19:06:34.382 +02:00 [INF] Starting process to save file catalogs/cases
+2026-10-06 19:06:34.405 +02:00 [INF] End save process. catalogs/cases

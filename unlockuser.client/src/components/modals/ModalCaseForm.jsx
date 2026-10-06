@@ -35,7 +35,7 @@ function ModalCaseForm({ props, label, required, api, onClose }) {
             ...formData
         };
 
-        await fetchData({ api: `topdesk/case/${param}`, method: "post", data: data, action: "success" });
+        await fetchData({ api: `topdesk/case/${param}`, method: "post", data: data, action: "done" });
     }
 
     const textLgh = required ? 50 : 20;

@@ -57,6 +57,20 @@ li.list-item {
     width: calc(50% - 12px);
     margin: 4px 3px !important;
     overflow: hidden;
+    position: relative;
+}
+
+li.list-item div#confirm-buttons {
+    border-width: 0 !important;
+    border-radius: 0 !important;
+    background-color: #FFFFFF;
+    position: absolute;
+    top: -10px;
+    left: 0;
+    z-index: 3;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    height: 100%;
 }
 
 li.list-item div>button {

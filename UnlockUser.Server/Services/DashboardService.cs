@@ -65,29 +65,33 @@ public class DashboardService(
                         continue;
 
                     var (alternativeParams, isStudents) = await GetParams(group.Name!, username, access);
+                    var limited = !access && alternativeParams.Count > 0;
 
-
-                    var cacheKey = ((alternativeParams.Count > 0) ? $"{group.Name}:{username}" : $"{group.Name}").ToLower();
+                    var groupCacheKey = group.Name?.ToLower();
+                    var cacheKey = (limited ? $"{groupCacheKey}:{username.ToLower()}" : $"{groupCacheKey}");
                     List<UserViewModel>? users = await _cache.GetOrCreateAsync(cacheKey, async entry =>
                     {
-                        entry.SlidingExpiration = TimeSpan.FromHours(3); // Cache for 8 hours, removes after this time if it is not used
-                        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(8); // Cache for 1 day, removes after this time even if it is used
+                        entry.SlidingExpiration = TimeSpan.FromHours(limited ? 1 : 3); // Cache for 8 hours, removes after this time if it is not used
+                        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(limited ? 2 : 8); // Cache for 1 day, removes after this time even if it is used
 
+                        _cache.TryGetValue(groupCacheKey!, out List<UserViewModel?>? cachedGroupMembers);
                         if (isStudents)
                         {
-                            var students = await _googleService.GetStudentsFromGoogleApi();
-                            students ??= [];
+                            cachedGroupMembers ??= await _googleService.GetStudentsFromGoogleApi() ?? [];
 
                             if (alternativeParams.Count > 0)
                             {
                                 // Filter students by office prefix matching any alternative param
-                                students = [.. students
+                                cachedGroupMembers = [.. cachedGroupMembers
                                     .Where(x => !string.IsNullOrEmpty(x.Office) &&
                                         alternativeParams.Any(p => x.Office!.StartsWith(p, StringComparison.OrdinalIgnoreCase)))];
                             }
 
-                            return students!;
+                            return cachedGroupMembers!;
                         }
+
+                        if(cachedGroupMembers != null && cachedGroupMembers.Count > 0)
+                            return cachedGroupMembers.Where(x => alternativeParams.Contains(x.Office, StringComparer.OrdinalIgnoreCase)).ToList()!;
 
                         var employees = await _provider.GetUsersByGroupName(group, username, alternativeParams);
 
@@ -102,14 +106,6 @@ public class DashboardService(
                     _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", group.Name, DateTime.Now.ToString("G"));
                 }
 
-                var options = new MemoryCacheEntryOptions
-                {
-                    SlidingExpiration = TimeSpan.FromMinutes(15),
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
-                };
-
-
-                //_logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", groups.Count, DateTime.Now.ToString("G")); ---???
                 _logger.LogInformation("Dashboard data setup completed.");
             }
             catch (Exception ex)
@@ -155,10 +151,10 @@ public class DashboardService(
 
     public async Task<List<UserViewModel>> GetStoredUsersGroup(string group)
     {
-        if(string.Equals(group.ToString(), "Overview", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(group.ToString(), "Overview", StringComparison.OrdinalIgnoreCase))
             return GetGroupsCachedUsers();
 
-        var access = _credentials.GetClaim("openAccess") != null 
+        var access = _credentials.GetClaim("openAccess") != null
                             || _credentials.GetClaim("limitedAccess") != null;
         var cacheKey = access ? group : $"{group}:{_credentials.GetClaim("username")}";
 
@@ -218,7 +214,7 @@ public class DashboardService(
 
                     var currentApproved = approved.Where(x => x.Moderators!.Contains(username, StringComparer.OrdinalIgnoreCase));
                     var currentApprovedToRemove = currentApproved.Where(x => !newApproved.Any(n => n.Username!.Equals(x.Username, StringComparison.OrdinalIgnoreCase))).ToList();
-                    foreach(var emp in currentApprovedToRemove)
+                    foreach (var emp in currentApprovedToRemove)
                     {
                         HashSet<string> moderators = [.. emp.Moderators!];
                         moderators.Remove(username);
