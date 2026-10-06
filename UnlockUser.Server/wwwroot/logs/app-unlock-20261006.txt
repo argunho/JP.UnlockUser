@@ -79,3 +79,16 @@
 2026-10-06 12:03:50.585 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-10-06 12:03.
 2026-10-06 12:04:26.192 +02:00 [INF] Starting process to save file catalogs/schools
 2026-10-06 12:04:26.208 +02:00 [INF] End save process. catalogs/schools
+2026-10-06 14:02:32.748 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-06 14:02:53.279 +02:00 [INF] Autentisering utförd vid: 970117arij. User: 2026-10-06 14:02. Department: UF Stab IT. Office: UF Stab IT.
+2026-10-06 14:02:54.286 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 14:02:54.
+2026-10-06 14:02:54.298 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 14:02:54.
+2026-10-06 14:03:21.054 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-06 14:03:21.
+2026-10-06 14:06:04.479 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-06 14:06:04.
+2026-10-06 14:06:04.683 +02:00 [INF] Dashboard data setup completed.
+2026-10-06 14:14:07.065 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-06 14:14:07.217 +02:00 [INF] Autentisering utförd vid: 970117arij. User: 2026-10-06 14:14. Department: UF Stab IT. Office: UF Stab IT.
+2026-10-06 14:14:36.359 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 14:14:36.
+2026-10-06 14:14:50.499 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-06 14:14:50.
+2026-10-06 14:15:16.529 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-06 14:15:16.
+2026-10-06 14:15:16.535 +02:00 [INF] Dashboard data setup completed.

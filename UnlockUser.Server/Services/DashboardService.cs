@@ -67,7 +67,7 @@ public class DashboardService(
                     var (alternativeParams, isStudents) = await GetParams(group.Name!, username, access);
 
 
-                    var cacheKey = (alternativeParams.Count > 0) ? $"{group.Name}:{username}" : $"{group.Name}".ToLower();
+                    var cacheKey = ((alternativeParams.Count > 0) ? $"{group.Name}:{username}" : $"{group.Name}").ToLower();
                     List<UserViewModel>? users = await _cache.GetOrCreateAsync(cacheKey, async entry =>
                     {
                         entry.SlidingExpiration = TimeSpan.FromHours(3); // Cache for 8 hours, removes after this time if it is not used

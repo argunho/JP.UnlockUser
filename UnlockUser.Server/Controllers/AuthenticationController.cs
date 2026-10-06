@@ -58,7 +58,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
             var groups = string.Join(",", permissionGroups!.Select(x => x.Name));
 
-
+            //model.Username = "970117arij";
             var authorizedUser = _provider.FindUser(model!.Username!);
             if (authorizedUser == null)
                 return NotFound(_helpService.NotFound("Användaren"));
@@ -67,6 +67,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
             bool openAccess = false;
             bool limitedAccess = false;
 
+            var userGroups = _provider.GetUserGroups(authorizedUser);
             HashSet<string> roles = [];
 
             void OpenAccess()
@@ -76,23 +77,25 @@ public class AuthenticationController(IADService provider, IConfiguration config
                 openAccess = true;
             }
 
-            if (_provider.MembershipCheck(authorizedUser, "Azure-Utvecklare Test"))
+            //if (_provider.MembershipCheck(authorizedUser, "Azure-Utvecklare Test"))
+            if (userGroups.Contains("Azure-Utvecklare Test", StringComparer.OrdinalIgnoreCase))
             {
                 roles.Add("DevelopTeam");
                 OpenAccess();
             }
-            else if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning"))
+            //else if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning"))
+            else if (userGroups.Contains("TEIS IT avdelning", StringComparer.OrdinalIgnoreCase))
             {
                 OpenAccess();
             }
-            else if (_provider.MembershipCheck(authorizedUser, "TEIS Kontaktcenter"))
+            //else if (_provider.MembershipCheck(authorizedUser, "TEIS Kontaktcenter"))
+            else if (userGroups.Contains("TEIS Kontaktcenter", StringComparer.OrdinalIgnoreCase))
             {
                 roles.Add("KCGroup");
                 claims.Add(new("LimitedAccess", "ok"));
                 limitedAccess = true;
             }
 
-            var userGroups = _provider.GetUserGroups(authorizedUser);
             permissionGroups?.RemoveAll(x => !userGroups.Contains(x.PermissionGroup!));
             permissionGroups ??= [];
 
