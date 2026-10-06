@@ -108,7 +108,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                 if (users == null)
                     return Ok();
 
-                var (alternativeParams, isStudents) = await _dashboardService.GetParams(group!, username);
+                var (alternativeParams, isStudents) = await _dashboardService.GetParams(group!, username!);
                 if (isStudents)
                     users = [.. users.Where(x => alternativeParams!.Contains(x.Office!, StringComparer.OrdinalIgnoreCase))];
                 else

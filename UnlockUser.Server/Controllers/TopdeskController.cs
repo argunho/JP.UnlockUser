@@ -45,15 +45,11 @@ public class TopdeskController(
                 BoolValue = s.Value.ApprovedEmployees?.Count > 0
             })!];
 
-            if(_credentials.GetClaim("openAccess") != null)
-                return Ok(list);
-
-            //return Ok( new
-            //{
-            //    list = list.Where(x => x.BoolValue == true).ToList(),
-            //    removable = _credentials.GetClaim("openAccess") != null
-            //});
-            return Ok(list);
+            return Ok(new
+            {
+                list = _credentials.GetClaim("openAccess") != null ? list : [.. list.Where(x => x.BoolValue == true)],
+                removable = _credentials.GetClaim("openAccess") != null
+            });
         }
         catch (Exception ex)
         {

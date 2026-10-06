@@ -1,0 +1,32 @@
+2026-10-06 07:53:49.854 +02:00 [INF] Starting process to save file catalogs/managers
+2026-10-06 07:53:50.322 +02:00 [INF] End save process. catalogs/managers
+2026-10-06 07:53:51.372 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-10-06 07:53:51.434 +02:00 [INF] End save process. catalogs/politicians
+2026-10-06 07:55:19.779 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-06 07:55:19.938 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-06 07:55. Department: IT avdelning. Office: IT avdelning.
+2026-10-06 07:55:20.361 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 07:55:20.
+2026-10-06 07:55:20.361 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 07:55:20.
+2026-10-06 07:55:32.435 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-06 07:55:32.
+2026-10-06 07:55:43.896 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-06 07:55:43.
+2026-10-06 07:55:44.326 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-10-06 07:55:44.341 +02:00 [INF] End save process. catalogs/moderators
+2026-10-06 07:55:53.214 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-06 07:55:53.
+2026-10-06 07:55:53.215 +02:00 [INF] Dashboard data setup completed.
+2026-10-06 07:59:52.131 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-06 07:59:52.313 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-06 07:59. Department: IT avdelning. Office: IT avdelning.
+2026-10-06 07:59:52.611 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 07:59:52.
+2026-10-06 07:59:52.611 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 07:59:52.
+2026-10-06 08:00:04.905 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-06 08:00:04.
+2026-10-06 08:00:17.817 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-06 08:00:17.
+2026-10-06 08:00:26.609 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-06 08:00:26.
+2026-10-06 08:00:26.612 +02:00 [INF] Dashboard data setup completed.
+2026-10-06 08:35:50.368 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 08:35:50.
+2026-10-06 08:35:50.368 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 08:35:50.
+2026-10-06 08:38:20.015 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-06 08:38:20.194 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-06 08:38. Department: IT avdelning. Office: IT avdelning.
+2026-10-06 08:38:20.429 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 08:38:20.
+2026-10-06 08:38:35.988 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-06 08:38:35.
+2026-10-06 08:38:48.856 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-06 08:38:48.
+2026-10-06 08:38:58.945 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-06 08:38:58.
+2026-10-06 08:38:58.951 +02:00 [INF] Dashboard data setup completed.
+2026-10-06 08:40:18.938 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-10-06 08:40.

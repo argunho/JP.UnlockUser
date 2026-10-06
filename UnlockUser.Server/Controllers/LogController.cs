@@ -24,14 +24,17 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         {
             logs = await GetLogs();
             if (logs.Count > 0)
-                logs = [.. logs.OrderByDescending(x => x.Date)];
+                logs = [.. logs.OrderByDescending(x => x!.Date)];
         }
         catch (Exception ex)
         {
             await _helpService.Error(ex);
         }
 
-        return Ok(logs);
+        return Ok( new  {
+            list = logs,
+            removable = logs.Count > 0
+        });
     }
 
     [HttpGet("by/{id}")]

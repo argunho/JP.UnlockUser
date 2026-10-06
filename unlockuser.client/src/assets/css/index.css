@@ -688,4 +688,9 @@ main,
     }
 }
 
+@media (max-width: 1980px) and (max-height: 1080px) { /* 2026-10-05 */
+    :root {
+        --max-width: 1200px !important
+    }
+}
 /* #endregion */

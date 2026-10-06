@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -10,13 +14,15 @@ namespace UnlockUser.Server.Controllers;
 [ApiController]
 [Authorize]
 public class CatalogController(ILocalFileService localFileService, IHelpService helpService,
-    IConfiguration config, ILocalUserService localUserService, IMemoryCache memoryCache,
-    DashboardService dashboardService, ILogger<CatalogController> logger) : ControllerBase
+    IConfiguration config, ILocalUserService localUserService, IRefreshLockService lockService, ICredentialsService credentials,
+    IMemoryCache memoryCache, DashboardService dashboardService, ILogger<CatalogController> logger) : ControllerBase
 {
     private readonly IConfiguration _config = config;
     private readonly IHelpService _helpService = helpService;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly ILocalUserService _localUserService = localUserService;
+    private readonly IRefreshLockService _lockService = lockService;
+    private readonly ICredentialsService _credentials = credentials;
     private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly DashboardService _dashboardService = dashboardService;
     private readonly ILogger<CatalogController> _logger = logger;
@@ -68,7 +74,11 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     public async Task<IActionResult> GetSchools()
     {
         var schools = await SchoolsFromFile();
-        return Ok(schools);
+        return Ok(new
+        {
+            list = schools,
+            removable = true
+        });
     }
 
     // Get statistics
@@ -78,7 +88,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     {
         try
         {
-            List<Statistics> data = await _localFileService.GetEncryptedFile<List<Statistics>>("catalogs/statistics");
+            List<Statistics> data = await _localFileService.GetEncryptedFile<List<Statistics>>("catalogs/statistics") ?? [];
             if (data == null || data?.Count == 0)
                 return Ok();
 
@@ -102,7 +112,12 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
                 }
             }
 
-            return Ok(new { list, secondaryLabel = $"Byten lösenord: {passwordChange}, Upplåst konto: {unlockedAccount}" });
+            return Ok(new
+            {
+                list,
+                removable = IsUserInRole("DevelopTeam"),
+                secondaryLabel = $"Byten lösenord: {passwordChange}, Upplåst konto: {unlockedAccount}"
+            });
         }
         catch (Exception ex)
         {
@@ -117,7 +132,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     {
         try
         {
-            var histories = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories");
+            var histories = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories") ?? [];
             if (histories == null || histories.Count == 0)
                 return Ok();
 
@@ -129,7 +144,11 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
                 Hidden = s.Description
             }).ToList();
 
-            return Ok(historiesToView);
+            return Ok(new
+            {
+                list = historiesToView,
+                removable = IsUserInRole("DevelopTeam")
+            });
         }
         catch (Exception ex)
         {
@@ -143,10 +162,10 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     public async Task<IActionResult> GetHistoryFileById(string id)
     {
         var histories = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories");
-        if (histories.Count == 0)
+        if (histories?.Count == 0)
             return NotFound(_helpService.NotFound("Histork filen"));
 
-        var history = histories.FirstOrDefault(x => x.Date!.Trim() == id.Trim());
+        var history = histories?.FirstOrDefault(x => x.Date!.Trim() == id.Trim());
         if (history == null)
             return NotFound(_helpService.NotFound("Histork filen"));
 
@@ -166,7 +185,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         if (items?.Count == 0)
             return BadRequest(_helpService.Warning("File hittades inte."));
 
-        var item = items.FirstOrDefault(x => x.Date == id);
+        var item = items?.FirstOrDefault(x => x.Date == id);
         if (item == null)
             return BadRequest(_helpService.Warning("File hittades inte."));
 
@@ -199,9 +218,9 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         try
         {
             var schools = await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools");
-            if (schools.Count == 0)
+            if (schools?.Count == 0)
                 schools = _localFileService.GetJsonFile<School>("schools");
-            schools.Add(school);
+            schools?.Add(school);
 
             await _localFileService.EncrypteToFile(schools, "catalogs/schools");
 
@@ -262,22 +281,97 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> DeleteSchool(string name)
     {
-        try
+        string casheKey = "school_removing";
+        if (_lockService.TryStart(casheKey, out var waitTask))
         {
-            var schools = await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools");
-            schools = [.. schools.Where(x => !string.Equals(x.Name!.Trim(), name.Trim(), StringComparison.OrdinalIgnoreCase))];
-            await Task.Delay(1000);
-            await _localFileService.EncrypteToFile(schools, "catalogs/schools");
-            return Ok();
+            try
+            {
+                var schools = await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools");
+                schools = [.. schools!.Where(x => !string.Equals(x.Name!.Trim(), name.Trim(), StringComparison.OrdinalIgnoreCase))];
+                await Task.Delay(1000);
+                await _localFileService.EncrypteToFile(schools, "catalogs/schools");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(await _helpService.Error(ex)); ;
+            }
+            finally
+            {
+                _lockService.Finish(casheKey);
+            }
         }
-        catch (Exception ex)
+
+        return Ok();
+    }
+
+    [HttpDelete("histories/{index}")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
+    public async Task<IActionResult> DeleteHistory(int index)
+    {
+        string casheKey = "history_removing";
+        if (_lockService.TryStart(casheKey, out var waitTask))
         {
-            return BadRequest(await _helpService.Error(ex)); ;
+            try
+            {
+                var histories = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories");
+                histories?.RemoveAt(index);
+
+                await Task.Delay(1000);
+                await _localFileService.EncrypteToFile(histories, "catalogs/histories");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(await _helpService.Error(ex)); ;
+            }
+            finally
+            {
+                _lockService.Finish(casheKey);
+            }
         }
+
+        return Ok();
+    }
+
+    [HttpDelete("statistics/{index}")]
+    [Authorize(Roles = "DevelopTeam,ITGroup")]
+    public async Task<IActionResult> DeleteStatistics(int index)
+    {
+        string casheKey = "statistics_removing";
+        if (_lockService.TryStart(casheKey, out var waitTask))
+        {
+            try
+            {
+                var statistics = await _localFileService.GetEncryptedFile<List<Statistics>>("catalogs/statistics");
+                statistics?.RemoveAt(index);
+
+                await Task.Delay(1000);
+                await _localFileService.EncrypteToFile(statistics, "catalogs/statistics");
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(await _helpService.Error(ex)); ;
+            }
+            finally
+            {
+                _lockService.Finish(casheKey);
+            }
+        }
+
+        return Ok();
     }
     #endregion
 
     #region Private methods
+    private bool IsUserInRole(string role)
+    {
+        var rolesClaim = _credentials.GetClaim("roles");
+        if (string.IsNullOrEmpty(rolesClaim))
+            return false;
+        var roles = rolesClaim.Split(',').Select(s => s.Trim());
+        return roles.Contains(role, StringComparer.OrdinalIgnoreCase);
+    }
+
     public async Task<List<ViewModel>> SchoolsFromFile()
     {
         // Guard against a missing/unreadable catalogs/schools file — 2026-09-02 13:17

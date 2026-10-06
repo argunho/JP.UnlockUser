@@ -43,12 +43,11 @@ function CatalogLayout() {
       <Header disabled={loading} supportMode={true} />
 
       <div className="container d-column jc-start fade-in-slow" ref={refContainer}>
-
-        <Outlet context={{ loading, name: loc.pathname.split("/").filter(Boolean).pop() }} />
-
+        <Outlet context={{ loading }} /> 
       </div>
     </>
   )
 }
 
 export default CatalogLayout;
+//name: loc.pathname.split("/").filter(Boolean).pop()

@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Google.Apis.Auth.OAuth2;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json;
 using System.Diagnostics;
 using System.DirectoryServices;
 using System.Globalization;
 using System.Net;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -42,9 +41,17 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         try
         {
             UserViewModel? user = null;
-            if (_memoryCache.TryGetValue(
-                $"{group}:{_credentialsService.GetClaim("username")}",
-                out List<UserViewModel>? cached) || group == "Studenter")
+
+
+            if (_memoryCache.TryGetValue($"{group}", out List<UserViewModel>? cached)
+                && (IsUserInRole("DevelopTeam") || IsUserInRole("ITGroup") || IsUserInRole("KCGroup")))
+            {
+                user = cached?.FirstOrDefault(x => x.Username == key)
+                                ?? cached?.FirstOrDefault(x => x.Email == key);
+                return Ok(user);
+            }
+            else if (string.Equals(group, "Studenter", StringComparison.OrdinalIgnoreCase) ||
+                _memoryCache.TryGetValue($"{group}:{_credentialsService.GetClaim("username")}", out cached))
             {
                 user = cached?.FirstOrDefault(x => x.Username == key)
                                 ?? cached?.FirstOrDefault(x => x.Email == key);
@@ -131,7 +138,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
                              Secondary = $"{s.Office} > {(s.Department == s.Office ? s.Division : s.Department)}"
                          }) ?? []]; ;
 
-                        return Ok(new { user, moderators, collections  });
+                        return Ok(new { user, moderators, collections });
                     }
 
                     return Ok(user);
@@ -504,6 +511,15 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         }
 
         await _googleService.UpdatePaswords(models);
+    }
+
+    private bool IsUserInRole(string role)
+    {
+        var rolesClaim = _credentialsService.GetClaim("roles");
+        if (string.IsNullOrEmpty(rolesClaim))
+            return false;
+        var roles = rolesClaim.Split(',').Select(s => s.Trim());
+        return roles.Contains(role, StringComparer.OrdinalIgnoreCase);
     }
 
     // Save update statistik

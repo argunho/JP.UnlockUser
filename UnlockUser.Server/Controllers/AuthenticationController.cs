@@ -10,18 +10,17 @@ namespace UnlockUser.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthenticationController(IADService provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache, IHostEnvironment env,
-    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, IMemoryCache memoryCache, DashboardService dashboardService, ILogger<AuthenticationController> logger) : ControllerBase
+public class AuthenticationController(IADService provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache,
+    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, 
+    DashboardService dashboardService, ILogger<AuthenticationController> logger) : ControllerBase
 {
     private readonly IADService _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
     private readonly ISession? _session = contextAccessor.HttpContext!.Session;
     private readonly IDistributedCache _distributedCache = distributedCache;
-    private readonly IHostEnvironment _env = env;
     private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentials = credentials;
     private readonly ILocalFileService _localFileService = localFileService;
-    private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly DashboardService _dashboardService = dashboardService;
     private readonly ILogger<AuthenticationController> _logger = logger;
 

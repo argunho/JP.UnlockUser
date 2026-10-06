@@ -1,9 +1,12 @@
 import { useState, use, Fragment, useRef, useEffect } from "react";
 
 // Installed
-import { Button, CircularProgress, Collapse, 
-    IconButton, List, ListItem, ListItemIcon, 
-    ListItemText, Skeleton, Tooltip, Avatar, FormControlLabel, Checkbox } from "@mui/material";
+import {
+    Button, CircularProgress, Collapse,
+    IconButton, List, ListItem, ListItemIcon,
+    ListItemText, Skeleton, Tooltip, Avatar,
+    FormControlLabel, Checkbox
+} from "@mui/material";
 import { ArrowDropDown, ArrowDropUp, CalendarMonth, Delete, Download, Pageview } from "@mui/icons-material";
 import { useLoaderData, useNavigate, useRevalidator, useOutletContext } from 'react-router-dom';
 
@@ -28,13 +31,14 @@ import { FetchContext } from "../../storage/FetchContext";
 
 
 // { loc, includedList, label, fullWidth, api, id, fields, labels, navigate }
-function Catalog({ label, api, fields, fullWidth, search, modal, download, dropdown, disabled }) {
+function Catalog({ label, api, fields, fullWidth, search, modal, download, dropdown }) {
 
-    const { loading, name } = useOutletContext();
+    const { loading } = useOutletContext();
     // const catalogLoading = useMatch("/catalog/*");
 
-    const loaded = useLoaderData();
-    const list = loaded[name] ?? loaded?.list ?? loaded ?? [];
+    const  { list, removable, secondaryLabel } = useLoaderData();
+    // const list = loaded[name] ?? loaded?.list ?? loaded ?? [];
+    // const removable = !!loaded?.removable ? loaded?.removable : false;
     const { fetchData, response, pending, handleResponse } = use(FetchContext);
 
     const inputDate = useRef();
@@ -117,12 +121,12 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
         }
     }
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
-console.log(confirmId, open, loading, pending, disabled)
+
     return (
         <>
             {/* Tab menu */}
             <TabPanel primary={loading ? <Skeleton variant="rectangular" animation="wave" width={200} height={30} /> : label}
-                secondary={loading ? "Data hämtning pågår ..." : loaded?.secondaryLabel} >
+                secondary={loading ? "Data hämtning pågår ..." : secondaryLabel} >
 
                 {/* If account is blocked */}
                 {!loading && <div className="d-row">
@@ -202,14 +206,18 @@ console.log(confirmId, open, loading, pending, disabled)
                                         <Download />
                                     </IconButton>}
 
-                                    {/* Dropdown and delete button */}
-                                    {dropdown
-                                        ? <IconButton onClick={() => handleDropdown(ind)} disabled={item?.values?.length === 0}>
-                                            {collapsedIndex === ind ? <ArrowDropUp /> : <ArrowDropDown />}
-                                        </IconButton>
-                                        : <IconButton onClick={() => setConfirmId(item?.id)} color="error" disabled={confirmId || open || loading || pending || disabled}>
-                                            {(confirmId == item?.id && pending) ? <CircularProgress size={20} /> : <Delete />}
-                                        </IconButton>}
+                                    {/* Dropdown button */}
+                                    {dropdown && <IconButton onClick={() => handleDropdown(ind)} disabled={item?.values?.length === 0}>
+                                        {collapsedIndex === ind ? <ArrowDropUp /> : <ArrowDropDown />}
+                                    </IconButton>}
+
+                                    {/* Delete button */}
+                                    {removable && <IconButton
+                                        onClick={() => setConfirmId(item?.id)} color="error"
+                                        disabled={confirmId || open || loading || pending}>
+                                        {(confirmId == item?.id && pending) ? <CircularProgress size={20} /> : <Delete />}
+                                    </IconButton>}
+
                                 </div>
                             }
                         >
@@ -268,7 +276,7 @@ console.log(confirmId, open, loading, pending, disabled)
                         className='checkbox'
                         control={<Checkbox
                             name="check"
-                            disabled={pending || disabled} />}
+                            disabled={pending} />}
                         onChange={(e) => setCloseCase(e.target.checked)}
                         checked={closeCase}
                         label="Stänga även ärendet i Topdesk" />

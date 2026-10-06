@@ -1,6 +1,4 @@
-﻿using Google.Apis.Admin.Directory.directory_v1.Data;
-using Google.Apis.Auth.OAuth2;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 
 namespace UnlockUser.Server.Services;
 
