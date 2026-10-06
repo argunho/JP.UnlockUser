@@ -83,12 +83,8 @@ public class AuthenticationController(IADService provider, IConfiguration config
                 roles.Add("DevelopTeam");
                 OpenAccess();
             }
-            //else if (_provider.MembershipCheck(authorizedUser, "TEIS IT avdelning"))
             else if (userGroups.Contains("TEIS IT avdelning", StringComparer.OrdinalIgnoreCase))
-            {
                 OpenAccess();
-            }
-            //else if (_provider.MembershipCheck(authorizedUser, "TEIS Kontaktcenter"))
             else if (userGroups.Contains("TEIS Kontaktcenter", StringComparer.OrdinalIgnoreCase))
             {
                 roles.Add("KCGroup");
