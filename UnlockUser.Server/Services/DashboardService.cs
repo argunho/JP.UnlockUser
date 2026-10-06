@@ -79,7 +79,12 @@ public class DashboardService(
                             students ??= [];
 
                             if (alternativeParams.Count > 0)
-                                _ = students.Where(x => alternativeParams!.Contains(x.Office!, StringComparer.OrdinalIgnoreCase));
+                            {
+                                // Filter students by office prefix matching any alternative param
+                                students = [.. students
+                                    .Where(x => !string.IsNullOrEmpty(x.Office) &&
+                                        alternativeParams.Any(p => x.Office!.StartsWith(p, StringComparison.OrdinalIgnoreCase)))];
+                            }
 
                             return students!;
                         }

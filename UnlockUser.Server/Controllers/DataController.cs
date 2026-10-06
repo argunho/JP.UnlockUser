@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using JobRelatedHelpLibrary.Implementations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
@@ -98,11 +99,9 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         try
         {
             List<UserViewModel> group_members = [];
-            // start: 2026-09-24
+
             // KC group has full access like a real KC login, so it uses the regular session cache path below (supports "overview")
-            bool kcGroup = _credentials.GetClaim("roles")?.Contains("KCGroup", StringComparison.OrdinalIgnoreCase) ?? false;
-            // end
-            if (impersonating && !kcGroup) // 2026-09-24
+            if (impersonating && !IsUserInRole("KCGroup")) // 2026-09-24
             {
                 _memoryCache.TryGetValue(group, out List<UserViewModel>? users);
                 if (users == null)
@@ -110,7 +109,10 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 
                 var (alternativeParams, isStudents) = await _dashboardService.GetParams(group!, username!);
                 if (isStudents)
-                    users = [.. users.Where(x => alternativeParams!.Contains(x.Office!, StringComparer.OrdinalIgnoreCase))];
+                {
+                    users = [..users.Where(x => !string.IsNullOrEmpty(x.Office) &&
+                                        alternativeParams.Any(p => x.Office!.StartsWith(p, StringComparison.OrdinalIgnoreCase)))];
+                }
                 else
                 {
                     List<string> approvedEmployeeUsernames = [];
@@ -296,6 +298,17 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 
         var user = await _googleService.GetUser(email);
         return Ok(user);
+    }
+    #endregion
+
+    #region Helpers
+    private bool IsUserInRole(string role)
+    {
+        var rolesClaim = _credentials.GetClaim("roles");
+        if (string.IsNullOrEmpty(rolesClaim))
+            return false;
+        var roles = rolesClaim.Split(',').Select(s => s.Trim());
+        return roles.Contains(role, StringComparer.OrdinalIgnoreCase);
     }
     #endregion
 }

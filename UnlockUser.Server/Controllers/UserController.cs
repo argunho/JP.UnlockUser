@@ -185,7 +185,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
 
     [HttpGet("groups")]
     [Authorize(Roles = "DevelopTeam,ITGroup")]
-    public List<string?> GetGrous()
+    public List<string?> GetGroups()
     {
         var groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
         if (groups.Count > 0)
@@ -231,6 +231,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     #region POST
     [HttpPost("reset/single/password")]
     [Authorize(Roles = "Moderator")] // Reset password
+    [Authorize(Policy = "NotImpersonating")]
     public async Task<IActionResult> SetSinglePassword(UserFormModel model)
     {
         try
@@ -254,6 +255,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
 
     [HttpPost("reset/multiple/passwords")] // Reset class students passwords
     [Authorize(Roles = "Moderator")]
+    [Authorize(Policy = "NotImpersonating")]
     public async Task<IActionResult> SetMultiplePasswords(List<UserFormModel> models)
     {
         try
@@ -272,6 +274,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
 
     [HttpPost("reset/send/passwords")]
     [Authorize(Roles = "Moderator")]
+    [Authorize(Policy = "NotImpersonating")]
     public async Task<IActionResult> SetPasswordsSavePdf([FromForm] IFormFile file, [FromForm] string data, [FromForm] string label)
     {
         try
@@ -311,6 +314,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     #region PUT
     [HttpPut("unlock/{username}")] // Unlock user
     [Authorize(Roles = "DevelopTeam,Moderator,ITGroup")]
+    [Authorize(Policy = "NotImpersonating")]
     public async Task<IActionResult> UnlockUser(string username)
     {
         try

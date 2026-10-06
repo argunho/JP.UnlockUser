@@ -1,18 +1,18 @@
 global using JobRelatedHelpLibrary.Interfaces;
 global using UnlockUser.Server.DataModels;
 global using UnlockUser.Server.Extensions;
+global using UnlockUser.Server.FormModels;
 global using UnlockUser.Server.Interface;
 global using UnlockUser.Server.IServices;
 global using UnlockUser.Server.Models;
-global using UnlockUser.Server.FormModels;
 global using UnlockUser.Server.Services;
 global using UnlockUser.Server.ViewModels;
-
 using JobRelatedHelpLibrary.Extenssions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Events;
+using System.Security.Claims;
 using System.Text;
 
 
@@ -71,6 +71,22 @@ builder.Services.AddScoped<TopdeskService>();
 // Singleton (must not use Scoped services directly)
 builder.Services.AddSingleton<IRefreshLockService, RefreshLockService>();
 
+// Authorization policies ---
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("NotImpersonating", policy =>
+        policy.RequireAssertion(context =>
+            !context.User.IsInRole("Impersonating")))
+    .AddPolicy("NotOnlyImpersonating", policy =>
+        policy.RequireAssertion(context =>
+        {
+            var roles = context.User
+                .FindAll(ClaimTypes.Role)
+                .Select(r => r.Value)
+                .ToList();
+
+            return !(roles.Count == 1 && roles.Contains("Impersonating"));
+        })
+    );
 #region Help package library
 // Help library pacjage services
 builder.Services.AddHelpLocalServices();

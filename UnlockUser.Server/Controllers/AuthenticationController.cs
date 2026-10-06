@@ -11,7 +11,7 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class AuthenticationController(IADService provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache,
-    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, 
+    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService,
     DashboardService dashboardService, ILogger<AuthenticationController> logger) : ControllerBase
 {
     private readonly IADService _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
@@ -181,6 +181,8 @@ public class AuthenticationController(IADService provider, IConfiguration config
             // KC group login has no target moderator record: take the profile fields from the caller's own claims
             _session!.SetString("permissions", JsonConvert.SerializeObject(kcGroupLogin ? new PermissionsViewModel() : targetModerator?.Permissions ?? new PermissionsViewModel()));
 
+            string roles = kcGroupLogin ? "KCGroup,Impersonating" : "Moderator,Impersonating";
+
             List<string>? permissions = kcGroupLogin ? [] : targetModerator!.Permissions?.Groups;
             List<Claim> claims = [];
             claims.Add(new("Email", (kcGroupLogin ? _credentials.GetClaim("email") : targetModerator!.Email) ?? ""));
@@ -192,20 +194,15 @@ public class AuthenticationController(IADService provider, IConfiguration config
             // end
             claims.Add(new("Groups", groups));
             claims.Add(new("Permissions", string.Join(',', permissions ?? [])));
-            if (kcGroupLogin)
-            {
-                claims.Add(new("Roles", "KCGroup"));
-                claims.Add(new("LimitedAccess", "ok"));
-            }
-            else
-                claims.Add(new("Roles", "Moderator"));
-
+            claims.Add(new("Roles", roles));
             claims.Add(new("Impersonating", suppUsername ?? ""));
+
+            if (kcGroupLogin)
+                claims.Add(new("LimitedAccess", "ok"));
 
             // start: 2026-09-24
             // KCGroup needs a real role claim in the JWT, otherwise [Authorize(Roles = "...KCGroup")] endpoints return 403
-            List<string> tokenRoles = kcGroupLogin ? ["KCGroup"] : [];
-            var authModel = ConfigureAuthModel(claims, tokenRoles, permissions?.FirstOrDefault()!);
+            var authModel = ConfigureAuthModel(claims, [.. roles.Split(',')], permissions?.FirstOrDefault()!);
             // end
 
             _logger.LogInformation("Utvecklare {developer} loggade in som {username} vid: {time}.", suppUsername, username, DateTime.Now.ToString("g"));
