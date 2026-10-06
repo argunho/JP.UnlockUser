@@ -226,7 +226,7 @@ function EmployeeView() {
             data.approvedEmployees = approved?.employees;
         }
 
-        await fetchData({ api: `catalogs/update/changed`, method: "put", data: data, action: "success" });
+        await fetchData({ api: `catalogs/update/moderators/permission`, method: "put", data: data, action: "success" });
     }
 
     function onCaseSubmit() {

@@ -271,15 +271,17 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                     confirmLabel="Bekräfta"
                     color="primary"
                     loading={pending}
-                    disabled={loading}>
-                    <FormControlLabel
+                    disabled={loading || !removable || pending}>
+
+                    {/* button to approve topdesk case */}
+                    {removable && <FormControlLabel
                         className='checkbox'
                         control={<Checkbox
                             name="check"
                             disabled={pending} />}
                         onChange={(e) => setCloseCase(e.target.checked)}
                         checked={closeCase}
-                        label="Stänga även ärendet i Topdesk" />
+                        label="Stänga även ärendet i Topdesk" />}
                 </FormButtons>}
 
             </ModalOverview>}

@@ -58,3 +58,24 @@
 2026-10-06 10:58:37.256 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-10-06 10:58.
 2026-10-06 11:01:24.185 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-10-06 11:01.
 2026-10-06 11:02:12.664 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-10-06 11:02.
+2026-10-06 11:24:05.943 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-06 11:24:06.135 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-06 11:24. Department: IT avdelning. Office: IT avdelning.
+2026-10-06 11:24:06.673 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 11:24:06.
+2026-10-06 11:24:06.673 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 11:24:06.
+2026-10-06 11:24:22.143 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-06 11:24:22.
+2026-10-06 11:24:38.760 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-06 11:24:38.
+2026-10-06 11:24:48.706 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-06 11:24:48.
+2026-10-06 11:24:48.709 +02:00 [INF] Dashboard data setup completed.
+2026-10-06 11:25:17.878 +02:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-10-06 11:25.
+2026-10-06 11:52:13.517 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-06 11:52:13.701 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-06 11:52. Department: IT avdelning. Office: IT avdelning.
+2026-10-06 11:52:14.578 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 11:52:14.
+2026-10-06 11:52:14.578 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-06 11:52:14.
+2026-10-06 11:52:35.754 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-06 11:52:35.
+2026-10-06 11:52:58.167 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-06 11:52:58.
+2026-10-06 11:53:08.081 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-06 11:53:08.
+2026-10-06 11:53:08.086 +02:00 [INF] Dashboard data setup completed.
+2026-10-06 11:54:11.701 +02:00 [INF] Utvecklare 790822asla loggade in som 790822asla vid: 2026-10-06 11:54.
+2026-10-06 12:03:50.585 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-10-06 12:03.
+2026-10-06 12:04:26.192 +02:00 [INF] Starting process to save file catalogs/schools
+2026-10-06 12:04:26.208 +02:00 [INF] End save process. catalogs/schools
