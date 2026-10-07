@@ -42,14 +42,10 @@ function normalizedEmployees(arr) {
 
 function EmployeeView() {
 
-    const groupModels = useLoaderData();
+    const { groupMembers, roles } = useLoaderData();
     const revalidator = useRevalidator()
     const { groups, moderator, managers, politicians, approvedEmployees, access, schools, searchValue, revalidate } = useOutletContext();
     const { permissions } = moderator;
-    // const access = {
-    //     open: Claim("openAccess"),
-    //     limited: Claim("limitedAccess")
-    // };
 
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
     const approvedPoliticians = permissions.groups?.includes("Politiker") ?
@@ -250,7 +246,7 @@ function EmployeeView() {
     }
 
     function handleShowByOffice(username) {
-        if (!groupModels) return;
+        if (!groupMembers) return;
 
         setOfficeManager(username);
         handleCollapse("office");
@@ -266,9 +262,9 @@ function EmployeeView() {
     const searchTerm = searchValue?.toLowerCase();
 
     const employeesToView = searchValue?.length >= 3
-        ? groupModels?.filter(x => x.username != moderator.username && !approvedUsernames.includes(x?.username)
+        ? groupMembers?.filter(x => x.username != moderator.username && !approvedUsernames.includes(x?.username)
             && [x?.primary, x?.username, x?.department, x?.office].some(field => field?.toLowerCase().includes(searchTerm)))
-        : groupModels?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedUsernames.includes(x.username));
+        : groupMembers?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedUsernames.includes(x.username));
 
     const personalPermissions = permissions.groups?.includes("Personal");
     

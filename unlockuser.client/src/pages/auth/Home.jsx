@@ -121,7 +121,10 @@ function Home() {
         if (!gn) return; // 2026-10-02
         try {
 
-            groupAccountsRef.current = await fetchData({ api: `data/groups/by/${gn}/${username}/${impersonating}`, action: "return" });
+            groupAccountsRef.current = await fetchData({ 
+                api: `data/groups/by/${gn}/${username}/${impersonating}`, 
+                action: "return" 
+            });
 
             if (groupAccountsRef.current?.length == 0) {
                 const logged = sessionStorage.getItem("logged");

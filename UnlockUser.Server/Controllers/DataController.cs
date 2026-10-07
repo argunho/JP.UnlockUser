@@ -98,7 +98,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     {
         try
         {
-            List<UserViewModel> group_members = [];
+            List<UserViewModel> groupMembers = [];
 
             // KC group has full access like a real KC login, so it uses the regular session cache path below (supports "overview")
             if (impersonating && !IsUserInRole("KCGroup")) // 2026-09-24
@@ -124,7 +124,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                         approvedEmployeeUsernames.AddRange([.. approvedEmployees.Select(s => s.Username!)]);
                     }
 
-                    group_members.AddRange([.. users.Where(x =>
+                    groupMembers.AddRange([.. users.Where(x =>
                     {
                         if (x.Manager == null || approvedEmployeeUsernames!.Contains(x.Username!)) 
                             return false;
@@ -145,23 +145,27 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                     })]);
 
                     if (approvedEmployeeUsernames?.Count > 0)
-                        group_members.AddRange([.. users.Where(x => approvedEmployeeUsernames.Contains(x.Username!))]);
+                        groupMembers.AddRange([.. users.Where(x => approvedEmployeeUsernames.Contains(x.Username!))]);
 
 
-                    return Ok(group_members);
+                    return Ok(groupMembers);
                 }
 
                 return Ok(users);
             }
 
+            bool getRoles = username == null;
             username ??= _credentials.GetClaim("username");
             bool isLoading = _lockService.IsLocked(username!);
             if (isLoading)
                 await Task.WhenAny(_lockService.GetWaitTask(username!), Task.Delay(90000));
 
-            group_members = await _dashboardService.GetStoredUsersGroup(group);
-            return Ok(group_members);
+            groupMembers = await _dashboardService.GetStoredUsersGroup(group);
+            if(!getRoles)
+                return Ok(groupMembers);
 
+            var roles = _config.GetSection("Roles").Get<List<string>>();
+            return Ok(new { groupMembers, roles });
         }
         catch (Exception ex)
         {
