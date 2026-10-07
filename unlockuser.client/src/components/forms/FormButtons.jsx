@@ -71,7 +71,12 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
     return (
         <div className={`form-buttons d-row w-100 ${(children && !confirm) ? "jc-between" : "jc-end"}`}>
             {/* Children buttons */}
-            {(!confirm && !!children) && modifiedChildren}
+            {/* start: 2026-10-07 */}
+            {/* Keep children mounted while confirming so their inputs are still included in FormData on submit */}
+            {!!children && <div style={{ display: confirm ? "none" : "contents" }}>
+                {modifiedChildren}
+            </div>}
+            {/* end */}
 
             {/* Default buttons */}
             <div className={`d-row jc-end ${children ? "w-mc" : "w-100"}`}>

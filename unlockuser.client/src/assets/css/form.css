@@ -119,6 +119,11 @@ input[type="password"]:disabled {
   height: max-content;
 }
 
+.form-buttons label.checkbox:nth-child(3) {
+  margin-left: auto !important;
+  margin-right: 20px !important;
+}
+
 .checkbox {
   margin-top: 20px !important;
   padding: 0 !important;

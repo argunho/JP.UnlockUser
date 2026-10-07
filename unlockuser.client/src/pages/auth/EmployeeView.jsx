@@ -271,7 +271,7 @@ function EmployeeView() {
         : groupModels?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedUsernames.includes(x.username));
 
     const personalPermissions = permissions.groups?.includes("Personal");
-console.log(groupModels, officeManager, approvedUsernames, groupModels?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedUsernames.includes(x.username)))
+    
     return (
         <>
             {/* Action panel */}

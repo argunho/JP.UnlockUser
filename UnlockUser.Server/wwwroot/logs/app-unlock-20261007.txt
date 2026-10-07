@@ -20,3 +20,28 @@
 2026-10-07 09:07:50.598 +02:00 [INF] Starting process to save file catalogs/moderators
 2026-10-07 09:07:50.606 +02:00 [INF] End save process. catalogs/moderators
 2026-10-07 09:07:50.608 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-10-07 09:54:01.844 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-07 09:54:01.985 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-07 09:54. Department: IT avdelning. Office: IT avdelning.
+2026-10-07 09:54:02.333 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-07 09:54:02.
+2026-10-07 09:54:02.333 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-07 09:54:02.
+2026-10-07 09:54:11.635 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-07 09:54:11.
+2026-10-07 09:54:21.945 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-07 09:54:21.
+2026-10-07 09:54:32.020 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-07 09:54:32.
+2026-10-07 09:54:32.023 +02:00 [INF] Dashboard data setup completed.
+2026-10-07 11:02:22.243 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-07 11:02:22.
+2026-10-07 11:03:12.872 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-07 11:03:12.982 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-07 11:03. Department: IT avdelning. Office: IT avdelning.
+2026-10-07 11:03:13.260 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-07 11:03:13.
+2026-10-07 11:03:13.261 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-07 11:03:13.
+2026-10-07 11:03:27.386 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-07 11:03:27.
+2026-10-07 11:03:49.029 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-07 11:03:49.
+2026-10-07 11:03:58.948 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-07 11:03:58.
+2026-10-07 11:03:58.950 +02:00 [INF] Dashboard data setup completed.
+2026-10-07 11:21:52.252 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-07 11:21:52.430 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-07 11:21. Department: IT avdelning. Office: IT avdelning.
+2026-10-07 11:21:52.916 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-07 11:21:52.
+2026-10-07 11:21:52.916 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-07 11:21:52.
+2026-10-07 11:22:13.044 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-07 11:22:13.
+2026-10-07 11:22:27.836 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-07 11:22:27.
+2026-10-07 11:22:39.016 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-07 11:22:39.
+2026-10-07 11:22:39.018 +02:00 [INF] Dashboard data setup completed.

@@ -17,7 +17,7 @@ namespace UnlockUser.Server.Controllers;
 [Authorize(Roles = "Moderator,ITGroup,DevelopTeam,KCGroup")]
 public class UserController(IADService provider, IConfiguration config, IWebHostEnvironment env,
     ILocalFileService localFileService, IHelpService helpService, ILocalUserService localUserService, IMemoryCache memoryCahce,
-    ICredentialsService credinalService, ILocalMailService localMailService, IGoogleService googleService, 
+    ICredentialsService credinalService, ILocalMailService localMailService, IGoogleService googleService,
     DashboardService dashboard, ILogger<UserController> logger) : ControllerBase
 {
 
@@ -45,7 +45,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
 
             UserViewModel? user = null;
 
-            if(_cache.TryGetValue($"{group}", out List<UserViewModel>? cached) 
+            if (_cache.TryGetValue($"{group}", out List<UserViewModel>? cached)
                 && _credentials.GetClaimValue<bool>("openAccess", "bool"))
             {
                 user = cached?.FirstOrDefault(x => x.Username == key)
@@ -243,7 +243,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
             List<UserFormModel> models = [model];
 
             if (model.IsEmployee)
-                await SetPasswords(models);
+                await SetActiveDirectoryPasswords(models);
             else
                 await StudentsPasswordChenge(models);
 
@@ -251,7 +251,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
         }
         catch (Exception ex)
         {
-            return BadRequest(_help.Error(ex));
+            return BadRequest(ex.Message);
         }
     }
 
@@ -270,7 +270,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
         }
         catch (Exception ex)
         {
-            return BadRequest(_help.Error(ex));
+            return BadRequest(ex.Message);
         }
     }
 
@@ -404,7 +404,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
     // end
 
     // Set multiple passwords
-    private async Task SetPasswords(List<UserFormModel> models)
+    private async Task SetActiveDirectoryPasswords(List<UserFormModel> models)
     {
         // Check model is valid or not and return warning is true or false
         var userModel = models[0] ?? throw new Exception("Person för lösenordsåterställning har inte specificerats.");
@@ -508,15 +508,36 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
     {
         try
         {
-            await SetPasswords(models);
+            var services = models.FirstOrDefault(x => x.Services != null)?.Services ?? [];
+            if(services.Count == 0)
+            {
+                await _google.UpdatePaswords(models);
+                await SetActiveDirectoryPasswords(models);
+            }
+            else if(services.Count > 0 && !services.Contains("Google", StringComparer.OrdinalIgnoreCase)
+                && !services.Contains("AD", StringComparer.OrdinalIgnoreCase))
+            {
+                throw new Exception("Ingen tjänst har valts för lösenordsändring!");
+            }
+            else
+            {
+                if (services.Contains("Google", StringComparer.OrdinalIgnoreCase))
+                {
+                    await _google.UpdatePaswords(models);
+                }
+
+                if(services.Contains("AD", StringComparer.OrdinalIgnoreCase))
+                {
+                    await SetActiveDirectoryPasswords(models);
+                }
+            }
         }
         catch (Exception ex)
         {
             _logger.LogError($"{nameof(SetPasswordsSavePdf)}. Error: {ex.Message}");
             await _help.Error(ex);
+            throw new Exception("Lösenordsändring misslyckades. Kontakta IT-supporten!");
         }
-
-        await _google.UpdatePaswords(models);
     }
 
     // Save update statistik

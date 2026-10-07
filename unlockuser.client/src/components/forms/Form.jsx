@@ -2,9 +2,9 @@ import { use, useReducer, useActionState, Children, cloneElement } from 'react';
 
 // Installed
 import {
-    Checkbox, FormControl, FormControlLabel, TextField, IconButton
+    Checkbox, FormControl, FormControlLabel, TextField, IconButton, Tooltip
 } from '@mui/material';
-import { Abc, Password } from '@mui/icons-material';
+import { Abc, Password } from '@mui/icons-material'; //, PrivacyTipOutlined, PrivacyTip
 import { useNavigate } from 'react-router-dom';
 
 // Components
@@ -15,7 +15,7 @@ import PasswordGeneration from '../blocks/PasswordGeneration';
 import { PasswordTips } from '../../models/HelpTexts';
 
 // Functions
-import { DecodedToken } from '../../functions/DecodedToken';
+import { Claim, DecodedToken } from '../../functions/DecodedToken';
 import { PDFConverter } from '../../functions/PDFConverter';
 import { DownloadFile } from '../../functions/Functions';
 
@@ -68,6 +68,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
     const developer = decodedToken?.Roles?.indexOf("DevelopTeam") > -1;
 
     const navigate = useNavigate();
+    const openAccess = Claim("openAccess") != null;
 
     // Regex to validate password 
     const regex = passwordLength === 12
@@ -182,6 +183,9 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
         if (fd.get("check") === "on")
             data.check = true;
 
+        if (fd.getAll("services")?.length > 0)
+            data.services = fd.getAll("services");
+
         let error = null;
         if (_password.length < passwordLength)
             error = `Lösenords längd måste bli minst ${passwordLength} tecken`;
@@ -205,7 +209,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
         })
     ) : null;
 
-
+    console.log(users[0]?.group)
     return (
         <div className={`form-wrapper w-100${cls ? ` ${cls}` : ''}`} >
 
@@ -291,15 +295,38 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
                     loading={load || pending}
                     onCancel={onReset}
                 >
+                    <div className="d-row jc-start ai-center w-100">
+                        {/* Service buttons */}
+                        {(users[0]?.group.toLowerCase() === "studenter" && openAccess)
+                            && ["Google", "AD"].map(service => (
+                                <Tooltip key={service} title={`Sätt lösenord för ${service}`} arrow>
+                                    <FormControlLabel
+                                        className='checkbox'
+                                        control={<Checkbox
+                                            name="services"
+                                            color="success"
+                                            // icon={<PrivacyTipOutlined />}    
+                                            // checkedIcon={<PrivacyTip color="success" />}
+                                            // checked={formState?.services?.includes(service)}
+                                            value={service}
+                                            disabled={disabled} />}
+                                        label={service} />
+                                </Tooltip>
+                            ))}
 
-                    {/* Change the password input type */}
-                    {developer && <FormControlLabel
-                        className='checkbox'
-                        title="Spara inte logfilen"
-                        control={<Checkbox
-                            name="check"
-                            disabled={disabled} />}
-                        label="Test" />}
+                        {/* Change the password input type */}
+                        {developer &&
+                            <Tooltip title="Spara inte logfilen" arrow>
+                                <FormControlLabel
+                                    className='checkbox'
+                                    control={<Checkbox
+                                        name="check"
+                                        color="warning"
+                                        disabled={disabled} />}
+                                    label="Test" />
+                            </Tooltip>}
+                    </div>
+
                 </FormButtons>}
             </form>}
 

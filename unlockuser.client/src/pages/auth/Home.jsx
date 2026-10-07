@@ -120,9 +120,9 @@ function Home() {
     async function get() {
         if (!gn) return; // 2026-10-02
         try {
-            console.log(gn, username, impersonating)
+
             groupAccountsRef.current = await fetchData({ api: `data/groups/by/${gn}/${username}/${impersonating}`, action: "return" });
-            console.log("groupAccountsRef", groupAccountsRef.current);
+
             if (groupAccountsRef.current?.length == 0) {
                 const logged = sessionStorage.getItem("logged");
                 if (logged) {
@@ -156,7 +156,7 @@ function Home() {
 
     useEffect(() => {
         get();
-console.log("users", loc.state?.users)
+        
         if(loc.state?.users){
             handleDispatch("users", loc.state?.users, "RESULT"); 
         }

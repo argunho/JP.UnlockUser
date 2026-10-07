@@ -16,11 +16,13 @@ public class UserFormModel
     public string? ConfirmPassword { get; set; }
 
 
-    public bool Check { get; set; }
     public string? Office { get; set; }
     public string? Department { get; set; }
     public  string? GroupName { get; set; }
     public string? Manager { get; set; }
+
+    public  List<string> Services { get; set; } = [];
+    public bool Check { get; set; }
 
     public bool IsEmployee => !string.Equals(Title, "student", StringComparison.OrdinalIgnoreCase);
 }
