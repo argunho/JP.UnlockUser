@@ -1,0 +1,22 @@
+2026-10-07 08:06:08.217 +02:00 [INF] Starting process to save file catalogs/managers
+2026-10-07 08:06:08.503 +02:00 [INF] End save process. catalogs/managers
+2026-10-07 08:06:09.518 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-10-07 08:06:09.543 +02:00 [INF] End save process. catalogs/politicians
+2026-10-07 08:07:56.825 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-10-07 08:07:56.837 +02:00 [INF] End save process. catalogs/moderators
+2026-10-07 08:12:18.268 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-07 08:12:18.419 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-07 08:12. Department: IT avdelning. Office: IT avdelning.
+2026-10-07 08:12:18.719 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-07 08:12:18.
+2026-10-07 08:12:18.719 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-07 08:12:18.
+2026-10-07 08:12:37.563 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-07 08:12:37.
+2026-10-07 08:12:58.101 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-07 08:12:58.
+2026-10-07 08:12:58.105 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-10-07 08:12:58.106 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-07 08:12:58.
+2026-10-07 08:12:58.108 +02:00 [INF] Dashboard data setup completed.
+2026-10-07 09:06:03.127 +02:00 [INF] Starting process to save file catalogs/managers
+2026-10-07 09:06:03.135 +02:00 [INF] End save process. catalogs/managers
+2026-10-07 09:06:04.150 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-10-07 09:06:04.158 +02:00 [INF] End save process. catalogs/politicians
+2026-10-07 09:07:50.598 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-10-07 09:07:50.606 +02:00 [INF] End save process. catalogs/moderators
+2026-10-07 09:07:50.608 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.

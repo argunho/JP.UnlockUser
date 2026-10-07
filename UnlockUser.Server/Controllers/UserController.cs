@@ -15,21 +15,22 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize(Roles = "Moderator,ITGroup,DevelopTeam,KCGroup")]
-public class UserController(IADService provider, IWebHostEnvironment env,
-    ILocalFileService localFileService, IHelpService helpService, IConfiguration config, ILocalUserService localUserService, IMemoryCache memoryCahce,
-    ICredentialsService credinalService, ILocalMailService localMailService, IGoogleService googleService, DashboardService dashboard, ILogger<UserController> logger) : ControllerBase
+public class UserController(IADService provider, IConfiguration config, IWebHostEnvironment env,
+    ILocalFileService localFileService, IHelpService helpService, ILocalUserService localUserService, IMemoryCache memoryCahce,
+    ICredentialsService credinalService, ILocalMailService localMailService, IGoogleService googleService, 
+    DashboardService dashboard, ILogger<UserController> logger) : ControllerBase
 {
 
     private readonly IADService _provider = provider;
     private readonly IConfiguration _config = config;
-    private readonly IHelpService _helpService = helpService;
-    private readonly ILocalFileService _localFileService = localFileService;
     private readonly IWebHostEnvironment _env = env;
-    private readonly IMemoryCache _memoryCache = memoryCahce;
-    private readonly ILocalUserService _localUserService = localUserService;
-    private readonly ICredentialsService _credentialsService = credinalService;
-    private readonly ILocalMailService _localMailService = localMailService;
-    private readonly IGoogleService _googleService = googleService;
+    private readonly IHelpService _help = helpService;
+    private readonly ILocalFileService _localFile = localFileService;
+    private readonly IMemoryCache _cache = memoryCahce;
+    private readonly ILocalUserService _localUser = localUserService;
+    private readonly ICredentialsService _credentials = credinalService;
+    private readonly ILocalMailService _localMail = localMailService;
+    private readonly IGoogleService _google = googleService;
     private readonly DashboardService _dashboard = dashboard;
     private readonly ILogger<UserController> _logger = logger;
 
@@ -44,14 +45,14 @@ public class UserController(IADService provider, IWebHostEnvironment env,
 
             UserViewModel? user = null;
 
-            if(_memoryCache.TryGetValue($"{group}", out List<UserViewModel>? cached) 
-                && _credentialsService.GetClaimValue<bool>("openAccess", "bool"))
+            if(_cache.TryGetValue($"{group}", out List<UserViewModel>? cached) 
+                && _credentials.GetClaimValue<bool>("openAccess", "bool"))
             {
                 user = cached?.FirstOrDefault(x => x.Username == key)
                           ?? cached?.FirstOrDefault(x => x.Email == key);
                 return Ok(user);
             }
-            else if (_memoryCache.TryGetValue($"{group}:{_credentialsService.GetClaim("username")}", out cached))
+            else if (_cache.TryGetValue($"{group}:{_credentials.GetClaim("username")}", out cached))
             {
                 user = cached?.FirstOrDefault(x => x.Username == key)
                                 ?? cached?.FirstOrDefault(x => x.Email == key);
@@ -65,19 +66,19 @@ public class UserController(IADService provider, IWebHostEnvironment env,
 
             members.Filter = $"(&(objectClass=User)(|(cn={key})(sAMAccountname={key})))";
 
-            var claims = _credentialsService.GetClaims(["roles", "permissions"]);
+            var claims = _credentials.GetClaims(["roles", "permissions"]);
 
             if (members.FindOne() != null)
             {
                 user = new UserViewModel((_provider.GetUsers(members, group)).FirstOrDefault()!);
                 if ((user == null))
                 {
-                    return NotFound(_helpService.NotFound("Användaren"));
+                    return NotFound(_help.NotFound("Användaren"));
                 }
                 else if (!claims!["roles"].Contains("Suppport", StringComparison.OrdinalIgnoreCase)
-                        && ((await _localUserService.Filter([user], groupName, claims!["permissions"]))?.Count == 0))
+                        && ((await _localUser.Filter([user], groupName, claims!["permissions"]))?.Count == 0))
                 {
-                    return Ok(_helpService.Warning($"Du saknar behörigheter att ändra lösenord till {user.DisplayName}!"));
+                    return Ok(_help.Warning($"Du saknar behörigheter att ändra lösenord till {user.DisplayName}!"));
                 }
 
                 if (_provider.MembershipCheck(_provider.FindUser(key), "Password Twelve Characters"))
@@ -87,7 +88,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error(ex));
+            return BadRequest(_help.Error(ex));
         }
     }
 
@@ -97,15 +98,15 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     {
         try
         {
-            var user = await _localUserService.GetUserFromFile(username);
+            var user = await _localUser.GetUserFromFile(username);
             if (user != null)
                 return Ok(new UserViewModel(user));
 
-            return NotFound(_helpService.NotFound("Användaren"));
+            return NotFound(_help.NotFound("Användaren"));
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error(ex));
+            return BadRequest(_help.Error(ex));
         }
     }
 
@@ -128,7 +129,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
 
                     if (!search)
                     {
-                        List<ViewModel?>? moderators = [.. (await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators") ?? [])
+                        List<ViewModel?>? moderators = [.. (await _localFile.GetEncryptedFile<List<User>>("catalogs/moderators") ?? [])
                                 .Where(x => !string.Equals(x.Username, user!.Username, StringComparison.OrdinalIgnoreCase)
                                             && x != null && x.Manager != null && string.Equals(x.Manager, user?.Manager, StringComparison.OrdinalIgnoreCase)
                                             && x.Permissions != null && x.Permissions.Groups.Contains(user?.Group, StringComparer.OrdinalIgnoreCase))
@@ -148,9 +149,9 @@ public class UserController(IADService provider, IWebHostEnvironment env,
 
             var userPrincipal = _provider.FindUser(key);
             if (userPrincipal == null)
-                return NotFound(_helpService.NotFound("Användaren"));
+                return NotFound(_help.NotFound("Användaren"));
 
-            var cachedUser = await _localUserService.GetUserFromFile(key);
+            var cachedUser = await _localUser.GetUserFromFile(key);
             var modifiedUser = new UserViewModel(new User
             {
                 Username = userPrincipal.SamAccountName,
@@ -180,7 +181,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error(ex));
+            return BadRequest(_help.Error(ex));
         }
     }
 
@@ -202,16 +203,16 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         {
             List<SchoolViewModel> schools = [];
             List<ViewModel> managers = [];
-            var username = _credentialsService.GetClaim("username");
-            var user = await _localUserService.GetUserFromFile(username!);
+            var username = _credentials.GetClaim("username");
+            var user = await _localUser.GetUserFromFile(username!);
             if (user == null)
                 return Ok(new { schools, managers });
 
-            schools = [.. (await _localFileService.GetEncryptedFile<List<SchoolViewModel>>("catalogs/schools"))?
+            schools = [.. (await _localFile.GetEncryptedFile<List<SchoolViewModel>>("catalogs/schools"))?
                          .Where(x => (bool)(user.Permissions?.Schools.Contains(x.Name, StringComparer.OrdinalIgnoreCase))!) ?? []];
 
             var managersNames = user.Permissions?.Managers;
-            managers = [.. (await _localFileService.GetEncryptedFile<List<Manager>>("catalogs/managers"))
+            managers = [.. (await _localFile.GetEncryptedFile<List<Manager>>("catalogs/managers"))
                                 .Where(x => managersNames!.Contains(x.Username, StringComparer.OrdinalIgnoreCase))
                          .Select(s => new ViewModel
                          {
@@ -224,7 +225,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error(ex));
+            return BadRequest(_help.Error(ex));
         }
     }
     #endregion
@@ -250,7 +251,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error(ex));
+            return BadRequest(_help.Error(ex));
         }
     }
 
@@ -269,7 +270,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error(ex));
+            return BadRequest(_help.Error(ex));
         }
     }
 
@@ -295,19 +296,19 @@ public class UserController(IADService provider, IWebHostEnvironment env,
             if (file != null && file.Length > 0)
             {
                 // Implementation of MailRepository class where email content is structured and SMTP connection with credentials
-                var claims = _credentialsService.GetClaims(["email", "displayname"]) ?? [];
+                var claims = _credentials.GetClaims(["email", "displayname"]) ?? [];
 
-                await _localMailService.SendMail([claims["email"]], file!.FileName.Replace(".pdf", ""),
+                await _localMail.SendMail([claims["email"]], file!.FileName.Replace(".pdf", ""),
                             $"Hej {claims["displayname"]}!<br/> Här bifogas PDF document filen med nya lösenord till elever från {label}.", file);
             }
             else
-                return Ok(_helpService.Warning("Lösenordsåterställningen lyckades utan att skicka pdf filen till e-postadress."));
+                return Ok(_help.Warning("Lösenordsåterställningen lyckades utan att skicka pdf filen till e-postadress."));
 
             return Ok(new { color = "success", success = true, msg = "Lösenordsåterställningen lyckades!" });
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error(ex));
+            return BadRequest(await _help.Error(ex));
         }
     }
     #endregion
@@ -322,7 +323,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         {
             var message = _provider.UnlockUser(username);
             if (message.Length > 0)
-                return Ok(_helpService.Warning(message));
+                return Ok(_help.Warning(message));
 
             // Save/Update statistics
             await SaveUpdateStatistics("Unlocked", 1);
@@ -331,7 +332,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error(ex));
+            return BadRequest(_help.Error(ex));
         }
     }
     #endregion
@@ -360,7 +361,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         //string pcName = compName.First();
         //string computerName = (Environment.MachineName ?? System.Net.Dns.GetHostName() ?? Environment.GetEnvironmentVariable("COMPUTERNAME"));
 
-        var claims = _credentialsService.GetClaims(["office", "department"]) ?? [];
+        var claims = _credentials.GetClaims(["office", "department"]) ?? [];
         var data = new Data();
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
         if (string.IsNullOrEmpty(ipAddress))
@@ -397,7 +398,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     // SetPasswords and would otherwise still call _googleService.UpdatePaswords.
     private void EnsureNotImpersonating()
     {
-        if (!string.IsNullOrEmpty(_credentialsService.GetClaim("impersonating")))
+        if (!string.IsNullOrEmpty(_credentials.GetClaim("impersonating")))
             throw new Exception("Lösenordsändring är inte tillåten i granskningsläge.");
     }
     // end
@@ -414,7 +415,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
             throw new Exception("Lösenord och bekräftelse av lösenord matchar inte.");
 
         // Current moderator claims
-        var claims = _credentialsService.GetClaims(["groups", "roles", "username"]);
+        var claims = _credentials.GetClaims(["groups", "roles", "username"]);
         claims!.TryGetValue("username", out string? username);
 
         // Managed user credentials
@@ -436,11 +437,11 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         // Check current user permission
         if (!roles.Contains("ITGroup", StringComparer.OrdinalIgnoreCase))
         {
-            var moderators = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators");
+            var moderators = await _localFile.GetEncryptedFile<List<User>>("catalogs/moderators");
             var permissions = moderators?.FirstOrDefault(x => x.Username != null
                             && x.Username.Equals(username, StringComparison.OrdinalIgnoreCase))?.Permissions;
 
-            var approvedEmployees = await _localFileService.GetEncryptedFile<List<ApprovedEmployeeViewModel>>("catalogs/approved-employees") ?? [];
+            var approvedEmployees = await _localFile.GetEncryptedFile<List<ApprovedEmployeeViewModel>>("catalogs/approved-employees") ?? [];
             var approvedForCurrentModerator = approvedEmployees.Where(x => x.Moderators!.Contains(username!))?.Select(s => s.Username)?.ToList();
 
             bool isModerator = moderators!.Exists(x => x.Username!.Equals(userModel.Username, StringComparison.OrdinalIgnoreCase));
@@ -512,19 +513,10 @@ public class UserController(IADService provider, IWebHostEnvironment env,
         catch (Exception ex)
         {
             _logger.LogError($"{nameof(SetPasswordsSavePdf)}. Error: {ex.Message}");
-            await _helpService.Error(ex);
+            await _help.Error(ex);
         }
 
-        await _googleService.UpdatePaswords(models);
-    }
-
-    private bool IsUserInRole(string role)
-    {
-        var rolesClaim = _credentialsService.GetClaim("roles");
-        if (string.IsNullOrEmpty(rolesClaim))
-            return false;
-        var roles = rolesClaim.Split(',').Select(s => s.Trim());
-        return roles.Contains(role, StringComparer.OrdinalIgnoreCase);
+        await _google.UpdatePaswords(models);
     }
 
     // Save update statistik
@@ -537,7 +529,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
 
             var passChange = (param == "PasswordsChange");
 
-            var statistics = await _localFileService.GetEncryptedFile<List<Statistics>>("catalogs/statistics") ?? [];
+            var statistics = await _localFile.GetEncryptedFile<List<Statistics>>("catalogs/statistics") ?? [];
             var yearStatistics = statistics.FirstOrDefault(x => x.Year == year);
 
             var newData = new Months
@@ -569,12 +561,12 @@ public class UserController(IADService provider, IWebHostEnvironment env,
                 });
             }
 
-            await _localFileService.EncrypteToFile(statistics, "catalogs/statistics");
+            await _localFile.EncrypteToFile(statistics, "catalogs/statistics");
         }
         catch (Exception ex)
         {
             _logger.LogError("Unable to save the statistics file! Error: {error}", ex.Message);
-            await _helpService.Error(ex);
+            await _help.Error(ex);
         }
     }
 
@@ -583,7 +575,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
     {
         try
         {
-            var user = _provider.FindUser(_credentialsService.GetClaim("username") ?? "");
+            var user = _provider.FindUser(_credentials.GetClaim("username") ?? "");
             if (user == null)
                 return;
 
@@ -626,7 +618,7 @@ public class UserController(IADService provider, IWebHostEnvironment env,
             }
             description.Append("\n\n\n Datum: " + DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
 
-            var histories = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories") ?? [];
+            var histories = await _localFile.GetEncryptedFile<List<FileViewModel>>("catalogs/histories") ?? [];
             FileViewModel hitoryData = new()
             {
                 Name = $"{model!.Group}  {model.Office}",
@@ -634,12 +626,12 @@ public class UserController(IADService provider, IWebHostEnvironment env,
             };
 
             histories.Add(hitoryData);
-            await _localFileService.EncrypteToFile(histories, "catalogs/histories");
+            await _localFile.EncrypteToFile(histories, "catalogs/histories");
         }
         catch (Exception ex)
         {
             _logger.LogError("Unable to save the history file! Error: {error}", ex.Message);
-            await _helpService.Error(ex);
+            await _help.Error(ex);
         }
     }
     #endregion

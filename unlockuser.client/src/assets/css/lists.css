@@ -49,7 +49,7 @@ ul>li:not(.pagination li, .dropdown-li, .box-wrapper li) {
     color: var(--color-dark-gray);
 }
 
-div[role="presentation"] li:not(case) {
+div[role="presentation"] li:not(.case) {
     width: 98% !important;
     margin: 1px auto !important;
     border: unset !important;

@@ -89,9 +89,11 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
                 return Ok();
 
             List<ViewModel> list = [.. data?.OrderBy(x => x.Year).Select(s => new ViewModel {
+                Id = s.Year.ToString(),
                 Primary = s.Year.ToString(),
                 Secondary = $"Byten lösenord: {s.Months.Sum(s => s.PasswordsChange)}, Upplåst konto: {s.Months.Sum(s => s.Unlocked)}",
                 Values = [.. s.Months.OrderBy(o => o.Name).Select(s => new ViewModel {
+                    Id = s.Name,
                     Primary = s.Name,
                     Secondary = $"Byten lösenord: {s.PasswordsChange}, Upplåst konto: {s.Unlocked}"
                 })]
@@ -319,9 +321,9 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         return Ok();
     }
 
-    [HttpDelete("histories/{index}")]
+    [HttpDelete("histories/{date}")]
     [Authorize(Roles = "DevelopTeam,ITGroup")]
-    public async Task<IActionResult> DeleteHistory(int index)
+    public async Task<IActionResult> DeleteHistory(string date)
     {
         string casheKey = "history_removing";
         if (_lockService.TryStart(casheKey, out var waitTask))
@@ -329,10 +331,16 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             try
             {
                 var histories = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories");
-                histories?.RemoveAt(index);
+                histories ??= [];
+                var history = histories.FirstOrDefault(x => x.Date!.Trim().Equals(date, StringComparison.OrdinalIgnoreCase));
+                if (history != null)
+                {
+                    histories.Remove(history);
+                    //histories?.RemoveAt(index);
 
-                await Task.Delay(1000);
-                await _localFileService.EncrypteToFile(histories, "catalogs/histories");
+                    await Task.Delay(1000);
+                    await _localFileService.EncrypteToFile(histories, "catalogs/histories");
+                }
             }
             catch (Exception ex)
             {
@@ -347,9 +355,9 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         return Ok();
     }
 
-    [HttpDelete("statistics/{index}")]
+    [HttpDelete("statistics/{year}")]
     [Authorize(Roles = "DevelopTeam,ITGroup")]
-    public async Task<IActionResult> DeleteStatistics(int index)
+    public async Task<IActionResult> DeleteStatistics(string year)
     {
         string casheKey = "statistics_removing";
         if (_lockService.TryStart(casheKey, out var waitTask))
@@ -357,11 +365,14 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             try
             {
                 var statistics = await _localFileService.GetEncryptedFile<List<Statistics>>("catalogs/statistics");
-                statistics?.RemoveAt(index);
-
-                await Task.Delay(1000);
-                await _localFileService.EncrypteToFile(statistics, "catalogs/statistics");
-                return Ok();
+                var statistcsToDelete = statistics.FirstOrDefault(x => x.Year.ToString().Equals(year, StringComparison.OrdinalIgnoreCase));
+                if (statistcsToDelete != null)
+                {
+                    //statistics?.RemoveAt(index);
+                    statistics.Remove(statistcsToDelete);
+                    await Task.Delay(1000);
+                    await _localFileService.EncrypteToFile(statistics, "catalogs/statistics");
+                }
             }
             catch (Exception ex)
             {

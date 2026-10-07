@@ -121,7 +121,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
         }
     }
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
-
+console.log(confirmId)
     return (
         <>
             {/* Tab menu */}
@@ -181,6 +181,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                 {items?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, ind) => {
                     const onClickProps = !!item?.link ? { onClick: () => navigate(item?.link) } : null;
                     const calculatedIndex = (perPage * (page - 1)) + (ind + 1);
+                    console.log("calculatedIndex", calculatedIndex, "item", item, "ind", ind, "perPage", perPage, "page", page)
                     return <Fragment key={ind}>
                         {/* List item */}
                         <ListItem
@@ -221,7 +222,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                                 {...onClickProps}
                             />
 
-                            {confirmId == item?.id && <ConfirmButtons
+                            {!!confirmId &&confirmId == item?.id && <ConfirmButtons
                                 question="Radera?"
                                 onConfirm={removeConfirmedItem}
                                 disabled={pending}

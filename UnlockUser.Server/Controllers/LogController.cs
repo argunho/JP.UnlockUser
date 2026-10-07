@@ -61,7 +61,6 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         }
     }
 
-    //[HttpGet("download/by/id/{id}")]
     [HttpGet("download/by/{id}")] // 2026-10-06
     public async Task<IActionResult> DownloadFile(string id)
     {
