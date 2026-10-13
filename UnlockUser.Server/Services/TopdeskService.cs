@@ -10,13 +10,15 @@ public partial class TopdeskService(IConfiguration config)
     private readonly string _username = config["Topdesk:Username"]!;
     private readonly string _password = config["Topdesk:Password"]!; // 2026-09-24
 
-    public async Task<Dictionary<string, object>?> SendData<T>(T? data, string api, HttpMethod? method = null) where T : class
+    public async Task<Dictionary<string, object>?> SendData<T>(T? data, string api, string methodName = "POST") where T : class
     {
         ILogger _logger = new LoggerFactory().CreateLogger<TopdeskService>();
         try
         {
             using HttpClient client = new();
-            method ??= HttpMethod.Post;
+            HttpMethod method = string.Equals(methodName, "PUT", StringComparison.OrdinalIgnoreCase)
+                    ? HttpMethod.Put : (string.Equals(methodName, "DELETE", StringComparison.OrdinalIgnoreCase)
+                    ? HttpMethod.Delete : HttpMethod.Post);
 
             var jsonModel = JsonConvert.SerializeObject(data, Formatting.Indented);
             var content = new StringContent(jsonModel, Encoding.UTF8);

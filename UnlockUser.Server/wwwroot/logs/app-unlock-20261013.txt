@@ -98,3 +98,11 @@
 2026-10-13 17:57:44.651 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-10-13 17:57.
 2026-10-13 17:59:32.737 +02:00 [INF] Starting process to save file catalogs/cases
 2026-10-13 17:59:43.030 +02:00 [INF] End save process. catalogs/cases
+2026-10-13 18:03:44.555 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-13 18:03:44.721 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-13 18:03. Department: IT avdelning. Office: IT avdelning.
+2026-10-13 18:03:45.141 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 18:03:45.
+2026-10-13 18:03:45.141 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 18:03:45.
+2026-10-13 18:04:00.571 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-13 18:04:00.
+2026-10-13 18:04:17.186 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-13 18:04:17.
+2026-10-13 18:04:27.338 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-13 18:04:27.
+2026-10-13 18:04:27.340 +02:00 [INF] Dashboard data setup completed.

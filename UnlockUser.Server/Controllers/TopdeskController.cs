@@ -279,8 +279,6 @@ public class TopdeskController(
             string? number = model.Number;
             if (string.IsNullOrEmpty(number))
                 return Ok(_help.Warning("Topdesk-ärendenummer saknas."));
-            //else if(model.Close && model.Message == null)
-            //    return Ok(_help.Warning("Meddelande saknas."));
 
             Dictionary<string, CaseFormModel> cases =
                 await _localFile.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
@@ -301,11 +299,7 @@ public class TopdeskController(
                         }
                     };
 
-                    //var email = _credentials.GetClaim("email");
-                    //var userData = await _topdesk.GetData<List<Dictionary<string, object>>>($"persons/?email={email}");
-
-
-                    await _topdesk.SendData(incident, $"incidents/number/{number}", HttpMethod.Put);
+                    await _topdesk.SendData(incident, $"incidents/number/{number}", "Put");
                     cases.Remove(number);
                     await _localFile.EncrypteToFile(cases, "catalogs/cases");
                 });
@@ -349,7 +343,7 @@ public class TopdeskController(
                                     Id = "da371597-382a-4e29-979e-26b7f75e41dd"
                                 }
                             };
-                            await _topdesk.SendData(incident, $"incidents/number/{number}", HttpMethod.Put);
+                            await _topdesk.SendData(incident, $"incidents/number/{number}", "Put");
                         });
                     }
                 }
