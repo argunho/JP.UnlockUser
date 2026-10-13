@@ -391,7 +391,8 @@ main,
     position: relative !important;
 }
 
-.no-margin {
+.no-margin,
+* .no-margin {
     margin: 0 !important;
 }
 

@@ -87,6 +87,7 @@ builder.Services.AddAuthorizationBuilder()
             return !(roles.Count == 1 && roles.Contains("Impersonating"));
         })
     );
+
 #region Help package library
 // Help library pacjage services
 builder.Services.AddHelpLocalServices();

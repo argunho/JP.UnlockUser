@@ -36,8 +36,8 @@ public class TopdeskController(
     {
         try
         {
-            Dictionary<string, CaseFormModel> cases =
-                await _localFile.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
+            Dictionary<string, CaseCatalogModel> cases =
+                await _localFile.GetEncryptedFile<Dictionary<string, CaseCatalogModel>>("catalogs/cases") ?? [];
             if (cases == null || cases?.Count == 0)
                 return Ok();
 
@@ -123,7 +123,7 @@ public class TopdeskController(
     #region POST
     [HttpPost("case/kc-group")]
     [Authorize(Roles = "DevelopTeam,ITGroup,KCGroup")]
-    public async Task<IActionResult> PostKCCase(CaseFormModel model)
+    public async Task<IActionResult> PostKCCase(CaseCatalogModel model)
     {
         try
         {
@@ -218,7 +218,7 @@ public class TopdeskController(
     }
 
     [HttpPost("case")]
-    public async Task<IActionResult> PostModeratorCase(CaseFormModel model)
+    public async Task<IActionResult> PostModeratorCase(CaseCatalogModel model)
     {
         try
         {
@@ -280,8 +280,8 @@ public class TopdeskController(
             if (string.IsNullOrEmpty(number))
                 return Ok(_help.Warning("Topdesk-ärendenummer saknas."));
 
-            Dictionary<string, CaseFormModel> cases =
-                await _localFile.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
+            Dictionary<string, CaseCatalogModel> cases =
+                await _localFile.GetEncryptedFile<Dictionary<string, CaseCatalogModel>>("catalogs/cases") ?? [];
             if (cases == null || cases?.Count == 0 || !cases!.TryGetValue(number, out var caseToApprove))
                 return Ok(_help.NotFound("Ärende"));
 
@@ -325,8 +325,8 @@ public class TopdeskController(
         {
             try
             {
-                Dictionary<string, CaseFormModel> cases =
-                    await _localFile.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
+                Dictionary<string, CaseCatalogModel> cases =
+                    await _localFile.GetEncryptedFile<Dictionary<string, CaseCatalogModel>>("catalogs/cases") ?? [];
                 if (cases == null || cases?.Count == 0)
                     return Ok(_help.NotFound("Ärende"));
                 else if (cases.ContainsKey(number))
@@ -336,14 +336,14 @@ public class TopdeskController(
                     {
                         _ = Task.Run(async () =>
                         {
-                            var incident = new
+                            var status = new CaseStatusUpdateModel
                             {
-                                processingStatus = new
+                                Status = new StatusModel
                                 {
                                     Id = "da371597-382a-4e29-979e-26b7f75e41dd"
                                 }
                             };
-                            await _topdesk.SendData(incident, $"incidents/number/{number}", "Put");
+                            await _topdesk.SendData(status, $"incidents/number/{number}", "Put");
                         });
                     }
                 }
@@ -365,7 +365,7 @@ public class TopdeskController(
         return Ok();
     }
 
-    [HttpDelete("new/case/{number}/{date}")]
+    [HttpDelete("case/new/{number}/{date}")]
     [Authorize(Roles = "DevelopTeam,ITGroup,KCGroup")]
     public async Task<IActionResult> DeleteNewCase(string number, string date)
     {
@@ -378,7 +378,7 @@ public class TopdeskController(
     #endregion
 
     #region Helpers
-    private async Task SaveCase(Dictionary<string, object> res, CaseFormModel model)
+    private async Task SaveCase(Dictionary<string, object> res, CaseCatalogModel model)
     {
         try
         {
@@ -389,7 +389,7 @@ public class TopdeskController(
             if (string.IsNullOrEmpty(number))
                 return;
 
-            var cases = await _localFile.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
+            var cases = await _localFile.GetEncryptedFile<Dictionary<string, CaseCatalogModel>>("catalogs/cases") ?? [];
             cases.Add(number, model);
             await _localFile.EncrypteToFile(cases, "catalogs/cases");
         }

@@ -5,7 +5,7 @@ import { DialogTitle } from '@mui/material';
 
 function ModalOverview({ children, open = true, item, onClose }) {
 
-    const closeButton = <IconButton onClick={onClose} className="close-btn">
+    const closeButton = <IconButton onClick={onClose} className="close-btn no-margin">
         <Close />
     </IconButton>;
 

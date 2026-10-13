@@ -106,3 +106,81 @@
 2026-10-13 18:04:17.186 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-13 18:04:17.
 2026-10-13 18:04:27.338 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-13 18:04:27.
 2026-10-13 18:04:27.340 +02:00 [INF] Dashboard data setup completed.
+2026-10-13 19:38:14.883 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-13 19:38:15.115 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-13 19:38. Department: IT avdelning. Office: IT avdelning.
+2026-10-13 19:38:16.740 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 19:38:16.
+2026-10-13 19:38:36.343 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-13 19:38:36.
+2026-10-13 19:39:02.774 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-13 19:39:02.
+2026-10-13 19:39:14.994 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-13 19:39:14.
+2026-10-13 19:39:14.998 +02:00 [INF] Dashboard data setup completed.
+2026-10-13 19:39:29.421 +02:00 [INF] Utvecklare 790822asla loggade in som 790822asla vid: 2026-10-13 19:39.
+2026-10-13 19:40:17.371 +02:00 [INF] KC-case. Topdesk-ärende inskickat av Kontaktcenter. Date: "2026-10-13T19:40:07.8245711+02:00"
+2026-10-13 19:40:18.391 +02:00 [INF] Starting process to save file catalogs/cases
+2026-10-13 19:40:18.414 +02:00 [INF] End save process. catalogs/cases
+2026-10-13 19:41:04.813 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-10-13 19:41.
+2026-10-13 19:46:45.028 +02:00 [INF] Starting process to save file catalogs/cases
+2026-10-13 19:46:45.062 +02:00 [INF] End save process. catalogs/cases
+2026-10-13 19:56:07.894 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-13 19:56:08.072 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-13 19:56. Department: IT avdelning. Office: IT avdelning.
+2026-10-13 19:56:08.641 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 19:56:08.
+2026-10-13 19:56:08.641 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 19:56:08.
+2026-10-13 19:56:27.341 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-13 19:56:27.
+2026-10-13 19:56:43.828 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-13 19:56:43.
+2026-10-13 19:56:53.938 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-13 19:56:53.
+2026-10-13 19:56:53.940 +02:00 [INF] Dashboard data setup completed.
+2026-10-13 19:57:28.190 +02:00 [INF] Utvecklare 790822asla loggade in som 790822asla vid: 2026-10-13 19:57.
+2026-10-13 20:00:24.880 +02:00 [INF] KC-case. Topdesk-ärende inskickat av Kontaktcenter. Date: "2026-10-13T19:58:00.1074795+02:00"
+2026-10-13 20:00:25.937 +02:00 [INF] Starting process to save file catalogs/cases
+2026-10-13 20:00:25.978 +02:00 [INF] End save process. catalogs/cases
+2026-10-13 20:06:03.399 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-13 20:06:03.541 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-13 20:06. Department: IT avdelning. Office: IT avdelning.
+2026-10-13 20:06:03.947 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 20:06:03.
+2026-10-13 20:06:03.947 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 20:06:03.
+2026-10-13 20:06:21.464 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-13 20:06:21.
+2026-10-13 20:06:40.519 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-13 20:06:40.
+2026-10-13 20:06:50.979 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-13 20:06:50.
+2026-10-13 20:06:50.987 +02:00 [INF] Dashboard data setup completed.
+2026-10-13 20:19:33.555 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-13 20:19:33.769 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-13 20:19. Department: IT avdelning. Office: IT avdelning.
+2026-10-13 20:19:34.179 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 20:19:34.
+2026-10-13 20:19:34.179 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 20:19:34.
+2026-10-13 20:19:51.199 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-13 20:19:51.
+2026-10-13 20:20:10.342 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-13 20:20:10.
+2026-10-13 20:20:20.196 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-13 20:20:20.
+2026-10-13 20:20:20.198 +02:00 [INF] Dashboard data setup completed.
+2026-10-13 20:24:11.906 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-13 20:24:12.068 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-13 20:24. Department: IT avdelning. Office: IT avdelning.
+2026-10-13 20:24:12.363 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 20:24:12.
+2026-10-13 20:24:12.363 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 20:24:12.
+2026-10-13 20:24:30.151 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-13 20:24:30.
+2026-10-13 20:24:48.721 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-13 20:24:48.
+2026-10-13 20:24:58.396 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-13 20:24:58.
+2026-10-13 20:24:58.399 +02:00 [INF] Dashboard data setup completed.
+2026-10-13 20:27:54.861 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-13 20:27:55.052 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-13 20:27. Department: IT avdelning. Office: IT avdelning.
+2026-10-13 20:27:55.539 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 20:27:55.
+2026-10-13 20:27:55.539 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 20:27:55.
+2026-10-13 20:28:12.491 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-13 20:28:12.
+2026-10-13 20:28:28.638 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-13 20:28:28.
+2026-10-13 20:28:38.530 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-13 20:28:38.
+2026-10-13 20:28:38.533 +02:00 [INF] Dashboard data setup completed.
+2026-10-13 20:30:29.987 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-13 20:30:30.117 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-13 20:30. Department: IT avdelning. Office: IT avdelning.
+2026-10-13 20:30:30.495 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 20:30:30.
+2026-10-13 20:30:30.495 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 20:30:30.
+2026-10-13 20:30:44.775 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-13 20:30:44.
+2026-10-13 20:31:03.396 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-13 20:31:03.
+2026-10-13 20:31:12.664 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-13 20:31:12.
+2026-10-13 20:31:12.667 +02:00 [INF] Dashboard data setup completed.
+2026-10-13 20:31:25.252 +02:00 [INF] Starting process to save file catalogs/cases
+2026-10-13 20:31:25.272 +02:00 [INF] End save process. catalogs/cases
+2026-10-13 20:32:07.373 +02:00 [INF] Utvecklare 790822asla loggade in som 790822asla vid: 2026-10-13 20:32.
+2026-10-13 20:33:25.302 +02:00 [INF] KC-case. Topdesk-ärende inskickat av Kontaktcenter. Date: "2026-10-13T20:33:04.8864538+02:00"
+2026-10-13 20:33:26.321 +02:00 [INF] Starting process to save file catalogs/cases
+2026-10-13 20:33:26.339 +02:00 [INF] End save process. catalogs/cases
+2026-10-13 20:34:20.904 +02:00 [INF] Starting process to save file catalogs/cases
+2026-10-13 20:34:20.913 +02:00 [INF] End save process. catalogs/cases
+2026-10-13 20:34:39.131 +02:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-10-13 20:34.
+2026-10-13 20:35:46.252 +02:00 [INF] Password change initiated at 2026-10-13 20:35. Moderator: 790822asla
+2026-10-13 20:35:46.268 +02:00 [INF] Permissions validated. Starting to set a new password for  at 2026-10-13 20:35.
+2026-10-13 20:35:48.140 +02:00 [INF] Password change finished at 2026-10-13 20:35. Moderator: 790822asla

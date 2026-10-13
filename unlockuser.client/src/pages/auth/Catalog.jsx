@@ -126,7 +126,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
             if (removable)
                 removeConfirmedItem(`${api}/${model.id}/${closeCase}`);
             else
-                removeConfirmedItem(`${api}/${model?.id}/${model?.secondary}`);
+                removeConfirmedItem(`${api}/new/${model?.id}/${model?.secondary}`);
         } finally {
             setModel();
         }

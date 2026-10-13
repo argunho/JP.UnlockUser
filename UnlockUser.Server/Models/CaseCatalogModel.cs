@@ -1,6 +1,6 @@
-﻿namespace UnlockUser.Server.FormModels;
+﻿namespace UnlockUser.Server.Models;
 
-public class CaseFormModel
+public class CaseCatalogModel
 {
     public string? Username { get; set; }
     public List<ApprovedEmployeeViewModel> ApprovedEmployees { get; set; } = [];

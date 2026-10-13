@@ -59,7 +59,7 @@ function ModalCaseForm({ props, label, required, api, onClose }) {
             {label}
 
             {/* Close modal */}
-            <IconButton onClick={onClose} >
+            <IconButton onClick={onClose}>
                 <Close fontSize="small" />
             </IconButton>
         </DialogTitle>
