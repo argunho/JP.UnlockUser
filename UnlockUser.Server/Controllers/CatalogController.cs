@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 using System.Text;
 
 namespace UnlockUser.Server.Controllers;
@@ -44,8 +45,9 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             var approvedEmployees = await _localFileService.GetEncryptedFile<List<ApprovedEmployeeViewModel>>($"catalogs/{ApprovedCatalog}") ?? [];
             var groups = _config.GetSection("Groups").Get<List<GroupModel>>()?.Select(s => s.Name).ToList();
             var schools = await SchoolsFromFile();
+            var roles = _credentials.IsUserInRole("DevelopTeam") ? _config.GetSection("Roles").Get<Dictionary<string, string>>() : null;
 
-            return Ok(new { moderators = moderators.OrderBy(x => x.Office).ToList(), managers, politicians, schools, approvedEmployees, groups });
+            return Ok(new { moderators = moderators.OrderBy(x => x.Office).ToList(), managers, politicians, schools, approvedEmployees, groups, roles  });
         }
         catch (Exception ex)
         {

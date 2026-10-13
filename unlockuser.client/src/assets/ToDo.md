@@ -11,3 +11,4 @@
 ## 09. Fix error if any catalog file is not found or access denied
 ## 10. Css mobile
 ## 11. Catolog's list css
+## 12. Copy password in success message

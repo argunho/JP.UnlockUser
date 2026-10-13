@@ -2,8 +2,8 @@ import { useState, use } from 'react';
 
 // Installed
 import { useOutletContext, useLoaderData, useRevalidator, useNavigate } from 'react-router-dom';
-import { IconButton, Collapse, List, ListItem, ListItemText, Button, Tooltip } from '@mui/material';
-import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt, Checklist, TuneSharp } from '@mui/icons-material';
+import { IconButton, Collapse, List, ListItem, ListItemText, Button, Tooltip, FormControlLabel, Checkbox } from '@mui/material';
+import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt, KeyboardArrowUp, KeyboardArrowDown, TuneSharp } from '@mui/icons-material';
 import _ from 'lodash';
 
 // Components
@@ -42,9 +42,9 @@ function normalizedEmployees(arr) {
 
 function EmployeeView() {
 
-    const { groupMembers, roles } = useLoaderData();
+    const groupMembers  = useLoaderData();
     const revalidator = useRevalidator()
-    const { groups, moderator, managers, politicians, approvedEmployees, access, schools, searchValue, revalidate } = useOutletContext();
+    const { groups, moderator, managers, politicians, approvedEmployees, access, schools, searchValue, revalidate, roles } = useOutletContext();
     const { permissions } = moderator;
 
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
@@ -124,8 +124,7 @@ function EmployeeView() {
                         return {
                             ...previous,
                             [group]: previous[group].map(x => x.username === value
-                                ? { ...x, moderators: [...(x.moderators ?? []), moderator.username] }
-                                : x)
+                                ? { ...x, moderators: [...(x.moderators ?? []), moderator.username] } : x)
                         }
                     })
 
@@ -267,7 +266,7 @@ function EmployeeView() {
         : groupMembers?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedUsernames.includes(x.username));
 
     const personalPermissions = permissions.groups?.includes("Personal");
-    
+    console.log(roles)
     return (
         <>
             {/* Action panel */}
@@ -285,7 +284,7 @@ function EmployeeView() {
                 {(personalPermissions && approvedUsernames?.length > 0 && !officeManager) &&
                     <Button
                         className="fade-in"
-                        startIcon={collapsed === "approved" ? <Close color="error" /> : <Checklist />}
+                        endIcon={collapsed === "approved" ? <KeyboardArrowUp color="error" /> : <KeyboardArrowDown />}
                         color={collapsed === "approved" ? "default" : "primary"}
                         disabled={!!searchValue}
                         onClick={() => handleCollapse("approved")}>
@@ -315,6 +314,14 @@ function EmployeeView() {
                     >
                         Logga in som {moderator?.displayName}
                     </Button>
+
+                    {!!roles && <FormControlLabel
+                        className="checkbox"
+                        control={<Checkbox />}
+                        label={`Tillgång  till ${groups} overview`}
+                        checked={!!roles}
+                        onChange={() => {}}
+                    />}
                 </Tooltip>}
 
             </ActionButtons>

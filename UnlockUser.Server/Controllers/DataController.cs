@@ -154,18 +154,13 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                 return Ok(users);
             }
 
-            bool getRoles = username == null;
             username ??= _credentials.GetClaim("username");
             bool isLoading = _lockService.IsLocked(username!);
             if (isLoading)
                 await Task.WhenAny(_lockService.GetWaitTask(username!), Task.Delay(90000));
 
             groupMembers = await _dashboardService.GetStoredUsersGroup(group);
-            if(!getRoles)
-                return Ok(groupMembers);
-
-            var roles = _config.GetSection("Roles").Get<List<string>>();
-            return Ok(new { groupMembers, roles });
+            return Ok(groupMembers);
         }
         catch (Exception ex)
         {

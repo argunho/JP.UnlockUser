@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace UnlockUser.Server.Controllers;
@@ -39,6 +40,43 @@ public class TopdeskController(
             if (cases == null || cases?.Count == 0)
                 return Ok();
 
+            string lockKey = "check_cases";
+            if(_lockService.TryStart(lockKey, out var waitTask)){
+                try {
+                    var caseNumbersToRemove = new List<string>();
+
+                    // Check cases
+                    foreach(var @case in cases) {
+                        var caseNumber = @case.Key;
+                        var res = await _topdesk.GetData<Dictionary<string, object>>($"incidents/number/{caseNumber}");
+                        if (res == null || !res.TryGetValue("processingStatus", out dynamic? status) 
+                            || (string.Equals(status.name.ToString(), "Slutförd", StringComparison.OrdinalIgnoreCase)
+                            || string.Equals(status.name.ToString(), "Stängd", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            caseNumbersToRemove.Add(caseNumber);
+                        }
+                    }
+
+                    if(caseNumbersToRemove.Count > 0)
+                    {
+                        foreach (var caseNumber in caseNumbersToRemove)
+                        {
+                            cases.Remove(caseNumber);
+                        }
+                        await _localFile.EncrypteToFile(cases, "catalogs/cases");
+                    }
+                } catch(Exception ex)
+                {
+                    await _help.Error(ex, nameof(GetCases));
+                } finally
+                {
+                    _lockService.Finish(lockKey);
+                }
+            }
+
+            if (cases == null || cases?.Count == 0)
+                return Ok();
+
             List<ViewModel> list = [.. cases?.Select(s => new ViewModel {
                 Id = s.Key, // 2026-10-01
                 Primary = $"Ärende nummer: {s.Key}",
@@ -46,6 +84,7 @@ public class TopdeskController(
                 Hidden = $"<h3>{s.Value.Title}</h3><br/>{s.Value.Text}",
                 BoolValue = s.Value.ApprovedEmployees?.Count > 0
             })!];
+
 
             return Ok(new
             {
@@ -265,8 +304,8 @@ public class TopdeskController(
     [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> DeleteCase(string number)
     {
-        string cachedKey = "delete_case";
-        if (_lockService.TryStart(cachedKey, out var waitTask))
+        string lockKey = "delete_case";
+        if (_lockService.TryStart(lockKey, out var waitTask))
         {
             try
             {
@@ -290,7 +329,7 @@ public class TopdeskController(
             }
             finally
             {
-                _lockService.Finish(cachedKey);
+                _lockService.Finish(lockKey);
             }
         }
 

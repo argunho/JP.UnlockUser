@@ -1,0 +1,25 @@
+2026-10-13 09:34:48.427 +02:00 [INF] Starting process to save file catalogs/managers
+2026-10-13 09:34:48.648 +02:00 [INF] End save process. catalogs/managers
+2026-10-13 09:34:49.666 +02:00 [INF] Starting process to save file catalogs/politicians
+2026-10-13 09:34:49.707 +02:00 [INF] End save process. catalogs/politicians
+2026-10-13 09:35:55.025 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-13 09:35:55.189 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-13 09:35. Department: IT avdelning. Office: IT avdelning.
+2026-10-13 09:35:55.577 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 09:35:55.
+2026-10-13 09:35:55.577 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 09:35:55.
+2026-10-13 09:36:13.778 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-13 09:36:13.
+2026-10-13 09:36:29.845 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-13 09:36:29.
+2026-10-13 09:36:39.831 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-13 09:36:39.
+2026-10-13 09:36:39.834 +02:00 [INF] Dashboard data setup completed.
+2026-10-13 09:36:45.599 +02:00 [INF] Starting process to save file catalogs/moderators
+2026-10-13 09:36:45.614 +02:00 [INF] End save process. catalogs/moderators
+2026-10-13 09:36:45.617 +02:00 [INF] GetStudentsFromGoogleApi Info: Returning cached students from Google Workspace.
+2026-10-13 10:19:38.644 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-13 10:19:38.804 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-13 10:19. Department: IT avdelning. Office: IT avdelning.
+2026-10-13 10:19:39.943 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 10:19:39.
+2026-10-13 10:19:39.943 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 10:19:39.
+2026-10-13 10:19:52.979 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-13 10:19:52.
+2026-10-13 10:20:09.659 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-13 10:20:09.
+2026-10-13 10:20:20.971 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-13 10:20:20.
+2026-10-13 10:20:20.973 +02:00 [INF] Dashboard data setup completed.
+2026-10-13 10:21:51.381 +02:00 [INF] Starting process to save file catalogs/cases
+2026-10-13 10:21:51.397 +02:00 [INF] End save process. catalogs/cases

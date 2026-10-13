@@ -22,7 +22,7 @@ function UsersLayout() {
 
     const { fetchData, response, pending, success } = use(FetchContext);
     const loaded = useLoaderData();
-    const { moderators, groups } = loaded;
+    const { moderators, groups, roles } = loaded;
     
     const access = {
         open: Claim("openAccess"),
@@ -114,8 +114,11 @@ function UsersLayout() {
                         <Forward color="primary" style={{ marginRight: "20px", opacity: searchTooltipOpen ? 1 : 0.1 }} />
                     </Tooltip>}
 
+
+
                     {/* Refresh list */}
                     {showSearch && <div className="d-row">
+
                         {/* Search filter */}
                         <SearchFilter
                             key={`${group}_${success}`}
@@ -152,7 +155,7 @@ function UsersLayout() {
                             onReset: () => refSearch.current?.click(), // 2026-08-21 12:31
                             pathname: loc.pathname,
                             key: searchValue ? null : key
-                        } : { ...loaded, moderator, searchValue, access, revalidate }} />
+                        } : { ...loaded, moderator, searchValue, access, roles, revalidate }} />
 
                 {/* Loading */}
                 {loading && <LinearLoading size={30} />}
