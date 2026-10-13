@@ -33,12 +33,14 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
     }
 
     function onConfirmHandle() {
-        if (confirm === "submit")
-            onSubmit();
+        if (confirm === "submit") {
+            if (onSubmit)
+                onSubmit();
+            else
+                ref.current?.click();
+        }
         else if (confirm === "remove")
             onCancel?.func();
-        else if (!!confirm)
-            ref.current?.click();
 
         setConfirm(null);
     }
@@ -67,7 +69,7 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
             props: {
                 variant: "contained",
                 color: "error",
-                disabled: loading,
+                disabled: loading || !!onCancel?.disabled,
                 onClick: onCancelHandle
             }
         },

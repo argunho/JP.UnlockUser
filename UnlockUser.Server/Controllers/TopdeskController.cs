@@ -41,7 +41,6 @@ public class TopdeskController(
             if (cases == null || cases?.Count == 0)
                 return Ok();
 
-
             string cacheKey = "cases_checked";
             _cache.TryGetValue(cacheKey, out bool isChecked);
 
@@ -98,18 +97,19 @@ public class TopdeskController(
                     return Ok();
             }
 
-            List<ViewModel> list = [.. cases?.Select(s => new ViewModel {
+            List<CaseViewModel> list = [.. cases?.Select(s => new CaseViewModel {
                 Id = s.Key, // 2026-10-01
                 Primary = $"Ärende nummer: {s.Key}",
                 Secondary = s.Value.Date.ToString("g"),
                 Hidden = $"<h3>{s.Value.Title}</h3><br/>{s.Value.Text}",
-                BoolValue = s.Value.ApprovedEmployees?.Count > 0
+                HasActions = s.Value.ApprovedEmployees?.Count > 0,
+                OlderThan = (int)(DateTime.Now - s.Value.Date).TotalMinutes
             })!];
 
 
             return Ok(new
             {
-                list = _credentials.GetClaim("openAccess") != null ? list : [.. list.Where(x => x.BoolValue == true)],
+                list = _credentials.GetClaim("openAccess") != null ? list : [.. list.Where(x => x.HasActions == true)],
                 removable = _credentials.GetClaim("openAccess") != null
             });
         }
@@ -335,8 +335,7 @@ public class TopdeskController(
                     await _localFile.GetEncryptedFile<Dictionary<string, CaseFormModel>>("catalogs/cases") ?? [];
                 if (cases == null || cases?.Count == 0)
                     return Ok(_help.NotFound("Ärende"));
-
-                if (cases.ContainsKey(number))
+                else if (cases.ContainsKey(number))
                 {
                     cases.Remove(number);
                     if (close)
@@ -370,6 +369,17 @@ public class TopdeskController(
         }
 
         return Ok();
+    }
+
+    [HttpDelete("new/case/{number}/{date}")]
+    [Authorize(Roles = "DevelopTeam,ITGroup,KCGroup")]
+    public async Task<IActionResult> DeleteNewCase(string number, string date)
+    {
+        var currentDate = DateTime.Now;
+        if (DateTime.TryParse(date, out DateTime regDate) && currentDate.AddMinutes(-15) > regDate)
+            return Ok(_help.Warning("Ärendet registrerades för över 15 minuter sedan och kan inte tas bort med dina nuvarande behörigheter."));
+
+        return await DeleteCase(number, true);
     }
     #endregion
 

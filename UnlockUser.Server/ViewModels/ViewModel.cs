@@ -6,6 +6,5 @@ public class ViewModel
     public string? Primary { get; set; }
     public string? Secondary { get; set; }
     public string? Hidden { get; set; }
-    public bool? BoolValue { get; set; }
     public List<ViewModel> Values { get; set; } = [];
 }

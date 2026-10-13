@@ -1,0 +1,1 @@
+﻿{"Id":"error_20261013150834","Source":"Error: System.Private.CoreLib","Description":"Error: Value cannot be null. (Parameter \u0027encryptedData\u0027)\n\nPath to file: Services\\DpapiProtector.cs\n\nLine number: 46\n\nMethod: Unprotect\n","Opened":false,"Date":"2026.10.13 15:08:34"}

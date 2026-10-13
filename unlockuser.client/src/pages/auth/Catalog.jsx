@@ -54,7 +54,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
     const [collapsedIndex, setCollapsedIndex] = useState(null);
     const [searchWord, setSearchWord] = useState(null);
     const [model, setModel] = useState();
-    const [closeCase, setCloseCase] = useState(false);
+    const [closeCase, setCloseCase] = useState(true);
 
     const minDate = minDateObj.toISOString().split("T")[0];
 
@@ -121,15 +121,16 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
     }
 
     // Remove case
-    async function onDeleteCase(){
+    async function onDeleteCase() {
         try {
-            removeConfirmedItem(`${api}/${model.id}/${closeCase}`);
-        } finally{
+            if (removable)
+                removeConfirmedItem(`${api}/${model.id}/${closeCase}`);
+            else
+                removeConfirmedItem(`${api}/${model?.id}/${model?.secondary}`);
+        } finally {
             setModel();
         }
     }
-
-
 
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
 
@@ -192,7 +193,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                 {items?.filter((x, index) => (index + 1) > perPage * (page - 1) && (index + 1) <= (perPage * page))?.map((item, ind) => {
                     const onClickProps = !!item?.link ? { onClick: () => navigate(item?.link) } : null;
                     const calculatedIndex = (perPage * (page - 1)) + (ind + 1);
-                    
+
                     return <Fragment key={ind}>
                         {/* List item */}
                         <ListItem
@@ -233,7 +234,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                                 {...onClickProps}
                             />
 
-                            {!!confirmId &&confirmId == item?.id && <ConfirmButtons
+                            {!!confirmId && confirmId == item?.id && <ConfirmButtons
                                 question="Radera?"
                                 onConfirm={removeConfirmedItem}
                                 disabled={pending}
@@ -273,13 +274,14 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                 </IconButton>}
 
                 {/* Top desk case - approve button */}
-                {model?.boolValue && <FormButtons
+                {model?.hasActions && <FormButtons
                     label="Godkänna"
                     confirmable={true}
                     onSubmit={() => onSubmitCase(model?.id)}
                     onCancel={{
                         confirmable: true,
                         label: "Radera ärende",
+                        disabled: !removable && model?.olderThan > 15,
                         func: onDeleteCase
                     }}
                     color="primary"
