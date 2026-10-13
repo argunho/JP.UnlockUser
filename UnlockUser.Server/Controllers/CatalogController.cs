@@ -20,7 +20,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     private readonly ILocalUserService _localUserService = localUserService;
     private readonly IRefreshLockService _lockService = lockService;
     private readonly ICredentialsService _credentials = credentials;
-    private readonly IMemoryCache _memoryCache = memoryCache;
+    private readonly IMemoryCache _cache = memoryCache;
     private readonly DashboardService _dashboardService = dashboardService;
     private readonly ILogger<CatalogController> _logger = logger;
 
@@ -255,7 +255,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         {
             try
             {
-                _memoryCache.Remove($"personal:{model.Username}");
+                _cache.Remove($"personal:{model.Username}");
 
                 HashSet<string> changed = model.Names.ToHashSet(StringComparer.OrdinalIgnoreCase);
 

@@ -24,6 +24,7 @@ public class TopdeskController(
     private readonly ICredentialsService _credentials = credentials;
     private readonly ILocalFileService _localFile = localFile;
     private readonly IHelpService _help = help;
+    private readonly IMemoryCache _cache = cache;
     private readonly IRefreshLockService _lockService = lockService;
     private readonly ILogger<TopdeskController> _logger = logger;
 
@@ -40,42 +41,62 @@ public class TopdeskController(
             if (cases == null || cases?.Count == 0)
                 return Ok();
 
-            string lockKey = "check_cases";
-            if(_lockService.TryStart(lockKey, out var waitTask)){
-                try {
-                    var caseNumbersToRemove = new List<string>();
 
-                    // Check cases
-                    foreach(var @case in cases) {
-                        var caseNumber = @case.Key;
-                        var res = await _topdesk.GetData<Dictionary<string, object>>($"incidents/number/{caseNumber}");
-                        if (res == null || !res.TryGetValue("processingStatus", out dynamic? status) 
-                            || (string.Equals(status.name.ToString(), "Slutförd", StringComparison.OrdinalIgnoreCase)
-                            || string.Equals(status.name.ToString(), "Stängd", StringComparison.OrdinalIgnoreCase)))
-                        {
-                            caseNumbersToRemove.Add(caseNumber);
-                        }
-                    }
+            string cacheKey = "cases_checked";
+            _cache.TryGetValue(cacheKey, out bool isChecked);
 
-                    if(caseNumbersToRemove.Count > 0)
+            // Check cases
+            if (!isChecked)
+            {
+                string lockKey = "check_cases";
+                if (_lockService.TryStart(lockKey, out var waitTask))
+                {
+                    try
                     {
-                        foreach (var caseNumber in caseNumbersToRemove)
-                        {
-                            cases.Remove(caseNumber);
-                        }
-                        await _localFile.EncrypteToFile(cases, "catalogs/cases");
-                    }
-                } catch(Exception ex)
-                {
-                    await _help.Error(ex, nameof(GetCases));
-                } finally
-                {
-                    _lockService.Finish(lockKey);
-                }
-            }
+                        var caseNumbersToRemove = new List<string>();
 
-            if (cases == null || cases?.Count == 0)
-                return Ok();
+                        foreach (var @case in cases)
+                        {
+                            var caseNumber = @case.Key;
+                            var res = await _topdesk.GetData<Dictionary<string, object>>($"incidents/number/{caseNumber}");
+                            if (res == null || !res.TryGetValue("processingStatus", out dynamic? status)
+                                || (string.Equals(status.name.ToString(), "Slutförd", StringComparison.OrdinalIgnoreCase)
+                                || string.Equals(status.name.ToString(), "Stängd", StringComparison.OrdinalIgnoreCase)))
+                            {
+                                caseNumbersToRemove.Add(caseNumber);
+                            }
+                        }
+
+                        if (caseNumbersToRemove.Count > 0)
+                        {
+                            foreach (var caseNumber in caseNumbersToRemove)
+                            {
+                                cases.Remove(caseNumber);
+                            }
+                            await _localFile.EncrypteToFile(cases, "catalogs/cases");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        await _help.Error(ex, nameof(GetCases));
+                    }
+                    finally
+                    {
+                        _lockService.Finish(lockKey);
+                    }
+                }
+
+                _cache.Set(cacheKey,
+                    true,
+                    new MemoryCacheEntryOptions
+                    {
+                        SlidingExpiration = TimeSpan.FromMinutes(5),
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                    });
+
+                if (cases == null || cases?.Count == 0)
+                    return Ok();
+            }
 
             List<ViewModel> list = [.. cases?.Select(s => new ViewModel {
                 Id = s.Key, // 2026-10-01
@@ -301,8 +322,9 @@ public class TopdeskController(
 
     #region DELETE
     [HttpDelete("case/{number}")]
+    [HttpDelete("case/{number}/{close}")]
     [Authorize(Roles = "DevelopTeam,ITGroup")]
-    public async Task<IActionResult> DeleteCase(string number)
+    public async Task<IActionResult> DeleteCase(string number, bool close = false)
     {
         string lockKey = "delete_case";
         if (_lockService.TryStart(lockKey, out var waitTask))
@@ -317,6 +339,20 @@ public class TopdeskController(
                 if (cases.ContainsKey(number))
                 {
                     cases.Remove(number);
+                    if (close)
+                    {
+                        _ = Task.Run(async () =>
+                        {
+                            var incident = new
+                            {
+                                ProcessingStatus = new
+                                {
+                                    Id = "da371597-382a-4e29-979e-26b7f75e41dd"
+                                }
+                            };
+                            await _topdesk.SendData(incident, $"incidents/number/{number}", HttpMethod.Put);
+                        });
+                    }
                 }
                 else
                     return Ok(_help.NotFound("Ärende"));

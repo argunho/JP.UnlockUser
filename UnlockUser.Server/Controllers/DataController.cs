@@ -1,10 +1,8 @@
-﻿using JobRelatedHelpLibrary.Implementations;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization; // 2026-09-03
-using System.CodeDom;
 using System.Text;
 using System.Text.Json;
 
@@ -22,7 +20,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IConfiguration _config = config;
     private readonly IADService _provider = provider;
-    private readonly IMemoryCache _memoryCache = memoryCache;
+    private readonly IMemoryCache _cache = memoryCache;
     private readonly IRefreshLockService _lockService = lockService;
     private readonly IGoogleService _googleService = googleService;
     private readonly IWebHostEnvironment _env = env;
@@ -103,7 +101,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             // KC group has full access like a real KC login, so it uses the regular session cache path below (supports "overview")
             if (impersonating && !IsUserInRole("KCGroup")) // 2026-09-24
             {
-                _memoryCache.TryGetValue(group, out List<UserViewModel>? users);
+                _cache.TryGetValue(group, out List<UserViewModel>? users);
                 if (users == null)
                     return Ok();
 
@@ -231,7 +229,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             return Ok();
 
         if (clear)
-            ((MemoryCache)_memoryCache).Clear();
+            ((MemoryCache)_cache).Clear();
 
         var users = await _googleService.GetStudentsFromGoogleApi();
         return Ok(users);
@@ -248,7 +246,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             return Ok();
 
         if (clear)
-            ((MemoryCache)_memoryCache).Clear();
+            ((MemoryCache)_cache).Clear();
 
         var users = await _googleService.GetUsers();
         return Ok(users);
@@ -269,7 +267,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             return Ok();
 
         if (clear)
-            ((MemoryCache)_memoryCache).Clear();
+            ((MemoryCache)_cache).Clear();
 
         if (adSearch)
         {

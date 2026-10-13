@@ -83,20 +83,11 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
         setCollapsedIndex(index === collapsedIndex ? null : index);
     }
 
-    async function removeConfirmedItem() {
-        const success = await fetchData({ api: `${api}/${confirmId}`, method: "delete", action: "success" });
-
-        if (success)
-            revalidator.revalidate();
-        setConfirmId(null);
-    }
-
     async function onDownload(id) {
         if (model) setModel();
         const blob = await fetchData({ api: `${api}/download/by/${id}`, method: "get", action: "return", responseType: "blob" });
         DownloadFile(blob, `${label.toLowerCase()}_${id}.txt`);
     }
-
 
     // Download series log file
     async function onDownloadFile(e) {
@@ -120,6 +111,26 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
             revalidator.revalidate();
         }
     }
+
+    async function removeConfirmedItem(params) {
+        const success = await fetchData({ api: params ?? `${api}/${confirmId}`, method: "delete", action: "success" });
+
+        if (success)
+            revalidator.revalidate();
+        setConfirmId(null);
+    }
+
+    // Remove case
+    async function onDeleteCase(){
+        try {
+            removeConfirmedItem(`${api}/${model.id}/${closeCase}`);
+        } finally{
+            setModel();
+        }
+    }
+
+
+
     const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
 
     return (
@@ -266,9 +277,11 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
                     label="Godkänna"
                     confirmable={true}
                     onSubmit={() => onSubmitCase(model?.id)}
-                    onCancel={() => setModel()}
-                    cancelLabel="Avbryt"
-                    confirmLabel="Bekräfta"
+                    onCancel={{
+                        confirmable: true,
+                        label: "Radera ärende",
+                        func: onDeleteCase
+                    }}
                     color="primary"
                     loading={pending}
                     disabled={loading || !removable || pending}>

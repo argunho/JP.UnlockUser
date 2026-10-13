@@ -69,7 +69,7 @@ public class DashboardService(
 
                     var groupCacheKey = group.Name?.ToLower();
                     var cacheKey = (limited ? $"{groupCacheKey}:{username.ToLower()}" : $"{groupCacheKey}");
-                    List<UserViewModel>? users = await _cache.GetOrCreateAsync(cacheKey, async entry =>
+                    await _cache.GetOrCreateAsync(cacheKey, async entry =>
                     {
                         entry.SlidingExpiration = TimeSpan.FromHours(limited ? 1 : 3); // Cache for 8 hours, removes after this time if it is not used
                         entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(limited ? 2 : 8); // Cache for 1 day, removes after this time even if it is used

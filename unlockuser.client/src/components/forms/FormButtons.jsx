@@ -8,7 +8,7 @@ import { Close } from "@mui/icons-material";
 
 function FormButtons({ children, label, disabled, swap, confirmable, loading, onSubmit, onCancel }) {
 
-    const [confirm, setConfirm] = useState(false);
+    const [confirm, setConfirm] = useState(null);
 
     const modifiedChildren = children ? Children.map(children, child =>
         cloneElement(child, { disabled: loading })
@@ -20,17 +20,32 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
         if (loading) setConfirm(false);
     }, [loading])
 
-    function confirmHandle() {
-        setConfirm((confirm) => !confirm);
-        if (confirm && onSubmit)
+
+    function onSubmitHandle() {
+        setConfirm("submit");
+    }
+
+    function onCancelHandle() {
+        if (!!onCancel?.confirmable) {
+            setConfirm("remove");
+        } else
+            onCancel();
+    }
+
+    function onConfirmHandle() {
+        if (confirm === "submit")
             onSubmit();
-        else if(confirm)
+        else if (confirm === "remove")
+            onCancel?.func();
+        else if (!!confirm)
             ref.current?.click();
+
+        setConfirm(null);
     }
 
     let buttons = [
         {
-            label: "Skicka?", visible: confirm, props: { className: "confirm-question" }
+            label: "Fortsätta?", visible: confirm, props: { className: "confirm-question" }
         },
         {
             label: "Nej",
@@ -43,13 +58,18 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
             props: {
                 variant: "contained", color: "error",
                 type: "button",
-                onClick: confirmHandle
+                onClick: onConfirmHandle
             }
         },
         {
-            label: <Close color="inherit" fontSize="medium" />,
+            label: onCancel?.label ?? <Close color="inherit" fontSize="medium" />,
             visible: (!confirm && !!onCancel),
-            props: { variant: "contained", color: "error", disabled: loading, onClick: onCancel }
+            props: {
+                variant: "contained",
+                color: "error",
+                disabled: loading,
+                onClick: onCancelHandle
+            }
         },
         {
             label: (loading ? <CircularProgress size={18} color="inherit" /> : (label ?? "Skicka")),
@@ -59,7 +79,7 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
                     variant: "outlined", className: "submit-btn", color: loading ? "primary" : "inherit",
                     disabled: (disabled || loading), type: (!!confirmable || (!confirmable && onSubmit)) ? "button" : "submit"
                 },
-                ...(!!confirmable ? { onClick: () => confirmHandle(false) } : ((!confirmable && onSubmit) ? { onClick: onSubmit } : null))
+                ...(!!confirmable ? { onClick: () => onSubmitHandle() } : ((!confirmable && onSubmit) ? { onClick: onSubmit } : null))
             }
         },
     ];
@@ -86,7 +106,7 @@ function FormButtons({ children, label, disabled, swap, confirmable, loading, on
                 })}
 
                 {/* Hidden submit button */}
-                {confirm && <button type="submit" className="none" ref={ref}/>}
+                {confirm && <button type="submit" className="none" ref={ref} />}
             </div>
         </div>
     )
