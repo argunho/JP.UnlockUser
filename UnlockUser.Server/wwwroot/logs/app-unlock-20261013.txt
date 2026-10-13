@@ -184,3 +184,11 @@
 2026-10-13 20:35:46.252 +02:00 [INF] Password change initiated at 2026-10-13 20:35. Moderator: 790822asla
 2026-10-13 20:35:46.268 +02:00 [INF] Permissions validated. Starting to set a new password for  at 2026-10-13 20:35.
 2026-10-13 20:35:48.140 +02:00 [INF] Password change finished at 2026-10-13 20:35. Moderator: 790822asla
+2026-10-13 20:57:35.452 +02:00 [INF] Starting asynchronous dashboard data setup.
+2026-10-13 20:57:35.642 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-13 20:57. Department: IT avdelning. Office: IT avdelning.
+2026-10-13 20:57:36.221 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 20:57:36.
+2026-10-13 20:57:36.221 +02:00 [INF] Gruppdata har laddats ner. Group: Skolor. Tid: 2026-10-13 20:57:36.
+2026-10-13 20:57:47.415 +02:00 [INF] Gruppdata har laddats ner. Group: Personal. Tid: 2026-10-13 20:57:47.
+2026-10-13 20:58:10.984 +02:00 [INF] Gruppdata har laddats ner. Group: Politiker. Tid: 2026-10-13 20:58:10.
+2026-10-13 20:58:21.730 +02:00 [INF] Gruppdata har laddats ner. Group: Studenter. Tid: 2026-10-13 20:58:21.
+2026-10-13 20:58:21.735 +02:00 [INF] Dashboard data setup completed.

@@ -2,7 +2,7 @@ import { useState, use } from 'react';
 
 // Installed
 import { useOutletContext, useLoaderData, useRevalidator, useNavigate } from 'react-router-dom';
-import { IconButton, Collapse, List, ListItem, ListItemText, Button, Tooltip, FormControlLabel, Checkbox } from '@mui/material';
+import { IconButton, Collapse, List, ListItem, ListItemText, Button, Tooltip, FormControlLabel, Checkbox, FormControl, InputLabel, Select, OutlinedInput, MenuItem } from '@mui/material';
 import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt, KeyboardArrowUp, KeyboardArrowDown, TuneSharp } from '@mui/icons-material';
 import _ from 'lodash';
 
@@ -42,7 +42,7 @@ function normalizedEmployees(arr) {
 
 function EmployeeView() {
 
-    const groupMembers  = useLoaderData();
+    const groupMembers = useLoaderData();
     const revalidator = useRevalidator()
     const { groups, moderator, managers, politicians, approvedEmployees, access, schools, searchValue, revalidate, roles } = useOutletContext();
     const { permissions } = moderator;
@@ -67,6 +67,7 @@ function EmployeeView() {
     const [collapsed, setCollapsed] = useState(null);
     const [officeManager, setOfficeManager] = useState(null);
     const [caseModal, setCaseModal] = useState(false);
+    const [selected, setSelected] = useState([]);
 
     // Resync the local edit buffer with the canonical server data whenever it actually
     // changes (e.g. a revalidate finishing after save) - otherwise, if this component gets
@@ -266,7 +267,7 @@ function EmployeeView() {
         : groupMembers?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedUsernames.includes(x.username));
 
     const personalPermissions = permissions.groups?.includes("Personal");
-    console.log(roles)
+ 
     return (
         <>
             {/* Action panel */}
@@ -299,6 +300,32 @@ function EmployeeView() {
                     Stänga
                 </Button>}
 
+{/* 
+                {!!roles && <FormControl sx={{ m: 1, width: 260 }}>
+                    <InputLabel id="demo-multiple-checkbox-label">Tillgång till Overview</InputLabel>
+                    <Select
+                        multiple
+                        value={selected}
+                        //   onChange={handleChange}
+                        input={<OutlinedInput label="Tag" />}
+                        renderValue={(s) => s.join(', ')}
+                    >
+                        {Object.keys(roles).map((name) => {
+                            const SelectionIcon = selected.includes(name) ? CheckBox : CheckBoxOutlineBlank;
+
+                            return (
+                                <MenuItem key={name} value={name}>
+                                    <SelectionIcon
+                                        fontSize="small"
+                                        style={{ marginRight: 8, padding: 9, boxSizing: 'content-box' }}
+                                    />
+                                    <ListItemText primary={name} />
+                                </MenuItem>
+                            );
+                        })}
+                    </Select>
+                </FormControl>} */}
+
                 {access?.open && <Tooltip
                     title={`Logga in som ${moderator?.displayName} i granskningsläge: behörigheter kan ses, men lösenord går inte att ändra i detta läge.`}
                     classes={{
@@ -314,14 +341,6 @@ function EmployeeView() {
                     >
                         Logga in som {moderator?.displayName}
                     </Button>
-
-                    {!!roles && <FormControlLabel
-                        className="checkbox"
-                        control={<Checkbox />}
-                        label={`Tillgång  till ${groups} overview`}
-                        checked={!!roles}
-                        onChange={() => {}}
-                    />}
                 </Tooltip>}
 
             </ActionButtons>
