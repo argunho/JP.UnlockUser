@@ -295,7 +295,7 @@ public class TopdeskController(
                 {
                     var incident = new
                     {
-                        ProcessingStatus = new
+                        processingStatus = new
                         {
                             Id = "da371597-382a-4e29-979e-26b7f75e41dd"
                         }
@@ -344,7 +344,7 @@ public class TopdeskController(
                         {
                             var incident = new
                             {
-                                ProcessingStatus = new
+                                processingStatus = new
                                 {
                                     Id = "da371597-382a-4e29-979e-26b7f75e41dd"
                                 }
