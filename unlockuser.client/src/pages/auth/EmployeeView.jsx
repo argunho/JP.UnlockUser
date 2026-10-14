@@ -2,7 +2,7 @@ import { useState, use } from 'react';
 
 // Installed
 import { useOutletContext, useLoaderData, useRevalidator, useNavigate } from 'react-router-dom';
-import { IconButton, Collapse, List, ListItem, ListItemText, Button, Tooltip, FormControlLabel, Checkbox, FormControl, InputLabel, Select, OutlinedInput, MenuItem } from '@mui/material';
+import { IconButton, Collapse, List, ListItem, ListItemText, Button, Tooltip } from '@mui/material'; // , FormControlLabel, Checkbox, FormControl, InputLabel, Select, OutlinedInput, MenuItem
 import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt, KeyboardArrowUp, KeyboardArrowDown, TuneSharp } from '@mui/icons-material';
 import _ from 'lodash';
 
@@ -18,10 +18,7 @@ import { GetCnValue } from '../../functions/Helpers';
 
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
-import { AuthContext } from '../../storage/AuthContext'; // 2026-09-08
-
-// Functions
-// import { Claim } from '../../functions/DecodedToken';
+import { AuthContext } from '../../storage/AuthContext'; // 2
 
 // Css
 import './../../assets/css/view.css';
@@ -44,7 +41,7 @@ function EmployeeView() {
 
     const groupMembers = useLoaderData();
     const revalidator = useRevalidator()
-    const { groups, moderator, managers, politicians, approvedEmployees, access, schools, searchValue, revalidate, roles } = useOutletContext();
+    const { groups, moderator, managers, politicians, approvedEmployees, access, schools, searchValue, revalidate } = useOutletContext(); //, roles
     const { permissions } = moderator;
 
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
@@ -67,7 +64,7 @@ function EmployeeView() {
     const [collapsed, setCollapsed] = useState(null);
     const [officeManager, setOfficeManager] = useState(null);
     const [caseModal, setCaseModal] = useState(false);
-    const [selected, setSelected] = useState([]);
+    // const [selected, setSelected] = useState([]);
 
     // Resync the local edit buffer with the canonical server data whenever it actually
     // changes (e.g. a revalidate finishing after save) - otherwise, if this component gets

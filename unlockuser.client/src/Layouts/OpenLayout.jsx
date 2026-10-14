@@ -1,14 +1,21 @@
+// import { useEffect } from 'react';
+
 // Installed
-import { Outlet, useNavigation } from 'react-router-dom';
+import { Outlet, useNavigation, } from 'react-router-dom';
 
 // Components
 import LinearLoading from '../components/blocks/LinearLoading';
 
 function OpenLayout() {
 
-    const navigation = useNavigation()
+    const navigation = useNavigation();
 
     const loading = navigation.state === "loading";
+
+    // useEffect(() => {
+    //     if(window.location.hostname?.includes("unlock2.alvesta.se"))
+    //         window.location.href = "https://unlock.alvesta.se";
+    // }, [])
 
     // This layout is used for public pages that do not require authentication
     return (

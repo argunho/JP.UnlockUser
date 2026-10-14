@@ -2,9 +2,9 @@
 import { useEffect, useActionState, useState, use } from 'react';
 
 // Installed Checkbox, FormControlLabel,
-import { TextField, IconButton } from '@mui/material';
+import { TextField } from '@mui/material'; //, IconButton
 import { useNavigate } from 'react-router-dom';
-import { ContactSupport } from '@mui/icons-material';
+// import { ContactSupport } from '@mui/icons-material';
 
 // Components
 import Message from '../../components/blocks/Message';
@@ -120,10 +120,10 @@ function Login() {
         loading={pending} />
     </form>
 
-    {/* contacts link button  */}
-    <IconButton className="login-contacts-link" onClick={() => navigate("/contacts")} disabled={pending}>
+    {/* Contacts link button  */}
+    {/* <IconButton className="login-contacts-link" onClick={() => navigate("/contacts")} disabled={pending}>
       <ContactSupport />
-    </IconButton>
+    </IconButton> */}
 
     {/* Response */}
     {(response || wait) && <Message res={response ? response : { color: "warning", msg: `Vänta ${wait} minuter innan du försöker igen.` }} cancel={clearResponse} />}
