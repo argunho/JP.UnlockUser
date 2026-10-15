@@ -79,7 +79,7 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
         catch (Exception ex)
         {
             _logger.LogError($"{nameof(EncrypteToFile)} => Error: ${ex.Message}");
-            throw new Exception();
+            throw new Exception(ex.Message);
         }
     }
 

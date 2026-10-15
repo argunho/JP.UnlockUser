@@ -38,14 +38,15 @@ builder.Host.UseSerilog((context, services, configuration) =>
         .WriteTo.Logger(lc => lc
             .Filter.ByExcluding(e => e.Level >= LogEventLevel.Error && e.Level >= LogEventLevel.Information)
             .WriteTo.File(
-                "wwwroot/logs/app-unlock.txt",
+                "wwwroot/logs/app-unlock-.txt",
                 rollingInterval: RollingInterval.Day,
                 shared: true,
                 retainedFileCountLimit: 30,
                 fileSizeLimitBytes: 10_000_000, // optional
-                rollOnFileSizeLimit: true)
+                rollOnFileSizeLimit: true
+            )
         )
-        // Authetication logs (no errors)
+        // Authetication logs
         .WriteTo.Logger(lc => lc
             .Filter.ByIncludingOnly(e => e.Level >= LogEventLevel.Information)
             .WriteTo.File(
@@ -54,7 +55,8 @@ builder.Host.UseSerilog((context, services, configuration) =>
                 shared: true,
                 retainedFileCountLimit: 30,
                 fileSizeLimitBytes: 10_000_000, // optional
-                rollOnFileSizeLimit: true)
+                rollOnFileSizeLimit: true
+            )
         )
         // Error-only logs (separate file)
         .WriteTo.Logger(lc => lc
