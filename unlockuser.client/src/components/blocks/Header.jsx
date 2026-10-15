@@ -69,6 +69,13 @@ const Header = memo(function Header({ disabled, supportMode }) {
             setOpen(false);
     }, [loc])
 
+    // start: 2026-10-15
+    // Lock page scroll while the hidden menu is open, regardless of how it was opened/closed
+    useEffect(() => {
+        document.getElementById("root")?.classList.toggle("hide-overflow", open);
+    }, [open])
+    // end
+
     function handleOpenMenu() {
         setOpen((open) => !open);
 

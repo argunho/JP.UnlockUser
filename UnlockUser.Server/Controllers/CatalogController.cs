@@ -248,7 +248,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     #region PUT
     [HttpPut("update/moderators/permission")]
     [Authorize(Roles = "DevelopTeam,ITGroup")]
-    public async Task<IActionResult> PutChanged(CatalogsFormModel model)
+    public async Task<IActionResult> PutModeratorsPermissions(CatalogsFormModel model)
     {
         string casheKey = "update_catalog";
         if (_lockService.TryStart(casheKey, out var waitTask))
@@ -274,16 +274,20 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
                     moderator.Permissions?.Schools = [.. model.Schools.OrderBy(x => x)];
 
                     await _localFileService.EncrypteToFile(moderators, $"catalogs/{ModeratorsCatalog}");
+
+                    _logger.LogTrace("Moderators file changed.");
                 }
 
                 if (changed.Contains(ApprovedCatalog))
                 {
                     await _dashboardService.UpdateApprovedEmployees(model.Username!, model.ApprovedEmployees);
+                    _logger.LogTrace("Approved-employees file changed.");
                 }
             }
             catch (Exception ex)
             {
-                return BadRequest(_helpService.Error(ex));
+                _logger.LogError("Critical problem. Function: {method}. Error: {error}", nameof(PutModeratorsPermissions), ex.Message);
+                return BadRequest(await _helpService.Error(ex));
             }
             finally
             {

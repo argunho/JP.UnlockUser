@@ -37,6 +37,13 @@
 
 	<ItemGroup>
 	  <Content Include="wwwroot\articles\0.Nya_regler_i_den_nya_versionen.txt" />
+	  <Content Include="wwwroot\catalogs\cases.txt" />
+	  <Content Include="wwwroot\catalogs\histories.txt" />
+	  <Content Include="wwwroot\catalogs\managers.txt" />
+	  <Content Include="wwwroot\catalogs\moderators.txt" />
+	  <Content Include="wwwroot\catalogs\politicians.txt" />
+	  <Content Include="wwwroot\catalogs\schools.txt" />
+	  <Content Include="wwwroot\catalogs\statistics.txt" />
 	  <Content Include="wwwroot\images\alvestakommun.png" />
 	  <Content Include="wwwroot\images\background.png" />
 	  <Content Include="wwwroot\images\contacts.png" />
@@ -44,6 +51,9 @@
 	  <Content Include="wwwroot\images\notfound.jpg" />
 	  <Content Include="wwwroot\json\schools.json" />
 	  <Content Include="wwwroot\json\watched.json" />
+	  <Content Include="wwwroot\logs\app-unlock-20261015.txt" />
+	  <Content Include="wwwroot\logs\app-unlock20261015.txt" />
+	  <Content Include="wwwroot\logs\auth-unlock-20261015.txt" />
 	  <Content Include="wwwroot\manual\0.Startsidan.txt" />
 	  <Content Include="wwwroot\popup\0.Nya_regler_i_den_nya_versionen.txt" />
 	  <Content Include="wwwroot\services\config.txt" />
