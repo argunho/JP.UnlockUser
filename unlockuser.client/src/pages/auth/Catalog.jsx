@@ -112,8 +112,8 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
         }
     }
 
-    async function removeConfirmedItem(params) {
-        const success = await fetchData({ api: params ?? `${api}/${confirmId}`, method: "delete", action: "success" });
+    async function removeConfirmedItem() {
+        const success = await fetchData({ api: `${api}/${confirmId}`, method: "delete", action: "success" });
 
         if (success)
             revalidator.revalidate();
@@ -123,10 +123,11 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
     // Remove case
     async function onDeleteCase() {
         try {
-            if (removable)
-                removeConfirmedItem(`${api}/${model.id}/${closeCase}`);
-            else
-                removeConfirmedItem(`${api}/new/${model?.id}/${model?.secondary}`);
+            const reqApi = removable ? `${api}/${model.id}/${closeCase}` : `${api}/new/${model?.id}/${model?.secondary}`;
+            const success = await fetchData({ api: `${reqApi}`, method: "delete", action: "success" });
+
+            if (success)
+                revalidator.revalidate();
         } finally {
             setModel();
         }

@@ -78,8 +78,7 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILocalUserService l
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex.Message);
-            Debug.WriteLine(ex.Message);
+            _logger.LogError(ex.Message);
         }
 
         Interlocked.Increment(ref _execution);

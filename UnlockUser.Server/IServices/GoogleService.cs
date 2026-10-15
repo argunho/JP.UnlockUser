@@ -22,7 +22,7 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
         {
             if (_cache.TryGetValue("students", out List<UserViewModel> cachedUsers))
             {
-                _logger.LogInformation($"{nameof(GetStudentsFromGoogleApi)} Info: Returning cached students from Google Workspace.");
+                _logger.LogTrace($"{nameof(GetStudentsFromGoogleApi)} Info: Returning cached students from Google Workspace.");
                 return cachedUsers;
             }
 

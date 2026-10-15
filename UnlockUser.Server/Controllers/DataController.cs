@@ -62,7 +62,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             }).ToList() ?? [];
 
             data.Add("schools", schools);
-            _logger.LogInformation("Gruppdata har laddats ner. Group: Skolor. Tid: {time}.", DateTime.Now.ToString("G"));
+            _logger.LogTrace("Gruppdata har laddats ner. Group: Skolor. Tid: {time}.", DateTime.Now.ToString("G"));
 
             // Verify the current user's membership in the support group
             // "openAccess" claim is only present on the token when true (see AuthenticationController) — 2026-08-28 15:28

@@ -207,7 +207,7 @@ public class TopdeskController(
                 _ = Task.Run(async () => await SaveCase(res, model));
             }
 
-            _logger.LogInformation("KC-case. Topdesk-ärende inskickat av {user}. Date: {date}", name, model.Date);
+            _logger.LogTrace("KC-case. Topdesk-ärende inskickat av {user}. Date: {date}", name, model.Date);
 
             return Ok();
         }
@@ -261,7 +261,7 @@ public class TopdeskController(
                 _ = Task.Run(async () => await SaveCase(res, model));
             }
 
-            _logger.LogInformation("User-case. Topdesk-ärende inskickat av {user}. Date: {date}", email, model.Date);
+            _logger.LogTrace("User-case. Topdesk-ärende inskickat av {user}. Date: {date}", email, model.Date);
             return Ok();
         }
         catch (Exception ex)
@@ -401,7 +401,7 @@ public class TopdeskController(
 
     private async Task<object> Error(Exception ex, string name)
     {
-        _logger.LogInformation("Something went wrong. Error: => {0}. Function: {1}", ex.Message, name);
+        _logger.LogError("Something went wrong. Error: => {0}. Function: {1}", ex.Message, name);
         return await _help.Error(ex);
     }
     #endregion

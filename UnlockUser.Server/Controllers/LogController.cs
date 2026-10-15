@@ -31,7 +31,8 @@ public class LogController(IHelpService helpService, IFileService fileService) :
             await _helpService.Error(ex);
         }
 
-        return Ok( new  {
+        return Ok(new
+        {
             list = logs,
             removable = logs.Count > 0
         });
@@ -90,40 +91,28 @@ public class LogController(IHelpService helpService, IFileService fileService) :
         if (!DateTime.TryParse(date, out DateTime res))
             return Ok(_helpService.Warning("Fel datum format."));
 
-        string fileLogPath = Path.Combine("wwwroot/logs", $"app-unlock-{res:yyyyMMdd}.txt");
-        string fileErrorPath = Path.Combine("wwwroot/logs", $"errors-unlock-{res:yyyyMMdd}.txt");
-
-        var memoryStream = new MemoryStream();
+        List<string> logs = ["app", "auth", "errors"];
         try
         {
+            var memoryStream = new MemoryStream();
             using (var zip = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
             {
-                // Log file
-                if (System.IO.File.Exists(fileLogPath))
+                foreach (var log in logs)
                 {
-                    var logEntry = zip.CreateEntry($"app-unclock-{res:yyyyMMdd}.txt");
-                    using var entryStream = logEntry.Open();
-                    using var fileStream = new FileStream(
-                            fileLogPath,
-                            FileMode.Open,
-                            FileAccess.Read,
-                            FileShare.ReadWrite // 🔥 Important
-                        );
-                    await fileStream.CopyToAsync(entryStream);
-                }
-
-                // Error file
-                if (System.IO.File.Exists(fileErrorPath))
-                {
-                    var errorEntry = zip.CreateEntry($"errors-unlock-{res:yyyyMMdd}.txt");
-                    using var entryStream = errorEntry.Open();
-                    using var fileStream = new FileStream(
-                            fileErrorPath,
-                            FileMode.Open,
-                            FileAccess.Read,
-                            FileShare.ReadWrite // 🔥 Important
-                        );
-                    await fileStream.CopyToAsync(entryStream);
+                    var pathName = $"{log}-unlock-{res:yyyyMMdd}.txt";
+                    var path = Path.Combine("wwwroot/logs", pathName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        var logEntry = zip.CreateEntry(pathName);
+                        using var entryStream = logEntry.Open();
+                        using var fileStream = new FileStream(
+                                path,
+                                FileMode.Open,
+                                FileAccess.Read,
+                                FileShare.ReadWrite // 🔥 Important
+                            );
+                        await fileStream.CopyToAsync(entryStream);
+                    }
                 }
             }
 

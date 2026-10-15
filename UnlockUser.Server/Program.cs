@@ -34,11 +34,22 @@ builder.Host.UseSerilog((context, services, configuration) =>
         .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
         .MinimumLevel.Override("System", LogEventLevel.Error)
         .WriteTo.Console()
-        // Normal logs (no errors)
+        // Normal logs (no errors & no information)
         .WriteTo.Logger(lc => lc
-            .Filter.ByExcluding(e => e.Level >= LogEventLevel.Error)
+            .Filter.ByExcluding(e => e.Level >= LogEventLevel.Error && e.Level >= LogEventLevel.Information)
             .WriteTo.File(
-                "wwwroot/logs/app-unlock-.txt",
+                "wwwroot/logs/app-unlock.txt",
+                rollingInterval: RollingInterval.Day,
+                shared: true,
+                retainedFileCountLimit: 30,
+                fileSizeLimitBytes: 10_000_000, // optional
+                rollOnFileSizeLimit: true)
+        )
+        // Authetication logs (no errors)
+        .WriteTo.Logger(lc => lc
+            .Filter.ByIncludingOnly(e => e.Level >= LogEventLevel.Information)
+            .WriteTo.File(
+                "wwwroot/logs/auth-unlock-.txt",
                 rollingInterval: RollingInterval.Day,
                 shared: true,
                 retainedFileCountLimit: 30,

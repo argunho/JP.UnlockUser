@@ -50,19 +50,20 @@ function HiddenMenu({ access, onClose }) {
                             <Close />
                         </IconButton>
                     </div>
+                    <div className="hm-links-wrapper">
+                        {/* Loop links */}
+                        {(access?.open ? Links : (access?.limited ? Links.filter(x => !x.permission) : Links.filter(x => !x.access))).map((link, ind) => {
 
-                    {/* Loop links */}
-                    {(access?.open ? Links : (access?.limited ? Links.filter(x => !x.permission) : Links.filter(x => !x.access))).map((link, ind) => {
-
-                        const props = link?.url ? { to: link.url } : { component: Button, onClick: switchModerator };
-                        
-                        return <NavLink
-                            key={ind}
-                            {...props}
-                            className={({ isActive }) => `hm-link d-row jc-start w-100 "${(isActive && link?.url) ? " active" : ""}${(link?.blink && !sessionStorage.getItem("blinked")) ? " blink-color" : ""}`}>
-                            <link.icon color={link?.color} /> {link.label}
-                        </NavLink>
-                    })}
+                            const props = link?.url ? { to: link.url } : { component: Button, onClick: switchModerator };
+                            
+                            return <NavLink
+                                key={ind}
+                                {...props}
+                                className={({ isActive }) => `hm-link d-row jc-start w-100 "${(isActive && link?.url) ? " active" : ""}${(link?.blink && !sessionStorage.getItem("blinked")) ? " blink-color" : ""}`}>
+                                <link.icon color={link?.color} /> {link.label}
+                            </NavLink>
+                        })}
+                    </div>
                 </div>
             </ClickAwayListener >
         </>

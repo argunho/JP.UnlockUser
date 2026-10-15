@@ -27,7 +27,7 @@ public class DashboardService(
 
     public async Task StoreUsersByGroup(string? username = null, List<string>? sessionUserGroups = null, bool access = false)
     {
-        _logger.LogInformation("Starting asynchronous dashboard data setup.");
+        _logger.LogTrace("Starting asynchronous dashboard data setup.");
 
         // Session users calims data
         if (string.IsNullOrEmpty(username))
@@ -103,10 +103,10 @@ public class DashboardService(
                         return usersViewModel;
                     });
 
-                    _logger.LogInformation("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", group.Name, DateTime.Now.ToString("G"));
+                    _logger.LogTrace("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", group.Name, DateTime.Now.ToString("G"));
                 }
 
-                _logger.LogInformation("Dashboard data setup completed.");
+                _logger.LogTrace("Dashboard data setup completed.");
             }
             catch (Exception ex)
             {

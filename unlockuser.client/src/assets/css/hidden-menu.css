@@ -1,3 +1,7 @@
+:root {
+    --hm-header-height: calc(var(--header-height) - 70px);
+}
+
 /* #region Hidden menu */
 .hidden-menu {
   position: fixed;
@@ -5,7 +9,7 @@
   right: 0;
   max-width: 500px;
   box-shadow: 0 0 2px 2px var(--color-light-gray);
-  height: 100%;
+  height: 100vh;
   display: block;
   background-color: #FFFFFF;
   z-index: 3000;
@@ -14,7 +18,7 @@
 }
 
 .hm-header {
-  height: calc(var(--header-height) - 70px);
+  height: var(--hm-header-height);
   padding: 0 15px;
   margin: auto;
   border-bottom: 3px solid var(--color-primary);
@@ -32,6 +36,11 @@
   color: var(--color-secondary);
 }
 
+.hm-links-wrapper {
+  height: calc(100% - var(--hm-header-height));
+  overflow: auto;
+}
+
 a.hm-link,
 a.hm-logout {
   height: 50px;
@@ -41,6 +50,7 @@ a.hm-logout {
   letter-spacing: 1px;
   margin: 5px 15px !important;
   border: 1px solid var(--color-secondary);
+  color: var(--color-dark-gray) !important;
 }
 
 .hm-link:hover,
@@ -53,7 +63,7 @@ a.hm-logout {
 a.hm-link:hover,
 a.hm-logout:hover,
 a.hm-link.active {
-  color: #FFFFFF;
+  color: #FFFFFF !important;
   cursor: pointer;
   border-width: 0 !important;
   letter-spacing: 3px;

@@ -468,12 +468,12 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
             }
         }
 
-        _logger.LogInformation("Password change initiated at {dateTime}. Moderator: {user}", DateTime.Now.ToString("g"), username);
+        _logger.LogTrace("Password change initiated at {dateTime}. Moderator: {user}", DateTime.Now.ToString("g"), username);
 
         Data history = await GetLogData(group!, office!, department!);
         var message = new StringBuilder();
 
-        _logger.LogInformation("Permissions validated. Starting to set a new password for {users} at {dateTime}.",
+        _logger.LogTrace("Permissions validated. Starting to set a new password for {users} at {dateTime}.",
             string.Join(",", models.Select(s => s.Username).ToList()), DateTime.Now.ToString("g"));
 
         // Set password to class students
@@ -501,7 +501,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
             });
         }
 
-        _logger.LogInformation("Password change finished at {dateTime}. Moderator: {user}", DateTime.Now.ToString("g"), username);
+        _logger.LogTrace("Password change finished at {dateTime}. Moderator: {user}", DateTime.Now.ToString("g"), username);
     }
 
     private async Task StudentsPasswordChenge(List<UserFormModel> models)

@@ -12,7 +12,7 @@ function Logotype() {
 
             {/* Logotype */}
             <div className="logo-wrapper" id="logo-img">
-                <img src={logo} className="logo" alt="https://unlock2.alvesta.se" />
+                <img src={logo} className="logo" alt="https://unlock.alvesta.se" />
             </div>
 
             <div className='d-column' id="logo-name">

@@ -65,14 +65,14 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
 
             await Task.Delay(1000);
 
-            _logger.LogInformation("Starting process to save file {fileName}", fileName);
+            _logger.LogTrace("Starting process to save file {fileName}", fileName);
 
             // Encrypt file
             var encryptedValue = JsonConvert.SerializeObject(data, Formatting.None);
 
             SaveEncryptedData(path, encryptedValue);
 
-            _logger.LogInformation("End save process. {fileName}", fileName);
+            _logger.LogTrace("End save process. {fileName}", fileName);
 
             //await using FileStream lockStream = new(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
         }
