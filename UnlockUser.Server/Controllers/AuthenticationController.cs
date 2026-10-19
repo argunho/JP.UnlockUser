@@ -1,23 +1,32 @@
 ﻿using Microsoft.AspNetCore.Authorization; // 2026-09-08
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
+using System.CodeDom;
+using System.Globalization;
+using System.Linq.Expressions;
+using System.Net;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
+using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UnlockUser.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
 public class AuthenticationController(IADService provider, IConfiguration config, IHttpContextAccessor contextAccessor, IDistributedCache distributedCache,
-    IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService,
+    IMemoryCache memoryCache, IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService,
     DashboardService dashboardService, ILogger<AuthenticationController> logger) : ControllerBase
 {
     private readonly IADService _provider = provider; // Implementation of interface, all interface functions are used and are called from the file => ActiveDerictory/Repository/ActiveProviderRepository.cs
     private readonly IConfiguration _config = config; // Implementation of configuration file => ActiveDerictory/appsettings.json
     private readonly ISession? _session = contextAccessor.HttpContext!.Session;
     private readonly IDistributedCache _distributedCache = distributedCache;
+    private readonly IMemoryCache _cache = memoryCache;
     private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentials = credentials;
     private readonly ILocalFileService _localFileService = localFileService;
@@ -26,8 +35,15 @@ public class AuthenticationController(IADService provider, IConfiguration config
 
 
     #region POST   
+    // start: 2026-10-19
     [HttpPost]
-    public async Task<IActionResult> PostLogin([FromBody] LoginViewModel model)
+    public async Task<IActionResult> Login([FromBody] LoginViewModel model)
+        => await LoginCore(model, false);
+
+    // Shared login flow. developMode is only passed by LoginDevelopMode (never bound from the request),
+    // so the public endpoint can't be used to sign in as another user via ModeratorUsername.
+    private async Task<IActionResult> LoginCore(LoginViewModel model, bool developMode)
+    // end
     {
         // Forms filled out incorrectly
         if (!ModelState.IsValid)
@@ -35,31 +51,30 @@ public class AuthenticationController(IADService provider, IConfiguration config
 
         try
         {
-            int loginAttempt = _session?.GetInt32("LoginAttempt") ?? 0;
-            var timeLeft = ProtectAccount(loginAttempt);
-            if (!string.IsNullOrEmpty(timeLeft))
-                return Ok(new { timeLeft });
-
-            // Validate username and password
-            var isAutheticated = _provider.AccessValidation(model?.Username, model?.Password);
-
-            //Incorrect username or password
-            if (!isAutheticated)
-            {
-                // If the user tried to put in a wrong password, save this like +1 a wrong attempt and the max is 4 attempts
-                _session?.SetInt32("LoginAttempt", loginAttempt += 1);
-                _logger.LogWarning("Varning: Försök att logga in med fel användarnamn eller lösenord. Användarnamn: {username}. Tid: {time}", model!.Username, DateTime.Now.ToString("g"));
-                return Ok(_helpService.Warning($"Felaktig användarnamn eller lösenord. {4 - loginAttempt} försök kvar."));
-            }
-
-            _session?.Remove("LoginAttempt");
-            _session?.Remove("LoginBlockTime");
+            var validation = Validation(model);
+            if (validation != null)
+                return Ok(validation);
 
             var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
             var groups = string.Join(",", permissionGroups!.Select(x => x.Name));
 
-            //model.Username = "970117arij";
-            var authorizedUser = _provider.FindUser(model!.Username!);
+            // start: 2026-10-19
+            // Credentials above belong to the developer; switch to the selected moderator only in develop mode
+            // and only for members of the developer group. model.Username stays the developer's, so the
+            // session credentials (adminUsername/adminPassword) still match each other.
+            string? impersonating = null;
+            if (developMode && !string.IsNullOrEmpty(model.ModeratorUsername))
+            {
+                var developer = _provider.FindUser(model.Username);
+                if (developer == null || !_provider.GetUserGroups(developer).Contains("Azure-Utvecklare Test", StringComparer.OrdinalIgnoreCase))
+                    return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
+
+                impersonating = developer.Name;
+            }
+
+            var authorizedUser = _provider.FindUser(impersonating != null ? model.ModeratorUsername! : model.Username!);
+            // end
+
             if (authorizedUser == null)
                 return NotFound(_helpService.NotFound("Användaren"));
 
@@ -77,7 +92,6 @@ public class AuthenticationController(IADService provider, IConfiguration config
                 openAccess = true;
             }
 
-            //if (_provider.MembershipCheck(authorizedUser, "Azure-Utvecklare Test"))
             if (userGroups.Contains("Azure-Utvecklare Test", StringComparer.OrdinalIgnoreCase))
             {
                 roles.Add("DevelopTeam");
@@ -105,7 +119,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
             var currentModerator = moderators?.FirstOrDefault(x => x.Username != null && x.Username.Equals(authorizedUser?.Name.ToString(), StringComparison.OrdinalIgnoreCase));
 
             // Get employees lis by user permissions groups 
-            _ = Task.Run(async () => await _dashboardService.StoreUsersByGroup(model.Username, currentModerator?.Permissions?.Groups, openAccess || limitedAccess));
+            _ = Task.Run(async () => await _dashboardService.StoreUsersByGroup(impersonating != null ? authorizedUser.Name : model.Username, currentModerator?.Permissions?.Groups, openAccess || limitedAccess)); // 2026-10-19
 
 
             claims.Add(new("Email", authorizedUser.EmailAddress));
@@ -116,6 +130,15 @@ public class AuthenticationController(IADService provider, IConfiguration config
             claims.Add(new("Department", authorizedUser.Department));
             claims.Add(new("Groups", groups));
             claims.Add(new("Permissions", string.Join(',', currentModerator?.Permissions?.Groups ?? [])));
+            // start: 2026-10-19
+            // Same marker as LoginAs: blocks password changes (NotImpersonating policy) and ResetLoginAs/log can see who it is
+            //if (impersonating != null)
+            //{
+            //    roles.Add("Impersonating");
+            //    claims.Add(new("Impersonating", impersonating));
+            //    _logger.LogInformation("Utvecklare {developer} loggade in (develop mode) som {username} vid: {time}.", impersonating, authorizedUser.Name, DateTime.Now.ToString("g"));
+            //}
+            // end
             claims.Add(new("Roles", string.Join(",", roles)));
 
 
@@ -141,6 +164,59 @@ public class AuthenticationController(IADService provider, IConfiguration config
             return BadRequest(await _helpService.Error(ex));
         }
     }
+
+    [HttpPost("develop/mode/{key}")]
+    public async Task<IActionResult> LoginDevelopMode(string key, LoginViewModel model)
+    {
+        var cd = DateTime.Now;
+        var culture = CultureInfo.GetCultureInfo("sv-SE");
+        // start: 2026-10-19
+        if (_cache.TryGetValue("auth_key", out var cachedKey) && string.Equals(cachedKey?.ToString(), key))
+        {
+            var result = await LoginCore(model, true);
+            // One-time link: drop the key once a token has been issued
+            if (result is OkObjectResult { Value: AuthViewModel })
+                _cache.Remove("auth_key");
+            return result;
+        }
+        // end
+
+
+        string pcName = "Unknown";
+        string ipAddress = "Unknown";
+
+        var msg = new StringBuilder();
+        try
+        {
+            ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString()!;
+            if (string.IsNullOrEmpty(ipAddress))
+            {
+                var ipHeader = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+                ipAddress = ipHeader!.Split(',').First().Trim();
+
+                msg.Append($"IpAddress: {ipAddress}.");
+            }
+
+            if (IPAddress.TryParse(ipAddress, out var addr))
+            {
+                pcName = (await Dns.GetHostEntryAsync(addr))
+                    .HostName
+                    .Split('.', StringSplitOptions.RemoveEmptyEntries)
+                    .FirstOrDefault() ?? pcName;
+
+
+                msg.Append($"Computer name: {pcName}.");
+            }
+
+        }
+        catch { }
+
+
+        _logger.LogWarning($"Ett obehörigt inloggningsförsök upptäcktes. {msg.ToString()} Date: {cd.ToString("g")}.");
+
+        return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
+    }
+
 
     // start: 2026-09-08
     // Lets a Developer temporarily view the app as another moderator, to check that
@@ -284,14 +360,75 @@ public class AuthenticationController(IADService provider, IConfiguration config
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error(ex));
+            return BadRequest(await _helpService.Error(ex));
         }
 
         return Ok();
     }
+
+    [HttpDelete("logout/develop/mode")]
+    [Authorize(Roles = "DevelopTeam")]
+    public async Task<IActionResult> LogoutDevelopMode()
+    {
+        try
+        {
+            //var cd = DateTime.Now;
+            //var culture = CultureInfo.GetCultureInfo("sv-SE");
+            //if (DateTime.TryParseExact(date,"g",culture,DateTimeStyles.None,out var d)){}
+
+            string hashedKey = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+            _cache.Set("auth_key", hashedKey,
+                new MemoryCacheEntryOptions
+                {
+                    SlidingExpiration = TimeSpan.FromMinutes(5),
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                });
+
+            await Logout();
+
+            return Ok($"login/develop/mode/{hashedKey}");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(await _helpService.Error(ex));
+        }
+    }
     #endregion
 
     #region Helpers
+    private object Validation(LoginViewModel model)
+    {
+        try
+        {
+            int loginAttempt = _session?.GetInt32("LoginAttempt") ?? 0;
+            var timeLeft = ProtectAccount(loginAttempt);
+            if (!string.IsNullOrEmpty(timeLeft))
+                return new { timeLeft };
+
+            // Validate username and password
+            var isAutheticated = _provider.AccessValidation(model?.Username, model?.Password);
+
+            //Incorrect username or password
+            if (!isAutheticated)
+            {
+                // If the user tried to put in a wrong password, save this like +1 a wrong attempt and the max is 4 attempts
+                _session?.SetInt32("LoginAttempt", loginAttempt += 1);
+                _logger.LogWarning("Varning: Försök att logga in med fel användarnamn eller lösenord. Användarnamn: {username}. Tid: {time}", model!.Username, DateTime.Now.ToString("g"));
+                return _helpService.Warning($"Felaktig användarnamn eller lösenord. {4 - loginAttempt} försök kvar.");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+
+        _session?.Remove("LoginAttempt");
+        _session?.Remove("LoginBlockTime");
+
+        return null;
+    }
+
     // Protection against account blocking after several unsuccessful attempts to authenticate
     private string? ProtectAccount(int attempt)
     {
@@ -319,14 +456,14 @@ public class AuthenticationController(IADService provider, IConfiguration config
         return timeLeft.ToString("T");
     }
 
-    private AuthViewModel ConfigureAuthModel(List<Claim> claims, List<string> roles, string group = null)
+    private AuthViewModel? ConfigureAuthModel(List<Claim> claims, List<string> roles, string group = null)
     {
         var jwtToken = JsonConvert.SerializeObject(_credentials.GenerateJwtToken(
          claims,
-         _config["JwtSettings:Key"]!,
-         [.. roles.Distinct()],
-         false)
-     );
+             _config["JwtSettings:Key"]!,
+             [.. roles.Distinct()],
+             false)
+         );
 
         var authModel = JsonConvert.DeserializeObject<AuthViewModel>(jwtToken);
         authModel?.GroupName = (group ?? "overview").ToLower();

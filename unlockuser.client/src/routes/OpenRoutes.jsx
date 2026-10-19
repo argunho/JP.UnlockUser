@@ -9,6 +9,7 @@ import ErrorView from "../pages/ErrorView";
 
 // Storage
 import FetchContextProvider from "../storage/FetchContext";
+import { loaderById } from "../services/LoadFunctions";
 
 const OpenRoutes = () => [
   {
@@ -27,6 +28,12 @@ const OpenRoutes = () => [
         path: "login",
         element: <Login />,
         errorElement: <ErrorView />
+      },
+      {
+        path: "login/develop/mode/:id", // 2026-10-19
+        element: <Login />,
+        errorElement: <ErrorView />,
+        loader: loaderById("catalog/develop/mode")
       },
       {
         path: "contacts",

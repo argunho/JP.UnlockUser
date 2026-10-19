@@ -3,7 +3,6 @@
 namespace UnlockUser.Server.Services;
 
 public class DashboardService(
-        IHttpContextAccessor contextAccessor,
         ILocalFileService localFileService,
         IConfiguration config,
         IADService provider,
@@ -14,7 +13,6 @@ public class DashboardService(
         ILogger<DashboardService> logger
     )
 {
-    private readonly ISession? _session = contextAccessor.HttpContext!.Session;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IConfiguration _config = config;
     private readonly IADService _provider = provider;

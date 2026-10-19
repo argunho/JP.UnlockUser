@@ -2,7 +2,8 @@
 import {
     Logout, FactCheck, Settings, School, 
     WorkHistory, ErrorOutline, BarChart, Home, MenuBook, Cases,
-    UploadFile, Info, ForwardToInbox, PermPhoneMsg
+    UploadFile, Info, ForwardToInbox, PermPhoneMsg,
+    DeveloperMode // 2026-10-19
 } from '@mui/icons-material';
 
 export const Links = [
@@ -20,5 +21,6 @@ export const Links = [
     { label: "Skicka mail", url: "/send/email", icon: ForwardToInbox, color: "warning", access: true, permission: true },
     { label: "Google-tjänstkonto", url: "/service/configuration", icon: UploadFile, access: true, permission: true },
     // { label: "Kontakta kontaktcenter", url: "/contact", icon: LiveHelp, access: false },
+    { label: "Logga ut (develop mode)", url: "/session/logout/dm", icon: DeveloperMode, access: true, permission: true, developer: true }, // 2026-10-19
     { label: "Logga ut", url: "/session/logout", icon: Logout, access: false }
 ];

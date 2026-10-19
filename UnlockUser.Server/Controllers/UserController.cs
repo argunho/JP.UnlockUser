@@ -88,7 +88,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
         }
         catch (Exception ex)
         {
-            return BadRequest(_help.Error(ex));
+            return BadRequest(await _help.Error(ex));
         }
     }
 
@@ -106,7 +106,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
         }
         catch (Exception ex)
         {
-            return BadRequest(_help.Error(ex));
+            return BadRequest(await _help.Error(ex));
         }
     }
 
@@ -181,7 +181,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
         }
         catch (Exception ex)
         {
-            return BadRequest(_help.Error(ex));
+            return BadRequest(await _help.Error(ex));
         }
     }
 
@@ -225,7 +225,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
         }
         catch (Exception ex)
         {
-            return BadRequest(_help.Error(ex));
+            return BadRequest(await _help.Error(ex));
         }
     }
     #endregion
@@ -332,7 +332,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
         }
         catch (Exception ex)
         {
-            return BadRequest(_help.Error(ex));
+            return BadRequest(await _help.Error(ex));
         }
     }
     #endregion
@@ -341,34 +341,28 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
     // Return information
     private async Task<Data> GetLogData([FromBody] string group, [FromBody] string office, [FromBody] string department)
     {
-        var ip = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
-
-        // Get computer name
-        string pcName = "Unknown";
-
-        try
-        {
-            if (IPAddress.TryParse(ip, out var addr))
-                pcName = (await Dns.GetHostEntryAsync(addr))
-                    .HostName
-                    .Split('.', StringSplitOptions.RemoveEmptyEntries)
-                    .FirstOrDefault() ?? pcName;
-        }
-        catch { }
-
-        //IPHostEntry GetIPHost = Dns.GetHostEntry(IPAddress.Parse(ip!));
-        //List<string> compName = [.. GetIPHost.HostName.ToString().Split('.')];
-        //string pcName = compName.First();
-        //string computerName = (Environment.MachineName ?? System.Net.Dns.GetHostName() ?? Environment.GetEnvironmentVariable("COMPUTERNAME"));
 
         var claims = _credentials.GetClaims(["office", "department"]) ?? [];
         var data = new Data();
+        string pcName = "Unknown";
+
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
         if (string.IsNullOrEmpty(ipAddress))
         {
             var ipHeader = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
             ipAddress = ipHeader?.Split(',').First().Trim();
         }
+
+        // Get computer name
+        try
+        {
+            if (IPAddress.TryParse(ipAddress, out var addr))
+                pcName = (await Dns.GetHostEntryAsync(addr))
+                    .HostName
+                    .Split('.', StringSplitOptions.RemoveEmptyEntries)
+                    .FirstOrDefault() ?? pcName;
+        }
+        catch { }
 
         try
         {
@@ -509,12 +503,12 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
         try
         {
             var services = models.FirstOrDefault(x => x.Services != null)?.Services ?? [];
-            if(services.Count == 0)
+            if (services.Count == 0)
             {
                 await _google.UpdatePaswords(models);
                 await SetActiveDirectoryPasswords(models);
             }
-            else if(services.Count > 0 && !services.Contains("Google", StringComparer.OrdinalIgnoreCase)
+            else if (services.Count > 0 && !services.Contains("Google", StringComparer.OrdinalIgnoreCase)
                 && !services.Contains("AD", StringComparer.OrdinalIgnoreCase))
             {
                 throw new Exception("Ingen tjänst har valts för lösenordsändring!");
@@ -526,7 +520,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
                     await _google.UpdatePaswords(models);
                 }
 
-                if(services.Contains("AD", StringComparer.OrdinalIgnoreCase))
+                if (services.Contains("AD", StringComparer.OrdinalIgnoreCase))
                 {
                     await SetActiveDirectoryPasswords(models);
                 }

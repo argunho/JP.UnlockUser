@@ -13,11 +13,18 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
     private readonly IMemoryCache _cache = cache;
     private readonly string _webRootPath = env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot");
     private readonly string _contentRootPath = env.ContentRootPath;
+    // start: 2026-10-16 11:02
+    // Root folder for encrypted data files (catalogs, services). Configured via "LocalFiles:DataPath"
+    // so the data can live outside the deployed site folder; falls back to wwwroot when not set.
+    private readonly string _dataRootPath = string.IsNullOrWhiteSpace(config["LocalFiles:DataPath"])
+        ? env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot")
+        : Path.Combine(env.ContentRootPath, config["LocalFiles:DataPath"]!); // 2026-10-16 11:20 relative path resolves from content root, absolute stays as is
+    // end
 
 
     public async Task<T?> GetEncryptedFile<T>(string fileName)
     {
-        var path = Path.Combine(_webRootPath, $"{fileName}.txt");
+        var path = Path.Combine(_dataRootPath, $"{fileName}.txt"); // 2026-10-16 11:02
 
         // If the file doesn't exist, do not create a cache entry — just return default
         if (!File.Exists(path))
@@ -50,16 +57,10 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
 
     public async Task EncrypteToFile<T>(T? data, string fileName)
     {
-        string? error = String.Empty;
         try
         {
             if (data == null)
                 return;
-
-            var cacheKey = $"json:{fileName}";
-
-            if (_cache.TryGetValue(cacheKey, out _))
-                _cache.Remove(cacheKey);
 
             string path = PathnameReadOnlyOwerwrite(fileName);
 
@@ -71,6 +72,7 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
             var encryptedValue = JsonConvert.SerializeObject(data, Formatting.None);
 
             SaveEncryptedData(path, encryptedValue);
+            _cache.Remove($"json:{fileName}");
 
             _logger.LogTrace("End save process. {fileName}", fileName);
 
@@ -78,8 +80,8 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
         }
         catch (Exception ex)
         {
-            _logger.LogError($"{nameof(EncrypteToFile)} => Error: ${ex.Message}");
-            throw new Exception(ex.Message);
+            _logger.LogError(ex, "{method} failed for {fileName}. Ensure the application identity has Modify permission on the data directory.", nameof(EncrypteToFile), fileName);
+            throw;
         }
     }
 
@@ -214,34 +216,18 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
         return plainText;
     }
 
-    // Check directory path exists or not
-    private bool CheckDirectory(string path)
-    {
-        try
-        {
-            if (!Directory.Exists(path)) // Check directory          
-                Directory.CreateDirectory(path); //Create directory if it doesn't exist
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex.Message);
-            return false;
-        }
-    }
-
     private string PathnameReadOnlyOwerwrite(string pathname)
     {
         var fileName = Path.GetFileName($"{pathname}.txt");
-        var directory = Path.Combine(_webRootPath, pathname[..pathname.IndexOf('/')]);
-        CheckDirectory(directory);
+        var directory = Path.Combine(_dataRootPath, pathname[..pathname.IndexOf('/')]); // 2026-10-16 11:02
+        Directory.CreateDirectory(directory);
 
         var path = Path.Combine(directory, fileName);
         if (File.Exists(path))
         {
             try
             {
-                // Remove read-only attribute if present so we can overwrite/delete
+                // Clear the read-only attribute before replacing the file.
                 File.SetAttributes(path, FileAttributes.Normal);
             }
             catch (Exception ex)
@@ -249,36 +235,35 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
                 _logger.LogWarning("Could not clear file attributes for {path}: {msg}", path, ex.Message);
             }
 
-            try
-            {
-                File.Delete(path);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("Could not delete existing file {path}: {msg}", path, ex.Message);
-            }
+            //try
+            //{
+            //    File.Delete(path);
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger.LogWarning("Could not delete existing file {path}: {msg}", path, ex.Message);
+            //}
         }
 
         return path;
     }
-
+    
     private void SaveEncryptedData(string path, string data)
     {
         // Encrypt the string to an array of bytes.
         byte[] encrypted = EncryptStringToBytes(data);
         string encryptedText = Convert.ToBase64String(encrypted);
 
-        var directory = Path.GetDirectoryName(path) ?? _webRootPath;
+        var directory = Path.GetDirectoryName(path) ?? _dataRootPath; // 2026-10-16 11:02
         var fileNameOnly = Path.GetFileName(path);
         var tempPath = Path.Combine(directory, $"{fileNameOnly}.{Guid.NewGuid():N}.tmp");
 
         try
         {
-            // Write to a temp file first, then atomically move to the target location
-            File.WriteAllText(tempPath, encryptedText, Encoding.UTF8);
-
-            // Ensure the target directory exists (again, harmless)
             Directory.CreateDirectory(directory);
+
+            // Keep the current file intact until the encrypted temporary file is ready to replace it.
+            File.WriteAllText(tempPath, encryptedText, Encoding.UTF8);
 
             // Move temp to target, overwrite if exists
             // File.Move has an overload with overwrite in recent .NET versions
@@ -303,7 +288,10 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
                 if (File.Exists(tempPath))
                     File.Delete(tempPath);
             }
-            catch { }
+            catch (Exception cleanupException)
+            {
+                _logger.LogWarning(cleanupException, "Could not remove temporary file {tempPath}", tempPath);
+            }
 
             throw;
         }

@@ -47,7 +47,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             var schools = await SchoolsFromFile();
             var roles = _credentials.IsUserInRole("DevelopTeam") ? _config.GetSection("Roles").Get<Dictionary<string, string>>() : null;
 
-            return Ok(new { moderators = moderators.OrderBy(x => x.Office).ToList(), managers, politicians, schools, approvedEmployees, groups, roles  });
+            return Ok(new { moderators = moderators.OrderBy(x => x.Office).ToList(), managers, politicians, schools, approvedEmployees, groups, roles });
         }
         catch (Exception ex)
         {
@@ -192,6 +192,33 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         byte[] downloadBytes = Encoding.UTF8.GetBytes(item.Download);
         return File(downloadBytes, "text/plain", $"History_{item?.Date}");
     }
+
+    // Get moderators for develop mode login
+    [HttpGet("develop/mode/{id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetModerators([FromRoute] string id)
+    {
+        try
+        {
+        ArgumentNullException.ThrowIfNull(id);
+            if (!_cache.TryGetValue("auth_key", out var key) || !string.Equals(key?.ToString(), id))
+            {
+                _logger.LogWarning("Ett obehörigt inloggningsförsök upptäcktes");
+                return Unauthorized();
+            }
+            var catalog = await _localFileService.GetEncryptedFile<List<Manager>>("catalogs/moderators") ?? [];
+            var managers = catalog.Select(s => new ViewModel
+            {
+                Primary = s.DisplayName,
+                Secondary = s.Username
+            });
+            return Ok(managers);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(await _helpService.Error(ex));
+        }
+    }
     #endregion
 
     #region POST
@@ -207,7 +234,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         }
         catch (Exception ex)
         {
-            return BadRequest(_helpService.Error(ex));
+            return BadRequest(await _helpService.Error(ex));
         }
     }
 

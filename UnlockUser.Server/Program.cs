@@ -7,6 +7,7 @@ global using UnlockUser.Server.IServices;
 global using UnlockUser.Server.Models;
 global using UnlockUser.Server.Services;
 global using UnlockUser.Server.ViewModels;
+
 using JobRelatedHelpLibrary.Extenssions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -36,7 +37,7 @@ builder.Host.UseSerilog((context, services, configuration) =>
         .WriteTo.Console()
         // Normal logs (no errors & no information)
         .WriteTo.Logger(lc => lc
-            .Filter.ByExcluding(e => e.Level >= LogEventLevel.Error && e.Level >= LogEventLevel.Information)
+            .Filter.ByExcluding(e => e.Level >= LogEventLevel.Error && e.Level >= LogEventLevel.Information && e.Level >= LogEventLevel.Warning)
             .WriteTo.File(
                 "wwwroot/logs/app-unlock-.txt",
                 rollingInterval: RollingInterval.Day,
@@ -51,6 +52,18 @@ builder.Host.UseSerilog((context, services, configuration) =>
             .Filter.ByIncludingOnly(e => e.Level >= LogEventLevel.Information)
             .WriteTo.File(
                 "wwwroot/logs/auth-unlock-.txt",
+                rollingInterval: RollingInterval.Day,
+                shared: true,
+                retainedFileCountLimit: 30,
+                fileSizeLimitBytes: 10_000_000, // optional
+                rollOnFileSizeLimit: true
+            )
+        )
+        // Warning logs
+        .WriteTo.Logger(lc => lc
+            .Filter.ByIncludingOnly(e => e.Level >= LogEventLevel.Warning)
+            .WriteTo.File(
+                "wwwroot/logs/warning-unlock-.txt",
                 rollingInterval: RollingInterval.Day,
                 shared: true,
                 retainedFileCountLimit: 30,

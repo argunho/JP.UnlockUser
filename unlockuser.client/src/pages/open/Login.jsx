@@ -2,8 +2,8 @@
 import { useEffect, useActionState, useState, use } from 'react';
 
 // Installed Checkbox, FormControlLabel,
-import { TextField } from '@mui/material'; //, IconButton
-import { useNavigate } from 'react-router-dom';
+import { TextField, Autocomplete } from '@mui/material'; //, IconButton // 2026-10-19
+import { useNavigate, useLoaderData, useParams } from 'react-router-dom';
 // import { ContactSupport } from '@mui/icons-material';
 
 // Components
@@ -24,11 +24,14 @@ let clear = true;
 function Login() {
 
   const [wait, setWait] = useState();
+  const [moderator, setModerator] = useState(null); // 2026-10-19
 
   const { authorize } = use(AuthContext);
   const { response, fetchData, handleResponse } = use(FetchContext);
 
   const navigate = useNavigate();
+  const moderators = useLoaderData() ?? [];
+  const { id } = useParams();
 
   useEffect(() => {
     document.title = "UnlockUser | Logga in";
@@ -62,10 +65,11 @@ function Login() {
 
     const data = {
       username: fd.get("username"),
-      password: fd.get("password")
+      password: fd.get("password"),
+      moderatorUsername: id ? fd.get("moderator") : null
     }
 
-    const res = await fetchData({ api: "authentication", method: "post", data: data, action: "return" }) ?? {};
+    const res = await fetchData({ api: id ? `authentication/develop/mode/${id}`: "authentication", method: "post", data: data, action: "return" }) ?? {}; // 2026-10-19
     const { token, timeLeft, groupName } = res;
 
     if (timeLeft) {
@@ -112,6 +116,27 @@ function Login() {
           />
         );
       })}
+
+      {/* start: 2026-10-19 */}
+      {moderators.length > 0 && <>
+        <Autocomplete
+          className="login-input"
+          options={moderators}
+          value={moderator}
+          getOptionLabel={(option) => option?.primary ?? ""}
+          isOptionEqualToValue={(option, value) => option?.secondary === value?.secondary}
+          onChange={(e, option) => setModerator(option)}
+          renderOption={(props, option) => {
+            const { key, ...rest } = props;
+            return <li key={option.secondary ?? key} {...rest}>{option.primary}</li>;
+          }}
+          renderInput={(params) => <TextField {...params} label="Moderator" required />}
+          disabled={disabled}
+        />
+        {/* The visible input holds the display name, so the username (secondary) is submitted from here */}
+        <input type="hidden" name="moderator" value={moderator?.secondary ?? ""} />
+      </>}
+      {/* end */}
 
       {/* Buttons to submit the form data and confirmation to accept this submit action */}
       <FormButtons

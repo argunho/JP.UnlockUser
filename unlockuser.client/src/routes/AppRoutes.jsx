@@ -267,7 +267,13 @@ const AppRoutes = () => [
         path: "logout",
         element: <Logout />,
         errorElement: <ErrorView />,
-        loader: signout
+        loader: signout() // 2026-10-19
+      },
+      {
+        path: "logout/dm",
+        element: <Logout />,
+        errorElement: <ErrorView />,
+        loader: signout("logout/develop/mode")
       }
     ]
   }

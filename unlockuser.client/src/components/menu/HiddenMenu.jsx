@@ -11,6 +11,9 @@ import Logotype from '../blocks/Logotype';
 // Models
 import { Links } from '../../models/Links';
 
+// Functions
+import { DecodedClaims } from '../../functions/DecodedToken'; // 2026-10-19
+
 // Storage
 import { FetchContext } from './../../storage/FetchContext';
 import { AuthContext } from './../../storage/AuthContext';
@@ -24,6 +27,7 @@ function HiddenMenu({ access, onClose }) {
     const { authorize } = use(AuthContext);
 
     const navigate = useNavigate();
+    const developer = DecodedClaims()?.roles?.split(",").includes("DevelopTeam"); // 2026-10-19
 
     async function switchModerator() {
         const res = await fetchData({ api: `authentication/login-as/kc-group`, method: "post", action: "return" }) ?? {};
@@ -52,7 +56,7 @@ function HiddenMenu({ access, onClose }) {
                     </div>
                     <div className="hm-links-wrapper">
                         {/* Loop links */}
-                        {(access?.open ? Links : (access?.limited ? Links.filter(x => !x.permission) : Links.filter(x => !x.access))).map((link, ind) => {
+                        {(access?.open ? Links : (access?.limited ? Links.filter(x => !x.permission) : Links.filter(x => !x.access))).filter(x => !x.developer || developer).map((link, ind) => { // 2026-10-19
 
                             const props = link?.url ? { to: link.url } : { component: Button, onClick: switchModerator };
                             
