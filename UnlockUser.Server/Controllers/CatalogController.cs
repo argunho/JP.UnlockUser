@@ -81,7 +81,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
     // Get statistics
     [HttpGet("statistics")]
-    [Authorize(Roles = "DevelopTeam,ITGroup")]
+    [Authorize(Roles = "DevelopTeam")]
     public async Task<IActionResult> GetStatistics()
     {
         try
@@ -354,7 +354,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         return Ok();
     }
 
-    [HttpDelete("histories/{date}")]
+    [HttpDelete("history/{date}")]
     [Authorize(Roles = "DevelopTeam,ITGroup")]
     public async Task<IActionResult> DeleteHistory(string date)
     {

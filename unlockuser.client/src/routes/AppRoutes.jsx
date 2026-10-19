@@ -221,7 +221,7 @@ const AppRoutes = () => [
     children: [
       {
         path: 'statistics',
-        element: <Catalog label="Statistik" fullWidth={true} dropdown={true} />,
+        element: <Catalog label="Statistik" api="catalog/statistics" fullWidth={true} dropdown={true} />,
         errorElement: <ErrorView />,
         loader: loader("catalog/statistics")
       },
