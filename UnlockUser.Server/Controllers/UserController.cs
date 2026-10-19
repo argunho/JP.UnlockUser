@@ -435,30 +435,34 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
             var permissions = moderators?.FirstOrDefault(x => x.Username != null
                             && x.Username.Equals(username, StringComparison.OrdinalIgnoreCase))?.Permissions;
 
-            var approvedEmployees = await _localFile.GetEncryptedFile<List<ApprovedEmployeeViewModel>>("catalogs/approved-employees") ?? [];
-            var approvedForCurrentModerator = approvedEmployees.Where(x => x.Moderators!.Contains(username!))?.Select(s => s.Username)?.ToList();
-
-            bool isModerator = moderators!.Exists(x => x.Username!.Equals(userModel.Username, StringComparison.OrdinalIgnoreCase));
-            bool isApproved = approvedForCurrentModerator!.Contains(userModel.Username, StringComparer.OrdinalIgnoreCase);
-
             string warningMessage = "Du saknar behörigheter att ändra lösenord för";
-            if (group!.Equals("Studenter", StringComparison.OrdinalIgnoreCase) &&
-                !permissions!.Schools.Any(s => office!.StartsWith(s, StringComparison.OrdinalIgnoreCase)))
+            if (group!.Equals("Studenter", StringComparison.OrdinalIgnoreCase))
             {
-                throw new Exception($"{warningMessage} {department} {office}");
-            }
-            else if ((string.IsNullOrEmpty(userModel.Manager) || isModerator) && !isApproved)
-            {
-                throw new Exception($"{warningMessage} {userModel.Username}");
+                if (!permissions!.Schools.Any(s => office!.StartsWith(s, StringComparison.OrdinalIgnoreCase)))
+                    throw new Exception($"{warningMessage} {department} {office}");
             }
             else
             {
-                var match = Regex.Match(userModel.Manager!, @"^CN=([^,]+)");
-                string? userManager = match.Success ? match.Groups[1]?.Value : null;
 
-                if (string.IsNullOrEmpty(userManager) || (!permissions!.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase)
-                    && !userManager.Equals(username, StringComparison.OrdinalIgnoreCase)))
+                var approvedEmployees = await _localFile.GetEncryptedFile<List<ApprovedEmployeeViewModel>>("catalogs/approved-employees") ?? [];
+                var approvedForCurrentModerator = approvedEmployees.Where(x => x.Moderators!.Contains(username!))?.Select(s => s.Username)?.ToList();
+
+                bool isModerator = moderators!.Exists(x => x.Username!.Equals(userModel.Username, StringComparison.OrdinalIgnoreCase));
+                bool isApproved = approvedForCurrentModerator!.Contains(userModel.Username, StringComparer.OrdinalIgnoreCase);
+
+                if ((string.IsNullOrEmpty(userModel.Manager) || isModerator) && !isApproved)
+                {
                     throw new Exception($"{warningMessage} {userModel.Username}");
+                }
+                else
+                {
+                    var match = Regex.Match(userModel.Manager!, @"^CN=([^,]+)");
+                    string? userManager = match.Success ? match.Groups[1]?.Value : null;
+
+                    if (string.IsNullOrEmpty(userManager) || (!permissions!.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase)
+                        && !userManager.Equals(username, StringComparison.OrdinalIgnoreCase)))
+                        throw new Exception($"{warningMessage} {userModel.Username}");
+                }
             }
         }
 
