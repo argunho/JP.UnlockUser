@@ -124,6 +124,7 @@ main,
     width: -moz-available !important;
     flex: 1;
     align-self: stretch;
+    z-index: 0;
 }
 
 /* #region Flex */
