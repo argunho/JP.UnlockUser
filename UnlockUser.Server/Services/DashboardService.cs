@@ -63,16 +63,18 @@ public class DashboardService(
                         continue;
 
                     var (alternativeParams, isStudents) = await GetParams(group.Name!, username, access);
-                    var limited = !access && alternativeParams.Count > 0;
+                    var limited = !isStudents ? !access && alternativeParams.Count > 0 : !access;
 
                     var groupCacheKey = group.Name?.ToLower();
                     var cacheKey = (limited ? $"{groupCacheKey}:{username.ToLower()}" : $"{groupCacheKey}");
-                    await _cache.GetOrCreateAsync(cacheKey, async entry =>
+                    var res = await _cache.GetOrCreateAsync(cacheKey, async entry =>
                     {
                         entry.SlidingExpiration = TimeSpan.FromHours(limited ? 1 : 3); // Cache for 8 hours, removes after this time if it is not used
                         entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(limited ? 2 : 8); // Cache for 1 day, removes after this time even if it is used
 
                         _cache.TryGetValue(groupCacheKey!, out List<UserViewModel?>? cachedGroupMembers);
+
+                        // If group are Students
                         if (isStudents)
                         {
                             cachedGroupMembers ??= await _googleService.GetStudentsFromGoogleApi() ?? [];
@@ -87,18 +89,24 @@ public class DashboardService(
 
                             return cachedGroupMembers!;
                         }
+                        else if (cachedGroupMembers != null && cachedGroupMembers.Count > 0)
+                        {
+                            return [.. cachedGroupMembers
+                                .OfType<UserViewModel>()
+                                .Where(employee => employee.Manager is { } manager
+                                    && alternativeParams.Any(parameter => manager.Contains(parameter, StringComparison.OrdinalIgnoreCase)))];
+                        }
+                        else
+                        {
+                            var employees = await _provider.GetUsersByGroupName(group, username, alternativeParams);
 
-                        if(cachedGroupMembers != null && cachedGroupMembers.Count > 0)
-                            return cachedGroupMembers.Where(x => alternativeParams.Contains(x.Office, StringComparer.OrdinalIgnoreCase)).ToList()!;
+                            // Users model to view
+                            var usersViewModel = employees?.Select(s => new UserViewModel(s)).ToList();
+                            _ = usersViewModel?.ConvertAll(x => x.Group = group.Name).ToList();
+                            _ = usersViewModel?.ConvertAll(x => x.PasswordLength = 12).ToList();
 
-                        var employees = await _provider.GetUsersByGroupName(group, username, alternativeParams);
-
-                        // Users model to view
-                        var usersViewModel = employees?.Select(s => new UserViewModel(s)).ToList();
-                        _ = usersViewModel?.ConvertAll(x => x.Group = group.Name).ToList();
-                        _ = usersViewModel?.ConvertAll(x => x.PasswordLength = 12).ToList();
-
-                        return usersViewModel;
+                            return usersViewModel;
+                        }
                     });
 
                     _logger.LogTrace("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", group.Name, DateTime.Now.ToString("G"));

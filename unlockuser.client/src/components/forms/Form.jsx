@@ -359,7 +359,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
                     >
                         <div className="d-row jc-start ai-center w-100">
                             {/* Service buttons */}
-                            {(users[0]?.group.toLowerCase() === "studenter" && openAccess)
+                            {(users[0]?.group?.toLowerCase() === "studenter" && openAccess)
                                 && ["Google", "AD"].map(service => (
                                     <Tooltip key={service} title={`Sätt lösenord för ${service}`} arrow>
                                         <FormControlLabel

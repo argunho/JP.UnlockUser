@@ -56,7 +56,7 @@ const messages = {
 }
 
 function Overview() {
-    const { user, moderators, collection } = useLoaderData();
+    const { user, moderators, collections } = useLoaderData();
 
     const { permissions, openAccess, limitedAccess } = DecodedClaims();
     const { fetchData, response } = use(FetchContext);
@@ -85,17 +85,17 @@ function Overview() {
     // end
 
     async function onSubmit() {
+console.log(value, collections)
         // const value = ref.current.value;
         if (!value || value.length == 0)
             return;
-        else if (!collection && !parseInt(value.slice(0, 6)))
+        else if (!collections && !parseInt(value.slice(0, 6)))
             return;
-
         const equals = CheckUsername(value) || CheckEmail(value);
 
-        var res = collection?.length > 0
-            ? (equals ? collection.find(x => x.username === value || x.email === value)
-                : collection.filter(x => x?.displayName.toLowerCase().includes(value.toLowerCase())))
+        var res = collections?.length > 0
+            ? (equals ? collections.find(x => x.username === value || x.email === value)
+                : collections.filter(x => x?.displayName.toLowerCase().includes(value.toLowerCase())))
             : await fetchData({ api: `user/by/${value}/search/${true}`, method: "get", action: "return" });
 
         if (Array.isArray(res) && res?.length > 1) {
@@ -237,7 +237,7 @@ function Overview() {
                     key={message.msg}
                     // inputRef={ref}
                     className="w-100"
-                    placeholder={collection?.length > 0 ? "Sök med namn/anvädarnamn/email ..." : "Sök med användarnamn"}
+                    placeholder={collections?.length > 0 ? "Sök med namn/anvädarnamn/email ..." : "Sök med användarnamn"}
                     value={value}
                     onChange={(e) => setSearchValue(e.target?.value)}
                     InputProps={{

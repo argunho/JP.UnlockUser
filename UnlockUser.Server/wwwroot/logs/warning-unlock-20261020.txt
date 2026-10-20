@@ -1,0 +1,3 @@
+2026-10-20 11:10:37.017 +02:00 [WRN] Ett obehörigt inloggningsförsök upptäcktes
+2026-10-20 11:10:37.017 +02:00 [WRN] Ett obehörigt inloggningsförsök upptäcktes
+2026-10-20 11:19:22.660 +02:00 [WRN] Ett obehörigt inloggningsförsök upptäcktes. Computer name: AEPW0ESE2H. Date: 2026-10-20 11:19.

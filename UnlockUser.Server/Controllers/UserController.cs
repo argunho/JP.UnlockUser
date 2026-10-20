@@ -112,7 +112,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
 
     [HttpGet("by/{key}")]
     [HttpGet("by/{key}/search/{search:bool}")]
-    [Authorize(Roles = "ITGroup,DevelopTeam,KCGroup")]
+    [Authorize(Roles = "ITGroup,DevelopTeam,KCGroup,Moderator")]
     public async Task<IActionResult> GetUserByUsername(string key, bool search = false)
     {
         try
