@@ -59,8 +59,7 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
                         {
                             var organization = s?.Organizations != null ? s.Organizations?.FirstOrDefault() : null;
                             var department = s?.OrgUnitPath?.Split('/')?.LastOrDefault() ?? organization?.Department;
-                            var office = s?.Organizations != null ? organization?.Location 
-                                                : s?.OrgUnitPath?.Split('/', StringSplitOptions.RemoveEmptyEntries).Skip(1).FirstOrDefault();
+                            var office = s?.OrgUnitPath?.Split('/', StringSplitOptions.RemoveEmptyEntries).Skip(1).FirstOrDefault();
 
                             return new UserModel
                             {

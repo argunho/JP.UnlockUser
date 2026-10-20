@@ -39,3 +39,4 @@
 2026-10-20 20:30:12.669 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 20:30. Department: IT avdelning. Office: IT avdelning.
 2026-10-20 20:32:04.059 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 20:32. Department: Hagaskolan Övrig skolpersonal. Office: Hagaskolan Övrig skolpersonal.
 2026-10-20 20:43:27.076 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 20:43. Department: IT avdelning. Office: IT avdelning.
+2026-10-20 21:35:53.549 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 21:35. Department: IT avdelning. Office: IT avdelning.
