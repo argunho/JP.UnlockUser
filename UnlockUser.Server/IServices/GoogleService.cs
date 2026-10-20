@@ -2,6 +2,7 @@
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Microsoft.Extensions.Caching.Memory;
+using System.Runtime.CompilerServices;
 using System.Text;
 using GoogleUserModel = Google.Apis.Admin.Directory.directory_v1.Data.User;
 using UserModel = UnlockUser.Server.Models.User;
@@ -15,7 +16,7 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
     private readonly IRefreshLockService _lockService = lockService;
     private readonly ILogger<GoogleService> _logger = logger;
 
-    public async Task<List<UserViewModel>?> GetStudentsFromGoogleApi()
+    public async Task<List<UserViewModel>> GetStudentsFromGoogleApi()
     {
         List<UserModel> users = [];
         try
@@ -50,18 +51,20 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
 
                     //var resUsers = res.UsersValue?.Where(x => x.Organizations.Any() == true
                     var resUsers = res.UsersValue?.Where(x =>
-                           ((x.Organizations != null && x.Organizations.Any(o => o.Primary == true && (o.Title != null && o.Title.Equals("Student", StringComparison.OrdinalIgnoreCase))))
+                           ((x.Organizations != null && x.Organizations.Any(o => o.Primary == true 
+                                && (o.Title != null && o.Title.Equals("Student", StringComparison.OrdinalIgnoreCase))))
                                 || (x.OrgUnitPath != null && x.OrgUnitPath.StartsWith("/Elever", StringComparison.OrdinalIgnoreCase)))
                             && x.Archived != true
                         ).Select(s =>
                         {
                             var organization = s?.Organizations != null ? s.Organizations?.FirstOrDefault() : null;
                             var department = s?.OrgUnitPath?.Split('/')?.LastOrDefault() ?? organization?.Department;
-                            var office = s?.Organizations != null ? organization?.Location : s?.OrgUnitPath?.Split('/', StringSplitOptions.RemoveEmptyEntries).Skip(1).FirstOrDefault();
+                            var office = s?.Organizations != null ? organization?.Location 
+                                                : s?.OrgUnitPath?.Split('/', StringSplitOptions.RemoveEmptyEntries).Skip(1).FirstOrDefault();
 
                             return new UserModel
                             {
-                                DisplayName = s.Name.FullName,
+                                DisplayName = s!.Name.FullName,
                                 Username = organization != null ? s.ExternalIds?.FirstOrDefault()?.Value : null,
                                 Email = s.PrimaryEmail,
                                 Department = department,
@@ -86,7 +89,7 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
                 if (usersViewModel == null || usersViewModel.Count == 0)
                 {
                     _logger.LogWarning($"{nameof(GetStudentsFromGoogleApi)} Warning: No students found in Google Workspace.");
-                    return null;
+                    return [];
                 }
 
                 var options = new MemoryCacheEntryOptions
@@ -113,7 +116,7 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
             _logger.LogError($"{nameof(GetStudentsFromGoogleApi)} Error: {0}", ex?.Message);
         }
 
-        return null;
+        return [];
     }
 
     public async Task<List<GoogleUserModel>> GetUsers()

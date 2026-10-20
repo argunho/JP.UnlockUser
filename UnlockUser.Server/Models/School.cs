@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace UnlockUser.Server.Models;
+﻿namespace UnlockUser.Server.Models;
 
 public class School
 {

@@ -183,7 +183,7 @@ function Home() {
             return;
 
         const lgh = e.target.value?.length;
-        const min = (isClass ? 0 : 2);
+        const min = (isClass ? 0 : 1);
         if(isClass && !refAutocomplete?.current)
             return;
         else if((isChanged && lgh > min) || (!isChanged && lgh === min))

@@ -119,7 +119,12 @@ public class AuthenticationController(IADService provider, IConfiguration config
             var currentModerator = moderators?.FirstOrDefault(x => x.Username != null && x.Username.Equals(authorizedUser?.Name.ToString(), StringComparison.OrdinalIgnoreCase));
 
             // Get employees lis by user permissions groups 
-            _ = Task.Run(async () => await _dashboardService.StoreUsersByGroup(authorizedUser.Name, currentModerator?.Permissions?.Groups, openAccess || limitedAccess)); // 2026-10-19
+            _ = Task.Run(async () =>
+                await _dashboardService.StoreUsersByGroup(
+                    authorizedUser.Name,
+                    currentModerator?.Permissions?.Groups,
+                    openAccess || limitedAccess)
+                ); // 2026-10-19
 
 
             claims.Add(new("Email", authorizedUser.EmailAddress));

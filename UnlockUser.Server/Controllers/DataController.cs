@@ -35,10 +35,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         try
         {
             // start: 2026-09-03
-            // Return the cached JSON as-is instead of round-tripping it through
-            // Dictionary<string, object> with Newtonsoft, which loses the camelCase
-            // property names produced by the ASP.NET Core (System.Text.Json) pipeline
-            // used on the first request and broke AutocompleteList's option?.primary lookup.
+            // Return the cached JSON as-is instead of round-tripping
             var sessionData = HttpContext.Session.GetString("session-data");
             if (sessionData != null)
                 return Content(sessionData, "application/json");
@@ -54,18 +51,24 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             // Employee groups where each group has its own password management permissions
             List<GroupModel> groups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
-            var schools = (await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools"))?.Select(s => new ViewModel
-            {
-                Id = s.Name,
-                Primary = s.Name,
-                Secondary = s.Place
-            }).ToList() ?? [];
+            claims.TryGetValue("username", out var username);
+
+            var moderators = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators");
+            var mPermissions = moderators?.FirstOrDefault(x => x.Username != null && x.Username.Equals(username, StringComparison.OrdinalIgnoreCase))?.Permissions;
+
+            var schoolsCatalog = await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools") ?? [];
+            var schools = schoolsCatalog.Where(x => mPermissions!.Schools.Contains(x.Name, StringComparer.OrdinalIgnoreCase))
+                .Select(s => new ViewModel
+                {
+                    Id = s.Name,
+                    Primary = s.Name,
+                    Secondary = s.Place
+                }).ToList() ?? [];
 
             data.Add("schools", schools);
             _logger.LogTrace("Gruppdata har laddats ner. Group: Skolor. Tid: {time}.", DateTime.Now.ToString("G"));
 
-            // Verify the current user's membership in the support group
-            // "openAccess" claim is only present on the token when true (see AuthenticationController) — 2026-08-28 15:28
+            // Verify the current user's membership in the support group 2026-08-28 15:28
             bool accessGroup = claims!.TryGetValue("openAccess", out string? openAccessValue) && !string.IsNullOrEmpty(openAccessValue);
 
             if (accessGroup && groups.Count > 0)
@@ -124,18 +127,18 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 
                     groupMembers.AddRange([.. users.Where(x =>
                     {
-                        if (x.Manager == null || approvedEmployeeUsernames!.Contains(x.Username!)) 
+                        if (x.Manager == null || approvedEmployeeUsernames!.Contains(x.Username!))
                             return false;
 
                         var m = x.Manager.Trim();
 
                         // ensure there's enough length for a start index of 3
-                        if (m.Length <= 3) 
+                        if (m.Length <= 3)
                             return false;
                         var comma = m.IndexOf(',');
 
                         // ensure comma exists and is after the start index
-                        if (comma <= 3) 
+                        if (comma <= 3)
                             return false;
 
                         var part = m.Substring(3, comma - 3);
@@ -165,7 +168,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             await _helpService.Error(ex);
             return Ok();
         }
-    }    
+    }
     #endregion
 
     #region POST

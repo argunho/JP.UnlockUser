@@ -334,7 +334,7 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
         if (!Directory.Exists(source))
             Directory.CreateDirectory(source);
 
-        var files = Directory.EnumerateFiles(source, "*.txt");
+        var files = Directory.EnumerateFiles(source, "*.txt") ?? [];
 
         return (source, files);
     }

@@ -29,3 +29,13 @@
 2026-10-20 11:35:29.924 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 11:35. Department: IT avdelning. Office: IT avdelning.
 2026-10-20 11:55:36.348 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 11:55. Department: IT avdelning. Office: IT avdelning.
 2026-10-20 11:58:25.054 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 11:58. Department: Prästängsskolan Fritidshem. Office: Prästängsskolan Fritidshem.
+2026-10-20 19:45:16.732 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 19:45. Department: IT avdelning. Office: IT avdelning.
+2026-10-20 19:58:19.675 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 19:58. Department: IT avdelning. Office: IT avdelning.
+2026-10-20 20:00:36.294 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 20:00. Department: IT avdelning. Office: IT avdelning.
+2026-10-20 20:04:24.423 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 20:04. Department: Hagaskolan Övrig skolpersonal. Office: Hagaskolan Övrig skolpersonal.
+2026-10-20 20:05:04.675 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 20:05. Department: IT avdelning. Office: IT avdelning.
+2026-10-20 20:06:59.338 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 20:06. Department: UF Stab IT. Office: UF Stab IT.
+2026-10-20 20:14:40.473 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 20:14. Department: IT avdelning. Office: IT avdelning.
+2026-10-20 20:30:12.669 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 20:30. Department: IT avdelning. Office: IT avdelning.
+2026-10-20 20:32:04.059 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 20:32. Department: Hagaskolan Övrig skolpersonal. Office: Hagaskolan Övrig skolpersonal.
+2026-10-20 20:43:27.076 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-20 20:43. Department: IT avdelning. Office: IT avdelning.

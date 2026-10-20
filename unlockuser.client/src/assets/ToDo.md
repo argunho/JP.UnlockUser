@@ -12,5 +12,6 @@
 ## 10. Css mobile
 #### 11. Catolog's list css
 #### 12. Copy password in success message
-## 13. Filter school list by permissions for search
+#### 13. Filter school list by permissions for search
 ## 14. Replay from Unlock to Topdesk case
+## 15. Article saves as manual and not popup
