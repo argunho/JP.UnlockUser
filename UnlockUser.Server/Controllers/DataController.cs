@@ -53,11 +53,14 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 
             claims.TryGetValue("username", out var username);
 
+            // Verify the current user's membership in the support group 2026-08-28 15:28
+            bool accessGroup = claims!.TryGetValue("openAccess", out string? openAccessValue) && !string.IsNullOrEmpty(openAccessValue);
+
             var moderators = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators");
             var mPermissions = moderators?.FirstOrDefault(x => x.Username != null && x.Username.Equals(username, StringComparison.OrdinalIgnoreCase))?.Permissions;
 
             var schoolsCatalog = await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools") ?? [];
-            var schools = schoolsCatalog.Where(x => mPermissions!.Schools.Contains(x.Name, StringComparer.OrdinalIgnoreCase))
+            var schools = (accessGroup ? schoolsCatalog : schoolsCatalog.Where(x => mPermissions!.Schools.Contains(x.Name, StringComparer.OrdinalIgnoreCase)))
                 .Select(s => new ViewModel
                 {
                     Id = s.Name,
@@ -68,8 +71,6 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             data.Add("schools", schools);
             _logger.LogTrace("Gruppdata har laddats ner. Group: Skolor. Tid: {time}.", DateTime.Now.ToString("G"));
 
-            // Verify the current user's membership in the support group 2026-08-28 15:28
-            bool accessGroup = claims!.TryGetValue("openAccess", out string? openAccessValue) && !string.IsNullOrEmpty(openAccessValue);
 
             if (accessGroup && groups.Count > 0)
                 data.Add("groups", groups.Select(s => s.Name).ToList());
