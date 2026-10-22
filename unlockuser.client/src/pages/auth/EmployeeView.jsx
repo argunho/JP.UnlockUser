@@ -3,7 +3,10 @@ import { useState, use } from 'react';
 // Installed
 import { useOutletContext, useLoaderData, useRevalidator, useNavigate } from 'react-router-dom';
 import { IconButton, Collapse, List, ListItem, ListItemText, Button, Tooltip } from '@mui/material'; // , FormControlLabel, Checkbox, FormControl, InputLabel, Select, OutlinedInput, MenuItem
-import { Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt, KeyboardArrowUp, KeyboardArrowDown, TuneSharp } from '@mui/icons-material';
+import {
+    Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt,
+    KeyboardArrowUp, KeyboardArrowDown, TuneSharp, VerifiedUser
+} from '@mui/icons-material';
 import _ from 'lodash';
 
 // Components
@@ -264,7 +267,7 @@ function EmployeeView() {
         : groupMembers?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedUsernames.includes(x.username));
 
     const personalPermissions = permissions.groups?.includes("Personal");
- 
+
     return (
         <>
             {/* Action panel */}
@@ -297,7 +300,7 @@ function EmployeeView() {
                     Stänga
                 </Button>}
 
-{/* 
+                {/* 
                 {!!roles && <FormControl sx={{ m: 1, width: 260 }}>
                     <InputLabel id="demo-multiple-checkbox-label">Tillgång till Overview</InputLabel>
                     <Select
@@ -358,11 +361,19 @@ function EmployeeView() {
 
                         return <ListItem key={index} className="li-collapse"
                             secondaryAction={
-                                <IconButton
-                                    disabled={selected || (!searchValue && access?.limited)}
-                                    onClick={() => checked ? onDelete(emp?.username, "employees", "username") : onChange(emp?.username, "employees")}>
-                                    {checked ? <CheckBox color="success" /> : <CheckBoxOutlineBlank />}
-                                </IconButton>
+                                <div className="d-row">
+                                    {emp.permissions && <Tooltip title="Administratör" arrow>
+                                            <VerifiedUser fontSize="small" color="success" />
+                                        </Tooltip>}
+                                    <IconButton
+                                        disabled={selected || (!searchValue && access?.limited)}
+                                        onClick={() => checked
+                                            ? onDelete(emp?.username, "employees", "username")
+                                            : onChange(emp?.username, "employees")
+                                        }>
+                                        {checked ? <CheckBox color="success" /> : <CheckBoxOutlineBlank />}
+                                    </IconButton>
+                                </div>
                             }>
                             <ListItemText
                                 primary={emp?.primary}

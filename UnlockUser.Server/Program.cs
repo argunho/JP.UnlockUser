@@ -49,7 +49,7 @@ builder.Host.UseSerilog((context, services, configuration) =>
         )
         // Authetication logs
         .WriteTo.Logger(lc => lc
-            .Filter.ByIncludingOnly(e => e.Level >= LogEventLevel.Information)
+            .Filter.ByIncludingOnly(e => e.Level == LogEventLevel.Information) // I need only LogInformation here
             .WriteTo.File(
                 "wwwroot/logs/auth-unlock-.txt",
                 rollingInterval: RollingInterval.Day,
@@ -61,7 +61,7 @@ builder.Host.UseSerilog((context, services, configuration) =>
         )
         // Warning logs
         .WriteTo.Logger(lc => lc
-            .Filter.ByIncludingOnly(e => e.Level >= LogEventLevel.Warning)
+            .Filter.ByIncludingOnly(e => e.Level == LogEventLevel.Warning)
             .WriteTo.File(
                 "wwwroot/logs/warning-unlock-.txt",
                 rollingInterval: RollingInterval.Day,
@@ -73,7 +73,7 @@ builder.Host.UseSerilog((context, services, configuration) =>
         )
         // Error-only logs (separate file)
         .WriteTo.Logger(lc => lc
-            .Filter.ByIncludingOnly(e => e.Level >= LogEventLevel.Error)
+            .Filter.ByIncludingOnly(e => e.Level == LogEventLevel.Error)
             .WriteTo.File(
                 "wwwroot/logs/errors-unlock-.txt",
                 rollingInterval: RollingInterval.Day,

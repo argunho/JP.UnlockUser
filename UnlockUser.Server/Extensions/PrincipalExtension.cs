@@ -82,6 +82,20 @@ public class UserPrincipalExtension : UserPrincipal
     }
 
 
+    [DirectoryProperty("extensionAttribute1")]
+    public string IdentityNumber
+    {
+        get
+        {
+            if (ExtensionGet("extensionAttribute1").Length != 1)
+                return string.Empty;
+
+            return (string)ExtensionGet("extensionAttribute1")[0];
+        }
+
+        set { ExtensionSet("extensionAttribute1", value); }
+    }
+
     [DirectoryProperty("extensionAttribute9")]
     public string Email
     {

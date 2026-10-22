@@ -2,7 +2,6 @@
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Microsoft.Extensions.Caching.Memory;
-using System.Runtime.CompilerServices;
 using System.Text;
 using GoogleUserModel = Google.Apis.Admin.Directory.directory_v1.Data.User;
 using UserModel = UnlockUser.Server.Models.User;
@@ -21,10 +20,10 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
         List<UserModel> users = [];
         try
         {
-            if (_cache.TryGetValue("students", out List<UserViewModel> cachedUsers))
+            if (_cache.TryGetValue("students", out List<UserViewModel>? cachedUsers))
             {
                 _logger.LogTrace($"{nameof(GetStudentsFromGoogleApi)} Info: Returning cached students from Google Workspace.");
-                return cachedUsers;
+                return cachedUsers!;
             }
 
             if (_lockService.TryStart("stidents_load", out var waiTask))

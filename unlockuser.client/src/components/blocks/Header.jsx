@@ -106,7 +106,7 @@ const Header = memo(function Header({ disabled, supportMode }) {
                             <span>{displayName}</span>
 
                             {/* Menu */}
-                            <span className="d-row">
+                            <span className="d-row jc-start">
                                 {/* Support */}
                                 {access && <Button component={NavLink}
                                     disabled={disabled}

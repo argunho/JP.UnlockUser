@@ -5,6 +5,7 @@ public class User
     public string? Username { get; set; }
     public string? DisplayName { get; set; }
     public string? Email { get; set; }
+    public string? IdentityNumber { get; set; }
     public string? Manager { get; set; }
     public string? Department { get; set; }
     public string? Office { get; set; }

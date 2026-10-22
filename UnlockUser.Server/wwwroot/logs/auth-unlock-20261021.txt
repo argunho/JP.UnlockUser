@@ -1,0 +1,2 @@
+2026-10-21 10:06:28.942 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-21 10:06. Department: IT avdelning. Office: IT avdelning.
+2026-10-21 10:08:21.415 +02:00 [INF] Autentisering utförd vid: 790822asla. User: 2026-10-21 10:08. Department: Prästängsskolan Undervisning. Office: Prästängsskolan Undervisning.

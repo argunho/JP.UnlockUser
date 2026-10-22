@@ -280,11 +280,12 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                 return NotFound($"User with email '{email}' not found");
             else
             {
-                var modifiedUser = new UserViewModel(new Models.User
+                var modifiedUser = new UserViewModel(new User
                 {
                     Username = userPrincipal.SamAccountName,
                     DisplayName = userPrincipal.DisplayName,
                     Title = userPrincipal.Title,
+                    IdentityNumber = userPrincipal.IdentityNumber,
                     Email = userPrincipal.Email, //userPrincipal.EmailAddress,
                     Office = userPrincipal.Office,
                     Department = userPrincipal.Department,

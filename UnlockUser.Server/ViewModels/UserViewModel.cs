@@ -15,6 +15,7 @@ public class UserViewModel : User
         {
             Username = user?.Username;
             DisplayName = user?.DisplayName;
+            IdentityNumber = user?.IdentityNumber;
             Email = user?.Email;
             Manager = user?.Manager;
             Department = user?.Department;

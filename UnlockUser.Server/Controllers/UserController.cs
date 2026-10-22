@@ -1,4 +1,4 @@
-﻿using Google.Apis.Auth.OAuth2;
+﻿using Google.Apis.Admin.Directory.directory_v1.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -20,7 +20,6 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
     ICredentialsService credinalService, ILocalMailService localMailService, IGoogleService googleService,
     DashboardService dashboard, ILogger<UserController> logger) : ControllerBase
 {
-
     private readonly IADService _provider = provider;
     private readonly IConfiguration _config = config;
     private readonly IWebHostEnvironment _env = env;
@@ -78,7 +77,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
                 else if (!claims!["roles"].Contains("Suppport", StringComparison.OrdinalIgnoreCase)
                         && ((await _localUser.Filter([user], groupName, claims!["permissions"]))?.Count == 0))
                 {
-                    return Ok(_help.Warning($"Du saknar behörigheter att ändra lösenord till {user.DisplayName}!"));
+                    return Ok(_help.Warning($"Behörigheter saknas att ändra lösenord till {user.DisplayName}!"));
                 }
 
                 if (_provider.MembershipCheck(_provider.FindUser(key), "Password Twelve Characters"))
@@ -129,7 +128,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
 
                     if (!search)
                     {
-                        List<ViewModel?>? moderators = [.. (await _localFile.GetEncryptedFile<List<User>>("catalogs/moderators") ?? [])
+                        List<ViewModel?>? moderators = [.. (await _localFile.GetEncryptedFile<List<Models.User>>("catalogs/moderators") ?? [])
                                 .Where(x => !string.Equals(x.Username, user!.Username, StringComparison.OrdinalIgnoreCase)
                                             && x != null && x.Manager != null && string.Equals(x.Manager, user?.Manager, StringComparison.OrdinalIgnoreCase)
                                             && x.Permissions != null && x.Permissions.Groups.Contains(user?.Group, StringComparer.OrdinalIgnoreCase))
@@ -152,7 +151,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
                 return NotFound(_help.NotFound("Användaren"));
 
             var cachedUser = await _localUser.GetUserFromFile(key);
-            var modifiedUser = new UserViewModel(new User
+            var modifiedUser = new UserViewModel(new Models.User
             {
                 Username = userPrincipal.SamAccountName,
                 DisplayName = userPrincipal.DisplayName,
@@ -431,11 +430,11 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
         // Check current user permission
         if (!roles.Contains("ITGroup", StringComparer.OrdinalIgnoreCase))
         {
-            var moderators = await _localFile.GetEncryptedFile<List<User>>("catalogs/moderators");
+            var moderators = await _localFile.GetEncryptedFile<List<Models.User>>("catalogs/moderators");
             var permissions = moderators?.FirstOrDefault(x => x.Username != null
                             && x.Username.Equals(username, StringComparison.OrdinalIgnoreCase))?.Permissions;
 
-            string warningMessage = "Du saknar behörigheter att ändra lösenord för";
+            string warningMessage = "Behörigheter saknas att ändra lösenord för";
             if (group!.Equals("Studenter", StringComparison.OrdinalIgnoreCase))
             {
                 if (!permissions!.Schools.Any(s => office!.StartsWith(s, StringComparison.OrdinalIgnoreCase)))
@@ -474,6 +473,8 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
         _logger.LogTrace("Permissions validated. Starting to set a new password for {users} at {dateTime}.",
             string.Join(",", models.Select(s => s.Username).ToList()), DateTime.Now.ToString("g"));
 
+
+        var usersNotFound = new List<string>();
         // Set password to class students
         foreach (var user in models!)
         {
@@ -481,6 +482,11 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
             if (string.IsNullOrEmpty(user.Username))
             {
                 var userData = _provider.FindUser(user.Email!);
+                if (userData == null)
+                {
+                    usersNotFound.Append(user.Name);
+                    continue;
+                }
                 user.Username = userData?.SamAccountName;
             }
 
@@ -500,10 +506,16 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
         }
 
         _logger.LogTrace("Password change finished at {dateTime}. Moderator: {user}", DateTime.Now.ToString("g"), username);
+
+        if (usersNotFound.Count > 0)
+        {
+            throw new Exception($"Det gick inte att hitta användare{(usersNotFound.Count > 1 ? "" : 'n')} {string.Join(',', usersNotFound)} för att ändra lösenordet i AD.\n");
+        }
     }
 
     private async Task StudentsPasswordChenge(List<UserFormModel> models)
     {
+        var username = _credentials.GetClaim("username");
         try
         {
             var services = models.FirstOrDefault(x => x.Services != null)?.Services ?? [];
@@ -532,9 +544,8 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
         }
         catch (Exception ex)
         {
-            _logger.LogError($"{nameof(SetPasswordsSavePdf)}. Error: {ex.Message}");
-            await _help.Error(ex);
-            throw new Exception("Lösenordsändring misslyckades. Kontakta IT-supporten!");
+            _logger.LogError($"{nameof(SetPasswordsSavePdf)}. User: {username}.  Error: {ex.Message}");
+            throw new Exception($"Lösenordsändring misslyckades. {ex.Message}"); // Kontakta IT-supporten!");
         }
     }
 
@@ -632,7 +643,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
                     model.Department = user.Department;
                 }
                 description.Append($" - Arbetsplats: {model?.Office}");
-                description.Append($"\n\n\r Lösenord ämdrad till:");
+                description.Append($"\n\n\r Lösenord ändrad till:");
                 description.Append($"\n\t-{model?.Group}: {model?.Users[0]}");
             }
             description.Append("\n\n\n Datum: " + DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));

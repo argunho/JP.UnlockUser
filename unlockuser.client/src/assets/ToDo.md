@@ -15,3 +15,4 @@
 #### 13. Filter school list by permissions for search
 ## 14. Replay from Unlock to Topdesk case
 ## 15. Article saves as manual and not popup
+## 16. Messag in bottom of window if new article kommit

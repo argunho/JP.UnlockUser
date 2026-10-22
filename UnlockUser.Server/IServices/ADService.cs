@@ -306,6 +306,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
         result?.PropertiesToLoad.Add("manager");
         result?.PropertiesToLoad.Add("department");
         result?.PropertiesToLoad.Add("title");
+        result?.PropertiesToLoad.Add("extensionAttribute1");
         result?.PropertiesToLoad.Add("extensionAttribute9");
         result?.PropertiesToLoad.Add("extensionAttribute10");
         result?.PropertiesToLoad.Add("accountExpires");
