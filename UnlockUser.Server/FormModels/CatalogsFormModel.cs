@@ -1,11 +1,16 @@
 ﻿namespace UnlockUser.Server.FormModels;
 
-public class CatalogsFormModel
+public class CatalogsFormModel : PermissionsModel
 {
     public string? Username { get; set; }
     public List<string> Names { get; set; } = [];
-    public List<string> Managers { get; set; } = [];
-    public List<string> Politicians { get; set; } = [];
-    public List<ApprovedEmployeeViewModel> ApprovedEmployees { get; set; } = [];
-    public List<string> Schools { get; set; } = [];
+
+    public CatalogsFormModel(PermissionsModel model)
+    {
+        Managers = model.Managers;
+        Politicians = model.Politicians;
+        Schools = model.Schools;
+        Employees = model.Employees;
+        Offices = model.Offices;
+    }
 }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json;
 using System.Text;
 
 namespace UnlockUser.Server.Controllers;
@@ -12,7 +11,7 @@ namespace UnlockUser.Server.Controllers;
 [Authorize]
 public class CatalogController(ILocalFileService localFileService, IHelpService helpService,
     IConfiguration config, ILocalUserService localUserService, IRefreshLockService lockService, ICredentialsService credentials,
-    IMemoryCache memoryCache, DashboardService dashboardService, ILogger<CatalogController> logger) : ControllerBase
+    IMemoryCache memoryCache, ILogger<CatalogController> logger) : ControllerBase
 {
     private readonly IConfiguration _config = config;
     private readonly IHelpService _helpService = helpService;
@@ -21,11 +20,9 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     private readonly IRefreshLockService _lockService = lockService;
     private readonly ICredentialsService _credentials = credentials;
     private readonly IMemoryCache _cache = memoryCache;
-    private readonly DashboardService _dashboardService = dashboardService;
     private readonly ILogger<CatalogController> _logger = logger;
 
     private const string ModeratorsCatalog = "moderators";
-    private const string ApprovedCatalog = "approved-employees";
 
 
     #region GET
@@ -42,12 +39,18 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
             // Guard against a missing/unreadable catalogs/politicians file (was throwing NRE in production and returning an empty response) — 2026-09-02 13:17
             var politicians = (await _localFileService.GetEncryptedFile<List<User>>("catalogs/politicians"))?.Select(s => new UserViewModel(s)).ToList() ?? [];
-            var approvedEmployees = await _localFileService.GetEncryptedFile<List<ApprovedEmployeeViewModel>>($"catalogs/{ApprovedCatalog}") ?? [];
             var groups = _config.GetSection("Groups").Get<List<GroupModel>>()?.Select(s => s.Name).ToList();
             var schools = await SchoolsFromFile();
             var roles = _credentials.IsUserInRole("DevelopTeam") ? _config.GetSection("Roles").Get<Dictionary<string, string>>() : null;
 
-            return Ok(new { moderators = moderators.OrderBy(x => x.Office).ToList(), managers, politicians, schools, approvedEmployees, groups, roles });
+            return Ok(new { 
+                moderators = moderators.OrderBy(x => x.Office).ToList(), 
+                managers, 
+                politicians, 
+                schools, 
+                groups, 
+                roles 
+            });
         }
         catch (Exception ex)
         {
@@ -200,19 +203,19 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     {
         try
         {
-        ArgumentNullException.ThrowIfNull(id);
+            ArgumentNullException.ThrowIfNull(id);
             if (!_cache.TryGetValue("auth_key", out var key) || !string.Equals(key?.ToString(), id))
             {
                 _logger.LogWarning("Ett obehörigt inloggningsförsök upptäcktes");
                 return Unauthorized();
             }
-            var catalog = await _localFileService.GetEncryptedFile<List<Manager>>("catalogs/moderators") ?? [];
-            var managers = catalog.Select(s => new ViewModel
+            var catalog = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators") ?? [];
+            var moderators = catalog.Select(s => new ViewModel
             {
                 Primary = s.DisplayName,
                 Secondary = s.Username
             });
-            return Ok(managers);
+            return Ok(moderators);
         }
         catch (Exception ex)
         {
@@ -299,16 +302,12 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
                     moderator.Permissions?.Managers = [.. model.Managers.OrderBy(x => x)];
                     moderator.Permissions?.Politicians = [.. model.Politicians.OrderBy(x => x)];
                     moderator.Permissions?.Schools = [.. model.Schools.OrderBy(x => x)];
+                    moderator.Permissions?.Employees = [.. model.Employees.OrderBy(x => x)];
+                    moderator.Permissions?.Offices = [.. model.Offices.OrderBy(x => x)];
 
                     await _localFileService.EncrypteToFile(moderators, $"catalogs/{ModeratorsCatalog}");
 
                     _logger.LogTrace("Moderators file changed.");
-                }
-
-                if (changed.Contains(ApprovedCatalog))
-                {
-                    await _dashboardService.UpdateApprovedEmployees(model.Username!, model.ApprovedEmployees);
-                    _logger.LogTrace("Approved-employees file changed.");
                 }
             }
             catch (Exception ex)

@@ -193,45 +193,34 @@ public class DashboardService(
         return groupModels;
     }
 
-    public async Task UpdateApprovedEmployees(string username, List<ApprovedEmployeeViewModel> newApproved)
+    public async Task UpdateApprovedEmployees(string? username, List<string> newApproved)
     {
+        if (string.IsNullOrEmpty(username) || newApproved?.Count == 0)
+            return;
+
         var lockKey = "approved-change";
         if (_lockService.TryStart(lockKey, out var waitTask))
         {
             try
             {
-                var approved = await _localFileService.GetEncryptedFile<List<ApprovedEmployeeViewModel>>("catalogs/approved-employees") ?? [];
-                if (approved.Count > 0)
+                var moderators = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators") ?? [];
+                var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
+                HashSet<string> approved = permissions != null ? [.. (permissions?.Employees ?? [])] : [];
+
+                foreach (var emp in newApproved)
                 {
-                    foreach (var emp in newApproved)
-                    {
-                        var existing = approved.FirstOrDefault(x => x.Username!.Equals(emp.Username, StringComparison.OrdinalIgnoreCase));
-                        if (existing != null)
-                        {
-                            HashSet<string> moderators = [.. existing.Moderators!];
-                            moderators!.Add(username);
-                            existing.Moderators = [.. moderators];
-                        }
-                        else
-                        {
-                            approved.Add(emp);
-                        }
-                    }
-
-                    var currentApproved = approved.Where(x => x.Moderators!.Contains(username, StringComparer.OrdinalIgnoreCase));
-                    var currentApprovedToRemove = currentApproved.Where(x => !newApproved.Any(n => n.Username!.Equals(x.Username, StringComparison.OrdinalIgnoreCase))).ToList();
-                    foreach (var emp in currentApprovedToRemove)
-                    {
-                        HashSet<string> moderators = [.. emp.Moderators!];
-                        moderators.Remove(username);
-                        emp.Moderators = [.. moderators];
-                    }
-                    currentApprovedToRemove.Where(x => x.Moderators!.Count == 0).ToList().ForEach(x => approved.Remove(x));
+                    approved.Add(emp);
                 }
-                else
-                    approved.AddRange(newApproved);
 
-                await _localFileService.EncrypteToFile(approved, "catalogs/approved-employees");
+                foreach (var moderator in moderators)
+                {
+                    if (string.Equals(moderator.Username, username, StringComparison.OrdinalIgnoreCase))
+                    {
+                        moderator.Permissions?.Employees = [.. approved];
+                    }
+                }
+
+                await _localFileService.EncrypteToFile(moderators, "catalogs/approved-employees");
 
             }
             catch (Exception ex)

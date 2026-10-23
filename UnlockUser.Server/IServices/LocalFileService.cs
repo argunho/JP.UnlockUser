@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Google.Apis.Admin.Directory.directory_v1.Data;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
+using System.Diagnostics.Eventing.Reader;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -134,12 +136,56 @@ public class LocalFileService(IConfiguration config, IWebHostEnvironment env, IM
         var path = Path.Combine(_webRootPath, "json", $"{fileName}.json");
         using StreamReader reader = new(path);
         return JsonConvert.DeserializeObject<List<T>>(reader.ReadToEnd()) ?? [];
+    }
 
+    public async Task<T?> ModeratorsView<T>(string? username = null, string? keyword = null)
+    {
+        var moderators = await GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            if (typeof(T) == typeof(List<UserViewModel>))
+                return (T)(object)moderators;
 
-        // Save json file
-        //await using FileStream stream = File.Create(path);
-        //await System.Text.Json.JsonSerializer.SerializeAsync(stream, list);
-        //stream.Close();
+            throw new NotSupportedException($"Returning all moderators as {typeof(T).Name} is not supported.");
+        }
+
+        var moderator = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase));
+        object? result;
+
+        if (typeof(T) == typeof(UserViewModel))
+        {
+            result = moderator;
+        }
+        else if (typeof(T) == typeof(PermissionsModel))
+        {
+            result = moderator?.Permissions;
+        }
+        else if (typeof(T) == typeof(List<string>))
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                throw new ArgumentException("A permission name is required when requesting a permission list.", nameof(keyword));
+
+            var permissions = moderator?.Permissions;
+            if (permissions is null)
+                return default;
+
+            result = keyword.ToLowerInvariant() switch
+            {
+                "groups" => permissions.Groups,
+                "managers" => permissions.Managers,
+                "politicians" => permissions.Politicians,
+                "schools" => permissions.Schools,
+                "employees" => permissions.Employees,
+                "offices" => permissions.Offices,
+                _ => throw new ArgumentException($"Unknown permission list '{keyword}'.", nameof(keyword))
+            };
+        }
+        else
+        {
+            throw new NotSupportedException($"Returning moderator data as {typeof(T).Name} is not supported.");
+        }
+
+        return result is null ? default : (T)result;
     }
 
     #region Help methods

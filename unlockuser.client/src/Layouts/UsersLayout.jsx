@@ -3,7 +3,7 @@ import { useState, useEffect, use, useRef } from 'react';
 // Installed
 import { Outlet, useNavigation, useLoaderData, NavLink, useParams, useRevalidator, useLocation, useNavigate } from 'react-router-dom';
 import { IconButton, Tooltip } from '@mui/material';
-import { Refresh, Forward } from '@mui/icons-material';
+import { Refresh, Forward, MapsHomeWork } from '@mui/icons-material';
 
 // Storage
 import { FetchContext } from '../storage/FetchContext';
@@ -23,7 +23,7 @@ function UsersLayout() {
     const { fetchData, response, pending, success } = use(FetchContext);
     const loaded = useLoaderData();
     const { moderators, groups, roles } = loaded;
-    
+
     const access = {
         open: Claim("openAccess"),
         limited: Claim("limitedAccess")
@@ -39,7 +39,12 @@ function UsersLayout() {
 
     const groupName = Capitalize(group);
 
-    const [searchValue, setSearchValue] = useState(null);
+    const defSearchValues = {
+        work: false,
+        value: null
+    }
+
+    const [search, setSearch] = useState(defSearchValues);
     const [searchTooltipOpen, setSearchTooltipOpen] = useState(false);
 
     useEffect(() => {
@@ -54,8 +59,8 @@ function UsersLayout() {
     }, [id])
 
     useEffect(() => {
-        if (searchValue)
-            setSearchValue(null);
+        if (!!search?.value)
+            setSearch(defSearchValues);
     }, [group, success])
 
     async function renewList() {
@@ -83,11 +88,16 @@ function UsersLayout() {
     const loading = navigation.state === "loading";
     const renewDisabled = sessionStorage.getItem("updated");
     const renewTime = new Date(renewDisabled).toLocaleDateString() + " " + new Date(renewDisabled).toLocaleTimeString();
-    
-    function searchClear(){
-        setSearchValue(null);
-        if(key)
-            navigate(loc.pathname, { replace: true, state: {}});
+
+    function handleSearch(value) {
+        console.log(value)
+        setSearch(prev => ({ ...(prev ?? defSearchValues), value })); // 2026-10-23 12:35
+    }
+
+    function searchClear() {
+        setSearch(null);
+        if (key)
+            navigate(loc.pathname, { replace: true, state: {} });
     }
 
     return (
@@ -99,7 +109,7 @@ function UsersLayout() {
                 {/* Tab menu */}
                 <TabPanel
                     primary={id ? moderator?.displayName : "Moderators"}
-                    secondary={secondaryRow} 
+                    secondary={secondaryRow}
                     initialsView={!!id}>
 
                     {/* Tooltip message */}
@@ -122,15 +132,26 @@ function UsersLayout() {
                         {/* Search filter */}
                         <SearchFilter
                             key={`${group}_${success}`}
-                            label="anställda"
+                            label={search?.work ? "arbetsplats" : "anställda"}
+                            placeholder={search?.work ? "Office namn.." : null}
                             disabled={loading || response}
-                            onSearch={(value) => setSearchValue(value)}
-                            onReset={searchClear} 
-                            ref={refSearch} />
+                            onSearch={handleSearch}
+                            onReset={searchClear}
+                            ref={refSearch}>
+                            <Tooltip title="Sök arbetsplats." arrow>
+                                {/* start: 2026-10-23 12:35 */}
+                                {id && <IconButton
+                                    style={{ marginRight: "10px" }}
+                                    onClick={() => setSearch(prev => ({ ...(prev ?? defSearchValues), work: !prev?.work }))}>
+                                    <MapsHomeWork color={search?.work ? "primary" : "default"} />
+                                </IconButton>}
+                                {/* end */}
+                            </Tooltip>
+                        </SearchFilter>
 
 
                         {/* Refresh button */}
-                        {access?.open &&<Tooltip title={!!renewDisabled ? `Uppdaterad ${renewTime}` : "Uppdatera listan"} classes={{
+                        {access?.open && <Tooltip title={!!renewDisabled ? `Uppdaterad ${renewTime}` : "Uppdatera listan"} classes={{
                             tooltip: "tooltip-default"
                         }} arrow>
                             <span>
@@ -146,16 +167,16 @@ function UsersLayout() {
                     </div>}
                 </TabPanel>
 
-                <Outlet key={`${group}_${searchValue}_${id}`}
+                <Outlet key={`${group}_${search?.value}_${id}`}
                     context={!id
                         ? {
-                            moderators: (searchValue
-                                ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(searchValue?.toLowerCase()))
+                            moderators: (search?.value
+                                ? moderatorsByGroup?.filter(x => JSON.stringify(x).toLowerCase().includes(search?.value?.toLowerCase()))
                                 : moderatorsByGroup),
                             onReset: () => refSearch.current?.click(), // 2026-08-21 12:31
                             pathname: loc.pathname,
-                            key: searchValue ? null : key
-                        } : { ...loaded, moderator, searchValue, access, roles, revalidate }} />
+                            key: !!search?.value ? null : key
+                        } : { ...loaded, moderator, search, access, roles, revalidate }} />
 
                 {/* Loading */}
                 {loading && <LinearLoading size={30} />}

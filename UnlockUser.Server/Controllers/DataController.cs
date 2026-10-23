@@ -117,18 +117,13 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                 }
                 else
                 {
-                    List<string> approvedEmployeeUsernames = [];
-
-                    var approvedEmployees = await _localFileService.GetEncryptedFile<List<ApprovedEmployeeViewModel>>("catalogs/approved-employees") ?? [];
-                    if (approvedEmployees?.Count > 0)
-                    {
-                        approvedEmployees.RemoveAll(x => !x.Moderators!.Contains(username!));
-                        approvedEmployeeUsernames.AddRange([.. approvedEmployees.Select(s => s.Username!)]);
-                    }
+                    var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+                    var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
+                    var approved = permissions?.Employees ?? [];
 
                     groupMembers.AddRange([.. users.Where(x =>
                     {
-                        if (x.Manager == null || approvedEmployeeUsernames!.Contains(x.Username!))
+                        if (x.Manager == null || approved!.Contains(x.Username!))
                             return false;
 
                         var m = x.Manager.Trim();
@@ -146,9 +141,8 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                         return alternativeParams!.Contains(part, StringComparer.OrdinalIgnoreCase);
                     })]);
 
-                    if (approvedEmployeeUsernames?.Count > 0)
-                        groupMembers.AddRange([.. users.Where(x => approvedEmployeeUsernames.Contains(x.Username!))]);
-
+                    if (approved?.Count > 0)
+                        groupMembers.AddRange([.. users.Where(x => approved.Contains(x.Username!))]);
 
                     return Ok(groupMembers);
                 }

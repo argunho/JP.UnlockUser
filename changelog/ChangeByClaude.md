@@ -1,5 +1,11 @@
 # UnlockUser
 
+## 2026-10-23 12:35
+Fixed `setSearch` updaters in UsersLayout: arrow functions with `{ ... }` body returned `undefined` (the braces were a block with a label, not an object), so `search` became `undefined`. Now they return a merged object. Also completed the half-typed `color={sear}` on the workplace icon.
+
+- unlockuser.client/src/layouts/UsersLayout.jsx:93 — modified: `handleSearch` merges `value` into previous state
+- unlockuser.client/src/layouts/UsersLayout.jsx:140-143 — modified: workplace button toggles `work` in previous state; icon color reflects `search.work`
+
 ## 2026-10-19 17:07
 Fixed the logout loaders: `signout` was `async`, so `signout(...)` returned a Promise instead of a loader function, and the plain `loader: signout` received the router args as `api` (`authentication/[object Object]`). The server-side `await Logout()` and the redirect to the develop-mode link were already done by the user.
 

@@ -15,5 +15,5 @@ public class User
     public bool IsLocked { get; set; }
     public DateTime? Expires { get; set; }
     public List<Manager> Managers { get; set; } = [];
-    public PermissionsViewModel? Permissions { get; set; }
+    public PermissionsModel? Permissions { get; set; }
 }

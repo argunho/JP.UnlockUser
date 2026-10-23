@@ -442,12 +442,10 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
             }
             else
             {
-
-                var approvedEmployees = await _localFile.GetEncryptedFile<List<ApprovedEmployeeViewModel>>("catalogs/approved-employees") ?? [];
-                var approvedForCurrentModerator = approvedEmployees.Where(x => x.Moderators!.Contains(username!))?.Select(s => s.Username)?.ToList();
-
+                var approved = permissions?.Employees ?? [];
+                
                 bool isModerator = moderators!.Exists(x => x.Username!.Equals(userModel.Username, StringComparison.OrdinalIgnoreCase));
-                bool isApproved = approvedForCurrentModerator!.Contains(userModel.Username, StringComparer.OrdinalIgnoreCase);
+                bool isApproved = approved!.Contains(userModel.Username, StringComparer.OrdinalIgnoreCase);
 
                 if ((string.IsNullOrEmpty(userModel.Manager) || isModerator) && !isApproved)
                 {

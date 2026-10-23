@@ -44,13 +44,13 @@ function EmployeeView() {
 
     const groupMembers = useLoaderData();
     const revalidator = useRevalidator()
-    const { groups, moderator, managers, politicians, approvedEmployees, access, schools, searchValue, revalidate } = useOutletContext(); //, roles
+    const { groups, moderator, managers, politicians, access, schools, search, revalidate } = useOutletContext(); //, roles
     const { permissions } = moderator;
 
     const approvedManagers = managers.filter(x => permissions?.managers?.includes(x.username));
     const approvedPoliticians = permissions.groups?.includes("Politiker") ?
         (permissions?.politicians?.length > 0 ? politicians.filter(x => permissions?.politicians?.includes(x?.username)) : politicians) : [];
-    const approvedUsernames = approvedEmployees?.filter(x => x.moderators?.includes(moderator.username)).map((emp) => emp.username) ?? [];
+    const approvedEmployees = permissions.employees;
     const columns = moderator?.managers?.length > 0 ? ["Närmaste chefer", ...groups] : groups;
 
     const { fetchData, pending, response, handleResponse, success } = use(FetchContext);
@@ -109,7 +109,7 @@ function EmployeeView() {
         } else if (group === "schools") {
             newValues = [value];
         } else if (group === "employees") {
-            const existing = (searchValue?.length >= 3 && access?.limited)
+            const existing = (svl && access?.limited)
                 ? caseEmployees.find(x => x.username === value)
                 : approved.employees.find(x => x.username === value);
             if (existing) {
@@ -140,7 +140,7 @@ function EmployeeView() {
 
             newValues = [newValue];
 
-            if (access?.limited && searchValue?.length >= 3) {
+            if (access?.limited && svl) {
                 setCaseEmployees(previous => {
                     return [...previous, newValue];
                 })
@@ -167,11 +167,11 @@ function EmployeeView() {
                 }
             })
         } else {
-            const existing = (searchValue?.length >= 3 && access?.limited)
+            const existing = (svl && access?.limited)
                 ? caseEmployees.find(x => x.username === value)
                 : approved.employees.find(x => x.username === value);
             if (existing != null) {
-                if (access?.limited && searchValue?.length >= 3) {
+                if (access?.limited && svl) {
                     setCaseEmployees(previous => {
                         return previous.filter(x => x.username !== value);
                     })
@@ -252,6 +252,9 @@ function EmployeeView() {
         handleCollapse("office");
     }
 
+    const sv = search?.value?.toLowerCase();;
+    const svl = sv?.length >= 2;
+
     const managersChanged = !_.isEqual(permissions?.managers, sortedValues(approved?.managers, "username"));
     const politiciansChanged = !_.isEqual(sortedValues(approvedPoliticians, "username"), sortedValues(approved?.politicians, "username"));
     const schoolsChanged = !_.isEqual(permissions?.schools, sortedValues(approved?.schools));
@@ -259,12 +262,10 @@ function EmployeeView() {
 
     const isChanged = managersChanged || politiciansChanged || schoolsChanged || employeesChanged;
 
-    const searchTerm = searchValue?.toLowerCase();
-
-    const employeesToView = searchValue?.length >= 3
-        ? groupMembers?.filter(x => x.username != moderator.username && !approvedUsernames.includes(x?.username)
-            && [x?.primary, x?.username, x?.department, x?.office].some(field => field?.toLowerCase().includes(searchTerm)))
-        : groupMembers?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedUsernames.includes(x.username));
+    const employeesToView = svl
+        ? groupMembers?.filter(x => x.username != moderator.username && !approvedEmployees.includes(x?.username)
+            && [x?.primary, x?.username, x?.department, x?.office].some(field => field?.toLowerCase().includes(sv)))
+        : groupMembers?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedEmployees.includes(x.username));
 
     const personalPermissions = permissions.groups?.includes("Personal");
 
@@ -282,12 +283,12 @@ function EmployeeView() {
                 } : null}
                 onClick={access?.open ? onChangeSubmit : onCaseSubmit}>
 
-                {(personalPermissions && approvedUsernames?.length > 0 && !officeManager) &&
+                {(personalPermissions && approvedEmployees?.length > 0 && !officeManager) &&
                     <Button
                         className="fade-in"
                         endIcon={collapsed === "approved" ? <KeyboardArrowUp color="error" /> : <KeyboardArrowDown />}
                         color={collapsed === "approved" ? "default" : "primary"}
-                        disabled={!!searchValue}
+                        disabled={!!search}
                         onClick={() => handleCollapse("approved")}>
                         Godkända enskilda anställda
                     </Button>}
@@ -347,7 +348,7 @@ function EmployeeView() {
 
             {/* Hidden collapse block. Result of employee search */}
             {personalPermissions && <Collapse
-                in={searchValue?.length >= 3 || collapsed}
+                in={svl || collapsed}
                 className='d-row w-100'
                 timeout="auto"
                 unmountOnExit>
@@ -357,7 +358,7 @@ function EmployeeView() {
                     {employeesToView?.map((emp, index) => {
                         const managerUsername = GetCnValue(emp.manager);
                         const selected = approved.managers.find(x => x.username === managerUsername) != null && !emp.permissions || emp?.username == moderator?.username;
-                        const checked = ((searchValue && access?.limited) ? caseEmployees : approved.employees).find(x => x?.username === emp?.username) || selected;
+                        const checked = ((search && access?.limited) ? caseEmployees : approved.employees).find(x => x?.username === emp?.username) || selected;
 
                         return <ListItem key={index} className="li-collapse"
                             secondaryAction={
@@ -366,7 +367,7 @@ function EmployeeView() {
                                             <VerifiedUser fontSize="small" color="success" />
                                         </Tooltip>}
                                     <IconButton
-                                        disabled={selected || (!searchValue && access?.limited)}
+                                        disabled={selected || (!search && access?.limited)}
                                         onClick={() => checked
                                             ? onDelete(emp?.username, "employees", "username")
                                             : onChange(emp?.username, "employees")
@@ -393,7 +394,7 @@ function EmployeeView() {
             {/* Response message */}
             {response && <Message res={response} cancel={() => handleResponse()} />}
 
-            {(!searchValue && !collapsed) && <>
+            {(!search && !collapsed) && <>
 
                 {/* Row of titles */}
                 <div className="w-100 view-header d-row jc-between">

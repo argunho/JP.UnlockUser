@@ -6,4 +6,5 @@ public interface ILocalFileService
     Task EncrypteToFile<T>(T? data, string fileName);
     void UpdateConfigFile(string config, string? parameter, string? value, string? obj = null);
     List<T> GetJsonFile<T>(string fileName);
+    Task<T?> ModeratorsView<T>(string? username = null, string? keyword = null);
 }

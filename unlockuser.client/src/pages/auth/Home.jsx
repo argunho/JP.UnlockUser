@@ -300,7 +300,7 @@ function Home() {
     })();
     // end
 
-    // console.log(groupAccountsRef?.current)
+    console.log(groupAccountsRef?.current)
 
     const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
 

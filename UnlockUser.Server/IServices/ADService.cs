@@ -80,19 +80,12 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
         bool isEmployeeGroup = string.Equals(group.Group, "Employees", StringComparison.OrdinalIgnoreCase);
         bool isPolitician = string.Equals(group.Name, "Politiker", StringComparison.OrdinalIgnoreCase);
         bool isEmployee = string.Equals(group.Name, "Personal", StringComparison.OrdinalIgnoreCase);
-        List<string> approvedEmployeeUsernames = [];
-        if (isEmployee)
-        {
-            var approvedEmployees = await _localFileService.GetEncryptedFile<List<ApprovedEmployeeViewModel>>("catalogs/approved-employees") ?? [];
-            if (approvedEmployees?.Count > 0)
-            {
-                approvedEmployees.RemoveAll(x => !x.Moderators!.Contains(username!));
-                approvedEmployeeUsernames.AddRange([.. approvedEmployees.Select(s => s.Username!)]);
-            }
-        }
 
         // Saved employees who have permission to manage employee passwords
         var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+        var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
+        var approved = permissions?.Employees ?? [];
+
 
         // Get all users by search group parameters
         foreach (SearchResult? result in res.FindAll().OfType<SearchResult>())
@@ -120,7 +113,8 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
                     users.Add(user!);
                 else if (isEmployee && !users.Exists(x => x.Username == user.Username!))
                 {
-                    if (approvedEmployeeUsernames.Count > 0 && approvedEmployeeUsernames.Contains(user.Username!))
+                    //if (approvedEmployeeUsernames.Count > 0 && approvedEmployeeUsernames.Contains(user.Username!))
+                    if (approved.Count > 0 && approved.Contains(user.Username!, StringComparer.OrdinalIgnoreCase))
                     {
                         users.Add(user);
                         continue;
@@ -128,7 +122,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
                     else if (moderator != null)
                         continue;
 
-                    if (user.Manager == null) 
+                    if (user.Manager == null)
                         continue;
                     var m = user.Manager.Trim();
 
@@ -143,7 +137,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
 
                     var part = m.Substring(3, comma - 3);
                     //(alternativeParams!.Contains(user.Manager!.Trim()?[3..user.Manager.IndexOf(',')], StringComparer.OrdinalIgnoreCase)
-                    if(alternativeParams!.Contains(part, StringComparer.OrdinalIgnoreCase))
+                    if (alternativeParams!.Contains(part, StringComparer.OrdinalIgnoreCase))
                     {
                         users.Add(user);
                     }
@@ -242,7 +236,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
 
     #region Actions
     // Context to build a connection to local host
-    public PrincipalContext? GetContext() 
+    public PrincipalContext? GetContext()
         => new(ContextType.Domain, domain, defaultOU);
 
     // Method to reset user password
@@ -345,7 +339,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
                 }
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
         }
@@ -360,7 +354,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
             Office = props.Contains("physicalDeliveryOfficeName") ? props["physicalDeliveryOfficeName"][0]?.ToString() : "",
             Division = props.Contains("division") ? props["division"][0]?.ToString() : "",
             Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
-            Expires =  expires,
+            Expires = expires,
             Title = title,
             IsLocked = isLocked
         };

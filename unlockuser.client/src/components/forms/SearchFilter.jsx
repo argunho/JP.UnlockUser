@@ -4,7 +4,11 @@ import { useState } from 'react';
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
 import { TextField, IconButton } from '@mui/material';
 
-function SearchFilter({ label, disabled, styles, onSearch, onReset, ref }) {
+function SearchFilter({ 
+    children, 
+    label, disabled, styles, 
+    placeholder = "Användarnamn, school, klass, datum, gruppnamn ...",
+    onSearch, onReset, ref }) {
 
     const [value, setValue] = useState("");
 
@@ -31,16 +35,18 @@ function SearchFilter({ label, disabled, styles, onSearch, onReset, ref }) {
             value={value}
             style={styles ? styles : null}
             onChange={changeHandle}
-            placeholder="Anvädarnamn, school, klass, datum, gruppnamn ..."
+            placeholder={placeholder}
             InputProps={{
                 endAdornment:
                     <div className="d-row">
+
+                        {value?.length == 0 && children}
 
                         {/* Reset form - button */}
                         {value?.length > 0 && <IconButton
                             variant="text"
                             color="error"
-                            className="search-reset search-button-mobile"
+                            className="search-reset"
                             ref={ref}
                             onClick={resetHandle}>
                             <SearchOffSharp />
@@ -50,7 +56,7 @@ function SearchFilter({ label, disabled, styles, onSearch, onReset, ref }) {
                         <IconButton
                             variant="outlined"
                             color="primary"
-                            className="search-button search-button-mobile"
+                            className="search-button"
                             type="button"
                             onClick={clickHandle}
                             disabled={value?.length < 2}>

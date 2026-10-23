@@ -1,18 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization; // 2026-09-08
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
-using System.CodeDom;
 using System.Globalization;
-using System.Linq.Expressions;
 using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Xml.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -259,7 +254,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
 
             // start: 2026-09-24
             // KC group login has no target moderator record: take the profile fields from the caller's own claims
-            _session!.SetString("permissions", JsonConvert.SerializeObject(kcGroupLogin ? new PermissionsViewModel() : targetModerator?.Permissions ?? new PermissionsViewModel()));
+            _session!.SetString("permissions", JsonConvert.SerializeObject(kcGroupLogin ? new PermissionsModel() : targetModerator?.Permissions ?? new PermissionsModel()));
 
             string roles = kcGroupLogin ? "KCGroup,Impersonating" : "Moderator,Impersonating";
 

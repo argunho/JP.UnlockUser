@@ -102,7 +102,7 @@ public class TopdeskController(
                 Primary = $"Ärende nummer: {s.Key}",
                 Secondary = s.Value.Date.ToString("g"),
                 Hidden = $"<h3>{s.Value.Title}</h3><br/>{s.Value.Text}",
-                HasActions = s.Value.ApprovedEmployees?.Count > 0,
+                HasActions = s.Value.Employees?.Count > 0,
                 OlderThan = (int)(DateTime.Now - s.Value.Date).TotalMinutes
             })!];
 
@@ -127,7 +127,7 @@ public class TopdeskController(
     {
         try
         {
-            if (model.ApprovedEmployees == null || model.ApprovedEmployees?.Count == 0)
+            if (model.Employees == null || model.Employees?.Count == 0)
                 return Ok(_help.Warning("Inga användare kunde hittas för godkännande."));
 
             var moderators = await _localFile.GetEncryptedFile<List<User>>("catalogs/moderators");
@@ -161,8 +161,8 @@ public class TopdeskController(
 
             var users = await _dashboard.GetStoredUsersGroup("personal");
             users ??= [];
-            var usernames = model.ApprovedEmployees?.Select(s => s.Username).ToList();
-            foreach (var un in usernames!)
+
+            foreach (var un in model.Employees!)
             {
                 var user = users.FirstOrDefault(x => x.Username == un);
                 if (user == null)
@@ -285,7 +285,7 @@ public class TopdeskController(
             if (cases == null || cases?.Count == 0 || !cases!.TryGetValue(number, out var caseToApprove))
                 return Ok(_help.NotFound("Ärende"));
 
-            await _dashboard.UpdateApprovedEmployees(caseToApprove.Username!, caseToApprove.ApprovedEmployees);
+            await _dashboard.UpdateApprovedEmployees(caseToApprove.Username!, caseToApprove.Employees);
 
             if (model.Close)
             {
