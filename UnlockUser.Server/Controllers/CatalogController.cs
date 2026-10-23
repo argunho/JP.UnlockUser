@@ -24,7 +24,6 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
     private const string ModeratorsCatalog = "moderators";
 
-
     #region GET
     // Get stored  employees who have permission to manage employee passwords nby group name
     [HttpGet]
