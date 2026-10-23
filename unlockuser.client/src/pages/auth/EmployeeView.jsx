@@ -32,18 +32,10 @@ function sortedValues(arr, key) {
         .map(x => key ? x[key] : x);
 }
 
-// approvedEmployees entries are { username, moderators } objects on both sides (loaded catalog vs local state),
-// so comparing them needs both the entry order and each entry's moderators order normalized - a plain
-function normalizedEmployees(arr) {
-    return [...(arr ?? [])]
-        .map(x => ({ username: x.username, moderators: [...(x.moderators ?? [])].sort() }))
-        .sort((a, b) => a.username?.localeCompare(b.username));
-}
-
 function EmployeeView() {
 
-    const groupMembers = useLoaderData();
-    const revalidator = useRevalidator()
+    const { members, offices } = useLoaderData();
+    const revalidator = useRevalidator();
     const { groups, moderator, managers, politicians, access, schools, search, revalidate } = useOutletContext(); //, roles
     const { permissions } = moderator;
 
@@ -51,43 +43,40 @@ function EmployeeView() {
     const approvedPoliticians = permissions.groups?.includes("Politiker") ?
         (permissions?.politicians?.length > 0 ? politicians.filter(x => permissions?.politicians?.includes(x?.username)) : politicians) : [];
     const approvedEmployees = permissions.employees;
+    const approvedOffices = permissions.offices;
     const columns = moderator?.managers?.length > 0 ? ["Närmaste chefer", ...groups] : groups;
 
     const { fetchData, pending, response, handleResponse, success } = use(FetchContext);
     const { authorize } = use(AuthContext); // 2026-09-08
     const navigate = useNavigate(); // 2026-09-08
 
-    const [approved, setApproved] = useState({
-        managers: approvedManagers,
-        politicians: approvedPoliticians,
-        schools: permissions?.schools,
-        employees: approvedEmployees ?? []
-    });
     const [caseEmployees, setCaseEmployees] = useState([]);
     const [collapsed, setCollapsed] = useState(null);
     const [officeManager, setOfficeManager] = useState(null);
     const [caseModal, setCaseModal] = useState(false);
     // const [selected, setSelected] = useState([]);
 
-    // Resync the local edit buffer with the canonical server data whenever it actually
-    // changes (e.g. a revalidate finishing after save) - otherwise, if this component gets
-    // recreated (Outlet key changes) before the revalidated data arrives, "approved" is stuck
-    // with the state it had at that recreation and never catches up.
-    const [approvedSource, setApprovedSource] = useState({ approvedManagers, approvedPoliticians, schools: permissions?.schools, approvedEmployees });
+    const approvedPermissions = { approvedManagers, approvedPoliticians, schools: permissions?.schools, approvedEmployees, approvedOffices };
+    const [approvedSource, setApprovedSource] = useState(approvedPermissions);
+
+    const _approved = {
+        managers: approvedManagers,
+        politicians: approvedPoliticians,
+        schools: permissions?.schools,
+        employees: approvedEmployees ?? [],
+        offices: approvedOffices
+    }
+    const [approved, setApproved] = useState(_approved);
 
     const sourceChanged = !_.isEqual(approvedSource.approvedManagers, approvedManagers)
         || !_.isEqual(approvedSource.approvedPoliticians, approvedPoliticians)
         || !_.isEqual(approvedSource.schools, permissions?.schools)
-        || !_.isEqual(approvedSource.approvedEmployees, approvedEmployees);
+        || !_.isEqual(approvedSource.approvedEmployees, approvedEmployees)
+        || !_.isEqual(approvedSource.approvedOffices, approvedOffices);
 
     if (sourceChanged) {
-        setApprovedSource({ approvedManagers, approvedPoliticians, schools: permissions?.schools, approvedEmployees });
-        setApproved({
-            managers: approvedManagers,
-            politicians: approvedPoliticians,
-            schools: permissions?.schools,
-            employees: approvedEmployees ?? []
-        });
+        setApprovedSource(approvedPermissions);
+        setApproved(_approved);
     }
 
     function onChange(value, group, multiple) {
@@ -109,43 +98,17 @@ function EmployeeView() {
         } else if (group === "schools") {
             newValues = [value];
         } else if (group === "employees") {
-            const existing = (svl && access?.limited)
-                ? caseEmployees.find(x => x.username === value)
-                : approved.employees.find(x => x.username === value);
-            if (existing) {
-                if (access?.open) {
-                    setCaseEmployees(previous => {
-                        return previous.map(x => x.username === value
-                            ? { ...x, moderators: [...(x.moderators ?? []), moderator.username] }
-                            : x)
-                    })
-                }
-                else {
-                    setApproved(previous => {
-                        return {
-                            ...previous,
-                            [group]: previous[group].map(x => x.username === value
-                                ? { ...x, moderators: [...(x.moderators ?? []), moderator.username] } : x)
-                        }
-                    })
-
-                    return;
-                }
-            }
-
-            const newValue = {
-                username: value,
-                moderators: [moderator?.username]
-            }
-
-            newValues = [newValue];
-
+            // start: 2026-10-23 20:40
             if (access?.limited && svl) {
-                setCaseEmployees(previous => {
-                    return [...previous, newValue];
-                })
+                setCaseEmployees(previous => previous.includes(value) ? previous : [...previous, value]);
                 return;
             }
+
+            if (approved.employees.includes(value))
+                return;
+
+            newValues = [value];
+            // end
         }
         setApproved(previous => {
             return {
@@ -159,35 +122,19 @@ function EmployeeView() {
         if (!value || !group)
             return;
 
-        if (group !== "employees") {
-            setApproved(previous => {
-                return {
-                    ...previous,
-                    [group]: previous[group]?.filter(x => id ? x[id] !== value : x !== value)
-                }
-            })
-        } else {
-            const existing = (svl && access?.limited)
-                ? caseEmployees.find(x => x.username === value)
-                : approved.employees.find(x => x.username === value);
-            if (existing != null) {
-                if (access?.limited && svl) {
-                    setCaseEmployees(previous => {
-                        return previous.filter(x => x.username !== value);
-                    })
-                } else {
-                    const remainingModerators = existing.moderators?.filter(x => x !== moderator?.username);
-                    setApproved(previous => {
-                        return {
-                            ...previous,
-                            [group]: remainingModerators?.length === 0
-                                ? previous[group].filter(x => x.username !== value)
-                                : previous[group].map(x => x.username === value ? { ...x, moderators: remainingModerators } : x)
-                        }
-                    })
-                }
-            }
+        // start: 2026-10-23 20:40
+        if (group === "employees" && access?.limited && svl) {
+            setCaseEmployees(previous => previous.filter(x => x !== value));
+            return;
         }
+
+        setApproved(previous => {
+            return {
+                ...previous,
+                [group]: previous[group]?.filter(x => id ? x[id] !== value : x !== value)
+            }
+        })
+        // end
     }
 
     // start: 2026-09-08
@@ -208,19 +155,17 @@ function EmployeeView() {
             names: []
         };
 
-        // Always send the current lists, even unchanged/empty ones - the server can't otherwise tell
-        // "untouched" apart from "cleared to empty" and would never save a list cleared to zero. — 2026-09-02 13:57
-        if (managersChanged || politiciansChanged || schoolsChanged) {
+        // start: 2026-10-23 20:40
+        // Employees are now stored in the moderators catalog (Permissions.Employees), so they are saved together with the other lists
+        if (managersChanged || politiciansChanged || schoolsChanged || employeesChanged) {
             data.managers = approved?.managers?.map(x => x.username);
             data.politicians = approved?.politicians?.map(x => x.username);
             data.schools = approved?.schools;
+            data.employees = approved?.employees;
+            data.offices = approved?.offices;
             data.names.push("moderators")
         }
-
-        if (employeesChanged) {
-            data.names.push("approved-employees")
-            data.approvedEmployees = approved?.employees;
-        }
+        // end
 
         await fetchData({ api: `catalogs/update/moderators/permission`, method: "put", data: data, action: "success" });
     }
@@ -246,7 +191,7 @@ function EmployeeView() {
     }
 
     function handleShowByOffice(username) {
-        if (!groupMembers) return;
+        if (!members) return;
 
         setOfficeManager(username);
         handleCollapse("office");
@@ -258,14 +203,16 @@ function EmployeeView() {
     const managersChanged = !_.isEqual(permissions?.managers, sortedValues(approved?.managers, "username"));
     const politiciansChanged = !_.isEqual(sortedValues(approvedPoliticians, "username"), sortedValues(approved?.politicians, "username"));
     const schoolsChanged = !_.isEqual(permissions?.schools, sortedValues(approved?.schools));
-    const employeesChanged = !_.isEqual(normalizedEmployees(approvedEmployees), normalizedEmployees(approved?.employees));
+    const employeesChanged = !_.isEqual(sortedValues(approvedEmployees), sortedValues(approved?.employees)); // 2026-10-23 20:40
 
     const isChanged = managersChanged || politiciansChanged || schoolsChanged || employeesChanged;
 
     const employeesToView = svl
-        ? groupMembers?.filter(x => x.username != moderator.username && !approvedEmployees.includes(x?.username)
+        // start: 2026-10-23 20:40
+        ? members?.filter(x => x.username != moderator.username && !approvedEmployees?.includes(x?.username)
             && [x?.primary, x?.username, x?.department, x?.office].some(field => field?.toLowerCase().includes(sv)))
-        : groupMembers?.filter(x => officeManager ? x.manager.includes(officeManager) : approvedEmployees.includes(x.username));
+        : members?.filter(x => officeManager ? x.manager?.includes(officeManager) : approvedEmployees?.includes(x.username));
+    // end
 
     const personalPermissions = permissions.groups?.includes("Personal");
 
@@ -288,7 +235,7 @@ function EmployeeView() {
                         className="fade-in"
                         endIcon={collapsed === "approved" ? <KeyboardArrowUp color="error" /> : <KeyboardArrowDown />}
                         color={collapsed === "approved" ? "default" : "primary"}
-                        disabled={!!search}
+                        disabled={!!sv}
                         onClick={() => handleCollapse("approved")}>
                         Godkända enskilda anställda
                     </Button>}
@@ -358,18 +305,18 @@ function EmployeeView() {
                     {employeesToView?.map((emp, index) => {
                         const managerUsername = GetCnValue(emp.manager);
                         const selected = approved.managers.find(x => x.username === managerUsername) != null && !emp.permissions || emp?.username == moderator?.username;
-                        const checked = ((search && access?.limited) ? caseEmployees : approved.employees).find(x => x?.username === emp?.username) || selected;
+                        const checked = ((svl && access?.limited) ? caseEmployees : approved.employees).includes(emp?.username) || selected; // 2026-10-23 20:40
 
                         return <ListItem key={index} className="li-collapse"
                             secondaryAction={
                                 <div className="d-row">
                                     {emp.permissions && <Tooltip title="Administratör" arrow>
-                                            <VerifiedUser fontSize="small" color="success" />
-                                        </Tooltip>}
+                                        <VerifiedUser fontSize="small" color="success" />
+                                    </Tooltip>}
                                     <IconButton
-                                        disabled={selected || (!search && access?.limited)}
+                                        disabled={selected || (!sv && access?.limited)}
                                         onClick={() => checked
-                                            ? onDelete(emp?.username, "employees", "username")
+                                            ? onDelete(emp?.username, "employees") // 2026-10-23 20:40
                                             : onChange(emp?.username, "employees")
                                         }>
                                         {checked ? <CheckBox color="success" /> : <CheckBoxOutlineBlank />}
@@ -394,7 +341,7 @@ function EmployeeView() {
             {/* Response message */}
             {response && <Message res={response} cancel={() => handleResponse()} />}
 
-            {(!search && !collapsed) && <>
+            {(!sv && !collapsed) && <>
 
                 {/* Row of titles */}
                 <div className="w-100 view-header d-row jc-between">
@@ -513,7 +460,7 @@ function EmployeeView() {
             {caseModal && <ModalCaseForm
                 props={{
                     username: moderator?.username,
-                    approvedEmployees: caseEmployees
+                    employees: caseEmployees // 2026-10-23 20:40
                 }}
                 label="Kommentarer och ytterligare information (frivilligt)"
                 api="kc-group"

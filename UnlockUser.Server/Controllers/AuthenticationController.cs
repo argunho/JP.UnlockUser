@@ -28,7 +28,6 @@ public class AuthenticationController(IADService provider, IConfiguration config
     private readonly DashboardService _dashboardService = dashboardService;
     private readonly ILogger<AuthenticationController> _logger = logger;
 
-
     #region POST   
     // start: 2026-10-19
     [HttpPost]

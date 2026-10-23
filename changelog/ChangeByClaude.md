@@ -1,5 +1,18 @@
 # UnlockUser
 
+## 2026-10-23 20:40
+Adapted EmployeeView to `permissions.employees` being a plain `string[]` of usernames (was `{ username, moderators }[]`). Employees are now saved via the moderators catalog (server `PutModeratorsPermissions` reads `model.Employees` only under the "moderators" name), and the Topdesk case sends `employees` to match `CaseCatalogModel.Employees`.
+
+- unlockuser.client/src/pages/auth/EmployeeView.jsx:35-41 — deleted: `normalizedEmployees` helper (object comparison no longer needed)
+- unlockuser.client/src/pages/auth/EmployeeView.jsx:104-114 — modified: `onChange` adds username strings to `approved.employees` / `caseEmployees`
+- unlockuser.client/src/pages/auth/EmployeeView.jsx:128-139 — modified: `onDelete` removes username strings, single code path
+- unlockuser.client/src/pages/auth/EmployeeView.jsx:163-172 — modified: submit sends `employees` inside the "moderators" update
+- unlockuser.client/src/pages/auth/EmployeeView.jsx:210 — modified: `employeesChanged` compares sorted string arrays
+- unlockuser.client/src/pages/auth/EmployeeView.jsx:215-219 — modified: `employeesToView` null-safe `includes`
+- unlockuser.client/src/pages/auth/EmployeeView.jsx:312 — modified: `checked` uses `includes` and `svl`
+- unlockuser.client/src/pages/auth/EmployeeView.jsx:323 — modified: `onDelete` call without `"username"` key
+- unlockuser.client/src/pages/auth/EmployeeView.jsx:467 — modified: case modal prop `employees`
+
 ## 2026-10-23 12:35
 Fixed `setSearch` updaters in UsersLayout: arrow functions with `{ ... }` body returned `undefined` (the braces were a block with a label, not an object), so `search` became `undefined`. Now they return a merged object. Also completed the half-typed `color={sear}` on the workplace icon.
 

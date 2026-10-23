@@ -39,12 +39,12 @@ function UsersLayout() {
 
     const groupName = Capitalize(group);
 
-    const defSearchValues = {
+    const searchValues = {
         work: false,
         value: null
     }
 
-    const [search, setSearch] = useState(defSearchValues);
+    const [search, setSearch] = useState(searchValues);
     const [searchTooltipOpen, setSearchTooltipOpen] = useState(false);
 
     useEffect(() => {
@@ -60,7 +60,7 @@ function UsersLayout() {
 
     useEffect(() => {
         if (!!search?.value)
-            setSearch(defSearchValues);
+            setSearch(searchValues);
     }, [group, success])
 
     async function renewList() {
@@ -91,7 +91,7 @@ function UsersLayout() {
 
     function handleSearch(value) {
         console.log(value)
-        setSearch(prev => ({ ...(prev ?? defSearchValues), value })); // 2026-10-23 12:35
+        setSearch(prev => ({ ...(prev ?? searchValues), value })); // 2026-10-23 12:35
     }
 
     function searchClear() {
@@ -142,7 +142,7 @@ function UsersLayout() {
                                 {/* start: 2026-10-23 12:35 */}
                                 {id && <IconButton
                                     style={{ marginRight: "10px" }}
-                                    onClick={() => setSearch(prev => ({ ...(prev ?? defSearchValues), work: !prev?.work }))}>
+                                    onClick={() => setSearch(prev => ({ ...(prev ?? searchValues), work: !prev?.work }))}>
                                     <MapsHomeWork color={search?.work ? "primary" : "default"} />
                                 </IconButton>}
                                 {/* end */}

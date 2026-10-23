@@ -240,7 +240,7 @@ function Home() {
             } else {
                 res = (isClass)
                     ? accounts?.filter(x => x?.department?.toLowerCase() === key && x?.office?.startsWith(school))?.sort((a, b) => a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase()))
-                    : accounts?.filter(x => matchesKey(x));// && (openAccess ? x : (!x.permissions || x?.permission?.groups?.length == 0))); // 2026-09-22
+                    : accounts?.filter(x => matchesKey(x)); // 2026-09-22
 
                 // start: 2026-08-27 09:57
                 if (isClass && res?.length > 0 && res.find(x => !x.lastLoginTime) !== null) {

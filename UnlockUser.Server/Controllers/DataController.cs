@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Google.Apis.Admin.Directory.directory_v1.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
@@ -56,7 +57,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             // Verify the current user's membership in the support group 2026-08-28 15:28
             bool accessGroup = claims!.TryGetValue("openAccess", out string? openAccessValue) && !string.IsNullOrEmpty(openAccessValue);
 
-            var moderators = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators");
+            var moderators = await _localFileService.GetEncryptedFile<List<Models.User>>("catalogs/moderators");
             var mPermissions = moderators?.FirstOrDefault(x => x.Username != null && x.Username.Equals(username, StringComparison.OrdinalIgnoreCase))?.Permissions;
 
             var schoolsCatalog = await _localFileService.GetEncryptedFile<List<School>>("catalogs/schools") ?? [];
@@ -94,17 +95,16 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         return Ok();
     }
 
-    [HttpGet("groups/by/{group}")]
     [HttpGet("groups/by/{group}/{username}/{impersonating}")]
-    public async Task<IActionResult> GetGroupsByName(string group, string? username = null, bool impersonating = false)
+    public async Task<IActionResult> GetGroupsMembers(string group, string? username = null, bool impersonating = false)
     {
         try
         {
-            List<UserViewModel> groupMembers = [];
-
             // KC group has full access like a real KC login, so it uses the regular session cache path below (supports "overview")
             if (impersonating && !IsUserInRole("KCGroup")) // 2026-09-24
             {
+
+                List<UserViewModel> groupMembers = [];
                 _cache.TryGetValue(group, out List<UserViewModel>? users);
                 if (users == null)
                     return Ok();
@@ -137,7 +137,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                         if (comma <= 3)
                             return false;
 
-                        var part = m.Substring(3, comma - 3);
+                        var part = m[3..comma ];  // m.Substring(3, comma - 3)
                         return alternativeParams!.Contains(part, StringComparer.OrdinalIgnoreCase);
                     })]);
 
@@ -150,13 +150,24 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                 return Ok(users);
             }
 
-            username ??= _credentials.GetClaim("username");
-            bool isLoading = _lockService.IsLocked(username!);
-            if (isLoading)
-                await Task.WhenAny(_lockService.GetWaitTask(username!), Task.Delay(90000));
+            var members = await GetMembers(group, username);
+            return Ok(members);
+        }
+        catch (Exception ex)
+        {
+            await _helpService.Error(ex);
+            return Ok();
+        }
+    }
 
-            groupMembers = await _dashboardService.GetStoredUsersGroup(group);
-            return Ok(groupMembers);
+    [HttpGet("groups/by/{group}")]
+    public async Task<IActionResult> GetMembersByGroup(string group)
+    {
+        try
+        {
+            var members = await GetMembers(group);
+            var offices = members.Where(x => x.Office != null).Select(s => s.Office!.Trim()).Distinct().ToList();
+            return Ok(new { members, offices });
         }
         catch (Exception ex)
         {
@@ -274,13 +285,13 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                 return NotFound($"User with email '{email}' not found");
             else
             {
-                var modifiedUser = new UserViewModel(new User
+                var modifiedUser = new UserViewModel(new Models.User
                 {
                     Username = userPrincipal.SamAccountName,
                     DisplayName = userPrincipal.DisplayName,
                     Title = userPrincipal.Title,
                     IdentityNumber = userPrincipal.IdentityNumber,
-                    Email = userPrincipal.Email, //userPrincipal.EmailAddress,
+                    Email = userPrincipal.Email,
                     Office = userPrincipal.Office,
                     Department = userPrincipal.Department,
                     Division = userPrincipal.Division,
@@ -298,6 +309,17 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     #endregion
 
     #region Helpers
+    private async Task<List<UserViewModel>> GetMembers(string group, string? username = null)
+    {
+        username ??= _credentials.GetClaim("username");
+        bool isLoading = _lockService.IsLocked(username!);
+        if (isLoading)
+            await Task.WhenAny(_lockService.GetWaitTask(username!), Task.Delay(90000));
+
+        List<UserViewModel> groupMembers = await _dashboardService.GetStoredUsersGroup(group);
+        return groupMembers;
+    }
+
     private bool IsUserInRole(string role)
     {
         var rolesClaim = _credentials.GetClaim("roles");
