@@ -85,7 +85,7 @@ function Overview() {
     // end
 
     async function onSubmit() {
-console.log(value, collections)
+
         // const value = ref.current.value;
         if (!value || value.length == 0)
             return;

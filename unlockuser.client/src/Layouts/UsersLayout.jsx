@@ -40,7 +40,7 @@ function UsersLayout() {
     const groupName = Capitalize(group);
 
     const searchValues = {
-        work: false,
+        work: loc.state?.work,
         value: null
     }
 
@@ -70,7 +70,7 @@ function UsersLayout() {
     }
 
     function revalidate() {
-        searchClear();
+        searchCleaner();
         revalidator.revalidate();
     }
 
@@ -90,14 +90,17 @@ function UsersLayout() {
     const renewTime = new Date(renewDisabled).toLocaleDateString() + " " + new Date(renewDisabled).toLocaleTimeString();
 
     function handleSearch(value) {
-        console.log(value)
         setSearch(prev => ({ ...(prev ?? searchValues), value })); // 2026-10-23 12:35
     }
 
-    function searchClear() {
-        setSearch(null);
+    function searchCleaner(clear) {
+        if (clear)
+            setSearch(searchValues);
+        else
+            handleSearch(null);
+        
         if (key)
-            navigate(loc.pathname, { replace: true, state: {} });
+            navigate(loc.pathname, { replace: true, state: { work: search.work } });
     }
 
     return (
@@ -121,7 +124,10 @@ function UsersLayout() {
                             tooltip: "tooltip-info",
                             arrow: "tooltip-arrow-info"
                         }} placement="left" arrow>
-                        <Forward color="primary" style={{ marginRight: "20px", opacity: searchTooltipOpen ? 1 : 0.1 }} />
+                        <Forward
+                            color="primary"
+                            style={{ marginRight: "20px", opacity: searchTooltipOpen ? 1 : 0.1 }}
+                        />
                     </Tooltip>}
 
 
@@ -136,7 +142,8 @@ function UsersLayout() {
                             placeholder={search?.work ? "Office namn.." : null}
                             disabled={loading || response}
                             onSearch={handleSearch}
-                            onReset={searchClear}
+                            onReset={searchCleaner}
+                            searchValue={search?.value}
                             ref={refSearch}>
                             <Tooltip title="Sök arbetsplats." arrow>
                                 {/* start: 2026-10-23 12:35 */}

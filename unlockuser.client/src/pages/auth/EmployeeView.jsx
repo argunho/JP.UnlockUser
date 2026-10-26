@@ -2,7 +2,7 @@ import { useState, use } from 'react';
 
 // Installed
 import { useOutletContext, useLoaderData, useRevalidator, useNavigate } from 'react-router-dom';
-import { IconButton, Collapse, List, ListItem, ListItemText, Button, Tooltip } from '@mui/material'; // , FormControlLabel, Checkbox, FormControl, InputLabel, Select, OutlinedInput, MenuItem
+import { IconButton, Collapse, List, ListItem, ListItemText, Button, Tooltip, Typography } from '@mui/material'; // , FormControlLabel, Checkbox, FormControl, InputLabel, Select, OutlinedInput, MenuItem
 import {
     Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt,
     KeyboardArrowUp, KeyboardArrowDown, TuneSharp, VerifiedUser
@@ -79,7 +79,14 @@ function EmployeeView() {
         setApproved(_approved);
     }
 
+    const managersChanged = !_.isEqual(permissions?.managers, sortedValues(approved?.managers, "username"));
+    const politiciansChanged = !_.isEqual(sortedValues(approvedPoliticians, "username"), sortedValues(approved?.politicians, "username"));
+    const schoolsChanged = !_.isEqual(permissions?.schools, sortedValues(approved?.schools));
+    const employeesChanged = !_.isEqual(sortedValues(approvedEmployees), sortedValues(approved?.employees)); // 2026-10-23 20:40
+    const officesChanged = !_.isEqual(sortedValues(approvedOffices), sortedValues(approved?.offices));
+
     function onChange(value, group, multiple) {
+
         if (!value || !group)
             return;
 
@@ -109,6 +116,11 @@ function EmployeeView() {
 
             newValues = [value];
             // end
+        } else if (group == "offices") {
+            if (approved.offices.includes(value))
+                return;
+
+            newValues = [value];
         }
         setApproved(previous => {
             return {
@@ -157,7 +169,7 @@ function EmployeeView() {
 
         // start: 2026-10-23 20:40
         // Employees are now stored in the moderators catalog (Permissions.Employees), so they are saved together with the other lists
-        if (managersChanged || politiciansChanged || schoolsChanged || employeesChanged) {
+        if (managersChanged || politiciansChanged || schoolsChanged || employeesChanged || officesChanged) {
             data.managers = approved?.managers?.map(x => x.username);
             data.politicians = approved?.politicians?.map(x => x.username);
             data.schools = approved?.schools;
@@ -197,20 +209,16 @@ function EmployeeView() {
         handleCollapse("office");
     }
 
-    const sv = search?.value?.toLowerCase();;
+    const sv = search?.value?.toLowerCase();
     const svl = sv?.length >= 2;
+    const dropdown = svl || collapsed;
 
-    const managersChanged = !_.isEqual(permissions?.managers, sortedValues(approved?.managers, "username"));
-    const politiciansChanged = !_.isEqual(sortedValues(approvedPoliticians, "username"), sortedValues(approved?.politicians, "username"));
-    const schoolsChanged = !_.isEqual(permissions?.schools, sortedValues(approved?.schools));
-    const employeesChanged = !_.isEqual(sortedValues(approvedEmployees), sortedValues(approved?.employees)); // 2026-10-23 20:40
+    const isChanged = managersChanged || politiciansChanged || schoolsChanged || employeesChanged || officesChanged;
 
-    const isChanged = managersChanged || politiciansChanged || schoolsChanged || employeesChanged;
-
-    const employeesToView = svl
+    const dropdownItems = svl
         // start: 2026-10-23 20:40
-        ? members?.filter(x => x.username != moderator.username && !approvedEmployees?.includes(x?.username)
-            && [x?.primary, x?.username, x?.department, x?.office].some(field => field?.toLowerCase().includes(sv)))
+        ? (search.work ? offices.filter(x => x?.toLowerCase().startsWith(sv)) : members?.filter(x => x.username != moderator.username && !approvedEmployees?.includes(x?.username)
+            && [x?.primary, x?.username, x?.department, x?.office].some(field => field?.toLowerCase().includes(sv))))
         : members?.filter(x => officeManager ? x.manager?.includes(officeManager) : approvedEmployees?.includes(x.username));
     // end
 
@@ -220,7 +228,7 @@ function EmployeeView() {
         <>
             {/* Action panel */}
             <ActionButtons
-                label="Behörighetslista"
+                label={dropdown ? `Sök resultat <span class="secondary-span">${(search.work ? "Arbetsplatser" : "Anställda")}: ${dropdownItems?.length}<span/>` : "Behörighetslista"}
                 pending={pending}
                 disabled={access?.open ? !isChanged : caseEmployees?.length === 0}
                 action={access?.limited ? {
@@ -228,6 +236,7 @@ function EmployeeView() {
                     color: "warning",
                     confirm: false
                 } : null}
+                visible={!dropdown}
                 onClick={access?.open ? onChangeSubmit : onCaseSubmit}>
 
                 {(personalPermissions && approvedEmployees?.length > 0 && !officeManager) &&
@@ -295,47 +304,48 @@ function EmployeeView() {
 
             {/* Hidden collapse block. Result of employee search */}
             {personalPermissions && <Collapse
-                in={svl || collapsed}
+                in={dropdown}
                 className='d-row w-100'
                 timeout="auto"
                 unmountOnExit>
 
-                {/* List of employees */}
-                {employeesToView?.length > 0 && <List className="collapse-wrapper d-row jc-start w-100">
-                    {employeesToView?.map((emp, index) => {
-                        const managerUsername = GetCnValue(emp.manager);
-                        const selected = approved.managers.find(x => x.username === managerUsername) != null && !emp.permissions || emp?.username == moderator?.username;
-                        const checked = ((svl && access?.limited) ? caseEmployees : approved.employees).includes(emp?.username) || selected; // 2026-10-23 20:40
+                {/* List of search result */}
+                {dropdownItems?.length > 0 && <List className="collapse-wrapper d-row jc-start w-100">
 
+
+                    {/* Employees list */}
+                    {dropdownItems?.map((item, index) => {
+                        const managerUsername = search.work ? null : GetCnValue(item.manager);
+                        const selected = approved.managers.find(x => x.username === managerUsername) != null && !item.permissions || item?.username == moderator?.username || (typeof item == "string" && moderator?.office?.toLowerCase() === item?.toLowerCase());
+                        const checked = ((svl && access?.limited) ? caseEmployees : approved.employees).includes(item?.username) || approved.offices.includes(item) || selected; // 2026-10-23 20:40
+                        const value = search.work ? item : item?.username;
+                        const type = search.work ? "offices" : "employees";
                         return <ListItem key={index} className="li-collapse"
                             secondaryAction={
                                 <div className="d-row">
-                                    {emp.permissions && <Tooltip title="Administratör" arrow>
+                                    {!search.work && item.permissions && <Tooltip title="Administratör" arrow>
                                         <VerifiedUser fontSize="small" color="success" />
                                     </Tooltip>}
                                     <IconButton
                                         disabled={selected || (!sv && access?.limited)}
-                                        onClick={() => checked
-                                            ? onDelete(emp?.username, "employees") // 2026-10-23 20:40
-                                            : onChange(emp?.username, "employees")
-                                        }>
+                                        onClick={() => checked ? onDelete(value, type) : onChange(value, type)}>
                                         {checked ? <CheckBox color="success" /> : <CheckBoxOutlineBlank />}
                                     </IconButton>
                                 </div>
                             }>
                             <ListItemText
-                                primary={emp?.primary}
-                                secondary={<>
-                                    <span className="secondary-span no-l-margin">{emp.department === emp?.office ? emp?.division : emp?.department}</span>{" "}
-                                    <span className="secondary-span">{emp?.office}</span>{" "}
-                                    <span className="secondary-span">{emp?.title}</span>
+                                primary={item?.primary ?? item}
+                                secondary={search.work ? null : <>
+                                    <span className="secondary-span no-l-margin">{item.department === item?.office ? item?.division : item?.department}</span>{" "}
+                                    <span className="secondary-span">{item?.office}</span>{" "}
+                                    <span className="secondary-span">{item?.title}</span>
                                 </>} />
                         </ListItem>
                     })}
                 </List>}
 
                 {/* Message if is none employees to view */}
-                {employeesToView?.length == 0 && <Message res={{ color: "warning", msg: "Inga anställda kunde hittas." }} close={false} />}
+                {dropdownItems?.length == 0 && <Message res={{ color: "warning", msg: "Inga anställda kunde hittas." }} close={false} />}
             </Collapse>}
 
             {/* Response message */}

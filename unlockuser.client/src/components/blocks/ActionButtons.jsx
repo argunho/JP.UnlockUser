@@ -6,7 +6,7 @@ import { Button } from '@mui/material';
 // Css
 import ModalConfirm from '../modals/ModalConfirm';
 
-function ActionButtons({ children, label, pending, disabled, action, onClick }) {
+function ActionButtons({ children, label, pending, disabled, action, visible = true, onClick }) {
 
   const [confirm, setConfirm] = useState(false);
 
@@ -26,11 +26,11 @@ function ActionButtons({ children, label, pending, disabled, action, onClick }) 
     <>
       <div className={`d-row ${(label ? "jc-between" : "jc-end")} w-100 action-wrapper`}>
 
-        {label && <p className="label">{label}</p>}
+        {label && <p className="d-row label" dangerouslySetInnerHTML={{ __html: label }} />}
 
         <div className="d-row">
 
-          {children && children}
+          {(visible && children) && children}
 
           {/* Button to save/update changed data */}
           <Button

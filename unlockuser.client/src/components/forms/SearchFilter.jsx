@@ -6,7 +6,7 @@ import { TextField, IconButton } from '@mui/material';
 
 function SearchFilter({ 
     children, 
-    label, disabled, styles, 
+    label, disabled, styles, searchValue,
     placeholder = "Användarnamn, school, klass, datum, gruppnamn ...",
     onSearch, onReset, ref }) {
 
@@ -14,17 +14,22 @@ function SearchFilter({
 
     function changeHandle(e) {
         let value = e.target.value;
+                console.log(value, value?.length <= 1)
+        if (!!searchValue && (value?.length <= 2 || searchValue !== value))
+            resetHandle();
         setValue(value);
     }
 
-    function resetHandle() {
+    function resetHandle(clear) {
         setValue("");
-        onReset();
+        onReset(clear);
     }
 
     function clickHandle() {
+        if(value?.length <= 1)
+            return;
+
         onSearch(value);
-        // setValue("");
     }
 
     return (
@@ -48,7 +53,7 @@ function SearchFilter({
                             color="error"
                             className="search-reset"
                             ref={ref}
-                            onClick={resetHandle}>
+                            onClick={() => resetHandle(true)}>
                             <SearchOffSharp />
                         </IconButton>}
 
@@ -59,13 +64,13 @@ function SearchFilter({
                             className="search-button"
                             type="button"
                             onClick={clickHandle}
-                            disabled={value?.length < 2}>
+                            disabled={value?.length < 1 || searchValue === value}>
                             <SearchSharp />
                         </IconButton>
                     </div>
             }}
             onKeyDown={(e) => {
-                if (e.key === "Enter")
+                if (value?.length > 1 && e.key === "Enter")
                     clickHandle();
             }}
         />
