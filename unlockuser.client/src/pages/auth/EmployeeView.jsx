@@ -1,17 +1,16 @@
 import { useState, use } from 'react';
 
 // Installed
-import { useOutletContext, useLoaderData, useRevalidator, useNavigate } from 'react-router-dom';
-import { IconButton, Collapse, List, ListItem, ListItemText, Button, Tooltip, Typography } from '@mui/material'; // , FormControlLabel, Checkbox, FormControl, InputLabel, Select, OutlinedInput, MenuItem
+import { useOutletContext, useLoaderData, useRevalidator } from 'react-router-dom';
+import { IconButton, Collapse, List, ListItem, ListItemText, Tooltip } from '@mui/material'; // , FormControlLabel, Checkbox, FormControl, InputLabel, Select, OutlinedInput, MenuItem
 import {
-    Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt,
-    KeyboardArrowUp, KeyboardArrowDown, TuneSharp, VerifiedUser
+    Close, CheckBox, CheckBoxOutlineBlank, Lock, DoNotDisturbAlt, VerifiedUser
 } from '@mui/icons-material';
 import _ from 'lodash';
 
 // Components
 import AutocompleteList from '../../components/lists/AutocompleteList';
-import ActionButtons from './../../components/blocks/ActionButtons';
+import ActionsTab from './../../components/blocks/ActionsTab';
 import Message from './../../components/blocks/Message';
 import ModalCaseForm from './../../components/modals/ModalCaseForm';
 import ModalSuccess from './../../components/modals/ModalSuccess';
@@ -21,10 +20,24 @@ import { GetCnValue } from '../../functions/Helpers';
 
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
-import { AuthContext } from '../../storage/AuthContext'; // 2
 
 // Css
 import './../../assets/css/view.css';
+
+const labels = [
+    {
+        name: "Behörighetslista",
+        key: "permissions"
+    },
+    {
+        name: "Godkända anställda",
+        key: "employees"
+    },
+    {
+        name: "Godkända arbetsplatser",
+        key: "offices"
+    }
+]
 
 function sortedValues(arr, key) {
     return [...(arr ?? [])]
@@ -47,13 +60,14 @@ function EmployeeView() {
     const columns = moderator?.managers?.length > 0 ? ["Närmaste chefer", ...groups] : groups;
 
     const { fetchData, pending, response, handleResponse, success } = use(FetchContext);
-    const { authorize } = use(AuthContext); // 2026-09-08
-    const navigate = useNavigate(); // 2026-09-08
 
     const [caseEmployees, setCaseEmployees] = useState([]);
-    const [collapsed, setCollapsed] = useState(null);
+    const [collapsed, setCollapsed] = useState(false);
     const [officeManager, setOfficeManager] = useState(null);
     const [caseModal, setCaseModal] = useState(false);
+    const [dropdownItems, setDropDownItems] = useState([]);
+    const [dropdownTitle, setDropdownTitle] = useState(null);
+
     // const [selected, setSelected] = useState([]);
 
     const approvedPermissions = { approvedManagers, approvedPoliticians, schools: permissions?.schools, approvedEmployees, approvedOffices };
@@ -85,10 +99,49 @@ function EmployeeView() {
     const employeesChanged = !_.isEqual(sortedValues(approvedEmployees), sortedValues(approved?.employees)); // 2026-10-23 20:40
     const officesChanged = !_.isEqual(sortedValues(approvedOffices), sortedValues(approved?.offices));
 
-    function onChange(value, group, multiple) {
 
-        if (!value || !group)
-            return;
+    const sv = search?.value?.toLowerCase();
+    const svl = sv?.length >= 2;
+    const dropdown = svl || collapsed;
+
+
+    function handleCollapse(hasItems) {
+
+        console.log(hasItems)
+        if (collapsed && hasItems) {
+            setCollapsed(false);
+            setTimeout(() => {
+                setCollapsed(true);
+                if (dropdownTitle)
+                    revalidate(false);
+            }, 100)
+        } else {
+
+            setCollapsed(hasItems);
+
+            if (!hasItems) {
+                setDropdownTitle(null);
+                if (svl)
+                    revalidate();
+            }
+
+            if (officeManager)
+                setOfficeManager(null);
+            if (dropdownTitle)
+                setDropdownTitle(null);
+        }
+    }
+
+    function handleShowByOffice(item) {
+        if (!members) return;
+
+        setOfficeManager(item?.username);
+        setDropdownTitle(item?.office);
+        onChange("employees");
+    }
+
+    function handleApprovedChange(value, group, multiple = null) {
+        if (!group) return;
 
         let newValues;
 
@@ -130,38 +183,7 @@ function EmployeeView() {
         })
     }
 
-    function onDelete(value, group, id) {
-        if (!value || !group)
-            return;
-
-        // start: 2026-10-23 20:40
-        if (group === "employees" && access?.limited && svl) {
-            setCaseEmployees(previous => previous.filter(x => x !== value));
-            return;
-        }
-
-        setApproved(previous => {
-            return {
-                ...previous,
-                [group]: previous[group]?.filter(x => id ? x[id] !== value : x !== value)
-            }
-        })
-        // end
-    }
-
-    // start: 2026-09-08
-    async function switchModerator() {
-        const res = await fetchData({ api: `authentication/login-as/${moderator?.username}`, method: "post", action: "return" }) ?? {};
-        const { token, groupName } = res;
-
-        if (token) {
-            authorize(token);
-            navigate(`/search/${groupName}`);
-        }
-    }
-    // end
-
-    async function onChangeSubmit() {
+    async function onSubmitChange() {
         const data = {
             username: moderator?.username,
             names: []
@@ -182,15 +204,62 @@ function EmployeeView() {
         await fetchData({ api: `catalogs/update/moderators/permission`, method: "put", data: data, action: "success" });
     }
 
-    function onCaseSubmit() {
-        setCaseModal(true);
+    function onChange(value, group = null, multiple = null) {
+        console.log(value)
+        if (!value)
+            return;
+        else if (!!value && !group) {
+            let items = [];
+            switch (value) {
+                case "save":
+                    access?.open ? onSubmitChange() : setCaseModal(true);
+                    break;
+                case "permissions":
+                    items = [];
+                    break;
+                case "employees":
+                    items = members?.filter(x => officeManager ? x.manager?.includes(officeManager) : approvedEmployees?.includes(x.username));
+                    break;
+                case "offices":
+                    items = approvedOffices;
+                    break;
+                // start: 2026-10-26 15:45
+                case "search": {
+                    items = !svl ? [] : search.work
+                        ? offices?.filter(x => x?.toLowerCase().startsWith(sv))
+                        : members?.filter(x => x.username != moderator.username && !approvedEmployees?.includes(x?.username)
+                            && [x?.primary, x?.username, x?.department, x?.office].some(field => field?.toLowerCase().includes(sv)));
+                    setDropdownTitle(svl ? `Sök resultat <span class="secondary-span">${(search.work ? "Arbetsplatser" : "Anställda")}: ${items?.length}<span/>` : null);
+                    break;
+                }
+                // end
+                default:
+                    handleApprovedChange(value, group, multiple);
+                    break;
+            }
+
+            setDropDownItems(items);
+            handleCollapse(items?.length > 0);
+        }
     }
 
-    function handleCollapse(key) {
-        if (collapsed === key)
-            setCollapsed(null);
-        else
-            setCollapsed(key);
+    function onDelete(value, group, id) {
+        if (!value || !group)
+            return;
+
+        // start: 2026-10-23 20:40
+        if (group === "employees" && access?.limited && svl) {
+            setCaseEmployees(previous => previous.filter(x => x !== value));
+            return;
+        }
+
+        setApproved(previous => {
+            return {
+                ...previous,
+                [group]: previous[group]?.filter(x => id ? x[id] !== value : x !== value)
+            }
+        })
+        // end
     }
 
     function onRevalidate() {
@@ -202,33 +271,26 @@ function EmployeeView() {
         }, 500)
     }
 
-    function handleShowByOffice(username) {
-        if (!members) return;
 
-        setOfficeManager(username);
-        handleCollapse("office");
+    // start: 2026-10-26 15:47
+    // Recalculate search results during render when search changes (instead of setState inside useEffect)
+    const [prevSearch, setPrevSearch] = useState(null);
+    if (search !== prevSearch) {
+        setPrevSearch(search);
+        onChange("search");
     }
-
-    const sv = search?.value?.toLowerCase();
-    const svl = sv?.length >= 2;
-    const dropdown = svl || collapsed;
+    // end
 
     const isChanged = managersChanged || politiciansChanged || schoolsChanged || employeesChanged || officesChanged;
-
-    const dropdownItems = svl
-        // start: 2026-10-23 20:40
-        ? (search.work ? offices.filter(x => x?.toLowerCase().startsWith(sv)) : members?.filter(x => x.username != moderator.username && !approvedEmployees?.includes(x?.username)
-            && [x?.primary, x?.username, x?.department, x?.office].some(field => field?.toLowerCase().includes(sv))))
-        : members?.filter(x => officeManager ? x.manager?.includes(officeManager) : approvedEmployees?.includes(x.username));
-    // end
 
     const personalPermissions = permissions.groups?.includes("Personal");
 
     return (
         <>
             {/* Action panel */}
-            <ActionButtons
-                label={dropdown ? `Sök resultat <span class="secondary-span">${(search.work ? "Arbetsplatser" : "Anställda")}: ${dropdownItems?.length}<span/>` : "Behörighetslista"}
+            <ActionsTab
+                viewLabel={dropdownTitle}
+                labels={labels}
                 pending={pending}
                 disabled={access?.open ? !isChanged : caseEmployees?.length === 0}
                 action={access?.limited ? {
@@ -236,28 +298,9 @@ function EmployeeView() {
                     color: "warning",
                     confirm: false
                 } : null}
-                visible={!dropdown}
-                onClick={access?.open ? onChangeSubmit : onCaseSubmit}>
+                onClick={onChange} />
 
-                {(personalPermissions && approvedEmployees?.length > 0 && !officeManager) &&
-                    <Button
-                        className="fade-in"
-                        endIcon={collapsed === "approved" ? <KeyboardArrowUp color="error" /> : <KeyboardArrowDown />}
-                        color={collapsed === "approved" ? "default" : "primary"}
-                        disabled={!!sv}
-                        onClick={() => handleCollapse("approved")}>
-                        Godkända enskilda anställda
-                    </Button>}
-
-                {(collapsed === "office" && officeManager) && <Button
-                    startIcon={<Close />}
-                    color="error"
-                    className="fade-in"
-                    onClick={() => handleShowByOffice(null)}>
-                    Stänga
-                </Button>}
-
-                {/* 
+            {/* 
                 {!!roles && <FormControl sx={{ m: 1, width: 260 }}>
                     <InputLabel id="demo-multiple-checkbox-label">Tillgång till Overview</InputLabel>
                     <Select
@@ -283,24 +326,6 @@ function EmployeeView() {
                     </Select>
                 </FormControl>} */}
 
-                {access?.open && <Tooltip
-                    title={`Logga in som ${moderator?.displayName} i granskningsläge: behörigheter kan ses, men lösenord går inte att ändra i detta läge.`}
-                    classes={{
-                        tooltip: "tooltip-info",
-                        arrow: "tooltip-arrow-info"
-                    }}
-                    placement="left" arrow>
-                    <Button
-                        variant="outlined"
-                        color="info"
-                        startIcon={<TuneSharp />}
-                        onClick={switchModerator}
-                    >
-                        Logga in som {moderator?.displayName}
-                    </Button>
-                </Tooltip>}
-
-            </ActionButtons>
 
             {/* Hidden collapse block. Result of employee search */}
             {personalPermissions && <Collapse
@@ -312,18 +337,18 @@ function EmployeeView() {
                 {/* List of search result */}
                 {dropdownItems?.length > 0 && <List className="collapse-wrapper d-row jc-start w-100">
 
-
-                    {/* Employees list */}
+                    {/* Dropdown list */}
                     {dropdownItems?.map((item, index) => {
-                        const managerUsername = search.work ? null : GetCnValue(item.manager);
+                        const offices = (search.work || !item?.manager);
+                        const managerUsername = offices ? null : GetCnValue(item.manager);
                         const selected = approved.managers.find(x => x.username === managerUsername) != null && !item.permissions || item?.username == moderator?.username || (typeof item == "string" && moderator?.office?.toLowerCase() === item?.toLowerCase());
                         const checked = ((svl && access?.limited) ? caseEmployees : approved.employees).includes(item?.username) || approved.offices.includes(item) || selected; // 2026-10-23 20:40
-                        const value = search.work ? item : item?.username;
-                        const type = search.work ? "offices" : "employees";
+                        const value = offices ? item : item?.username;
+                        const type = offices ? "offices" : "employees";
                         return <ListItem key={index} className="li-collapse"
                             secondaryAction={
                                 <div className="d-row">
-                                    {!search.work && item.permissions && <Tooltip title="Administratör" arrow>
+                                    {!offices && item.permissions && <Tooltip title="Administratör" arrow>
                                         <VerifiedUser fontSize="small" color="success" />
                                     </Tooltip>}
                                     <IconButton
@@ -335,7 +360,7 @@ function EmployeeView() {
                             }>
                             <ListItemText
                                 primary={item?.primary ?? item}
-                                secondary={search.work ? null : <>
+                                secondary={offices ? null : <>
                                     <span className="secondary-span no-l-margin">{item.department === item?.office ? item?.division : item?.department}</span>{" "}
                                     <span className="secondary-span">{item?.office}</span>{" "}
                                     <span className="secondary-span">{item?.title}</span>
@@ -345,7 +370,7 @@ function EmployeeView() {
                 </List>}
 
                 {/* Message if is none employees to view */}
-                {dropdownItems?.length == 0 && <Message res={{ color: "warning", msg: "Inga anställda kunde hittas." }} close={false} />}
+                {dropdownItems?.length == 0 && <Message res={{ color: "warning", msg: "Inga anställda/arbetsplatser kunde hittas." }} close={false} />}
             </Collapse>}
 
             {/* Response message */}
@@ -354,7 +379,7 @@ function EmployeeView() {
             {(!sv && !collapsed) && <>
 
                 {/* Row of titles */}
-                <div className="w-100 view-header d-row jc-between">
+                <div className="w-100 view-header d-row jc-between fade-in">
                     {columns?.map((column, index) => {
                         const disabled = !permissions.groups?.includes(column) && index > 0;
                         return <p key={index} className={`w-100 d-row jc-between${disabled ? " p-disabled" : ""}`}>
@@ -427,7 +452,7 @@ function EmployeeView() {
                                 {/* Personals managers list */}
                                 {(column === "Personal" && !disabled) && approved?.managers?.map((item, index) => (
                                     <li className="w-100 d-row jc-between" key={index}>
-                                        <span>{item?.displayName} | <span className="secondary-span" onClick={() => handleShowByOffice(item.username)}>{item?.office}</span></span>
+                                        <span>{item?.displayName} | <span className="secondary-span" onClick={() => handleShowByOffice(item)}>{item?.office}</span></span>
                                         {access?.open && <IconButton onClick={() => onDelete(item?.username, "managers", "username")} color="error">
                                             <Close />
                                         </IconButton>}

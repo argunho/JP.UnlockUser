@@ -15,7 +15,7 @@ import AutocompleteList from './../../components/lists/AutocompleteList';
 import ListLoading from './../../components/lists/ListLoading';
 import ListsView from './../../components/lists/ListsView';
 import Message from '../../components/blocks/Message';
-import ActionButtons from './../../components/blocks/ActionButtons';
+import ActionsTab from './../../components/blocks/ActionsTab';
 import ModalCaseForm from '../../components/modals/ModalCaseForm';
 import ModalSuccess from '../../components/modals/ModalSuccess';
 
@@ -285,7 +285,7 @@ function Home() {
             "\n\n\n <span style='color: #cc0000;font-style: normal;font-weight:bold'>Observera!</span> Om du tidigare under den pågående sessionen kunde hitta personen men inte längre kan göra det, kan det bero på att tiden för personsökningen har löpt ut." +
             "\n<a href='/session/logout' style='color: var(--color-active)'>Logga ut</a> och logga in igen för att fortsätta använda webbplatsen."
     }} cancel={onReset} >
-        <ActionButtons action={{
+        <ActionsTab action={{
             name: "Registrtera ärende i Topdesk",
             color: "warning",
             confirm: false

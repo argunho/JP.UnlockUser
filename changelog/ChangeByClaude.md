@@ -1,5 +1,11 @@
 # UnlockUser
 
+## 2026-10-26 15:47
+Fixed ESLint error `react-hooks/set-state-in-effect` in EmployeeView: `onChange("search")` (which calls `setDropDownItems`) ran synchronously inside `useEffect`. Replaced with the "adjust state during render" pattern (compare `search` with stored `prevSearch`), same as the existing `sourceChanged` block.
+
+- unlockuser.client/src/pages/auth/EmployeeView.jsx:27 — deleted: unused `useEffect` import
+- unlockuser.client/src/pages/auth/EmployeeView.jsx:253-260 — modified: `useEffect` replaced by `prevSearch` state check during render
+
 ## 2026-10-23 20:40
 Adapted EmployeeView to `permissions.employees` being a plain `string[]` of usernames (was `{ username, moderators }[]`). Employees are now saved via the moderators catalog (server `PutModeratorsPermissions` reads `model.Employees` only under the "moderators" name), and the Topdesk case sends `employees` to match `CaseCatalogModel.Employees`.
 

@@ -1,1 +1,9 @@
 2026-10-26 09:45:09.631 +01:00 [INF] Autentisering utförd vid: 2026-10-26 09:45. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-10-26 12:25:52.848 +01:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-10-26 12:25.
+2026-10-26 12:26:08.446 +01:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-10-26 12:26.
+2026-10-26 13:28:31.395 +01:00 [INF] Autentisering utförd vid: 2026-10-26 13:28. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-10-26 13:29:43.993 +01:00 [INF] Autentisering utförd vid: 2026-10-26 13:29. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-10-26 13:39:45.063 +01:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-10-26 13:39.
+2026-10-26 13:39:46.867 +01:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-10-26 13:39.
+2026-10-26 18:32:16.974 +01:00 [INF] Autentisering utförd vid: 2026-10-26 18:32. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-10-26 21:34:27.653 +01:00 [INF] Autentisering utförd vid: 2026-10-26 21:34. User: 790822asla. Department: IT avdelning. Office: IT avdelning.

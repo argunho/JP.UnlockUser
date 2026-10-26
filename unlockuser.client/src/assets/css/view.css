@@ -85,6 +85,31 @@ li.li-collapse .secondary-span {
     border: 1px solid var(--color-secondary);
 }
 
+.action-wrapper>*{
+    background-color: #FFFFFF !important;
+}
+
+.action-menu ul {
+    padding: 5px 3px !important;
+    width: 240px;
+}
+
+li.action-menu-li {
+    padding: 15px 10px !important;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--color-primary) !important;
+}
+
+li.action-menu-li.selected {
+    color: var(--color-pprimary) !important;
+    font-weight: 600 !important;
+}
+
+.action-menu-li>span {
+   display: none !important;
+}
+
+
 .action-wrapper button,
 .action-wrapper a {
     margin: 0 8px;

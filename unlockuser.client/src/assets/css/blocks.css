@@ -361,10 +361,9 @@ section.search {
   font-weight: 500 !important;
 }
 
-.nav-back {
-  margin-left: 20px !important;
+.btn-wlm {
+  margin-left: 10px !important;
 }
-
 /* #endregion */
 
 /* #region Loading */

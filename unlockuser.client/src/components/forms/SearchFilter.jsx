@@ -14,7 +14,6 @@ function SearchFilter({
 
     function changeHandle(e) {
         let value = e.target.value;
-                console.log(value, value?.length <= 1)
         if (!!searchValue && (value?.length <= 2 || searchValue !== value))
             resetHandle();
         setValue(value);
