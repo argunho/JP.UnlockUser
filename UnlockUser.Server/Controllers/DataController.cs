@@ -145,16 +145,16 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                     var usernames = groupMembers.Select(s => s.Username).ToList();
                     if (po?.Count > 0)
                     {
-                        groupMembers.AddRange([.. users.Where(x => usernames.Contains(x.Username!, StringComparer.OrdinalIgnoreCase)
+                        groupMembers.AddRange([.. users.Where(x => !usernames.Contains(x.Username!, StringComparer.OrdinalIgnoreCase)
                             && po.Contains(x.Office!, StringComparer.OrdinalIgnoreCase)
-                            && mu.Contains(x.Username, StringComparer.OrdinalIgnoreCase))]);
+                            && !mu.Contains(x.Username, StringComparer.OrdinalIgnoreCase))]);
                     }
 
                     usernames = [.. groupMembers.Select(s => s.Username)];
 
                     if (pe?.Count > 0)
                     {
-                        groupMembers.AddRange([.. users.Where(x => usernames.Contains(x.Username!, StringComparer.OrdinalIgnoreCase) 
+                        groupMembers.AddRange([.. users.Where(x => !usernames.Contains(x.Username!, StringComparer.OrdinalIgnoreCase) 
                             && pe.Contains(x.Username!, StringComparer.OrdinalIgnoreCase))]);
                     }
 
