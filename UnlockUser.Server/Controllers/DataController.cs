@@ -158,7 +158,6 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                             && pe.Contains(x.Username!, StringComparer.OrdinalIgnoreCase))]);
                     }
 
-
                     return Ok(groupMembers);
                 }
 
