@@ -52,6 +52,9 @@ public class DashboardService(
         {
             try
             {
+                var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+                var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase));
+
                 // Employee groups where each group has its own password management permissions
                 List<GroupModel> passwordManageGroups = _config.GetSection("Groups").Get<List<GroupModel>>() ?? [];
 
@@ -66,13 +69,13 @@ public class DashboardService(
                     var limited = !isStudents ? !access && alternativeParams.Count > 0 : !access;
 
                     var groupCacheKey = group.Name?.ToLower();
+                    _cache.TryGetValue(groupCacheKey!, out List<UserViewModel?>? cachedGroupMembers);
+
                     var cacheKey = (limited ? $"{groupCacheKey}:{username.ToLower()}" : $"{groupCacheKey}");
                     var res = await _cache.GetOrCreateAsync(cacheKey, async entry =>
                     {
                         entry.SlidingExpiration = TimeSpan.FromHours(limited ? 1 : 3); // Cache for 8 hours, removes after this time if it is not used
                         entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(limited ? 2 : 8); // Cache for 1 day, removes after this time even if it is used
-
-                        _cache.TryGetValue(groupCacheKey!, out List<UserViewModel?>? cachedGroupMembers);
 
                         // If group are Students
                         if (isStudents)
@@ -91,10 +94,40 @@ public class DashboardService(
                         }
                         else if (cachedGroupMembers != null && cachedGroupMembers.Count > 0)
                         {
-                            return [.. cachedGroupMembers
+                            var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+                            var mu = moderators.Select(m => m.Username).ToList();
+
+                            List<UserViewModel> sorted = [.. cachedGroupMembers
                                 .OfType<UserViewModel>()
                                 .Where(employee => employee.Manager is { } manager
-                                    && alternativeParams.Any(parameter => manager.Contains(parameter, StringComparison.OrdinalIgnoreCase)))];
+                                    && alternativeParams.Any(parameter => manager.Contains(parameter, StringComparison.OrdinalIgnoreCase)) 
+                                    && !mu.Contains(employee.Username, StringComparer.OrdinalIgnoreCase))];
+
+                            if (string.Equals(group.Name, "Personal", StringComparison.OrdinalIgnoreCase))
+                            {
+                                var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
+                                var pe = permissions?.Employees ?? [];
+                                var po = permissions?.Offices ?? [];
+
+                                var sortedUsernames = sorted.Select(s => s.Username).ToList();
+                                foreach (var user in cachedGroupMembers)
+                                {
+                                    if (sortedUsernames.Contains(user!.Username, StringComparer.OrdinalIgnoreCase))
+                                        continue;
+                                    else if ((po.Count > 0 && po.Contains(user.Office!, StringComparer.OrdinalIgnoreCase) && !mu.Contains(user.Username, StringComparer.OrdinalIgnoreCase)))
+                                    {
+                                        sorted.Add(user);
+                                        continue;
+                                    }
+                                    else if(pe.Count > 0 && pe.Contains(user.Username!, StringComparer.OrdinalIgnoreCase))
+                                    {
+                                        sorted.Add(user);
+                                        continue;
+                                    }
+                                }
+                            }
+
+                            return sorted;
                         }
                         else
                         {
@@ -203,7 +236,7 @@ public class DashboardService(
         {
             try
             {
-                var moderators = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators") ?? [];
+                var moderators = await _localFileService.GetEncryptedFile<List<Models.User>>("catalogs/moderators") ?? [];
                 var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
                 HashSet<string> approved = permissions != null ? [.. (permissions?.Employees ?? [])] : [];
 

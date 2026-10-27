@@ -103,7 +103,6 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             // KC group has full access like a real KC login, so it uses the regular session cache path below (supports "overview")
             if (impersonating && !IsUserInRole("KCGroup")) // 2026-09-24
             {
-
                 List<UserViewModel> groupMembers = [];
                 _cache.TryGetValue(group, out List<UserViewModel>? users);
                 if (users == null)
@@ -113,17 +112,19 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                 if (isStudents)
                 {
                     users = [..users.Where(x => !string.IsNullOrEmpty(x.Office) &&
-                                        alternativeParams.Any(p => x.Office!.StartsWith(p, StringComparison.OrdinalIgnoreCase)))];
+                                 alternativeParams.Any(p => x.Office!.StartsWith(p, StringComparison.OrdinalIgnoreCase)))];
                 }
                 else
                 {
                     var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
                     var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
-                    var approved = permissions?.Employees ?? [];
+                    var pe = permissions?.Employees ?? [];
+                    var po = permissions?.Offices ?? [];
+                    var mu = moderators.Select(m => m.Username).ToList();
 
                     groupMembers.AddRange([.. users.Where(x =>
                     {
-                        if (x.Manager == null || approved!.Contains(x.Username!))
+                        if (x.Manager == null || pe!.Contains(x.Username!) || po!.Contains(x.Office!) || mu.Contains(x.Username))
                             return false;
 
                         var m = x.Manager.Trim();
@@ -141,8 +142,22 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                         return alternativeParams!.Contains(part, StringComparer.OrdinalIgnoreCase);
                     })]);
 
-                    if (approved?.Count > 0)
-                        groupMembers.AddRange([.. users.Where(x => approved.Contains(x.Username!))]);
+                    var usernames = groupMembers.Select(s => s.Username).ToList();
+                    if (po?.Count > 0)
+                    {
+                        groupMembers.AddRange([.. users.Where(x => usernames.Contains(x.Username!, StringComparer.OrdinalIgnoreCase)
+                            && po.Contains(x.Office!, StringComparer.OrdinalIgnoreCase)
+                            && mu.Contains(x.Username, StringComparer.OrdinalIgnoreCase))]);
+                    }
+
+                    usernames = [.. groupMembers.Select(s => s.Username)];
+
+                    if (pe?.Count > 0)
+                    {
+                        groupMembers.AddRange([.. users.Where(x => usernames.Contains(x.Username!, StringComparer.OrdinalIgnoreCase) 
+                            && pe.Contains(x.Username!, StringComparer.OrdinalIgnoreCase))]);
+                    }
+
 
                     return Ok(groupMembers);
                 }

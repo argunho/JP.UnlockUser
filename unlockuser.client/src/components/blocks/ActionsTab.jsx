@@ -42,7 +42,7 @@ function ActionsTab({ children, viewLabel, labels, pending, disabled, action, on
   return (
     <>
       <Box className={`d-row ${(label ? "jc-between" : "jc-end")} w-100 action-wrapper`}>
-        <div className="d-row">
+        {label && <div className="d-row">
           <IconButton
             size="large"
             edge="start"
@@ -53,7 +53,7 @@ function ActionsTab({ children, viewLabel, labels, pending, disabled, action, on
             <MenuIcon />
           </IconButton>
 
-          {label && <p className="d-row label" dangerouslySetInnerHTML={{ __html: viewLabel ?? label?.name }} />}
+          <p className="d-row label" dangerouslySetInnerHTML={{ __html: viewLabel ?? label?.name }} />
 
           <Menu
             id="menu-appbar"
@@ -71,7 +71,7 @@ function ActionsTab({ children, viewLabel, labels, pending, disabled, action, on
                   {item?.name}
               </MenuItem>)}
           </Menu>
-        </div>
+        </div>}
 
         <div className="d-row">
 

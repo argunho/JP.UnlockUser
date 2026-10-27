@@ -70,7 +70,8 @@ function UsersLayout() {
     }
 
     function revalidate(reload = true) {
-        refSearch.current.click();
+        if (refSearch.current)
+            refSearch.current?.click();
         if (reload)
             revalidator.revalidate();
     }
@@ -95,7 +96,6 @@ function UsersLayout() {
     }
 
     function searchCleaner(clear) {
-        console.log(clear)
         if (clear)
             setSearch(searchValues);
         else
@@ -152,7 +152,7 @@ function UsersLayout() {
                         {/* Search filter */}
                         {showSearch && <SearchFilter
                             key={`${group}_${success}`}
-                            label={search?.work ? "arbetsplats" : "an_ställda"}
+                            label={search?.work ? "arbetsplats" : "anställda"}
                             placeholder={search?.work ? "Office namn.." : null}
                             disabled={loading || response}
                             onSearch={handleSearch}

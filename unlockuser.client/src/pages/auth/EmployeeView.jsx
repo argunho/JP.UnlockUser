@@ -63,7 +63,6 @@ function EmployeeView() {
 
     const [caseEmployees, setCaseEmployees] = useState([]);
     const [collapsed, setCollapsed] = useState(false);
-    const [officeManager, setOfficeManager] = useState(null);
     const [caseModal, setCaseModal] = useState(false);
     const [dropdownItems, setDropDownItems] = useState([]);
     const [dropdownTitle, setDropdownTitle] = useState(null);
@@ -105,42 +104,8 @@ function EmployeeView() {
     const dropdown = svl || collapsed;
 
 
-    function handleCollapse(hasItems) {
-
-        console.log(hasItems)
-        if (collapsed && hasItems) {
-            setCollapsed(false);
-            setTimeout(() => {
-                setCollapsed(true);
-                if (dropdownTitle)
-                    revalidate(false);
-            }, 100)
-        } else {
-
-            setCollapsed(hasItems);
-
-            if (!hasItems) {
-                setDropdownTitle(null);
-                if (svl)
-                    revalidate();
-            }
-
-            if (officeManager)
-                setOfficeManager(null);
-            if (dropdownTitle)
-                setDropdownTitle(null);
-        }
-    }
-
-    function handleShowByOffice(item) {
-        if (!members) return;
-
-        setOfficeManager(item?.username);
-        setDropdownTitle(item?.office);
-        onChange("employees");
-    }
-
     function handleApprovedChange(value, group, multiple = null) {
+
         if (!group) return;
 
         let newValues;
@@ -204,43 +169,63 @@ function EmployeeView() {
         await fetchData({ api: `catalogs/update/moderators/permission`, method: "put", data: data, action: "success" });
     }
 
-    function onChange(value, group = null, multiple = null) {
-        console.log(value)
-        if (!value)
-            return;
-        else if (!!value && !group) {
-            let items = [];
-            switch (value) {
-                case "save":
-                    access?.open ? onSubmitChange() : setCaseModal(true);
-                    break;
-                case "permissions":
-                    items = [];
-                    break;
-                case "employees":
-                    items = members?.filter(x => officeManager ? x.manager?.includes(officeManager) : approvedEmployees?.includes(x.username));
-                    break;
-                case "offices":
-                    items = approvedOffices;
-                    break;
-                // start: 2026-10-26 15:45
-                case "search": {
-                    items = !svl ? [] : search.work
-                        ? offices?.filter(x => x?.toLowerCase().startsWith(sv))
-                        : members?.filter(x => x.username != moderator.username && !approvedEmployees?.includes(x?.username)
-                            && [x?.primary, x?.username, x?.department, x?.office].some(field => field?.toLowerCase().includes(sv)));
-                    setDropdownTitle(svl ? `Sök resultat <span class="secondary-span">${(search.work ? "Arbetsplatser" : "Anställda")}: ${items?.length}<span/>` : null);
-                    break;
-                }
-                // end
-                default:
-                    handleApprovedChange(value, group, multiple);
-                    break;
-            }
+    function onChange(primary, secondary = null, multiple = null) {
 
-            setDropDownItems(items);
-            handleCollapse(items?.length > 0);
+        if (!primary)
+            return;
+
+        let items = [];
+        let close = false;
+        switch (primary) {
+            case "save":
+                access?.open ? onSubmitChange() : setCaseModal(true);
+                close = true;
+                break;
+            case "permissions":
+                close = true;
+                if (dropdownTitle)
+                    revalidate(false);
+                break;
+            case "employees":
+                items = members?.filter(x => approvedEmployees?.includes(x.username));
+                break;
+            case "office":              
+                items = members?.filter(x => x.manager?.includes(secondary?.username));
+                setDropdownTitle(secondary?.office);
+                break;
+            case "offices":
+                items = approvedOffices;
+                break;
+            // start: 2026-10-26 15:45
+            case "search": {
+                items = !svl ? [] : search.work
+                    ? offices?.filter(x => x?.toLowerCase().startsWith(sv))
+                    : members?.filter(x => x.username != moderator.username && !approvedEmployees?.includes(x?.username)
+                        && [x?.primary, x?.username, x?.department, x?.office].some(field => field?.toLowerCase().includes(sv)));
+                if (svl)
+                    setDropdownTitle(svl ? `Sök resultat <span class="secondary-span">${(search.work ? "Arbetsplatser" : "Anställda")}: ${items?.length}<span/>` : null);
+                else {
+                    onChange("permissions");
+                    return;
+                }
+                break;
+            }
+            // end
+            default:
+                handleApprovedChange(primary, secondary, multiple);
+                return;
         }
+
+        if (close) {
+            setCollapsed(false);
+            if (dropdownTitle)
+                setDropdownTitle(null);
+        }
+        else if (!collapsed)
+            setCollapsed(true);
+
+        setDropDownItems(items);
+        // handleCollapse();
     }
 
     function onDelete(value, group, id) {
@@ -263,14 +248,13 @@ function EmployeeView() {
     }
 
     function onRevalidate() {
-        setCollapsed(false);
+        onChange("permissions");
         revalidate();
         setTimeout(() => {
             handleResponse();
             revalidator.revalidate();
         }, 500)
     }
-
 
     // start: 2026-10-26 15:47
     // Recalculate search results during render when search changes (instead of setState inside useEffect)
@@ -289,8 +273,9 @@ function EmployeeView() {
         <>
             {/* Action panel */}
             <ActionsTab
+                key={success.toString()}
                 viewLabel={dropdownTitle}
-                labels={labels}
+                labels={svl ? labels?.slice(0, 1) : labels}
                 pending={pending}
                 disabled={access?.open ? !isChanged : caseEmployees?.length === 0}
                 action={access?.limited ? {
@@ -335,7 +320,7 @@ function EmployeeView() {
                 unmountOnExit>
 
                 {/* List of search result */}
-                {dropdownItems?.length > 0 && <List className="collapse-wrapper d-row jc-start w-100">
+                {dropdownItems?.length > 0 && <List className="collapse-wrapper d-row jc-start w-100 fade-in">
 
                     {/* Dropdown list */}
                     {dropdownItems?.map((item, index) => {
@@ -370,7 +355,7 @@ function EmployeeView() {
                 </List>}
 
                 {/* Message if is none employees to view */}
-                {dropdownItems?.length == 0 && <Message res={{ color: "warning", msg: "Inga anställda/arbetsplatser kunde hittas." }} close={false} />}
+                {dropdownItems?.length == 0 && <Message res={{ color: "warning", msg: "Inga matchande resultat hittades." }} close={false} />}
             </Collapse>}
 
             {/* Response message */}
@@ -452,7 +437,7 @@ function EmployeeView() {
                                 {/* Personals managers list */}
                                 {(column === "Personal" && !disabled) && approved?.managers?.map((item, index) => (
                                     <li className="w-100 d-row jc-between" key={index}>
-                                        <span>{item?.displayName} | <span className="secondary-span" onClick={() => handleShowByOffice(item)}>{item?.office}</span></span>
+                                        <span>{item?.displayName} | <span className="secondary-span" onClick={() => onChange("office", item)}>{item?.office}</span></span>
                                         {access?.open && <IconButton onClick={() => onDelete(item?.username, "managers", "username")} color="error">
                                             <Close />
                                         </IconButton>}

@@ -84,7 +84,8 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
         // Saved employees who have permission to manage employee passwords
         var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
         var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
-        var approved = permissions?.Employees ?? [];
+        var pe = permissions?.Employees ?? [];
+        var po = permissions?.Offices ?? [];
 
 
         // Get all users by search group parameters
@@ -113,8 +114,13 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
                     users.Add(user!);
                 else if (isEmployee && !users.Exists(x => x.Username == user.Username!))
                 {
-                    //if (approvedEmployeeUsernames.Count > 0 && approvedEmployeeUsernames.Contains(user.Username!))
-                    if (approved.Count > 0 && approved.Contains(user.Username!, StringComparer.OrdinalIgnoreCase))
+                    if (po.Count > 0 && po.Contains(user.Office!, StringComparer.OrdinalIgnoreCase) 
+                        && !string.Equals(moderator!.Username, user.Username!, StringComparison.OrdinalIgnoreCase))
+                    {
+                        users.Add(user);
+                        continue;
+                    }
+                    else if (pe.Count > 0 && pe.Contains(user.Username!, StringComparer.OrdinalIgnoreCase))
                     {
                         users.Add(user);
                         continue;
