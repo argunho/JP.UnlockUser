@@ -1,5 +1,21 @@
 # UnlockUser
 
+## 2026-10-28 (3)
+Fixed: a manually typed password was rejected with "Lösenords längd måste bli minst …". `inputProps.form: { autoComplete: 'off' }` rendered `form="[object Object]"` on the `<input>`, detaching the inputs from the form, so they were missing from `FormData`. Generated passwords still worked only through the `?? password` state fallback. Replaced with `autoComplete: "new-password"`. Also removed a debug `console.log`.
+
+- unlockuser.client/src/components/forms/Form.jsx:192 — deleted: `console.log(_password?.length)`
+- unlockuser.client/src/components/forms/Form.jsx:325-330 — modified: `inputProps` without `form` attribute, `autoComplete: "new-password"`
+
+## 2026-10-28 (2)
+Fixed: password fields were never emptied on Reset. `RESET_FORM_TOTAL` did not clear `password` (used as the inputs' `defaultValue`) nor `isChanged`, so the remounted inputs got the old generated password back. Also `isCleaned` used `getMilliseconds()` (0–999), which can repeat and then the `key` does not change; replaced with `Date.now()`.
+
+- unlockuser.client/src/components/forms/Form.jsx:58 — modified: reset clears `password`, `isChanged`; `isCleaned: Date.now()`
+
+## 2026-10-28
+Fixed: a manually typed password could not be submitted in Form. The submit button was disabled by `!isChanged`, and `isChanged` was only set by the "PASSWORD" action (password generator). Typing only set `dirty`, so the button stayed disabled. The button is now enabled when the password was either generated or typed.
+
+- unlockuser.client/src/components/forms/Form.jsx:357 — modified: `FormButtons` `disabled={!isChanged && !dirty}`
+
 ## 2026-10-26 15:47
 Fixed ESLint error `react-hooks/set-state-in-effect` in EmployeeView: `onChange("search")` (which calls `setDropDownItems`) ran synchronously inside `useEffect`. Replaced with the "adjust state during render" pattern (compare `search` with stored `prevSearch`), same as the existing `sourceChanged` block.
 

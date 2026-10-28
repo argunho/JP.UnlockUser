@@ -16,5 +16,6 @@
 ## 14. Replay from Unlock to Topdesk case
 ## 15. Article saves as manual and not popup
 ## 16. Message in bottom of window if new article kommit
-## 17. Two succe modal after user permission updating
-## 18. Update page directly  after user permission updating
+#### 17. Two succe modal after user permission updating
+#### 18. Update page directly  after user permission updating
+## 19. Own password not working

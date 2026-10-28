@@ -40,3 +40,9 @@ export function CheckUsername(value){
     const check = /^\d{6}[a-z]{3,4}$/i;
     return check.test(value);
 }
+
+export function PasswordRegex(lgh){
+  return lgh === 12
+        ? /^(?=.*[0-9])(?=.*[!@?$&#^%*-,;._])[A-Za-z0-9!@?$&#^%*-,;._]{12,50}$/
+        : /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])[A-Za-z0-9]{8,50}$/;
+}

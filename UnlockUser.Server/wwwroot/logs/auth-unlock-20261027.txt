@@ -36,3 +36,5 @@
 2026-10-27 21:02:22.065 +01:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-10-27 21:02.
 2026-10-27 21:07:21.290 +01:00 [INF] Autentisering utförd vid: 2026-10-27 21:07. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
 2026-10-27 21:09:13.662 +01:00 [INF] Utvecklare 790822asla loggade in som 970117arij vid: 2026-10-27 21:09.
+2026-10-27 21:10:38.260 +01:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-10-27 21:10.
+2026-10-27 21:11:34.526 +01:00 [INF] Autentisering utförd vid: 2026-10-27 21:11. User: 790822asla. Department: UF Stab IT. Office: UF Stab IT.

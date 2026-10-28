@@ -57,7 +57,8 @@ div[role="presentation"] li:not(.case, .action-menu-li) {
 }
 
 div[role="presentation"] li:not(li.case-li,li.action-menu-li) {
-    height: 50px !important;
+    /* height: 50px !important; */
+    height: auto !important;
 }
 
 .loop-list li>div>span {

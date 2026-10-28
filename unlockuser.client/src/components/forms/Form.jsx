@@ -18,6 +18,7 @@ import { PasswordTips } from '../../models/HelpTexts';
 import { Claim, DecodedToken } from '../../functions/DecodedToken';
 import { PDFConverter } from '../../functions/PDFConverter';
 import { DownloadFile } from '../../functions/Functions';
+import { PasswordRegex } from '../../functions/Helpers';
 
 // Storage
 import { FetchContext } from '../../storage/FetchContext';
@@ -53,7 +54,7 @@ function actionReducer(state, action) {
             };
         case "RESET_FORM_TOTAL":
             return {
-                ...state, showPassword: false, isGenerated: false, formData: null, isCleaned: new Date().getMilliseconds(), dirty: false
+                ...state, showPassword: false, isGenerated: false, formData: null, password: null, isChanged: false, isCleaned: Date.now(), dirty: false // 2026-10-28
             };
         default:
             return state;
@@ -74,9 +75,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
     const openAccess = Claim("openAccess") != null;
 
     // Regex to validate password 
-    const regex = passwordLength === 12
-        ? /^(?=.*[0-9])(?=.*[!@?$&#^%*-,;._])[A-Za-z0-9!@?$&#^%*-,;._]{12,50}$/
-        : /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])[A-Za-z0-9]{8,50}$/;
+    const regex = PasswordRegex(passwordLength);
 
     function handleDispatch(name, value) {
         dispatch({ type: "PARAM", name: name, payload: value });
@@ -109,6 +108,9 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
         data.manager = users[0]?.manager;
         data.email = users[0]?.email;
         data.title = users[0].title;
+
+        if(!password)
+            handleDispatch("passToCopy", data?.password);
 
         // Request
         await fetchData({ api: "user/reset/single/password", method: "post", data: data });
@@ -240,6 +242,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
         })
     ) : null;
 
+    
     return (
         <div className={`form-wrapper w-100${cls ? ` ${cls}` : ''}`} >
 
@@ -304,8 +307,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
             {error && <Message res={{ color: "error", msg: error }} />}
 
             {/* Password form */}
-            {
-                !response && <form key={isCleaned} className='user-view-form fade-in' action={formAction}>
+            {!response && <form key={isCleaned} className='user-view-form fade-in' action={formAction}>
 
                     {modifiedChildren}
 
@@ -324,11 +326,12 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
                                 required
                                 defaultValue={value}
                                 onChange={() => dirty || handleDispatch("dirty", true)}
+                                // start: 2026-10-28
                                 inputProps={{
                                     minLength: passwordLength,
-                                    autoComplete: fields[field.name],
-                                    form: { autoComplete: 'off', }
+                                    autoComplete: "new-password"
                                 }}
+                                // end
                                 InputProps={field.name === "password" ? {
                                     endAdornment: (
                                         <IconButton
@@ -352,7 +355,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
                     {/* Buttons */}
                     {(!hidden && !locked) && <FormButtons
                         label="Verkställ"
-                        disabled={!isChanged}
+                        disabled={!isChanged && !dirty} // 2026-10-28
                         confirmable={true}
                         loading={load || pending}
                         onCancel={onReset}
@@ -392,10 +395,8 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
                         </div>
 
                     </FormButtons>}
-                </form>
-            }
-
-        </div >
+                </form>}
+        </div>
     )
 }
 

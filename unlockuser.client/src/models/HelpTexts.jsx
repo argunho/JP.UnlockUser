@@ -27,11 +27,11 @@ export const AllTips = [...Tips, ...[
 // Help texts (password)
 export const PasswordTips = (length) => [
     {
-        primary: length === 12 ? "Anställda" : "Studenter",
+        primary: length === 12 ? "Anställda" : "Elever",
         secondary: "* Minst en stor bokstav, ej <b>Ö, Ä, Å</b></br>" +
             "* Minst en liten liten bokstav, ej <b>ö, ä, å</b></br>" +
             "* Minst en siffra</br>" +
             "* Minst " + length + " tecken långt</br>" +
-            `${(length === 12) ? "* Minst ett specialtecken, exempelvis !@?$&#^%*-,;._" : ""}`
+            `${(length === 12) ? "* Minst en specialtecken, exempelvis !@?$&#^%*-,;._" : "* Ingen specialtecken"}`
     }
 ]
