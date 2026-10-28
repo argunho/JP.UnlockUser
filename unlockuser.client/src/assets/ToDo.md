@@ -18,4 +18,4 @@
 ## 16. Message in bottom of window if new article kommit
 #### 17. Two succe modal after user permission updating
 #### 18. Update page directly  after user permission updating
-## 19. Own password not working
+#### 19. Own password not working

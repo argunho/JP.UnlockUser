@@ -220,7 +220,16 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
                              Secondary = s.Department == s.Office ? s.Division : s.Department
                          }) ?? []];
 
-            return Ok(new { groups = user.Permissions?.Groups, schools, managers });
+
+            var moderators = await _localFile.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+            var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
+            var offices = permissions?.Offices.Select(s => new ViewModel
+            {
+                Id = s,
+                Primary = s
+            }) ?? [];
+
+            return Ok(new { groups = user.Permissions?.Groups, schools, managers, offices });
         }
         catch (Exception ex)
         {

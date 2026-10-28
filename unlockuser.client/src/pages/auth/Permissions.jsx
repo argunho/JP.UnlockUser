@@ -13,7 +13,7 @@ import { Claim } from '../../functions/DecodedToken';
 
 function Permissions() {
 
-    const { schools, managers } = useLoaderData();
+    const { schools, managers, offices } = useLoaderData();
     const roles = Claim("roles");
 
     return (
@@ -32,9 +32,11 @@ function Permissions() {
                     <ListView list={schools} avatar={<School />} fullWith={false} />
                 </>}
 
-                {managers?.length > 0 && <>
+                
+                {(managers?.length > 0 || offices?.length > 0) && <>
                     <Typography mt={3} variant="h5">Personal</Typography>
-                    <ListView list={managers} avatar={<MapsHomeWork />} fullWith={false} />
+                    {managers?.length > 0 && <ListView list={managers} avatar={<MapsHomeWork />} fullWith={false} />}
+                    {offices?.length > 0 && <ListView list={offices} avatar={<MapsHomeWork />} fullWith={false} />}
                 </>}
             </div>
         </>
