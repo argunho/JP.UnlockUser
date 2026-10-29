@@ -1,7 +1,7 @@
 import { useState, use } from 'react';
 
 // Installed
-import { useOutletContext, useLoaderData, useRevalidator } from 'react-router-dom';
+import { useOutletContext, useLoaderData, useRevalidator, useNavigate } from 'react-router-dom';
 import { IconButton, Collapse, List, ListItem, ListItemText, Tooltip } from '@mui/material'; // , FormControlLabel, Checkbox, FormControl, InputLabel, Select, OutlinedInput, MenuItem
 import {CheckBox, CheckBoxOutlineBlank, VerifiedUser } from '@mui/icons-material';
 import _ from 'lodash';
@@ -47,6 +47,7 @@ function EmployeeView() {
 
     const { members, offices } = useLoaderData();
     const revalidator = useRevalidator();
+    const navigate = useNavigate();
     const context = useOutletContext(); 
     const { moderator, managers, politicians, access, search, revalidate } = context;//, roles
     const { permissions } = moderator;
@@ -246,6 +247,10 @@ function EmployeeView() {
         // end
     }
 
+    function onNavigate(name){
+        navigate(`/moderators/view/${name}`, { replace: true });
+    }
+
     function onRevalidate() {
         onChange("permissions");
         revalidate();
@@ -331,7 +336,9 @@ function EmployeeView() {
                             secondaryAction={
                                 <div className="d-row">
                                     {!offices && item.permissions && <Tooltip title="Administratör" arrow>
-                                        <VerifiedUser fontSize="small" color="success" />
+                                        <IconButton onClick={() => onNavigate(item?.username)}>
+                                            <VerifiedUser fontSize="small" color="success" />
+                                        </IconButton>                                      
                                     </Tooltip>}
                                     <IconButton
                                         disabled={selected || (!sv && access?.limited)}

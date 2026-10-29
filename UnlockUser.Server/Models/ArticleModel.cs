@@ -2,9 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace UnlockUser.Server.ViewModels;
+namespace UnlockUser.Server.Models;
 
-public class ManualArticleViewModel
+public class ArticleModel
 {
     public string? Id { get; set; }
 
@@ -15,6 +15,13 @@ public class ManualArticleViewModel
     public string? Html { get; set; }
 
     public bool Popup { get; set; }
+
+    public List<string> Groups { get; set; }
+
+    public int OrderById { get; set; }
+
+    public List<string> Hidden { get; set; }
+
 
     [NotMapped]
     public string? Primary => string.IsNullOrEmpty(Name) ? null : Name!.Replace("_", " ");

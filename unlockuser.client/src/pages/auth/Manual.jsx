@@ -31,26 +31,12 @@ function Manual({ api, label, menuLabel }) {
   const navigate = useNavigate();
   const revalidator = useRevalidator();
 
-
   const { pending, success, response, fetchData, handleResponse } = use(FetchContext);
-
 
   useEffect(() => {
     document.title = "UnlockUser | Manual";
   }, [manuals])
 
-  async function deleteItem() {
-    setConfirm(false);
-
-    const id = manual ? manual?.id : manuals[0]?.id;
-    await fetchData({ api: `${api}/${id}`, method: "delete" });
-  }
-
-  function closeModal() {
-    handleResponse();
-    revalidator.revalidate();
-    setManual();
-  }
 
   function toggleSortingModel() {
     if (sortingModel) setSortedNames(null);
@@ -59,6 +45,12 @@ function Manual({ api, label, menuLabel }) {
 
   function handleSortChange(newItems) {
     setSortedNames(newItems.map(item => item?.name ?? item));
+  }
+
+  function closeModal() {
+    handleResponse();
+    revalidator.revalidate();
+    setManual();
   }
 
   async function saveSorting() {
@@ -70,6 +62,13 @@ function Manual({ api, label, menuLabel }) {
     }
   }
 
+  async function deleteItem() {
+    setConfirm(false);
+
+    const id = manual ? manual?.id : manuals[0]?.id;
+    await fetchData({ api: `${api}/${id}`, method: "delete" });
+  }
+
   const noFound = (!manuals || manuals?.length == 0);
   const isDirty = sortedNames !== null &&
     !sortedNames.every((name, i) => name === manuals[i]?.name);
@@ -78,7 +77,7 @@ function Manual({ api, label, menuLabel }) {
     <div className="d-column jc-start w-100 mh">
 
       {/* Tab menu */}
-      <TabPanel primary={label} secondary={manuals[0]?.popup ? "Popup meddelande" : manual?.primary?.toUpperCase()}>
+      <TabPanel primary={label} secondary={manuals && (manuals[0]?.popup ? "Popup meddelande" : manual?.primary?.toUpperCase())}>
 
 
         {/* Delete manual */}
@@ -125,7 +124,7 @@ function Manual({ api, label, menuLabel }) {
 
 
         {/* New manual */}
-        {openAccess && <Tooltip title="Skapa manual" color="secondary" classes={{ tooltip: "tooltip-white" }} arrow>
+        {openAccess && <Tooltip title={`Skapa ${label}`} color="secondary" classes={{ tooltip: "tooltip-white" }} arrow>
           <IconButton onClick={() => navigate("new")} style={{ marginLeft: noFound ? 0 : "20px" }}>
             <EditDocument />
           </IconButton>

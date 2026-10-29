@@ -171,12 +171,12 @@ const AppRoutes = () => [
           },
           {
             path: "new",
-            element: <FormManual api="articles" label="Nya artikel" checkbox="popup" />,
+            element: <FormManual api="articles" label="Nya artikel" checkbox="popup" groups={true} />,
             errorElement: <ErrorView />
           },
           {
             path: "edit/:id",
-            element: <FormManual api="articles" checkbox="popup" />,
+            element: <FormManual api="articles" checkbox="popup" groups={true} />,
             errorElement: <ErrorView />,
             loader: loaderById("articles")
           }

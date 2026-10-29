@@ -36,7 +36,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="wwwroot\articles\0.Nya_regler_i_den_nya_versionen.txt" />
 	  <Content Include="wwwroot\images\alvestakommun.png" />
 	  <Content Include="wwwroot\images\background.png" />
 	  <Content Include="wwwroot\images\contacts.png" />

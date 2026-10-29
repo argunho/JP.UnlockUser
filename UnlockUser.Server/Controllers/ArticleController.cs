@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Xml.Linq;
 
 namespace UnlockUser.Server.Controllers;
 
@@ -8,150 +7,118 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/articles")]
 [ApiController]
 [Authorize]
-public class ArticlelController(IHelpService helpService, ICredentialsService credentialsService) : ControllerBase
+public class ArticleController(IHelpService helpService, ICredentialsService credentialsService,
+        ILocalFileService localFileService) : ControllerBase
 {
     private readonly IHelpService _help = helpService;
     private readonly ICredentialsService _credentials = credentialsService;
+    private readonly ILocalFileService _localFile = localFileService;
 
-    private static readonly object _lock = new();
+    private static readonly SemaphoreSlim _catalogLock = new(1, 1);
+    private const string ArticleCatalog = "catalogs/articles";
+
+    private List<string> GetPermissionGroups() =>
+        _credentials.GetClaim("permissions")?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList() ?? [];
+
+    private static bool IsVisibleToGroups(ArticleModel article, List<string> groups) =>
+        article.Groups?.Any(group => groups.Contains(group, StringComparer.OrdinalIgnoreCase)) == true;
 
     #region GET
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        List<ManualArticleViewModel> manuals = [];
-
         try
         {
-            var (pathName, filePaths) = GetFiles();
-            manuals = await GetFileViewModels([.. filePaths]);
+            List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+            articles ??= [];
+            List<string> groups = GetPermissionGroups();
+
+            return Ok(articles.Where(article => IsVisibleToGroups(article, groups))
+                .OrderBy(article => article.OrderById).ToList());
         }
         catch (Exception ex)
         {
-            await _help.Error(ex);
+            return StatusCode(StatusCodes.Status500InternalServerError, await _help.Error(ex));
         }
-
-        return Ok(manuals.OrderBy(x => x.FileName).ToList());
     }
 
     [HttpGet("popup/message")]
     public async Task<IActionResult> GetMessage()
     {
-        var (_, files) = GetFiles("popup");
-        if (files == null || !files.Any())
-            return Ok();
-
-        string? username = _credentials.GetClaim("username");
-        if (string.IsNullOrEmpty(username))
-            return Ok();
-
-        bool shouldShow = false;
-
-        string jsonFolder = Path.Combine(@"wwwroot", "json");
-        string jsonPathName = Path.Combine(jsonFolder, "watched.json");
-
-        lock (_lock)
+        try
         {
-            if (!Directory.Exists(jsonFolder))
-                Directory.CreateDirectory(jsonFolder);
+            List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+            articles ??= [];
+            var claims = _credentials.GetClaims(["username"]);
+            claims.TryGetValue("username", out var username);
+            if (string.IsNullOrEmpty(username))
+                return Ok();
 
-            if (!System.IO.File.Exists(jsonPathName))
-                System.IO.File.WriteAllText(jsonPathName, "[]");
+            List<string> groups = GetPermissionGroups();
+            var popup = articles.FirstOrDefault(article => article.Popup
+                && !(article.Hidden ?? []).Contains(username, StringComparer.OrdinalIgnoreCase)
+                && IsVisibleToGroups(article, groups));
+            if (popup == null)
+                return Ok();
 
-            string json = System.IO.File.ReadAllText(jsonPathName);
-
-            HashSet<string> watched;
-            try
+            return Ok(new MessageViewModel
             {
-                watched = string.IsNullOrEmpty(json)
-                ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-                : System.Text.Json.JsonSerializer.Deserialize<HashSet<string>>(json)
-                  ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            }
-            catch (System.Text.Json.JsonException)
-            {
-                watched = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            }
-
-            if (!watched.Contains(username))
-            {
-                //watched.Add(username);
-                shouldShow = true;
-
-                //var updatedJson = System.Text.Json.JsonSerializer.Serialize(watched);
-                //System.IO.File.WriteAllText(jsonPathName, updatedJson);
-            }
+                Name = popup.Name,
+                Html = popup.Html
+            });
         }
-
-        if (!shouldShow)
-            return Ok();
-
-        string? jsonFile = files.FirstOrDefault()!.ToString();
-        var messageFile = await System.IO.File.ReadAllTextAsync(jsonFile!);
-        var messageModel = new MessageViewModel
+        catch (Exception ex)
         {
-            Name = Path.GetFileNameWithoutExtension(jsonFile).ToString().Replace("_", " "),
-            Html = messageFile
-        };
-
-        return Ok(messageModel);
+            return StatusCode(StatusCodes.Status500InternalServerError, await _help.Error(ex));
+        }
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
-        var filePath = await GetFilePath(id);
-        if (string.IsNullOrEmpty(filePath))
-            return Ok(_help.NotFound("Filen"));
-
-        var foundFile = await System.IO.File.ReadAllTextAsync(filePath);
-        var name = Path.GetFileNameWithoutExtension(filePath).ToString();
-
-        var popupPathname = Path.Combine("wwwroot/popup", Path.GetFileName(filePath)!);
-        bool popup = System.IO.File.Exists(popupPathname);
-
-        var manual = new ManualArticleViewModel
+        try
         {
-            Id = _help.EncodeToBase64(Path.GetFileName(filePath)),
-            Name = name[(name.IndexOf('.') + 1)..].Replace("_", " "),
-            Html = foundFile,
-            Popup = popup
-        };
-
-        return Ok(manual);
+            List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+            articles ??= [];
+            List<string> groups = GetPermissionGroups();
+            var article = articles.FirstOrDefault(item => item.Id == id && IsVisibleToGroups(item, groups));
+            return article == null ? NotFound() : Ok(article);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, await _help.Error(ex));
+        }
     }
     #endregion
 
     #region POST
     // Save uploaded file docx
     [HttpPost]
-    public async Task<IActionResult> Post(ManualArticleViewModel model)
+    public async Task<IActionResult> Post(ArticleModel model)
     {
         if (!ModelState.IsValid)
             return Ok(_help.Warning());
 
         try
         {
-            var (pathName, files) = GetFiles();
-            int index = files.Count() - 1;
-
-            var name = $"{index}.{_help.CleanString(model.Name!.Replace(" ", "_"))}.txt";
-
-            pathName = Path.Combine(pathName, name);
-            if (System.IO.File.Exists(pathName))
-                return Conflict("File already exists");
-
-            await System.IO.File.WriteAllTextAsync(pathName, model.Html);
-
-            if (model.Popup)
+            await _catalogLock.WaitAsync();
+            try
             {
-                RemovePopupFiles();
-                pathName = Path.Combine("wwwroot/popup", name);
-                await System.IO.File.WriteAllTextAsync(pathName, model.Html);
-            }
+                List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+                articles ??= [];
+                if (articles.Exists(article => string.Equals(article.Name, model.Name, StringComparison.OrdinalIgnoreCase)))
+                    return Ok(_help.Warning("En artikel med liknande namn är redan registrerad."));
 
-            return Ok();
+                model.OrderById = articles.Count + 1;
+                articles.Add(model);
+
+                await _localFile.EncrypteToFile(articles, ArticleCatalog);
+                return Ok();
+            }
+            finally
+            {
+                _catalogLock.Release();
+            }
         }
         catch (Exception ex)
         {
@@ -164,30 +131,29 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
     {
         try
         {
-            var (pathName, files) = GetFiles();
-            for (int i = 0; i < names.Count; i++)
+            await _catalogLock.WaitAsync();
+            try
             {
-                string name = names[i];
-                foreach (var file in files)
+                List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+                articles ??= [];
+                for (int i = 0; i < names.Count; i++)
                 {
-                    string fileName = Path.GetFileName(file);
-                    if (fileName.Contains(name, StringComparison.OrdinalIgnoreCase))
+                    int order = i + 1;
+                    string name = names[i];
+                    foreach (var article in articles)
                     {
-                        string newFileName = $"{i}.{fileName[(fileName.IndexOf('.') + 1)..]}";
-
-                        string directory = Path.GetDirectoryName(file)!;
-                        string newFullPath = Path.Combine(directory, newFileName);
-
-                        // rename file (content stays the same)
-                        if (!System.IO.File.Exists(newFullPath))
-                        {
-                            System.IO.File.Move(file, newFullPath);
-                        }
+                        if (string.Equals(article.Name, name, StringComparison.OrdinalIgnoreCase))
+                            article.OrderById = order;
                     }
                 }
-            }
 
-            return Ok();
+                await _localFile.EncrypteToFile(articles, ArticleCatalog);
+                return Ok();
+            }
+            finally
+            {
+                _catalogLock.Release();
+            }
         }
         catch (Exception ex)
         {
@@ -202,78 +168,70 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
         if (string.IsNullOrEmpty(username))
             return Ok();
 
-        string jsonFolder = Path.Combine(@"wwwroot", "json");
-        string jsonPathName = Path.Combine(jsonFolder, "watched.json");
-
-        _ = Task.Run(async () =>
+        try
+        {
+            await _catalogLock.WaitAsync();
+            try
             {
-                lock (_lock)
-                {
+                List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+                articles ??= [];
+                List<string> groups = GetPermissionGroups();
+                var popup = articles.FirstOrDefault(article => article.Popup
+                    && !(article.Hidden ?? []).Contains(username, StringComparer.OrdinalIgnoreCase)
+                    && IsVisibleToGroups(article, groups));
+                if (popup == null)
+                    return Ok();
 
-                    if (!Directory.Exists(jsonFolder))
-                        Directory.CreateDirectory(jsonFolder);
+                popup.Hidden ??= [];
+                if (!popup.Hidden.Contains(username, StringComparer.OrdinalIgnoreCase))
+                    popup.Hidden.Add(username);
 
-                    if (!System.IO.File.Exists(jsonPathName))
-                        System.IO.File.WriteAllText(jsonPathName, "[]");
-
-                    string json = System.IO.File.ReadAllText(jsonPathName);
-
-                    HashSet<string> watched;
-                    try
-                    {
-                        watched = string.IsNullOrEmpty(json)
-                        ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-                        : System.Text.Json.JsonSerializer.Deserialize<HashSet<string>>(json)
-                          ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-                    }
-                    catch (System.Text.Json.JsonException)
-                    {
-                        watched = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    }
-
-                    if (!watched.Contains(username))
-                    {
-                        watched.Add(username);
-                        var updatedJson = System.Text.Json.JsonSerializer.Serialize(watched);
-                        System.IO.File.WriteAllText(jsonPathName, updatedJson);
-                    }
-                }
-            });
-
-        return Ok();
+                await _localFile.EncrypteToFile(articles, ArticleCatalog);
+                return Ok();
+            }
+            finally
+            {
+                _catalogLock.Release();
+            }
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(await _help.Error(ex));
+        }
     }
     #endregion
 
     #region PUT
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put(string id, ManualArticleViewModel model)
+    public async Task<IActionResult> Put(string id, ArticleModel model)
     {
         if (!ModelState.IsValid)
             return Ok(_help.Warning());
 
         try
         {
-            var filePath = await GetFilePath(id);
-            if (string.IsNullOrEmpty(filePath))
-                return Ok(_help.NotFound("Filen"));
-
-
-            await System.IO.File.WriteAllTextAsync(filePath, model.Html);
-
-            var name = _help.DecodeFromBase64(id);
-            var pathName = Path.Combine("wwwroot/popup", name);
-            if (model.Popup)
+            await _catalogLock.WaitAsync();
+            try
             {
-                RemovePopupFiles();
-                await System.IO.File.WriteAllTextAsync(pathName, model.Html);
-            }
-            else if (System.IO.File.Exists(pathName))
-            {
-                RemovePopupFiles();
-            }
+                List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+                articles ??= [];
+                if (articles.Exists(article => article.Id != id
+                    && string.Equals(article.Name, model.Name, StringComparison.OrdinalIgnoreCase)))
+                    return Ok(_help.Warning("En artikel med liknande namn är redan registrerad."));
 
-            return Ok();
+                int articleIndex = articles.FindIndex(article => article.Id == id);
+                if (articleIndex < 0)
+                    return NotFound();
+
+                model.Id = id;
+                articles[articleIndex] = model;
+                await _localFile.EncrypteToFile(articles, ArticleCatalog);
+                return Ok();
+            }
+            finally
+            {
+                _catalogLock.Release();
+            }
         }
         catch (Exception ex)
         {
@@ -288,93 +246,25 @@ public class ArticlelController(IHelpService helpService, ICredentialsService cr
     {
         try
         {
-            var filePath = await GetFilePath(id);
-            if (string.IsNullOrEmpty(filePath))
-                return Ok(_help.NotFound("Filen"));
-
-            System.IO.File.Delete(filePath);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(await _help.Error(ex));
-        }
-    }
-
-    [HttpDelete("popup")]
-    public async Task<IActionResult> DeletePopup()
-    {
-        try
-        {
-            RemovePopupFiles();
-            return Ok();
-
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(await _help.Error(ex));
-        }
-    }
-    #endregion
-
-    #region Helper methods
-    public async Task<string?> GetFilePath(string id)
-    {
-        string name = _help.DecodeFromBase64(id);
-        string pathName = Path.Combine("wwwroot", "articles", name);
-        if (!System.IO.File.Exists(pathName))
-            return null;
-
-        return pathName;
-    }
-
-    private (string pathName, IEnumerable<string>) GetFiles(string directory = "articles")
-    {
-        var source = Path.Combine("wwwroot", directory);
-        if (!Directory.Exists(source))
-            Directory.CreateDirectory(source);
-
-        var files = Directory.EnumerateFiles(source, "*.txt") ?? [];
-
-        return (source, files);
-    }
-
-    private async Task<List<ManualArticleViewModel>> GetFileViewModels(List<string> filePaths)
-    {
-        var models = new List<ManualArticleViewModel>();
-        foreach (var filePath in filePaths)
-        {
-            var fileContent = await System.IO.File.ReadAllTextAsync(filePath);
-            var name = Path.GetFileNameWithoutExtension(filePath).ToString();
-
-            var popupPathname = Path.Combine("wwwroot/popup", Path.GetFileName(filePath)!);
-            bool popup = System.IO.File.Exists(popupPathname);
-
-            models.Add(new ManualArticleViewModel
+            await _catalogLock.WaitAsync();
+            try
             {
-                Id = _help.EncodeToBase64(Path.GetFileName(filePath)),
-                Name = name[(name.IndexOf('.') + 1)..],
-                Html = fileContent,
-                FileName = name,
-                Popup = popup
-            });
-        }
+                List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+                articles ??= [];
+                if (articles.RemoveAll(article => article.Id == id) == 0)
+                    return NotFound();
 
-        return models;
-    }
-    
-    private void RemovePopupFiles()
-    {
-        var (_, files) = GetFiles("popup");
-        if (files.Any())
-        {
-            foreach (var file in files)
-            {
-                System.IO.File.Delete(file);
+                await _localFile.EncrypteToFile(articles, ArticleCatalog);
+                return Ok();
             }
-
-            var json = Path.Combine("wwwroot/json", "watched.json");
-            System.IO.File.Delete(json);
+            finally
+            {
+                _catalogLock.Release();
+            }
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(await _help.Error(ex));
         }
     }
     #endregion

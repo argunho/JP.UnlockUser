@@ -13,6 +13,7 @@ import Message from '../../components/blocks/Message';
 
 // Storage
 import { FetchContext } from './../../storage/FetchContext';
+import { Claim } from './../../functions/DecodedToken';
 
 const checkboxes = {
     popup: {
@@ -21,7 +22,7 @@ const checkboxes = {
     }
 }
 
-function FormManual({ api, label, checkbox }) {
+function FormManual({ api, label, checkbox, groups }) {
     const [checkboxValue, setCheckboxValue] = useState(false);
     const [prevFormModel, setPrevFormModel] = useState(undefined);
 
@@ -32,18 +33,22 @@ function FormManual({ api, label, checkbox }) {
     const navigate = useNavigate();
     const { loading } = useOutletContext();
 
+    const groupNames = groups ? Claim("groups") : null;;
+
     async function onSubmit(previous, fd) {
         const data = {
             name: fd.get("name") ?? item?.name,
-            html: fd.get("html")
+            html: fd.get("html"),
+            groups: fd.getAll("groups")
         }
 
         if (!!checkbox) {
             data[checkbox] = fd.get(checkbox) === "on";
         }
 
+
         // Request
-        await fetchData({ api: id ? `${api}/${id}` : "manual", method: id ? "put" : "post", data: data, action: "done" });
+        await fetchData({ api: id ? `${api}/${id}` : api, method: id ? "put" : "post", data: data, action: "done" });
         return null;
     }
 
@@ -56,7 +61,7 @@ function FormManual({ api, label, checkbox }) {
         setPrevFormModel(formModel);
         setCheckboxValue(!!formModel?.[checkbox]);
     }
-    
+
 
     return <>
         <TabPanel primary={label ?? (id && (!formModel ? "Data hämtras..." : `Edit: ${formModel?.name}`))} />
@@ -84,18 +89,32 @@ function FormManual({ api, label, checkbox }) {
 
             <Editor name="html" required={true} disabled={disabled || (id && !item)} defaultValue={formModel?.html} />
 
-            {/* Change the password input type */}
-            {!!checkbox && <FormControlLabel
-                className="checkbox margin"
-                control={<Checkbox
-                    color="success"
-                    name={checkboxes[checkbox]?.name}
-                    checked={checkboxValue}
-                    onChange={(e) => setCheckboxValue(e.target.checked)}
-                    disabled={disabled} />}
-                label={checkboxes[checkbox]?.label} />}
+            {/* Group list */}
+            {groups && <>
+                <p className="checkbox-label">Visa för behörighets grupper</p>
+                {groupNames?.split(',').map(group => <FormControlLabel
+                    key={group}
+                    className="checkbox"
+                    control={<Checkbox
+                        color="primary"
+                        name="group"
+                        checked={formModel?.groups.includes(group)}
+                        disabled={disabled} />}
+                    label={group} />)}
+            </>}
 
-            <FormButtons loading={pending} disabled={disabled} confirmable={true} />
+            <FormButtons loading={pending} disabled={disabled} confirmable={true}>
+                {/* Change the password input type */}
+                {!!checkbox && <FormControlLabel
+                    className="checkbox"
+                    control={<Checkbox
+                        color="secondary"
+                        name={checkboxes[checkbox]?.name}
+                        checked={checkboxValue}
+                        onChange={(e) => setCheckboxValue(e.target.checked)}
+                        disabled={disabled} />}
+                    label={checkboxes[checkbox]?.label} />}
+            </FormButtons>
         </form>}
 
         {/* Success modal */}
