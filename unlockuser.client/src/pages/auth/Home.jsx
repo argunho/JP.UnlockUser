@@ -331,7 +331,7 @@ function Home() {
                     autoSave="off"
                     defaultValue={formState?.name ?? ""}
                     onChange={onChange}
-                    className={`${gn !== "overview" ? "search-wrapper " : ""}w-100`}
+                    className={`${(gn !== "overview" && permissionGroups?.length > 1) ? "search-wrapper " : ""}w-100`}
                     InputProps={{
                         maxLength: 30,
                         minLength: 2,

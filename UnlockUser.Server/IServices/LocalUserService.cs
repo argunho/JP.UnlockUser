@@ -148,13 +148,16 @@ public class LocalUserService(ILocalFileService localFileService,
             var moderator = currentModerators.FirstOrDefault(x => string.Equals(x.Username, user.Username, StringComparison.OrdinalIgnoreCase));
             bool canPreserveCurrentPermissions = moderator?.Permissions is not null && string.Equals(moderator.Manager, user.Manager, StringComparison.OrdinalIgnoreCase);
 
+            var mp = moderator!.Permissions;
             if (canPreserveCurrentPermissions)
             {
                 // Руководитель не изменился.
                 // Копируем сохранённые права в новые списки.
-                permissions.Managers = [.. moderator!.Permissions!.Managers.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
-                permissions.Politicians = [.. moderator.Permissions.Politicians.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
-                permissions.Schools = [.. moderator.Permissions.Schools.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
+                permissions.Managers = [.. mp!.Managers?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
+                permissions.Politicians = [.. mp.Politicians?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
+                permissions.Schools = [.. mp.Schools?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
+                permissions.Employees = [.. mp.Employees?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
+                permissions.Offices = [.. mp.Offices?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
             }
             else
             {

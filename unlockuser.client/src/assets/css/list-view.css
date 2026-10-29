@@ -87,7 +87,8 @@ li.list-item div>button {
 }
 
 li.last {
-    margin: 4px 3px !important;
+    /* margin: 4px 3px !important; */
+    margin: 4px auto !important;
     width: calc(100% - 18px) !important;
 }
 

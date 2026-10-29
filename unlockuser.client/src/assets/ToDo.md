@@ -19,3 +19,6 @@
 #### 17. Two succe modal after user permission updating
 #### 18. Update page directly  after user permission updating
 #### 19. Own password not working
+#### 20. Catalog update, remove offices
+## 21. Admin in list, navigate to admin sida
+## 22. Message to user
