@@ -131,7 +131,7 @@ public class ManualController(IHelpService helpService, ICredentialsService cred
             try
             {
                 List<ManualModel> manuals = await _localFile.GetEncryptedFile<List<ManualModel>>(ManualCatalog);
-                manuals ?? = [];
+                manuals ??= [];
                 if (manuals.Exists(manual => manual.Id != id
                     && string.Equals(manual.Name, model.Name, StringComparison.OrdinalIgnoreCase)))
                     return Ok(_help.Warning("En manual med liknande namn är redan registrerad."));
