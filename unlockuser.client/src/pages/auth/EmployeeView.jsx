@@ -150,34 +150,34 @@ function EmployeeView() {
         })
     }
 
-    async function onSharePermission() {
-        const data = {
-            username: moderator?.username,
-            type: "",
-            permissions: permissionType
-        }
-        await fetchData({ api: `catalogs/share/moderators/permission`, method: "post", data: data, action: "success" });
-    }
-
     async function onSubmitChange() {
         const data = {
-            username: moderator?.username,
+            username: selected ? selected?.username : moderator?.username,
             names: []
         };
 
         // start: 2026-10-23 20:40
         // Employees are now stored in the moderators catalog (Permissions.Employees), so they are saved together with the other lists
-        if (managersChanged || politiciansChanged || schoolsChanged || employeesChanged || officesChanged) {
+        if (!selected && (managersChanged || politiciansChanged || schoolsChanged || employeesChanged || officesChanged)) {
             data.managers = approved?.managers?.map(x => x.username);
             data.politicians = approved?.politicians?.map(x => x.username);
             data.schools = approved?.schools;
             data.employees = approved?.employees;
             data.offices = approved?.offices;
             data.names.push("moderators")
-        }
         // end
-
-        await fetchData({ api: `catalogs/update/moderators/permission`, method: "put", data: data, action: "success" });
+        } else if(selected){
+            delete data.names;
+            data.type = permissionType;
+            data.permissions = approved[permissionType];
+        }
+console.log(data)
+        await fetchData({ 
+            api: selected ? `catalogs/share/moderators/permission` : `catalogs/update/moderators/permission`, 
+            method: selected ? "post" : "put", 
+            data: data, 
+            action: "success" 
+        });
     }
 
     function onChange(primary, secondary = null, multiple = null) {
@@ -306,7 +306,7 @@ function EmployeeView() {
                 onClick={onChange}>
 
                 {/*  Permissions share */}
-                {permissionType && <Tooltip title="Välj en moderator från listan för att ge den samma behörigheter."
+                {permissionType && <Tooltip title="Välj en moderator från listan för att ge den samma valda behörigheter som nedan."
                     classes={{
                         tooltip: "tooltip-info",
                         arrow: "tooltip-arrow-info"
