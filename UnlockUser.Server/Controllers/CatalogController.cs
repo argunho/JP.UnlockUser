@@ -22,7 +22,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     private readonly IMemoryCache _cache = memoryCache;
     private readonly ILogger<CatalogController> _logger = logger;
 
-    private const string ModeratorsCatalog = "moderators";
+    private const string ModeratorsCatalog = "catalogs/moderators";
 
     #region GET
     // Get stored  employees who have permission to manage employee passwords nby group name
@@ -33,7 +33,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         try
         {
             // Saved employees who have permission to manage employee passwords
-            var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>($"catalogs/{ModeratorsCatalog}") ?? [];
+            var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>(ModeratorsCatalog) ?? [];
             var managers = await _localFileService.GetEncryptedFile<List<Manager>>("catalogs/managers") ?? [];
 
             // Guard against a missing/unreadable catalogs/politicians file (was throwing NRE in production and returning an empty response) — 2026-09-02 13:17
@@ -42,13 +42,14 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             var schools = await SchoolsFromFile();
             var roles = _credentials.IsUserInRole("DevelopTeam") ? _config.GetSection("Roles").Get<Dictionary<string, string>>() : null;
 
-            return Ok(new { 
-                moderators = moderators.OrderBy(x => x.Office).ToList(), 
-                managers, 
-                politicians, 
-                schools, 
-                groups, 
-                roles 
+            return Ok(new
+            {
+                moderators = moderators.OrderBy(x => x.Office).ToList(),
+                managers,
+                politicians,
+                schools,
+                groups,
+                roles
             });
         }
         catch (Exception ex)
@@ -272,6 +273,52 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
         return Ok();
     }
+
+    [HttpPost("share/moderators/permission")]
+    public async Task<IActionResult> ShareModeratorsPermissions(PermissionFormModel model)
+    {
+        string casheKey = "share_permissons";
+        if (_lockService.TryStart(casheKey, out var waitTask))
+        {
+            try
+            {
+                var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>(ModeratorsCatalog) ?? [];
+                var mIndex = moderators.FindIndex(x => string.Equals(x.Username, model.Username, StringComparison.OrdinalIgnoreCase));
+                if (moderators[mIndex] == null)
+                    return Ok();
+
+                bool isChanged = false;
+                if (string.Equals(model.Type, "Employees", StringComparison.OrdinalIgnoreCase))
+                {
+                    moderators[mIndex].Permissions?.Employees.AddRange(model.Permissions);
+                    isChanged = true;
+                }
+                else if (string.Equals(model.Type, "Offices", StringComparison.OrdinalIgnoreCase))
+                {
+                    moderators[mIndex].Permissions?.Offices.AddRange(model.Permissions);
+                    isChanged = true;
+                }
+
+                if (isChanged)
+                {
+                    await _localFileService.EncrypteToFile(moderators, ModeratorsCatalog);
+
+                    ChangeLog($"Moderators filen ändrad med delad behörigheter. Behörigheter: {model.Permissions} till {model.Username}.");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Critical problem. Function: {method}. Error: {error}", nameof(PutModeratorsPermissions), ex.Message);
+                return BadRequest(await _helpService.Error(ex));
+            }
+            finally
+            {
+                _lockService.Finish(casheKey);
+            }
+        }
+        return Ok();
+    }
     #endregion
 
     #region PUT
@@ -290,7 +337,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
                 if (changed.Contains(ModeratorsCatalog))
                 {
-                    var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>($"catalogs/{ModeratorsCatalog}") ?? [];
+                    var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>(ModeratorsCatalog) ?? [];
                     var moderator = moderators.FirstOrDefault(x => x.Username == model.Username);
                     if (moderator == null)
                         return NotFound(_helpService.NotFound("Anställd"));
@@ -304,9 +351,9 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
                     moderator.Permissions?.Employees = [.. model.Employees.OrderBy(x => x)];
                     moderator.Permissions?.Offices = [.. model.Offices.OrderBy(x => x)];
 
-                    await _localFileService.EncrypteToFile(moderators, $"catalogs/{ModeratorsCatalog}");
+                    await _localFileService.EncrypteToFile(moderators, ModeratorsCatalog);
 
-                    _logger.LogTrace("Moderators file changed.");
+                    ChangeLog($"Moderators filen ändrad med uppdaterad behörigheter. Updaterad: {moderator.Username}.");
                 }
             }
             catch (Exception ex)
@@ -440,6 +487,12 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         }).ToList() ?? [];
 
         return schools;
+    }
+
+    private void ChangeLog(string msg)
+    {
+        var username = _credentials.GetClaim("username");
+        _logger.LogTrace($"{msg}. Användare: {0}", username);
     }
     #endregion
 }

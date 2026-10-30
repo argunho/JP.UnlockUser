@@ -37,8 +37,6 @@ function ActionsTab({ children, viewLabel, labels, pending, disabled, action, on
     onClick(value?.key);
   };
 
-
-
   return (
     <>
       <Box className={`d-row ${(label ? "jc-between" : "jc-end")} w-100 action-wrapper`}>
@@ -81,6 +79,8 @@ function ActionsTab({ children, viewLabel, labels, pending, disabled, action, on
           <Button
             variant="contained"
             className="save"
+            size="large"
+            style={{ width: "200px" }}
             color={action?.color ?? "primary"}
             onClick={handleClick}
             disabled={pending || disabled}>

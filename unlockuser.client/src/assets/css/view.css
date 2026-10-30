@@ -128,6 +128,10 @@ li.action-menu-li.selected {
     height: 40px;
 }
 
+.action-wrapper button.save{
+    height: 54px;
+}
+
 .action-wrapper >div.message-box {
     margin: -8px auto !important;
     width: calc(100% - 20px) !important;

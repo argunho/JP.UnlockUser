@@ -1,2 +1,3 @@
 2026-10-30 09:42:45.795 +01:00 [INF] Autentisering utförd vid: 2026-10-30 09:42. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
 2026-10-30 10:24:41.557 +01:00 [INF] Autentisering utförd vid: 2026-10-30 10:24. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-10-30 15:40:16.247 +01:00 [INF] Autentisering utförd vid: 2026-10-30 15:40. User: 790822asla. Department: IT avdelning. Office: IT avdelning.

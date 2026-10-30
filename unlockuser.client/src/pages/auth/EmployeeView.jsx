@@ -2,8 +2,8 @@ import { useState, use } from 'react';
 
 // Installed
 import { useOutletContext, useLoaderData, useRevalidator, useNavigate } from 'react-router-dom';
-import { IconButton, Collapse, List, ListItem, ListItemText, Tooltip } from '@mui/material'; // , FormControlLabel, Checkbox, FormControl, InputLabel, Select, OutlinedInput, MenuItem
-import {CheckBox, CheckBoxOutlineBlank, VerifiedUser } from '@mui/icons-material';
+import { IconButton, Collapse, List, ListItem, ListItemText, Tooltip, TextField, Autocomplete } from '@mui/material'; // , FormControlLabel, Checkbox, FormControl, InputLabel, Select, OutlinedInput, MenuItem
+import { CheckBox, CheckBoxOutlineBlank, VerifiedUser } from '@mui/icons-material';
 import _ from 'lodash';
 
 // Components
@@ -48,7 +48,7 @@ function EmployeeView() {
     const { members, offices } = useLoaderData();
     const revalidator = useRevalidator();
     const navigate = useNavigate();
-    const context = useOutletContext(); 
+    const context = useOutletContext();
     const { moderator, managers, politicians, access, search, revalidate } = context;//, roles
     const { permissions } = moderator;
 
@@ -66,6 +66,8 @@ function EmployeeView() {
     const [caseModal, setCaseModal] = useState(false);
     const [dropdownItems, setDropDownItems] = useState([]);
     const [dropdownTitle, setDropdownTitle] = useState(null);
+    const [permissionType, setPermissionType] = useState(null);
+    const [selected, setSelected] = useState(null);
 
     // const [selected, setSelected] = useState([]);
 
@@ -148,6 +150,15 @@ function EmployeeView() {
         })
     }
 
+    async function onSharePermission() {
+        const data = {
+            username: moderator?.username,
+            type: "",
+            permissions: permissionType
+        }
+        await fetchData({ api: `catalogs/share/moderators/permission`, method: "post", data: data, action: "success" });
+    }
+
     async function onSubmitChange() {
         const data = {
             username: moderator?.username,
@@ -174,6 +185,11 @@ function EmployeeView() {
         if (!primary)
             return;
 
+        if (permissionType) {
+            setSelected(null);
+            setPermissionType(null);
+        }
+
         let items = [];
         let close = false;
         switch (primary) {
@@ -188,13 +204,15 @@ function EmployeeView() {
                 break;
             case "employees":
                 items = members?.filter(x => approvedEmployees?.includes(x.username));
+                setPermissionType("employees");
                 break;
-            case "office":              
+            case "office":
                 items = members?.filter(x => x.manager?.includes(secondary?.username));
                 setDropdownTitle(secondary?.office);
                 break;
             case "offices":
                 items = approvedOffices;
+                setPermissionType("offices");
                 break;
             // start: 2026-10-26 15:45
             case "search": {
@@ -247,7 +265,7 @@ function EmployeeView() {
         // end
     }
 
-    function onNavigate(name){
+    function onNavigate(name) {
         navigate(`/moderators/view/${name}`, { replace: true });
     }
 
@@ -279,13 +297,37 @@ function EmployeeView() {
                 viewLabel={dropdownTitle}
                 labels={svl ? labels?.slice(0, 1) : labels}
                 pending={pending}
-                disabled={access?.open ? !isChanged : caseEmployees?.length === 0}
+                disabled={access?.open ? (!isChanged && !selected) : caseEmployees?.length === 0}
                 action={access?.limited ? {
                     name: "Registrera ärende i Topdesk",
                     color: "warning",
                     confirm: false
                 } : null}
-                onClick={onChange} />
+                onClick={onChange}>
+
+                {/*  Permissions share */}
+                {permissionType && <Tooltip title="Välj en moderator från listan för att ge den samma behörigheter."
+                    classes={{
+                        tooltip: "tooltip-info",
+                        arrow: "tooltip-arrow-info"
+                    }} placement="left" arrow>
+                    <Autocomplete
+                        options={members}
+                        value={selected}
+                        style={{ width: "340px" }}
+                        getOptionLabel={(option) => option?.primary ?? ""}
+                        isOptionEqualToValue={(option, value) => option?.secondary === value?.secondary}
+                        onChange={(e, option) => setSelected(option)}
+                        renderOption={(props, option) => {
+                            const { key, ...rest } = props;
+                            return <li key={option.secondary ?? key} {...rest}>{option.primary}</li>;
+                        }}
+                        renderInput={(params) => <TextField {...params} label="Moderators ..." required />} />
+
+                    {/* The visible input holds the display name, so the username (secondary) is submitted from here */}
+                    <input type="hidden" name="moderator" value={moderator?.secondary ?? ""} />
+                </Tooltip>}
+            </ActionsTab>
 
             {/* 
                 {!!roles && <FormControl sx={{ m: 1, width: 260 }}>
@@ -338,7 +380,7 @@ function EmployeeView() {
                                     {!offices && item.permissions && <Tooltip title="Administratör" arrow>
                                         <IconButton onClick={() => onNavigate(item?.username)}>
                                             <VerifiedUser fontSize="small" color="success" />
-                                        </IconButton>                                      
+                                        </IconButton>
                                     </Tooltip>}
                                     <IconButton
                                         disabled={selected || (!sv && access?.limited)}
