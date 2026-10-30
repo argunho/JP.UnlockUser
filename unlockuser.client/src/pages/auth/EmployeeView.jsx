@@ -171,7 +171,7 @@ function EmployeeView() {
             data.type = permissionType;
             data.permissions = approved[permissionType];
         }
-console.log(data)
+
         await fetchData({ 
             api: selected ? `catalogs/share/moderators/permission` : `catalogs/update/moderators/permission`, 
             method: selected ? "post" : "put", 
