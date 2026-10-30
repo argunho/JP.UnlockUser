@@ -38,14 +38,16 @@ function FormManual({ api, label, checkbox, groups }) {
     async function onSubmit(previous, fd) {
         const data = {
             name: fd.get("name") ?? item?.name,
-            html: fd.get("html"),
-            groups: fd.getAll("groups")
+            html: fd.get("html")
         }
 
         if (!!checkbox) {
             data[checkbox] = fd.get(checkbox) === "on";
         }
 
+        if(groups){
+            data.groups =  fd.getAll("groups")
+        }
 
         // Request
         await fetchData({ api: id ? `${api}/${id}` : api, method: id ? "put" : "post", data: data, action: "done" });
@@ -64,7 +66,7 @@ function FormManual({ api, label, checkbox, groups }) {
 
 
     return <>
-        <TabPanel primary={label ?? (id && (!formModel ? "Data hämtras..." : `Edit: ${formModel?.name}`))} />
+        <TabPanel primary={label ?? (id && (!formModel ? "Data hämtas..." : `Edit: ${formModel?.name}`))} />
 
         {/* Error message */}
         {response && <Message res={response} cancel={() => handleResponse()} />}
@@ -97,7 +99,8 @@ function FormManual({ api, label, checkbox, groups }) {
                     className="checkbox"
                     control={<Checkbox
                         color="primary"
-                        name="group"
+                        name="groups"
+                        value={group}
                         checked={formModel?.groups.includes(group)}
                         disabled={disabled} />}
                     label={group} />)}

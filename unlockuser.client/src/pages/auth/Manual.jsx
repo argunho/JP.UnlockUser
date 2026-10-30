@@ -54,7 +54,7 @@ function Manual({ api, label, menuLabel }) {
   }
 
   async function saveSorting() {
-    const res = await fetchData({ api: "manual/sorting", method: "post", data: sortedNames, action: "return" });
+    const res = await fetchData({ api: `${api}/sorting`, method: "post", data: sortedNames, action: "return" });
     if (res !== undefined) {
       setSortedNames(null);
       setSortingMode(false);

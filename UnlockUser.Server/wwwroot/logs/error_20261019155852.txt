@@ -1,1 +1,0 @@
-﻿{"Id":"error_20261019155852","Source":"Error: Microsoft.Extensions.Features","Description":"Error: IFeatureCollection has been disposed.\r\nObject name: \u0027Collection\u0027.\n\nPath to file: Controllers\\AuthenticationController.cs\n\nLine number: 338\n\nMethod: MoveNext\n","Opened":false,"Date":"2026.10.19 15:58:52"}
