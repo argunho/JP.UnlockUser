@@ -80,7 +80,7 @@ function ActionsTab({ children, viewLabel, labels, pending, disabled, action, on
             variant="contained"
             className="save"
             size="large"
-            style={{ width: "200px" }}
+            style={{ minWidth: "200px" }}
             color={action?.color ?? "primary"}
             onClick={handleClick}
             disabled={pending || disabled}>

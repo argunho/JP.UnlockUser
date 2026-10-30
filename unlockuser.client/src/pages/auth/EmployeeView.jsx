@@ -306,7 +306,7 @@ function EmployeeView() {
                 onClick={onChange}>
 
                 {/*  Permissions share */}
-                {permissionType && <Tooltip title="Välj en moderator från listan för att ge den samma valda behörigheter som nedan."
+                {(permissionType && access?.open) && <Tooltip title="Välj en moderator från listan för att ge den samma valda behörigheter som nedan."
                     classes={{
                         tooltip: "tooltip-info",
                         arrow: "tooltip-arrow-info"
