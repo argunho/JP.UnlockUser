@@ -20,8 +20,8 @@ public class ArticleController(IHelpService helpService, ICredentialsService cre
     private List<string> GetPermissionGroups() =>
         _credentials.GetClaim("permissions")?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList() ?? [];
 
-    private static bool IsVisibleToGroups(ArticleModel article, List<string> groups) =>
-        article.Groups?.Any(group => groups.Contains(group, StringComparer.OrdinalIgnoreCase)) == true;
+    private bool IsVisibleToGroups(ArticleModel article, List<string> groups) =>
+        (_credentials.GetClaim("openAccess") != null || article.Groups?.Any(group => groups.Contains(group, StringComparer.OrdinalIgnoreCase)) == true);
 
     #region GET
     [HttpGet]
@@ -29,7 +29,7 @@ public class ArticleController(IHelpService helpService, ICredentialsService cre
     {
         try
         {
-            List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+            List<ArticleModel>? articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
             articles ??= [];
             List<string> groups = GetPermissionGroups();
 
@@ -47,7 +47,7 @@ public class ArticleController(IHelpService helpService, ICredentialsService cre
     {
         try
         {
-            List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+            List<ArticleModel>? articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
             articles ??= [];
             var claims = _credentials.GetClaims(["username"]);
             claims.TryGetValue("username", out var username);
@@ -78,7 +78,7 @@ public class ArticleController(IHelpService helpService, ICredentialsService cre
     {
         try
         {
-            List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+            List<ArticleModel>? articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
             articles ??= [];
             List<string> groups = GetPermissionGroups();
             var article = articles.FirstOrDefault(item => item.Id == id && IsVisibleToGroups(item, groups));
@@ -104,11 +104,12 @@ public class ArticleController(IHelpService helpService, ICredentialsService cre
             await _catalogLock.WaitAsync();
             try
             {
-                List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+                List<ArticleModel>? articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
                 articles ??= [];
                 if (articles.Exists(article => string.Equals(article.Name, model.Name, StringComparison.OrdinalIgnoreCase)))
                     return Ok(_help.Warning("En artikel med liknande namn är redan registrerad."));
 
+                model.Id = Guid.NewGuid().ToString();
                 model.OrderById = articles.Count + 1;
                 articles.Add(model);
 
@@ -134,7 +135,7 @@ public class ArticleController(IHelpService helpService, ICredentialsService cre
             await _catalogLock.WaitAsync();
             try
             {
-                List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+                List<ArticleModel>? articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
                 articles ??= [];
                 for (int i = 0; i < names.Count; i++)
                 {
@@ -173,7 +174,7 @@ public class ArticleController(IHelpService helpService, ICredentialsService cre
             await _catalogLock.WaitAsync();
             try
             {
-                List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+                List<ArticleModel>? articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
                 articles ??= [];
                 List<string> groups = GetPermissionGroups();
                 var popup = articles.FirstOrDefault(article => article.Popup
@@ -213,7 +214,7 @@ public class ArticleController(IHelpService helpService, ICredentialsService cre
             await _catalogLock.WaitAsync();
             try
             {
-                List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+                List<ArticleModel>? articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
                 articles ??= [];
                 if (articles.Exists(article => article.Id != id
                     && string.Equals(article.Name, model.Name, StringComparison.OrdinalIgnoreCase)))
@@ -249,7 +250,7 @@ public class ArticleController(IHelpService helpService, ICredentialsService cre
             await _catalogLock.WaitAsync();
             try
             {
-                List<ArticleModel> articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
+                List<ArticleModel>? articles = await _localFile.GetEncryptedFile<List<ArticleModel>>(ArticleCatalog);
                 articles ??= [];
                 if (articles.RemoveAll(article => article.Id == id) == 0)
                     return NotFound();

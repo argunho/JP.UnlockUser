@@ -6,11 +6,9 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class ManualController(IHelpService helpService, ICredentialsService credentialsService,
-        ILocalFileService localFileService) : ControllerBase
+public class ManualController(IHelpService helpService, ILocalFileService localFileService) : ControllerBase
 {
     private readonly IHelpService _help = helpService;
-    private readonly ICredentialsService _credentials = credentialsService;
     private readonly ILocalFileService _localFile = localFileService;
 
     private static readonly SemaphoreSlim _catalogLock = new(1, 1);
@@ -22,8 +20,8 @@ public class ManualController(IHelpService helpService, ICredentialsService cred
     {
         try
         {
-            List<ManualModel> manuals = await _localFile.GetEncryptedFile<List<ManualModel>>(ManualCatalog);
-            return Ok(manuals.OrderBy(manual => manual.OrderById).ToList());
+            List<ManualModel>? manuals = await _localFile.GetEncryptedFile<List<ManualModel>>(ManualCatalog);
+            return Ok(manuals?.OrderBy(manual => manual.OrderById).ToList());
         }
         catch (Exception ex)
         {
@@ -36,8 +34,8 @@ public class ManualController(IHelpService helpService, ICredentialsService cred
     {
         try
         {
-            List<ManualModel> manuals = await _localFile.GetEncryptedFile<List<ManualModel>>(ManualCatalog);
-            var manual = manuals.FirstOrDefault(item => item.Id == id);
+            List<ManualModel>? manuals = await _localFile.GetEncryptedFile<List<ManualModel>>(ManualCatalog);
+            var manual = manuals?.FirstOrDefault(item => item.Id == id);
             return manual == null ? NotFound() : Ok(manual);
         }
         catch (Exception ex)
@@ -60,11 +58,12 @@ public class ManualController(IHelpService helpService, ICredentialsService cred
             await _catalogLock.WaitAsync();
             try
             {
-                List<ManualModel> manuals = await _localFile.GetEncryptedFile<List<ManualModel>>(ManualCatalog);
+                List<ManualModel>? manuals = await _localFile.GetEncryptedFile<List<ManualModel>>(ManualCatalog);
                 manuals ??= [];
                 if (manuals.Exists(manual => string.Equals(manual.Name, model.Name, StringComparison.OrdinalIgnoreCase)))
                     return Ok(_help.Warning("En manual med liknande namn är redan registrerad."));
 
+                model.Id = Guid.NewGuid().ToString();
                 model.OrderById = manuals.Count + 1;
                 manuals.Add(model);
 
@@ -90,7 +89,7 @@ public class ManualController(IHelpService helpService, ICredentialsService cred
             await _catalogLock.WaitAsync();
             try
             {
-                List<ManualModel> manuals = await _localFile.GetEncryptedFile<List<ManualModel>>(ManualCatalog);
+                List<ManualModel>? manuals = await _localFile.GetEncryptedFile<List<ManualModel>>(ManualCatalog);
                 manuals ??= [];
                 for (int i = 0; i < names.Count; i++)
                 {
@@ -130,7 +129,7 @@ public class ManualController(IHelpService helpService, ICredentialsService cred
             await _catalogLock.WaitAsync();
             try
             {
-                List<ManualModel> manuals = await _localFile.GetEncryptedFile<List<ManualModel>>(ManualCatalog);
+                List<ManualModel>? manuals = await _localFile.GetEncryptedFile<List<ManualModel>>(ManualCatalog);
                 manuals ??= [];
                 if (manuals.Exists(manual => manual.Id != id
                     && string.Equals(manual.Name, model.Name, StringComparison.OrdinalIgnoreCase)))
@@ -166,7 +165,7 @@ public class ManualController(IHelpService helpService, ICredentialsService cred
             await _catalogLock.WaitAsync();
             try
             {
-                List<ManualModel> manuals = await _localFile.GetEncryptedFile<List<ManualModel>>(ManualCatalog);
+                List<ManualModel>? manuals = await _localFile.GetEncryptedFile<List<ManualModel>>(ManualCatalog);
                 manuals ??= [];
                 if (manuals.RemoveAll(manual => manual.Id == id) == 0)
                     return NotFound();

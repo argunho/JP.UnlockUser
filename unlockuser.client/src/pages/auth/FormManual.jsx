@@ -106,7 +106,7 @@ function FormManual({ api, label, checkbox, groups }) {
                     label={group} />)}
             </>}
 
-            <FormButtons loading={pending} disabled={disabled} confirmable={true}>
+            <FormButtons loading={pending} disabled={disabled} label="Spara" confirmable={true}>
                 {/* Change the password input type */}
                 {!!checkbox && <FormControlLabel
                     className="checkbox"

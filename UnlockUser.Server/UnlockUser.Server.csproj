@@ -72,6 +72,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="wwwroot\catalogs\" />
 	  <Folder Include="wwwroot\logs\" />
 	</ItemGroup>
 
