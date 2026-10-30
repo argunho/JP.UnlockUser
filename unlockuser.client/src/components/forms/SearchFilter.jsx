@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { SearchOffSharp, SearchSharp } from '@mui/icons-material';
 import { TextField, IconButton } from '@mui/material';
 
-function SearchFilter({ 
-    children, 
+function SearchFilter({
+    children,
     label, disabled, styles, searchValue,
     placeholder = "Användarnamn, school, klass, datum, gruppnamn ...",
     onSearch, onReset, ref }) {
@@ -14,6 +14,7 @@ function SearchFilter({
 
     function changeHandle(e) {
         let value = e.target.value;
+
         if (!!searchValue && (value?.length <= 2 || searchValue !== value))
             resetHandle();
         setValue(value);
@@ -25,7 +26,7 @@ function SearchFilter({
     }
 
     function clickHandle() {
-        if(value?.length <= 1)
+        if (value?.length <= 1)
             return;
 
         onSearch(value);

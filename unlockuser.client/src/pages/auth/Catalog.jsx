@@ -29,16 +29,10 @@ import { DownloadFile } from "../../functions/Functions";
 // Storage
 import { FetchContext } from "../../storage/FetchContext";
 
-
-// { loc, includedList, label, fullWidth, api, id, fields, labels, navigate }
 function Catalog({ label, api, fields, fullWidth, search, modal, download, dropdown }) {
 
     const { loading } = useOutletContext();
-    // const catalogLoading = useMatch("/catalog/*");
-
     const { list, removable, secondaryLabel } = useLoaderData();
-    // const list = loaded[name] ?? loaded?.list ?? loaded ?? [];
-    // const removable = !!loaded?.removable ? loaded?.removable : false;
     const { fetchData, response, pending, handleResponse } = use(FetchContext);
 
     const inputDate = useRef();
@@ -133,7 +127,7 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
         }
     }
 
-    const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) : list;
+    const items = searchWord ? list?.filter(x => JSON.stringify(x).toLowerCase().includes(searchWord?.toLowerCase())) ?? [] : list;
 
     return (
         <>
@@ -149,7 +143,8 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
 
                     {/* Search filter */}
                     {search && <SearchFilter
-                        disabled={loading || response}
+                        disabled={loading || response}                
+                        searchValue={searchWord}
                         onSearch={(value) => setSearchWord(value)}
                         onReset={() => setSearchWord(null)} />}
                 </div>}
@@ -263,6 +258,9 @@ function Catalog({ label, api, fields, fullWidth, search, modal, download, dropd
 
             {/* If list is empty */}
             {(!open && (!list || list?.length == 0 || loading)) && <ListLoading rows={1} pending={loading} />}
+
+            {/* Items is null */}
+            {(searchWord && items?.length == 0) && <Message res={{color: "warning", msg: "Inga matchande resultat hittades." }} close={false} />}
 
             {/* Modal overview */}
             {modal && <ModalOverview
