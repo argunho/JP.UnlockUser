@@ -181,7 +181,10 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         {
             var members = await GetMembers(group);
             var offices = members.Where(x => x.Office != null).Select(s => s.Office!.Trim()).Distinct().ToList();
-            return Ok(new { members, offices });
+
+            var catalog = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+            var moderators = catalog.Where(x => x.Permissions != null && x.Permissions.Groups.Contains("personal", StringComparer.OrdinalIgnoreCase));
+            return Ok(new { members, offices, moderators });
         }
         catch (Exception ex)
         {

@@ -45,7 +45,7 @@ function sortedValues(arr, key) {
 
 function EmployeeView() {
 
-    const { members, offices } = useLoaderData();
+    const { members, offices, moderators } = useLoaderData();
     const revalidator = useRevalidator();
     const navigate = useNavigate();
     const context = useOutletContext();
@@ -312,7 +312,7 @@ function EmployeeView() {
                         arrow: "tooltip-arrow-info"
                     }} placement="left" arrow>
                     <Autocomplete
-                        options={members}
+                        options={moderators}
                         value={selected}
                         style={{ width: "340px" }}
                         getOptionLabel={(option) => option?.primary ?? ""}
