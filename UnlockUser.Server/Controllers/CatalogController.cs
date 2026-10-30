@@ -14,7 +14,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     IMemoryCache memoryCache, ILogger<CatalogController> logger) : ControllerBase
 {
     private readonly IConfiguration _config = config;
-    private readonly IHelpService _helpService = helpService;
+    private readonly IHelpService _help = helpService;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly ILocalUserService _localUserService = localUserService;
     private readonly IRefreshLockService _lockService = lockService;
@@ -55,7 +55,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         catch (Exception ex)
         {
             _logger.LogError($"Something went wrong with attempt to get catalog files. Error: {ex.Message}");
-            await _helpService.Error(ex);
+            await _help.Error(ex);
             return Ok();
         }
     }
@@ -124,7 +124,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error(ex)); ;
+            return BadRequest(await _help.Error(ex)); ;
         }
     }
 
@@ -155,7 +155,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error(ex)); ;
+            return BadRequest(await _help.Error(ex)); ;
         }
     }
 
@@ -166,11 +166,11 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     {
         var histories = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories");
         if (histories?.Count == 0)
-            return NotFound(_helpService.NotFound("Histork filen"));
+            return NotFound(_help.NotFound("Histork filen"));
 
         var history = histories?.FirstOrDefault(x => x.Date!.Trim() == id.Trim());
         if (history == null)
-            return NotFound(_helpService.NotFound("Histork filen"));
+            return NotFound(_help.NotFound("Histork filen"));
 
         return Ok(new ViewModel
         {
@@ -186,11 +186,11 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     {
         var items = await _localFileService.GetEncryptedFile<List<FileViewModel>>("catalogs/histories");
         if (items?.Count == 0)
-            return BadRequest(_helpService.Warning("File hittades inte."));
+            return BadRequest(_help.Warning("File hittades inte."));
 
         var item = items?.FirstOrDefault(x => x.Date == id);
         if (item == null)
-            return BadRequest(_helpService.Warning("File hittades inte."));
+            return BadRequest(_help.Warning("File hittades inte."));
 
         byte[] downloadBytes = Encoding.UTF8.GetBytes(item.Download);
         return File(downloadBytes, "text/plain", $"History_{item?.Date}");
@@ -219,7 +219,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error(ex));
+            return BadRequest(await _help.Error(ex));
         }
     }
     #endregion
@@ -237,7 +237,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         }
         catch (Exception ex)
         {
-            return BadRequest(await _helpService.Error(ex));
+            return BadRequest(await _help.Error(ex));
         }
     }
 
@@ -263,7 +263,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             }
             catch (Exception ex)
             {
-                return BadRequest(await _helpService.Error(ex)); ;
+                return BadRequest(await _help.Error(ex)); ;
             }
             finally
             {
@@ -275,46 +275,50 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     }
 
     [HttpPost("share/moderators/permission")]
-    public async Task<IActionResult> ShareModeratorsPermissions(PermissionFormModel model)
+    public async Task<IActionResult> AddModeratorPermissions(PermissionFormModel request)
     {
-        string casheKey = "share_permissons";
-        if (_lockService.TryStart(casheKey, out var waitTask))
+        if (!ModelState.IsValid)
+            return Ok(_help.Warning("Obligatoriska uppgifter saknas."));
+
+        const string cacheKey = "share_permissions";
+        if (_lockService.TryStart(cacheKey, out _))
         {
             try
             {
                 var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>(ModeratorsCatalog) ?? [];
-                var mIndex = moderators.FindIndex(x => string.Equals(x.Username, model.Username, StringComparison.OrdinalIgnoreCase));
-                if (moderators[mIndex] == null)
-                    return Ok();
+                var moderator = moderators.FirstOrDefault(x => string.Equals(x.Username, request.Username, StringComparison.OrdinalIgnoreCase));
+                if (moderator is null)
+                    return NotFound(_help.NotFound("Anställd"));
 
-                bool isChanged = false;
-                if (string.Equals(model.Type, "Employees", StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(request.Type, "Employees", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(request.Type, "Offices", StringComparison.OrdinalIgnoreCase))
+                    return BadRequest(_help.Warning("Ogiltig behörighetstyp."));
+
+                moderator.Permissions ??= new PermissionsModel();
+                if (string.Equals(request.Type, "Employees", StringComparison.OrdinalIgnoreCase))
                 {
-                    moderators[mIndex].Permissions?.Employees.AddRange(model.Permissions);
-                    isChanged = true;
+                    var employees = moderator.Permissions.Employees ?? [];
+                    employees.AddRange(request.Permissions ?? []);
+                    moderator.Permissions.Employees = [.. employees.Distinct()];
                 }
-                else if (string.Equals(model.Type, "Offices", StringComparison.OrdinalIgnoreCase))
+                else
                 {
-                    moderators[mIndex].Permissions?.Offices.AddRange(model.Permissions);
-                    isChanged = true;
+                    var offices = moderator.Permissions.Offices ?? [];
+                    offices.AddRange(request.Permissions ?? []);
+                    moderator.Permissions.Offices = [.. offices.Distinct()];
                 }
 
-                if (isChanged)
-                {
-                    await _localFileService.EncrypteToFile(moderators, ModeratorsCatalog);
-
-                    ChangeLog($"Moderators filen ändrad med delad behörigheter. Behörigheter: {model.Permissions} till {model.Username}.");
-                }
-
+                await _localFileService.EncrypteToFile(moderators, ModeratorsCatalog);
+                ChangeLog($"Moderators filen ändrad med delad behörigheter. Behörigheter: {request.Permissions} till {request.Username}.");
             }
             catch (Exception ex)
             {
-                _logger.LogError("Critical problem. Function: {method}. Error: {error}", nameof(PutModeratorsPermissions), ex.Message);
-                return BadRequest(await _helpService.Error(ex));
+                _logger.LogError("Critical problem. Function: {method}. Error: {error}", nameof(AddModeratorPermissions), ex.Message);
+                return BadRequest(await _help.Error(ex));
             }
             finally
             {
-                _lockService.Finish(casheKey);
+                _lockService.Finish(cacheKey);
             }
         }
         return Ok();
@@ -340,7 +344,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
                     var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>(ModeratorsCatalog) ?? [];
                     var moderator = moderators.FirstOrDefault(x => x.Username == model.Username);
                     if (moderator == null)
-                        return NotFound(_helpService.NotFound("Anställd"));
+                        return NotFound(_help.NotFound("Anställd"));
 
                     // Always overwrite with the client's current lists (not just when non-empty) - a
                     // "Count > 0" guard here can't tell "field untouched" apart from "cleared to empty",
@@ -359,7 +363,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             catch (Exception ex)
             {
                 _logger.LogError("Critical problem. Function: {method}. Error: {error}", nameof(PutModeratorsPermissions), ex.Message);
-                return BadRequest(await _helpService.Error(ex));
+                return BadRequest(await _help.Error(ex));
             }
             finally
             {
@@ -367,7 +371,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             }
         }
 
-        return Ok(_helpService.Success());
+        return Ok(_help.Success());
     }
     #endregion
 
@@ -388,7 +392,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             }
             catch (Exception ex)
             {
-                return BadRequest(await _helpService.Error(ex)); ;
+                return BadRequest(await _help.Error(ex)); ;
             }
             finally
             {
@@ -422,7 +426,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             }
             catch (Exception ex)
             {
-                return BadRequest(await _helpService.Error(ex)); ;
+                return BadRequest(await _help.Error(ex)); ;
             }
             finally
             {
@@ -454,7 +458,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
             }
             catch (Exception ex)
             {
-                return BadRequest(await _helpService.Error(ex)); ;
+                return BadRequest(await _help.Error(ex)); ;
             }
             finally
             {
