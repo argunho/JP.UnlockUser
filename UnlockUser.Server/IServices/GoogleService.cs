@@ -8,11 +8,12 @@ using UserModel = UnlockUser.Server.Models.User;
 
 namespace UnlockUser.Server.IServices;
 
-public class GoogleService(ILocalFileService localFileService, IMemoryCache cache, IRefreshLockService lockService, ILogger<GoogleService> logger) : IGoogleService
+public class GoogleService(ILocalFileService localFileService, IMemoryCache cache, IRefreshLockService lockService, IADService adService, ILogger<GoogleService> logger) : IGoogleService
 {
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IMemoryCache _cache = cache;
     private readonly IRefreshLockService _lockService = lockService;
+    private readonly IADService _adService = adService;
     private readonly ILogger<GoogleService> _logger = logger;
 
     public async Task<List<UserViewModel>> GetStudentsFromGoogleApi()
@@ -48,6 +49,19 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
                     if (res.UsersValue == null)
                         break;
 
+                    string SetUsername(GoogleUserModel user)
+                    {
+                        var organization = user?.Organizations != null ? user.Organizations?.FirstOrDefault() : null;
+                        var username = organization != null ? user!.ExternalIds?.FirstOrDefault()?.Value : null;
+                        if (string.IsNullOrEmpty(username))
+                        {
+                            var email = user.PrimaryEmail;
+                            var adUser = _adService.FindUser(email);
+                            username = adUser?.SamAccountName;
+                        }
+                        return username!;
+                    }
+
                     //var resUsers = res.UsersValue?.Where(x => x.Organizations.Any() == true
                     var resUsers = res.UsersValue?.Where(x =>
                            ((x.Organizations != null && x.Organizations.Any(o => o.Primary == true 
@@ -63,7 +77,7 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
                             return new UserModel
                             {
                                 DisplayName = s!.Name.FullName,
-                                Username = organization != null ? s.ExternalIds?.FirstOrDefault()?.Value : null,
+                                Username = SetUsername(s),
                                 Email = s.PrimaryEmail,
                                 Department = department,
                                 Office = office,

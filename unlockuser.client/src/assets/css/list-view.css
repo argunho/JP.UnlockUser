@@ -55,7 +55,8 @@
 li.list-item {
     min-height: 80px !important;
     width: calc(50% - 12px);
-    margin: 4px 3px !important;
+    /* margin: 4px 3px !important; */
+    margin: 4px auto !important;
     overflow: hidden;
     position: relative;
 }
@@ -89,7 +90,7 @@ li.list-item div>button {
 li.last {
     /* margin: 4px 3px !important; */
     margin: 4px auto !important;
-    width: calc(100% - 18px) !important;
+    width: calc(100% - 12px) !important;
 }
 
 li.list-item:hover {

@@ -339,7 +339,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
 
                 HashSet<string> changed = model.Names.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-                if (changed.Contains(ModeratorsCatalog))
+                if (changed.Contains("moderators"))
                 {
                     var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>(ModeratorsCatalog) ?? [];
                     var moderator = moderators.FirstOrDefault(x => x.Username == model.Username);
