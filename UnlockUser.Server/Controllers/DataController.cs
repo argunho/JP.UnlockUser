@@ -297,7 +297,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 
         if (adSearch)
         {
-            var userPrincipal = _provider.FindUser(email);
+            var userPrincipal = _provider.FindUserByEmail(email);
             if (userPrincipal == null)
                 return NotFound($"User with email '{email}' not found");
             else

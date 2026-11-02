@@ -16,6 +16,17 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
     // Method to get a user with extension parameters from Active Dericotry
     public UserPrincipalExtension FindUser(string name)
         => UserPrincipalExtension.FindByIdentity(GetContext()!, name);
+
+    public UserPrincipalExtension FindUserByEmail(string email)
+    {
+        using var userTemplate = new UserPrincipalExtension(GetContext())
+        {
+            EmailAddress = email
+        };
+
+        using var searcher = new PrincipalSearcher(userTemplate);
+        return searcher.FindOne() as UserPrincipalExtension;
+    }
     #endregion
 
     #region Validation

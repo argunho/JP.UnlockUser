@@ -55,8 +55,7 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
                         var username = organization != null ? user!.ExternalIds?.FirstOrDefault()?.Value : null;
                         if (string.IsNullOrEmpty(username))
                         {
-                            var email = user.PrimaryEmail;
-                            var adUser = _adService.FindUser(email);
+                            var adUser = _adService.FindUserByEmail(user.PrimaryEmail);
                             username = adUser?.SamAccountName;
                         }
                         return username!;
@@ -73,6 +72,12 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
                             var organization = s?.Organizations != null ? s.Organizations?.FirstOrDefault() : null;
                             var department = s?.OrgUnitPath?.Split('/')?.LastOrDefault() ?? organization?.Department;
                             var office = s?.OrgUnitPath?.Split('/', StringSplitOptions.RemoveEmptyEntries).Skip(1).FirstOrDefault();
+
+                            if(string.Equals(s!.Name.FullName, "Rayana Baaeva", StringComparison.OrdinalIgnoreCase))
+                            {
+                                _logger.LogWarning($"{nameof(GetStudentsFromGoogleApi)} Warning: Found user {s.PrimaryEmail} with name {s.Name.FullName}.");
+
+                            }
 
                             return new UserModel
                             {

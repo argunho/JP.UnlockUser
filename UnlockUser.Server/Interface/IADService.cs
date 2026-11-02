@@ -7,6 +7,7 @@ namespace UnlockUser.Server.Interface;
 public interface IADService
 {
     UserPrincipalExtension FindUser(string name);
+    UserPrincipalExtension FindUserByEmail(string email);
 
     bool AccessValidation(string? name, string? password);
     bool MembershipCheck(UserPrincipalExtension user, string? groupName);
