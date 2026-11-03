@@ -451,10 +451,11 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
             }
             else
             {
-                var approved = permissions?.Employees ?? [];
-                
+                var pe = permissions?.Employees ?? [];
+                var po = permissions?.Offices ?? [];
+
                 bool isModerator = moderators!.Exists(x => x.Username!.Equals(userModel.Username, StringComparison.OrdinalIgnoreCase));
-                bool isApproved = approved!.Contains(userModel.Username, StringComparer.OrdinalIgnoreCase);
+                bool isApproved = pe!.Contains(userModel.Username, StringComparer.OrdinalIgnoreCase) || po!.Contains(userModel.Office, StringComparer.OrdinalIgnoreCase);
 
                 if ((string.IsNullOrEmpty(userModel.Manager) || isModerator) && !isApproved)
                 {

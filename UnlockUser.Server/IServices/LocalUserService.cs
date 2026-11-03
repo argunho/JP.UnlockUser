@@ -1,14 +1,14 @@
-﻿using Microsoft.IdentityModel.Tokens.Experimental;
-using System.DirectoryServices;
+﻿using System.DirectoryServices;
 
 namespace UnlockUser.Server.IServices;
 
 public class LocalUserService(ILocalFileService localFileService,
-    IADService provider, IConfiguration config) : ILocalUserService
+    IADService provider, IConfiguration config, ILogger<LocalFileService> logger) : ILocalUserService
 {
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IADService _provider = provider;
     private readonly IConfiguration _config = config;
+    private readonly ILogger<LocalFileService> _logger = logger;
 
 
     // A function to API request Active Directory and save/refresh the list of employees who have permission to change a user password.
@@ -104,7 +104,7 @@ public class LocalUserService(ILocalFileService localFileService,
                 UserPrincipalExtension? directoryUser = _provider.FindUser(username);
                 if (directoryUser is null)
                     continue;
-                else if(directoryUser.AccountExpirationDate! != null && DateTime.TryParse(directoryUser.AccountExpirationDate?.ToString(), out DateTime expires) && expires.Date < currentDate)
+                else if (directoryUser.AccountExpirationDate! != null && DateTime.TryParse(directoryUser.AccountExpirationDate?.ToString(), out DateTime expires) && expires.Date < currentDate)
                     continue;
 
                 User newUser = new()
@@ -146,11 +146,11 @@ public class LocalUserService(ILocalFileService localFileService,
                 ];
 
             var moderator = currentModerators.FirstOrDefault(x => string.Equals(x.Username, user.Username, StringComparison.OrdinalIgnoreCase));
-            bool canPreserveCurrentPermissions = moderator?.Permissions is not null && string.Equals(moderator.Manager, user.Manager, StringComparison.OrdinalIgnoreCase);
+            bool canPreserveCurrentPermissions = moderator != null && moderator?.Permissions is not null && string.Equals(moderator.Manager, user.Manager, StringComparison.OrdinalIgnoreCase);
 
-            var mp = moderator!.Permissions;
             if (canPreserveCurrentPermissions)
             {
+                var mp = moderator!.Permissions;
                 // Руководитель не изменился.
                 // Копируем сохранённые права в новые списки.
                 permissions.Managers = [.. mp!.Managers?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];

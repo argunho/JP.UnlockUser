@@ -73,12 +73,6 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
                             var department = s?.OrgUnitPath?.Split('/')?.LastOrDefault() ?? organization?.Department;
                             var office = s?.OrgUnitPath?.Split('/', StringSplitOptions.RemoveEmptyEntries).Skip(1).FirstOrDefault();
 
-                            if(string.Equals(s!.Name.FullName, "Rayana Baaeva", StringComparison.OrdinalIgnoreCase))
-                            {
-                                _logger.LogWarning($"{nameof(GetStudentsFromGoogleApi)} Warning: Found user {s.PrimaryEmail} with name {s.Name.FullName}.");
-
-                            }
-
                             return new UserModel
                             {
                                 DisplayName = s!.Name.FullName,

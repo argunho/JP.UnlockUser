@@ -1,7 +1,5 @@
-﻿using Google.Apis.Admin.Directory.directory_v1.Data;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
-using System.Diagnostics.Eventing.Reader;
 using System.Security.Cryptography;
 using System.Text;
 
