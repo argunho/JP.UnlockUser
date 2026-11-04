@@ -196,7 +196,7 @@ function UsersLayout() {
 
 
                             {/* Refresh moderators list */}
-                            {!id && <Tooltip title={!!renewDisabled ? `Uppdaterad ${renewTime}` : "Uppdatera listan"} classes={{
+                            {!id && <Tooltip title={!!renewDisabled ? `Uppdaterad ${renewTime}` : "Uppdatera moderatorlistan. Utför manuell synkronisering mot AD vid behov, dock högst en gång per session."} classes={{
                                 tooltip: "tooltip-default"
                             }} arrow>
                                 <span>
