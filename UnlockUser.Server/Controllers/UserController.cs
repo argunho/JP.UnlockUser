@@ -618,7 +618,7 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
                 return;
 
             var description = new StringBuilder();
-            description.Append("\r Anställd");
+            description.Append("\r Administratör som utförde lösenordsändring");
             description.Append($"\n - Användarnamn: {user?.Name}");
             description.Append($"\n - Namn: {user?.DisplayName}");
             description.Append($"\n - E-postadress: {user?.EmailAddress}");
@@ -629,8 +629,6 @@ public class UserController(IADService provider, IConfiguration config, IWebHost
             description.Append($"\n - IpAddress: {model?.IpAddress}");
             description.Append($"\n\n\r Hantering");
             description.Append($"\n - Gruppnamn: {model?.Group}");
-            description.Append($"\n - ");
-            description.Append($"\n - ");
 
             bool isStudentGroup = string.Equals(model!.Group, "studenter", StringComparison.OrdinalIgnoreCase);
 
