@@ -27,7 +27,7 @@ const messages = {
     },
     success: {
         color: "success",
-        msg: "{name} har behörighet att ändra lösenord."
+        msg: "{name} har behörighet att ändra lösenord  till den valda personen."
     },
     forbid: {
         color: "warning",
@@ -69,7 +69,6 @@ function Overview() {
     const initials = Initials(user?.displayName ?? user?.username ?? "");
 
     const navigate = useNavigate();
-    // const ref = useRef(null);
 
     const [message, setMessage] = useState(hasPermission ? messages?.info : messages?.noPermission);
     const [checked, setChecked] = useState(null);
@@ -118,12 +117,12 @@ function Overview() {
             setMessage(messages.none)
         else if (user?.username === userToCheck?.username)
             setMessage(messages.same);
-        else if (userToCheck?.permissions?.groups?.length > 0)
+        else if (userToCheck?.permissions?.groups?.length > 0 && user?.permissions?.employees?.includes(userToCheck?.username))
             setMessage(messages.forbid);
         else if (!groups?.includes(userToCheck?.group))
             setMessage(messages.error);
         else if ((userToCheck?.group === "Studenter" && !schools?.includes(userToCheck.office))
-            || (userToCheck?.group === "Personal" && !managers?.includes(userManager))
+            || (userToCheck?.group === "Personal" && !managers?.includes(userManager) && !user?.permissions?.employees?.includes(userToCheck?.username) && !user?.permissions?.offices?.includes(userToCheck?.office))
             || (userToCheck?.group === "Politiker" && !politicians?.includes(userToCheck?.username)))
             setMessage(messages.warning);
         else
@@ -166,7 +165,7 @@ function Overview() {
     // If user not found
     if (!user)
         return <Message res={response ?? messages.none} cancel={() => navigate(-1)} />;
-
+console.log("user", user, moderators, collections);
     return <>
         {/* Tab menu */}
         <TabPanel primary="Anvädarprofil" secondary={
@@ -235,7 +234,6 @@ function Overview() {
                 <TextField
                     fullWidth
                     key={message.msg}
-                    // inputRef={ref}
                     className="w-100"
                     placeholder={collections?.length > 0 ? "Sök med namn/anvädarnamn/email ..." : "Sök med användarnamn"}
                     value={value}
