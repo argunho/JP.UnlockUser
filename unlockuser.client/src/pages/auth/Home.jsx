@@ -36,13 +36,13 @@ const radioChoices = [
 const initialState = {
     group: "",
     users: null,
+    search: null,
+    byOffice: false,
     isClass: false,
     isSelected: false,
     isMatch: false,
     isChanged: false,
-    byOffice: false,
-    isCleaned: null,
-    search: null
+    isCleaned: null
 }
 
 // Action reducer
@@ -232,7 +232,9 @@ function Home() {
 
         let res = null;
         if (accounts?.length > 0) {
-            if (gn === "overview") {
+            if(key === "*.*")
+                res = accounts;
+            else if (gn === "overview") {
                 if (byOffice)
                     res = accounts?.filter(x => x?.office?.toLowerCase().includes(key));
                 else
@@ -430,7 +432,7 @@ function Home() {
                     <span>{pending ? "Sökning pågår..." : "Resultat"}</span>
                     <span className="d-row jc-start" style={{ color: users ? "var(--color-active)" : "var(--color-gray)" }}>
                         {users?.length > 0 && <List size="small" color="primary" style={{ marginRight: 10 }} />}
-                        {users ? `${users?.length} användare` : "*****************"}
+                        {(users && !pending) ? `${users?.length} användare` : "*****************"}
                     </span>
                 </div>
 

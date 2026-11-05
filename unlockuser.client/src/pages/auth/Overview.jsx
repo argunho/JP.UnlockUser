@@ -165,7 +165,7 @@ function Overview() {
     // If user not found
     if (!user)
         return <Message res={response ?? messages.none} cancel={() => navigate(-1)} />;
-console.log("user", user, moderators, collections);
+
     return <>
         {/* Tab menu */}
         <TabPanel primary="Anvädarprofil" secondary={
