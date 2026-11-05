@@ -216,7 +216,6 @@ public class AuthenticationController(IADService provider, IConfiguration config
         return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
     }
 
-
     // start: 2026-09-08
     // Lets a Developer temporarily view the app as another moderator, to check that
     // moderator's permissions. Roles claim is left empty so role-gated endpoints

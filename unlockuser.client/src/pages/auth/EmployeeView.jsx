@@ -173,7 +173,7 @@ function EmployeeView() {
         }
 
         await fetchData({ 
-            api: selected ? `catalogs/share/moderators/permission` : `catalogs/update/moderators/permission`, 
+            api: selected ? `permissions/share` : `permissions/update`, 
             method: selected ? "post" : "put", 
             data: data, 
             action: "success" 

@@ -113,7 +113,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
             handleDispatch("passToCopy", data?.password);
 
         // Request
-        await fetchData({ api: "user/reset/single/password", method: "post", data: data });
+        await fetchData({ api: "password/reset/single", method: "post", data: data });
 
         onReset();
         return null;
@@ -152,11 +152,11 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
         // Request
         let formData = usersToManage;
         let actions = fd.get("actions") ? JSON.parse(fd.get("actions")) : null;
-        let api = "user/reset/multiple/passwords";
+        let api = "password/reset/multiple";
         if (actions?.length > 0) {
             const blobFile = PDFConverter(label, labelInFile);
             if (actions.includes("email")) {
-                api = "user/reset/send/passwords";
+                api = "password/reset/send/to/email";
                 const file = new File([blobFile], `${label} ${labelInFile}.pdf`, { type: "application/pdf" });
                 formData = new FormData();
                 formData.append("file", file)

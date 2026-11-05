@@ -12,19 +12,16 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class DataController(IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, IConfiguration config, IADService provider,
-                            IMemoryCache memoryCache, IRefreshLockService lockService, IGoogleService googleService, IWebHostEnvironment env,
-                                        DashboardService dashboardService, ILogger<DataController> logger) : ControllerBase
+public class DataController(IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, 
+                            IConfiguration config, IMemoryCache memoryCache, IRefreshLockService lockService, 
+                            DashboardService dashboardService, ILogger<DataController> logger) : ControllerBase
 {
     private readonly IHelpService _helpService = helpService;
     private readonly ICredentialsService _credentials = credentials;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly IConfiguration _config = config;
-    private readonly IADService _provider = provider;
     private readonly IMemoryCache _cache = memoryCache;
     private readonly IRefreshLockService _lockService = lockService;
-    private readonly IGoogleService _googleService = googleService;
-    private readonly IWebHostEnvironment _env = env;
     private readonly DashboardService _dashboardService = dashboardService;
 
     private readonly ILogger<DataController> _logger = logger;
@@ -240,88 +237,6 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         }
 
         return Ok();
-    }
-    #endregion
-
-    #region DEVELOPE MODE
-    [HttpGet("students")]
-    [AllowAnonymous]
-    public async Task<IActionResult> GetStudents([FromQuery] string? date, [FromQuery] bool clear = false)
-    {
-        if (!_env.IsDevelopment())
-            return Ok();
-        DateTime currentDate = DateTime.Now;
-        if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
-            return Ok();
-
-        if (clear)
-            ((MemoryCache)_cache).Clear();
-
-        var users = await _googleService.GetStudentsFromGoogleApi();
-        return Ok(users);
-    }
-
-    [HttpGet("users")]
-    [AllowAnonymous]
-    public async Task<IActionResult> GetUsers([FromQuery] string? date, [FromQuery] bool clear = false)
-    {
-        if (!_env.IsDevelopment())
-            return Ok();
-        DateTime currentDate = DateTime.Now;
-        if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
-            return Ok();
-
-        if (clear)
-            ((MemoryCache)_cache).Clear();
-
-        var users = await _googleService.GetUsers();
-        return Ok(users);
-    }
-
-    [HttpGet("user/by")]
-    [AllowAnonymous]
-    public async Task<IActionResult> GetUser(
-        [FromQuery] string email,
-        [FromQuery] string? date,
-        [FromQuery] bool clear = false,
-        [FromQuery] bool adSearch = false)
-    {
-        if (!_env.IsDevelopment())
-            return Ok();
-        DateTime currentDate = DateTime.Now;
-        if (date == null || Convert.ToDateTime(date).Date != currentDate.Date)
-            return Ok();
-
-        if (clear)
-            ((MemoryCache)_cache).Clear();
-
-        if (adSearch)
-        {
-            var userPrincipal = _provider.FindUserByEmail(email);
-            if (userPrincipal == null)
-                return NotFound($"User with email '{email}' not found");
-            else
-            {
-                var modifiedUser = new UserViewModel(new Models.User
-                {
-                    Username = userPrincipal.SamAccountName,
-                    DisplayName = userPrincipal.DisplayName,
-                    Title = userPrincipal.Title,
-                    IdentityNumber = userPrincipal.IdentityNumber,
-                    Email = userPrincipal.Email,
-                    Office = userPrincipal.Office,
-                    Department = userPrincipal.Department,
-                    Division = userPrincipal.Division,
-                    Manager = userPrincipal.Manager,
-                    IsLocked = userPrincipal.AccountLockoutTime != null
-                });
-
-                return Ok(modifiedUser);
-            }
-        }
-
-        var user = await _googleService.GetUser(email);
-        return Ok(user);
     }
     #endregion
 
