@@ -216,18 +216,23 @@ public class PasswordController(IADService provider, IWebHostEnvironment env,
                 bool isModerator = moderators!.Exists(x => x.Username!.Equals(userModel.Username, StringComparison.OrdinalIgnoreCase));
                 bool isApproved = pe!.Contains(userModel.Username, StringComparer.OrdinalIgnoreCase) || po!.Contains(userModel.Office, StringComparer.OrdinalIgnoreCase);
 
-                if ((string.IsNullOrEmpty(userModel.Manager) || isModerator) && !isApproved)
+                if (!isApproved)
                 {
-                    throw new Exception($"{warningMessage} {userModel.Username}");
-                }
-                else
-                {
-                    var match = Regex.Match(userModel.Manager!, @"^CN=([^,]+)");
-                    string? userManager = match.Success ? match.Groups[1]?.Value : null;
-
-                    if (string.IsNullOrEmpty(userManager) || (!permissions!.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase)
-                        && !userManager.Equals(username, StringComparison.OrdinalIgnoreCase)))
+                    if (string.IsNullOrEmpty(userModel.Manager) || isModerator)
+                    {
                         throw new Exception($"{warningMessage} {userModel.Username}");
+                    }
+                    else
+                    {
+                        var match = Regex.Match(userModel.Manager!, @"^CN=([^,]+)");
+                        string? userManager = match.Success ? match.Groups[1]?.Value : null;
+
+                        if (string.IsNullOrEmpty(userManager) || (!permissions!.Managers.Contains(userManager, StringComparer.OrdinalIgnoreCase)
+                            && !userManager.Equals(username, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            throw new Exception($"{warningMessage} {userModel.Username}");
+                        }
+                    }
                 }
             }
         }
