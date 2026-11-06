@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 // Images
 import logo from '../../assets/images/alvesta.svg';
 
-function Logotype() {
+function Logotype({ link }) {
 
     const navigate = useNavigate();
-
+    
     return (
-        <div className="d-row jc-between logotype" onClick={() => navigate("/")}>
+        <div className="d-row jc-between logotype" onClick={() => navigate(link ?? "/")}>
 
             {/* Logotype */}
             <div className="logo-wrapper" id="logo-img">

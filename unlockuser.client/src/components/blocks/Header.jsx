@@ -19,7 +19,6 @@ import { AuthContext } from '../../storage/AuthContext'; // 2026-09-08
 // Css
 import '../../assets/css/header.css';
 
-
 const Header = memo(function Header({ disabled, supportMode }) {
 
     const [open, setOpen] = useState(false);
@@ -28,7 +27,8 @@ const Header = memo(function Header({ disabled, supportMode }) {
     const loc = useLocation();
     const refMenu = useRef();
     const { permissions, displayName, openAccess, limitedAccess, impersonating } = DecodedClaims();
-    const groups = permissions != null ? permissions?.split(",") : [];
+ 
+    const groups = permissions != null ? permissions?.split(",").filter(x => x.trim() !== "") : [];
     const access = openAccess || limitedAccess ?
         {
             open: openAccess,
@@ -46,7 +46,6 @@ const Header = memo(function Header({ disabled, supportMode }) {
 
         if (token) {
             authorize(token);
-            // navigate(`/search/${groupName}`);
             navigate(`/`);
         }
     }
@@ -84,11 +83,12 @@ const Header = memo(function Header({ disabled, supportMode }) {
     }
 
     const switchMenuColor = loc.pathname.toLowerCase().includes("overview") || supportMode;
-
+    const link = `/search/${(groups?.length > 0 ? groups[0] : "overview")?.toLowerCase()}`;
+    
     return (
         <header className='header-container w-100 d-column'>
             <section className='header-wrapper d-row jc-start w-100' id="logotype">
-                <Logotype />
+                <Logotype link={link} />
             </section>
 
             <section className={`menu-container${switchMenuColor ? " support-view" : ""} w-100`} id="menu-container">
@@ -97,7 +97,7 @@ const Header = memo(function Header({ disabled, supportMode }) {
                         <IconButton
                             className={`home-link${loc.pathname === "/" ? " selected" : ""}`}
                             disabled={disabled}
-                            onClick={() => navigate(`/search/${groups[0]?.toLowerCase()}`)}
+                            onClick={() => navigate(link)}
                         >
                             <Home />
                         </IconButton>
