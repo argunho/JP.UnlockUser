@@ -77,8 +77,6 @@ function actionReducer(state, action) {
 // Css
 import './../../assets/css/home.css';
 
-
-
 function Home() {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
@@ -234,6 +232,10 @@ function Home() {
         if (accounts?.length > 0) {
             if(key === "*.*")
                 res = accounts;
+            else if(key.startsWith("*.*")){
+                const number = parseInt(key.substring(3));
+                res = accounts?.slice(0, number);
+            }
             else if (gn === "overview") {
                 if (byOffice)
                     res = accounts?.filter(x => x?.office?.toLowerCase().includes(key));
