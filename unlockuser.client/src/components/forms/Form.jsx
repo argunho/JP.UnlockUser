@@ -237,7 +237,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
         if(isChecked) return;
         const data = { username: users[0]?.username, password: passToCopy };
         await fetchData({ api: `authentication/check/login/${true}`, method: "post", data: data }) ?? {};
-        handleDispatch("isChecked", true);
+        dispatch({ type: "PARAM", name: "isChecked", payload: true });
     }
 
     async function onCloseResponse() {
@@ -245,7 +245,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
             navigate("/");
 
         handleResponse();
-        handleDispatch("isChecked", false);
+        dispatch({ type: "PARAM", name: "isChecked", payload: false });
     }
 
     const [formState, formAction, pending] = useActionState(multiple ? onSubmitMultiplePasswords : onSubmitSinglePassword, { error: null });
