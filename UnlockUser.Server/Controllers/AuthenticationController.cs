@@ -34,136 +34,6 @@ public class AuthenticationController(IADService provider, IConfiguration config
     public async Task<IActionResult> Login([FromBody] LoginViewModel model)
         => await LoginCore(model, false);
 
-    // Shared login flow. developMode is only passed by LoginDevelopMode (never bound from the request),
-    // so the public endpoint can't be used to sign in as another user via ModeratorUsername.
-    private async Task<IActionResult> LoginCore(LoginViewModel model, bool developMode)
-    // end
-    {
-        // Forms filled out incorrectly
-        if (!ModelState.IsValid)
-            return Ok(_helpService.Warning());
-
-        try
-        {
-            var validation = Validation(model);
-            if (validation != null)
-                return Ok(validation);
-
-            var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
-            var groups = string.Join(",", permissionGroups!.Select(x => x.Name));
-
-            // start: 2026-10-19
-            // Credentials above belong to the developer; switch to the selected moderator only in develop mode
-            // and only for members of the developer group. model.Username stays the developer's, so the
-            // session credentials (adminUsername/adminPassword) still match each other.
-            string? impersonating = null;
-            if (developMode && !string.IsNullOrEmpty(model.ModeratorUsername))
-            {
-                var developer = _provider.FindUser(model.Username);
-                if (developer == null || !_provider.GetUserGroups(developer).Contains("Azure-Utvecklare Test", StringComparer.OrdinalIgnoreCase))
-                    return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
-
-                impersonating = developer.Name;
-            }
-
-            var authorizedUser = _provider.FindUser(impersonating != null ? model.ModeratorUsername! : model.Username!);
-            // end
-
-            if (authorizedUser == null)
-                return NotFound(_helpService.NotFound("Användaren"));
-
-            List<Claim> claims = [];
-            bool openAccess = false;
-            bool limitedAccess = false;
-
-            var userGroups = _provider.GetUserGroups(authorizedUser);
-            HashSet<string> roles = [];
-
-            void OpenAccess()
-            {
-                roles.Add("ITGroup");
-                claims.Add(new("OpenAccess", "ok"));
-                openAccess = true;
-            }
-
-            if (userGroups.Contains("Azure-Utvecklare Test", StringComparer.OrdinalIgnoreCase))
-            {
-                roles.Add("DevelopTeam");
-                OpenAccess();
-            }
-            else if (userGroups.Contains("TEIS IT avdelning", StringComparer.OrdinalIgnoreCase))
-                OpenAccess();
-            else if (userGroups.Contains("TEIS Kontaktcenter", StringComparer.OrdinalIgnoreCase))
-            {
-                roles.Add("KCGroup");
-                claims.Add(new("LimitedAccess", "ok"));
-                limitedAccess = true;
-            }
-
-            permissionGroups?.RemoveAll(x => !userGroups.Contains(x.PermissionGroup!));
-            permissionGroups ??= [];
-
-            // Failed! Permission missed
-            if (permissionGroups.Count == 0 && roles.Count == 0)
-                return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
-            else if (permissionGroups.Count > 0)
-                roles.Add("Moderator");
-
-            var moderators = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators");
-            var currentModerator = moderators?.FirstOrDefault(x => x.Username != null && x.Username.Equals(authorizedUser?.Name.ToString(), StringComparison.OrdinalIgnoreCase));
-
-            // Get employees lis by user permissions groups 
-            _ = Task.Run(async () =>
-                await _dashboardService.StoreUsersByGroup(
-                    authorizedUser.Name,
-                    currentModerator?.Permissions?.Groups,
-                    openAccess || limitedAccess)
-                ); // 2026-10-19
-
-
-            claims.Add(new("Email", authorizedUser.EmailAddress));
-            claims.Add(new("DisplayName", authorizedUser.DisplayName));
-            claims.Add(new("Username", authorizedUser.Name!));
-            claims.Add(new("Manager", authorizedUser.Manager));
-            claims.Add(new("Office", authorizedUser.Office));
-            claims.Add(new("Department", authorizedUser.Department));
-            claims.Add(new("Groups", groups));
-            claims.Add(new("Permissions", string.Join(',', currentModerator?.Permissions?.Groups ?? [])));
-            // start: 2026-10-19
-            // Same marker as LoginAs: blocks password changes (NotImpersonating policy) and ResetLoginAs/log can see who it is
-            //if (impersonating != null)
-            //{
-            //    roles.Add("Impersonating");
-            //    claims.Add(new("Impersonating", impersonating));
-            //    _logger.LogInformation("Utvecklare {developer} loggade in (develop mode) som {username} vid: {time}.", impersonating, authorizedUser.Name, DateTime.Now.ToString("g"));
-            //}
-            // end
-            claims.Add(new("Roles", string.Join(",", roles)));
-
-
-            // Save hashed credentials in session to validate user on other requests
-            if (_session != null)
-            {
-                byte[] protectedPassword = DpapiProtector.Protect(model.Password!);
-                _session.Set("adminPassword", protectedPassword);
-                _session.SetString("adminUsername", model.Username);
-            }
-
-            var authModel = ConfigureAuthModel(claims, [.. roles], permissionGroups?.FirstOrDefault()?.Name!);
-
-            _logger.LogInformation("Autentisering utförd vid: {time}. User: {username}. Department: {department}. Office: {office}.",
-                DateTime.Now.ToString("g"), model.Username, authorizedUser.Department, authorizedUser.Office);
-
-            // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
-            return Ok(authModel);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Autentisering misslyckades. Fel: {error}", ex.Message);
-            return BadRequest(await _helpService.Error(ex));
-        }
-    }
-
     [HttpPost("develop/mode/{key}")]
     public async Task<IActionResult> LoginDevelopMode(string key, LoginViewModel model)
     {
@@ -325,6 +195,26 @@ public class AuthenticationController(IADService provider, IConfiguration config
         }
     }
     // end
+
+    [HttpPost("check/login")]
+    [Authorize(Roles = "ITGroup,DevelopTeam,Moderator")]
+    public async Task<IActionResult> CheckLogin([FromBody] LoginViewModel model)
+    {
+        try
+        {
+            // Validate username and password
+            var isAutheticated = _provider.AccessValidation(model?.Username, model?.Password);
+
+            if(!isAutheticated)
+                return Ok(_helpService.Warning("Felaktig användarnamn eller lösenord."));
+
+            return Ok(new { message = "Inloggning lyckades." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(await _helpService.Error(ex));
+        }
+    }
     #endregion
 
     #region Delete
@@ -394,6 +284,136 @@ public class AuthenticationController(IADService provider, IConfiguration config
     #endregion
 
     #region Helpers
+    // Shared login flow. developMode is only passed by LoginDevelopMode (never bound from the request),
+    // so the public endpoint can't be used to sign in as another user via ModeratorUsername.
+    private async Task<IActionResult> LoginCore(LoginViewModel model, bool developMode)
+    // end
+    {
+        // Forms filled out incorrectly
+        if (!ModelState.IsValid)
+            return Ok(_helpService.Warning());
+
+        try
+        {
+            var validation = Validation(model);
+            if (validation != null)
+                return Ok(validation);
+
+            var permissionGroups = _config.GetSection("Groups").Get<List<GroupModel>>();
+            var groups = string.Join(",", permissionGroups!.Select(x => x.Name));
+
+            // start: 2026-10-19
+            // Credentials above belong to the developer; switch to the selected moderator only in develop mode
+            // and only for members of the developer group. model.Username stays the developer's, so the
+            // session credentials (adminUsername/adminPassword) still match each other.
+            string? impersonating = null;
+            if (developMode && !string.IsNullOrEmpty(model.ModeratorUsername))
+            {
+                var developer = _provider.FindUser(model.Username);
+                if (developer == null || !_provider.GetUserGroups(developer).Contains("Azure-Utvecklare Test", StringComparer.OrdinalIgnoreCase))
+                    return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
+
+                impersonating = developer.Name;
+            }
+
+            var authorizedUser = _provider.FindUser(impersonating != null ? model.ModeratorUsername! : model.Username!);
+            // end
+
+            if (authorizedUser == null)
+                return NotFound(_helpService.NotFound("Användaren"));
+
+            List<Claim> claims = [];
+            bool openAccess = false;
+            bool limitedAccess = false;
+
+            var userGroups = _provider.GetUserGroups(authorizedUser);
+            HashSet<string> roles = [];
+
+            void OpenAccess()
+            {
+                roles.Add("ITGroup");
+                claims.Add(new("OpenAccess", "ok"));
+                openAccess = true;
+            }
+
+            if (userGroups.Contains("Azure-Utvecklare Test", StringComparer.OrdinalIgnoreCase))
+            {
+                roles.Add("DevelopTeam");
+                OpenAccess();
+            }
+            else if (userGroups.Contains("TEIS IT avdelning", StringComparer.OrdinalIgnoreCase))
+                OpenAccess();
+            else if (userGroups.Contains("TEIS Kontaktcenter", StringComparer.OrdinalIgnoreCase))
+            {
+                roles.Add("KCGroup");
+                claims.Add(new("LimitedAccess", "ok"));
+                limitedAccess = true;
+            }
+
+            permissionGroups?.RemoveAll(x => !userGroups.Contains(x.PermissionGroup!));
+            permissionGroups ??= [];
+
+            // Failed! Permission missed
+            if (permissionGroups.Count == 0 && roles.Count == 0)
+                return Ok(_helpService.Warning("Åtkomst nekad! Behörighet saknas."));
+            else if (permissionGroups.Count > 0)
+                roles.Add("Moderator");
+
+            var moderators = await _localFileService.GetEncryptedFile<List<User>>("catalogs/moderators");
+            var currentModerator = moderators?.FirstOrDefault(x => x.Username != null && x.Username.Equals(authorizedUser?.Name.ToString(), StringComparison.OrdinalIgnoreCase));
+
+            // Get employees lis by user permissions groups 
+            _ = Task.Run(async () =>
+                await _dashboardService.StoreUsersByGroup(
+                    authorizedUser.Name,
+                    currentModerator?.Permissions?.Groups,
+                    openAccess || limitedAccess)
+                ); // 2026-10-19
+
+
+            claims.Add(new("Email", authorizedUser.EmailAddress));
+            claims.Add(new("DisplayName", authorizedUser.DisplayName));
+            claims.Add(new("Username", authorizedUser.Name!));
+            claims.Add(new("Manager", authorizedUser.Manager));
+            claims.Add(new("Office", authorizedUser.Office));
+            claims.Add(new("Department", authorizedUser.Department));
+            claims.Add(new("Groups", groups));
+            claims.Add(new("Permissions", string.Join(',', currentModerator?.Permissions?.Groups ?? [])));
+            // start: 2026-10-19
+            // Same marker as LoginAs: blocks password changes (NotImpersonating policy) and ResetLoginAs/log can see who it is
+            //if (impersonating != null)
+            //{
+            //    roles.Add("Impersonating");
+            //    claims.Add(new("Impersonating", impersonating));
+            //    _logger.LogInformation("Utvecklare {developer} loggade in (develop mode) som {username} vid: {time}.", impersonating, authorizedUser.Name, DateTime.Now.ToString("g"));
+            //}
+            // end
+            claims.Add(new("Roles", string.Join(",", roles)));
+
+
+            // Save hashed credentials in session to validate user on other requests
+            if (_session != null)
+            {
+                byte[] protectedPassword = DpapiProtector.Protect(model.Password!);
+                _session.Set("adminPassword", protectedPassword);
+                _session.SetString("adminUsername", model.Username);
+            }
+
+            var authModel = ConfigureAuthModel(claims, [.. roles], permissionGroups?.FirstOrDefault()?.Name!);
+
+            _logger.LogInformation("Autentisering utförd vid: {time}. User: {username}. Department: {department}. Office: {office}.",
+                DateTime.Now.ToString("g"), model.Username, authorizedUser.Department, authorizedUser.Office);
+
+            // If the logged user is found, create Jwt Token to get all other information and to get access to other functions
+            return Ok(authModel);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Autentisering misslyckades. Fel: {error}", ex.Message);
+            return BadRequest(await _helpService.Error(ex));
+        }
+    }
+
     private object? Validation(LoginViewModel model)
     {
         try

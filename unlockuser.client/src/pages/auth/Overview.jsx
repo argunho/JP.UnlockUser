@@ -4,14 +4,15 @@ import { useEffect, useState, use } from 'react';
 import { useNavigate, useLoaderData } from 'react-router-dom';
 import { IconButton, TextField, InputAdornment, Alert, List, ListItem, ListItemIcon, ListItemText, Avatar, Collapse } from '@mui/material';
 import {
-    Edit, SearchSharp, SearchOffSharp, Label, AlternateEmail,
-    Business, AccountBalance, Shield, ArrowForward, FactCheck, KeyboardArrowDown, KeyboardArrowUp
+    Edit, SearchSharp, SearchOffSharp, Label, AlternateEmail, Password,
+    Business, AccountBalance, Shield, ArrowForward, FactCheck, KeyboardArrowDown, KeyboardArrowUp, Login
 } from '@mui/icons-material';
 
 // Components
 import TabPanel from '../../components/blocks/TabPanel';
 import Message from '../../components/blocks/Message';
 import ListView from './../../components/lists/ListView';
+import ModalView from '../../components/modals/ModalView';
 
 // Functions
 import { DecodedClaims } from './../../functions/DecodedToken';
@@ -75,6 +76,7 @@ function Overview() {
     const [matched, setMatched] = useState([]);
     const [collapsed, setCollapsed] = useState(false);
     const [value, setSearchValue] = useState("");
+    const [login, setLogin] = useState(false);
 
     // start: 2026-08-28 15:26
     useEffect(() => {
@@ -82,6 +84,12 @@ function Overview() {
             navigate("/search", { replace: true });
     }, [openAccess, limitedAccess])
     // end
+
+    async function checkLogin(password) {
+        const data = { username: user?.username, password: password };
+        const res = await fetchData({ api: "authentication/check/login", method: "post", data: data, action: "return" }) ?? {};
+        console.log(res)
+    }
 
     async function onSubmit() {
 
@@ -148,7 +156,7 @@ function Overview() {
                     <ArrowForward />
                 </IconButton>
             }
-        }] : []),
+        },] : []),
         ...(moderators?.length > 0 ? [{
             label: `Anställda med behörighet att ändra lösenord för ${user?.displayName ?? user?.username}`,
             value: `Behöriga anställda (${moderators.length})`,
@@ -159,7 +167,13 @@ function Overview() {
                     {collapsed ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
                 </IconButton>
             }
-        }] : [])
+        }] : []),
+        {  label: "", value: "Testa inloggning", icon: Login, props: {
+                secondaryAction: <IconButton onClick={() => setLogin(login => !login)} sx={{ marginRight: "20px" }}>
+                    <Password />
+                </IconButton>
+            }
+        }
     ];
 
     // If user not found
@@ -303,6 +317,9 @@ function Overview() {
             </section>
 
         </div>
+
+        {/* Modal form */}
+        {login && <ModalView onClose={() => setLogin(false)} title={`Testa inloggning för ${user?.displayName ?? user?.username}`} ></ModalView>}
     </>
 }
 
