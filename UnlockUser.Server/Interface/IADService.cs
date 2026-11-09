@@ -10,6 +10,8 @@ public interface IADService
     UserPrincipalExtension FindUserByEmail(string email);
 
     bool AccessValidation(string? name, string? password);
+    string LoginCheck(string? name, string? password = null);
+    bool UserIsLocked(string name);
     bool MembershipCheck(UserPrincipalExtension user, string? groupName);
 
     List<string> GetUserGroups(UserPrincipalExtension user);

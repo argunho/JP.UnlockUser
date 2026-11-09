@@ -1,10 +1,10 @@
-import { useEffect, useState, use } from 'react';
+import { useEffect, useRef, useState, use } from 'react'; // 2026-11-09 13:33
 
 // Installed
 import { useNavigate, useLoaderData } from 'react-router-dom';
-import { IconButton, TextField, InputAdornment, Alert, List, ListItem, ListItemIcon, ListItemText, Avatar, Collapse } from '@mui/material';
+import { IconButton, TextField, InputAdornment, Alert, List, ListItem, ListItemIcon, ListItemText, Avatar, Collapse, CircularProgress } from '@mui/material';
 import {
-    Edit, SearchSharp, SearchOffSharp, Label, AlternateEmail, Password,
+    Edit, SearchSharp, SearchOffSharp, Label, AlternateEmail, Password, Send, Check, Error,
     Business, AccountBalance, Shield, ArrowForward, FactCheck, KeyboardArrowDown, KeyboardArrowUp, Login
 } from '@mui/icons-material';
 
@@ -12,7 +12,7 @@ import {
 import TabPanel from '../../components/blocks/TabPanel';
 import Message from '../../components/blocks/Message';
 import ListView from './../../components/lists/ListView';
-import ModalView from '../../components/modals/ModalView';
+import ModalForm from '../../components/modals/ModalForm';
 
 // Functions
 import { DecodedClaims } from './../../functions/DecodedToken';
@@ -60,7 +60,7 @@ function Overview() {
     const { user, moderators, collections } = useLoaderData();
 
     const { permissions, openAccess, limitedAccess } = DecodedClaims();
-    const { fetchData, response } = use(FetchContext);
+    const { fetchData, response, pending, success, handleResponse } = use(FetchContext);
     const { groups, schools, managers, politicians } = user?.permissions ?? {};
 
     const accessToPasswordManage = permissions.split(',').find(x => x === user?.group) != null;
@@ -76,19 +76,37 @@ function Overview() {
     const [matched, setMatched] = useState([]);
     const [collapsed, setCollapsed] = useState(false);
     const [value, setSearchValue] = useState("");
-    const [login, setLogin] = useState(false);
+    const [loginCheck, setLoginCheck] = useState(false);
+    const passwordRef = useRef(null); // 2026-11-09 13:33
 
     // start: 2026-08-28 15:26
     useEffect(() => {
         if (!openAccess && !limitedAccess)
             navigate("/search", { replace: true });
     }, [openAccess, limitedAccess])
+
+    useEffect(() => {
+        if (success || (loginCheck && response)) {
+            setTimeout(() => {
+                handleResponse(null);
+            }, 2000);
+        }
+    }, [success, response, loginCheck])
     // end
 
-    async function checkLogin(password) {
+    function handleLoginCheck() {
+        setLoginCheck(login => !login);
+        if(success || pending || response)
+            handleResponse(null);
+    }
+    
+    async function checkLogin() {
+        const password = passwordRef.current?.value;// start: 2026-11-09 13:33
+        if (!password || password.length == 0)
+            return;
+        // end
         const data = { username: user?.username, password: password };
-        const res = await fetchData({ api: "authentication/check/login", method: "post", data: data, action: "return" }) ?? {};
-        console.log(res)
+        await fetchData({ api: "authentication/check/login", method: "post", data: data }) ?? {};
     }
 
     async function onSubmit() {
@@ -168,8 +186,8 @@ function Overview() {
                 </IconButton>
             }
         }] : []),
-        {  label: "", value: "Testa inloggning", icon: Login, props: {
-                secondaryAction: <IconButton onClick={() => setLogin(login => !login)} sx={{ marginRight: "20px" }}>
+        {  label: "", value: "Kontrollera inloggning", icon: Login, props: {
+                secondaryAction: <IconButton onClick={() => setLoginCheck(login => !login)} sx={{ marginRight: "20px" }}>
                     <Password />
                 </IconButton>
             }
@@ -287,10 +305,10 @@ function Overview() {
                     onClick={handleChecked} />}
 
                 {/* Response from server */}
-                {(response && matched?.length == 0) && <Message res={response} cancel={() => navigate(-1)} />}
+                {(!loginCheck && response && matched?.length == 0) && <Message res={response} cancel={() => navigate(-1)} />}
 
                 {/* Local response. Checked user info */}
-                {(!response && matched?.length == 0) && <Alert className="d-column ai-start message-wrapper" icon={false} color={message.color}>
+                {((!response && matched?.length == 0) || loginCheck) && <Alert className="d-column ai-start message-wrapper" icon={false} color={message.color}>
                     {/* User info */}
                     {checked && <div className="w-100 view">
 
@@ -319,7 +337,32 @@ function Overview() {
         </div>
 
         {/* Modal form */}
-        {login && <ModalView onClose={() => setLogin(false)} title={`Testa inloggning för ${user?.displayName ?? user?.username}`} ></ModalView>}
+        {loginCheck && <ModalForm onClose={handleLoginCheck} label="Inloggningskontroll" >
+                <TextField
+                    fullWidth
+                    key={`${success?.toString()}${response?.msg?.toString()}`}
+                    label="Lösenord"
+                    type="password"
+                    disabled={pending}
+                    inputRef={passwordRef} // 2026-11-09 13:33
+                    placeholder="Ange lösenord ..."
+                    error={!!response}
+                    helperText={response?.msg ?? "Ange lösenord för att kontrollera inloggning."}
+                    InputProps={{
+                        endAdornment: <InputAdornment position="end">
+                            <IconButton
+                                onClick={checkLogin}
+                            >
+                               {success ? <Check color="success" /> : (response ? <Error color="error" /> : (pending ? <CircularProgress size={20} /> : <Send />))}
+                            </IconButton>
+                        </InputAdornment>
+                    }}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter")
+                            checkLogin(); // 2026-11-09 13:33
+                    }}
+                />
+        </ModalForm>}   
     </>
 }
 

@@ -39,12 +39,15 @@ public class UserController(IADService provider, IConfiguration config, ILocalFi
             {
                 user = cached?.FirstOrDefault(x => x.Username == key)
                           ?? cached?.FirstOrDefault(x => x.Email == key);
+
+                user.IsLocked = _provider.UserIsLocked(user.Username);
                 return Ok(user);
             }
             else if (_cache.TryGetValue($"{group}:{_credentials.GetClaim("username")}", out cached))
             {
                 user = cached?.FirstOrDefault(x => x.Username == key)
                                 ?? cached?.FirstOrDefault(x => x.Email == key);
+                user.IsLocked = _provider.UserIsLocked(user.Username);
                 return Ok(user);
             }
 
@@ -129,7 +132,9 @@ public class UserController(IADService provider, IConfiguration config, ILocalFi
                              Secondary = $"{s.Office} > {(s.Department == s.Office ? s.Division : s.Department)}"
                          }) ?? []]; ;
 
-                        return Ok(new { user, moderators, collections });
+                        bool isLocked = _provider.UserIsLocked(user.Username);
+
+                        return Ok(new { user, moderators, collections, isLocked });
                     }
 
                     return Ok(user);

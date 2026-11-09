@@ -1,5 +1,14 @@
 # UnlockUser
 
+## 2026-11-09 13:33
+Fixed: the "Testa inloggning" Send button did not send the typed password. `checkLogin` read `e.target.value`, but on click `e.target` is the button or its icon, so the password was an empty string (no request) or the event object itself. The password is now read from the input through a ref, for both click and Enter. Also removed a `console.log` that printed the plain-text password.
+
+- unlockuser.client/src/pages/auth/Overview.jsx:1 — modified: added `useRef` import
+- unlockuser.client/src/pages/auth/Overview.jsx:80 — added: `passwordRef`
+- unlockuser.client/src/pages/auth/Overview.jsx:89-94 — modified: `checkLogin` reads the password from `passwordRef`; deleted password `console.log`
+- unlockuser.client/src/pages/auth/Overview.jsx:333 — added: `inputRef={passwordRef}` on the password field
+- unlockuser.client/src/pages/auth/Overview.jsx:346 — modified: Enter handler calls `checkLogin()`
+
 ## 2026-10-28 (3)
 Fixed: a manually typed password was rejected with "Lösenords längd måste bli minst …". `inputProps.form: { autoComplete: 'off' }` rendered `form="[object Object]"` on the `<input>`, detaching the inputs from the form, so they were missing from `FormData`. Generated passwords still worked only through the `?? password` state fallback. Replaced with `autoComplete: "new-password"`. Also removed a debug `console.log`.
 

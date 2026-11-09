@@ -32,9 +32,44 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
     #region Validation
     // Method to authenticate a user
     public bool AccessValidation(string? name, string? password = null)
-        => GetContext().ValidateCredentials(name, password);
+        => string.IsNullOrEmpty(LoginCheck(name, password));
 
-    // Check user's membership in a specific group in which members have access  to change student password 
+    public string LoginCheck(string? name, string? password = null)
+    {
+        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrEmpty(password))
+            return "Felaktigt användarnamn eller lösenord.";
+
+        using var context = GetContext()!;
+        using var user = UserPrincipalExtension.FindByIdentity(context, name);
+        if (user == null)
+            return "Felaktigt användarnamn eller lösenord.";
+
+        if (user.Enabled == false)
+            return "Kontot är inaktiverat i Active Directory.";
+
+        if (user.IsAccountLockedOut())
+            return "Kontot är låst. Kontakta supporten för att låsa upp det.";
+
+        if (user.AccountExpirationDate is DateTime accountExpiration && accountExpiration <= DateTime.Now)
+            return "Kontot har gått ut.";
+
+        //if (user.PasswordExpirationDate is DateTime passwordExpiration && passwordExpiration <= DateTime.Now)
+        //    return "Lösenordet har gått ut.";
+
+        return context.ValidateCredentials(name, password)
+            ? string.Empty
+            : "Felaktigt användarnamn eller lösenord.";
+    }
+
+    public bool UserIsLocked(string name)
+    {
+
+        using var context = GetContext()!;
+        using var user = UserPrincipalExtension.FindByIdentity(context, name);
+        return user.IsAccountLockedOut();
+    }
+
+    // Check user's membership in a specific group in which members have access  to change student password
     public bool MembershipCheck(UserPrincipalExtension user, string? groupName)
     {
         if (user == null)

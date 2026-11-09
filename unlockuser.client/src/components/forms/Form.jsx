@@ -4,7 +4,7 @@ import { use, useReducer, useActionState, Children, cloneElement } from 'react';
 import {
     Checkbox, FormControl, FormControlLabel, TextField, IconButton, Tooltip, Button, Popover, Typography
 } from '@mui/material';
-import { Abc, Password } from '@mui/icons-material'; //, PrivacyTipOutlined, PrivacyTip
+import { Abc, Password, Send, Check } from '@mui/icons-material'; //, PrivacyTipOutlined, PrivacyTip
 import { useNavigate } from 'react-router-dom';
 
 // Components
@@ -66,7 +66,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
     const [state, dispatch] = useReducer(actionReducer, initialState);
     const { showPassword, password, isCleaned, isChanged, passToCopy, dirty, anchorEl, checkboxes } = state;
 
-    const { response, pending: load, fetchData, handleResponse } = use(FetchContext);
+    const { response, pending: load, fetchData, success, handleResponse } = use(FetchContext);
 
     const decodedToken = DecodedToken();
     const developer = decodedToken?.Roles?.indexOf("DevelopTeam") > -1;
@@ -109,7 +109,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
         data.email = users[0]?.email;
         data.title = users[0].title;
 
-        if(!password)
+        if (!password)
             handleDispatch("passToCopy", data?.password);
 
         // Request
@@ -230,6 +230,11 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
         });
     }
 
+    async function checkLogin() {
+        const data = { username: users[0]?.username, password: passToCopy };
+        await fetchData({ api: "authentication/check/login", method: "post", data: data }) ?? {};
+    }
+
     const [formState, formAction, pending] = useActionState(multiple ? onSubmitMultiplePasswords : onSubmitSinglePassword, { error: null });
     const error = formState?.error && !dirty ? formState.error : null;
     const disabled = load || response || pending || locked;
@@ -242,7 +247,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
         })
     ) : null;
 
-    
+
     return (
         <div className={`form-wrapper w-100${cls ? ` ${cls}` : ''}`} >
 
@@ -274,18 +279,33 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
                 {/* Password */}
                 {(response?.success && passToCopy && !multiple) && <div className="d-row ai-center jc-start w-100">
                     <Button color="inherit" disabled>Nya lösenord: </Button>
-                    <Tooltip 
+                    <Tooltip
                         title="Dubbelklicka för att kopiera lösenord."
                         classes={{
                             tooltip: "tooltip-info",
                             arrow: "tooltip-arrow-info"
-                        }} 
+                        }}
                         placement="right" arrow>
                         <span>
                             <Button onDoubleClick={(e) => copyToClipboard(e, passToCopy)} disabled={Boolean(anchorEl)}>{passToCopy}</Button>
                         </span>
                     </Tooltip>
-                    
+
+                    <Tooltip
+                        title="Klicka här att kontrollera att lösenordet fungerar för inloggning."
+                        classes={{
+                            tooltip: "tooltip-info",
+                            arrow: "tooltip-arrow-info"
+                        }}
+                        placement="right"
+                        arrow>
+                        <span>
+                            <Button variant="contained" color="secondary" onClick={checkLogin} endIcon={success ? <Check /> : <Send />}>
+                                Kontrollera inloggning
+                            </Button>
+                        </span>
+                    </Tooltip>
+
 
                     {/* Pop over message */}
                     <Popover
@@ -309,93 +329,93 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
             {/* Password form */}
             {!response && <form key={isCleaned} className='user-view-form fade-in' action={formAction}>
 
-                    {modifiedChildren}
+                {modifiedChildren}
 
-                    {/* Passwords inputs */}
-                    {!hidden && fields?.map((field, i) => {
+                {/* Passwords inputs */}
+                {!hidden && fields?.map((field, i) => {
 
-                        const value = formState?.[field.name] ?? password ?? "";
+                    const value = formState?.[field.name] ?? password ?? "";
 
-                        return <FormControl key={i} fullWidth>
-                            <TextField
-                                key={value}
-                                label={field.label}
-                                name={field.name}
-                                type={showPassword ? "text" : "password"}
-                                variant="outlined"
-                                required
-                                defaultValue={value}
-                                onChange={() => dirty || handleDispatch("dirty", true)}
-                                // start: 2026-10-28
-                                inputProps={{
-                                    minLength: passwordLength,
-                                    autoComplete: "new-password"
-                                }}
-                                // end
-                                InputProps={field.name === "password" ? {
-                                    endAdornment: (
-                                        <IconButton
-                                            disabled={disabled}
-                                            onClick={() => handleDispatch("showPassword", !showPassword)}
-                                            title="Visa lösenord">
-                                            {showPassword ? <Abc /> : <Password />}
-                                        </IconButton>
-                                    )
-                                } : undefined
-                                }
-                                className={`field ${(error ? "error" : '')}`}
-                                error={error}
-                                placeholder={field?.placeholder}
-                                disabled={disabled}
-                            />
-                        </FormControl>
-                    })}
+                    return <FormControl key={i} fullWidth>
+                        <TextField
+                            key={value}
+                            label={field.label}
+                            name={field.name}
+                            type={showPassword ? "text" : "password"}
+                            variant="outlined"
+                            required
+                            defaultValue={value}
+                            onChange={() => dirty || handleDispatch("dirty", true)}
+                            // start: 2026-10-28
+                            inputProps={{
+                                minLength: passwordLength,
+                                autoComplete: "new-password"
+                            }}
+                            // end
+                            InputProps={field.name === "password" ? {
+                                endAdornment: (
+                                    <IconButton
+                                        disabled={disabled}
+                                        onClick={() => handleDispatch("showPassword", !showPassword)}
+                                        title="Visa lösenord">
+                                        {showPassword ? <Abc /> : <Password />}
+                                    </IconButton>
+                                )
+                            } : undefined
+                            }
+                            className={`field ${(error ? "error" : '')}`}
+                            error={error}
+                            placeholder={field?.placeholder}
+                            disabled={disabled}
+                        />
+                    </FormControl>
+                })}
 
 
-                    {/* Buttons */}
-                    {(!hidden && !locked) && <FormButtons
-                        label="Verkställ"
-                        disabled={!isChanged && !dirty} // 2026-10-28
-                        confirmable={true}
-                        loading={load || pending}
-                        onCancel={onReset}
-                    >
-                        <div className="d-row jc-start ai-center w-100">
-                            {/* Service buttons */}
-                            {(users[0]?.group?.toLowerCase() === "studenter" && openAccess)
-                                && ["Google", "AD"].map(service => (
-                                    <Tooltip key={service} title={`Sätt lösenord för ${service}`} arrow>
-                                        <FormControlLabel
-                                            className='checkbox'
-                                            control={<Checkbox
-                                                name="services"
-                                                color="success"
-                                                // icon={<PrivacyTipOutlined />}    
-                                                // checkedIcon={<PrivacyTip color="success" />}
-                                                // checked={formState?.services?.includes(service)}
-                                                value={service}
-                                                checked={checkboxes.includes(service)}
-                                                onChange={() => onCheckboxChange(service)} // 2026-10-13 14:57
-                                                disabled={disabled} />}
-                                            label={service} />
-                                    </Tooltip>
-                                ))}
-
-                            {/* Change the password input type */}
-                            {developer &&
-                                <Tooltip title="Spara inte logfilen" arrow>
+                {/* Buttons */}
+                {(!hidden && !locked) && <FormButtons
+                    label="Verkställ"
+                    disabled={!isChanged && !dirty} // 2026-10-28
+                    confirmable={true}
+                    loading={load || pending}
+                    onCancel={onReset}
+                >
+                    <div className="d-row jc-start ai-center w-100">
+                        {/* Service buttons */}
+                        {(users[0]?.group?.toLowerCase() === "studenter" && openAccess)
+                            && ["Google", "AD"].map(service => (
+                                <Tooltip key={service} title={`Sätt lösenord för ${service}`} arrow>
                                     <FormControlLabel
                                         className='checkbox'
                                         control={<Checkbox
-                                            name="check"
-                                            color="warning"
+                                            name="services"
+                                            color="success"
+                                            // icon={<PrivacyTipOutlined />}    
+                                            // checkedIcon={<PrivacyTip color="success" />}
+                                            // checked={formState?.services?.includes(service)}
+                                            value={service}
+                                            checked={checkboxes.includes(service)}
+                                            onChange={() => onCheckboxChange(service)} // 2026-10-13 14:57
                                             disabled={disabled} />}
-                                        label="Test" />
-                                </Tooltip>}
-                        </div>
+                                        label={service} />
+                                </Tooltip>
+                            ))}
 
-                    </FormButtons>}
-                </form>}
+                        {/* Change the password input type */}
+                        {developer &&
+                            <Tooltip title="Spara inte logfilen" arrow>
+                                <FormControlLabel
+                                    className='checkbox'
+                                    control={<Checkbox
+                                        name="check"
+                                        color="warning"
+                                        disabled={disabled} />}
+                                    label="Test" />
+                            </Tooltip>}
+                    </div>
+
+                </FormButtons>}
+            </form>}
         </div>
     )
 }

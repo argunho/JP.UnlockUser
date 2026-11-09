@@ -10,6 +10,17 @@ div[role="dialog"] {
   max-width: 900px;
 }
 
+.modal-form div[role="dialog"] {
+  width: 400px;
+  max-width: 95%;
+  min-height: 200px;
+  max-height: 80vh;
+}
+
+.modal-form .close-btn {
+  margin-right: -10px !important;
+}
+
 .modal-view div[role="dialog"] {
   padding: 20px 15px;
 }
@@ -36,6 +47,9 @@ button.modal-help-btn {
 
 .modal-label {
   padding: 25px !important;
+}
+.modal-form .modal-label {
+  padding: 5px 15px !important;
 }
 
 .modal-desc {

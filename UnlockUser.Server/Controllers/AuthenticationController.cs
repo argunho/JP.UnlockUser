@@ -203,10 +203,10 @@ public class AuthenticationController(IADService provider, IConfiguration config
         try
         {
             // Validate username and password
-            var isAutheticated = _provider.AccessValidation(model?.Username, model?.Password);
+            var loginError = _provider.LoginCheck(model?.Username, model?.Password);
 
-            if(!isAutheticated)
-                return Ok(_helpService.Warning("Felaktig användarnamn eller lösenord."));
+            if (!string.IsNullOrEmpty(loginError))
+                return Ok(_helpService.Warning(loginError));
 
             return Ok(new { message = "Inloggning lyckades." });
         }
@@ -424,15 +424,15 @@ public class AuthenticationController(IADService provider, IConfiguration config
                 return new { timeLeft };
 
             // Validate username and password
-            var isAutheticated = _provider.AccessValidation(model?.Username, model?.Password);
+            var loginError = _provider.LoginCheck(model?.Username, model?.Password);
 
-            //Incorrect username or password
-            if (!isAutheticated)
+            // Incorrect username, password, or an account that cannot sign in
+            if (!string.IsNullOrEmpty(loginError))
             {
                 // If the user tried to put in a wrong password, save this like +1 a wrong attempt and the max is 4 attempts
                 _session?.SetInt32("LoginAttempt", loginAttempt += 1);
-                _logger.LogWarning("Varning: Försök att logga in med fel användarnamn eller lösenord. Användarnamn: {username}. Tid: {time}", model!.Username, DateTime.Now.ToString("g"));
-                return _helpService.Warning($"Felaktig användarnamn eller lösenord. {4 - loginAttempt} försök kvar.");
+                _logger.LogWarning("Varning: Försök att logga in med felaktiga uppgifter eller ett konto som inte kan logga in. Användarnamn: {username}. Tid: {time}", model?.Username, DateTime.Now.ToString("g"));
+                return _helpService.Warning($"{loginError} {4 - loginAttempt} försök kvar.");
             }
 
         }
