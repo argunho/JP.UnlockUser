@@ -236,7 +236,7 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
     async function checkLogin() {
         if(isChecked) return;
         const data = { username: users[0]?.username, password: passToCopy };
-        await fetchData({ api: `authentication/check/login/${true}`, method: "post", data: data }) ?? {};
+        await fetchData({ api: "authentication/check/login", method: "post", data: data }) ?? {};
         dispatch({ type: "PARAM", name: "isChecked", payload: true });
     }
 

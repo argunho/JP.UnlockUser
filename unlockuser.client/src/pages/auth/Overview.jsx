@@ -106,7 +106,7 @@ function Overview() {
             return;
         // end
         const data = { username: user?.username, password: password };
-        await fetchData({ api: `authentication/check/login/${false}`, method: "post", data: data }) ?? {};
+        await fetchData({ api: "authentication/check/login", method: "post", data: data }) ?? {};
     }
 
     async function onSubmit() {
