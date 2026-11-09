@@ -106,7 +106,7 @@ function Overview() {
             return;
         // end
         const data = { username: user?.username, password: password };
-        await fetchData({ api: "authentication/check/login", method: "post", data: data }) ?? {};
+        await fetchData({ api: "authentication/check/login/false", method: "post", data: data }) ?? {};
     }
 
     async function onSubmit() {
@@ -346,8 +346,8 @@ function Overview() {
                     disabled={pending}
                     inputRef={passwordRef} // 2026-11-09 13:33
                     placeholder="Ange lösenord ..."
-                    error={!!response && !success}
-                    success={!!response && success}
+                    error={!!response}
+                    success={success}
                     helperText={response?.msg ?? "Ange lösenord för att kontrollera inloggning."}
                     InputProps={{
                         endAdornment: <InputAdornment position="end">

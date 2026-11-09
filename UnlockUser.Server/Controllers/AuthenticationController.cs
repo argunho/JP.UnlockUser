@@ -196,9 +196,9 @@ public class AuthenticationController(IADService provider, IConfiguration config
     }
     // end
 
-    [HttpPost("check/login")]
+    [HttpPost("check/login/{response:bool}")]
     [Authorize(Roles = "ITGroup,DevelopTeam,Moderator")]
-    public async Task<IActionResult> CheckLogin([FromBody] LoginViewModel model)
+    public async Task<IActionResult> CheckLogin(bool response, [FromBody] LoginViewModel model)
     {
         try
         {
@@ -208,7 +208,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
             if (!string.IsNullOrEmpty(loginError))
                 return Ok(_helpService.Warning(loginError));
 
-            return Ok(_helpService.Success("Inloggning lyckades."));
+            return Ok(response ? _helpService.Success("Inloggning lyckades.") : "Inloggning lyckades.");
         }
         catch (Exception ex)
         {
