@@ -208,7 +208,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
             if (!string.IsNullOrEmpty(loginError))
                 return Ok(_helpService.Warning(loginError));
 
-            return Ok(new { message = "Inloggning lyckades." });
+            return Ok(_helpService.Success("Inloggning lyckades."));
         }
         catch (Exception ex)
         {
@@ -307,7 +307,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
             // and only for members of the developer group. model.Username stays the developer's, so the
             // session credentials (adminUsername/adminPassword) still match each other.
             string? impersonating = null;
-            if (developMode && !string.IsNullOrEmpty(model.ModeratorUsername))
+            if (developMode && !string.IsNullOrEmpty(model.Moderator))
             {
                 var developer = _provider.FindUser(model.Username);
                 if (developer == null || !_provider.GetUserGroups(developer).Contains("Azure-Utvecklare Test", StringComparer.OrdinalIgnoreCase))
@@ -316,7 +316,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
                 impersonating = developer.Name;
             }
 
-            var authorizedUser = _provider.FindUser(impersonating != null ? model.ModeratorUsername! : model.Username!);
+            var authorizedUser = _provider.FindUser(impersonating != null ? model.Moderator! : model.Username!);
             // end
 
             if (authorizedUser == null)

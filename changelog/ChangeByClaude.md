@@ -1,5 +1,11 @@
 # UnlockUser
 
+## 2026-11-09 21:19
+Fixed: the "Kontrollera inloggning" tooltip was still shown after the check had run. MUI `Tooltip` has no `disabled` prop, so `disabled={isChecked}` did not hide it. The title is now an empty string when `isChecked` is true, which makes MUI not render the tooltip.
+
+- unlockuser.client/src/components/forms/Form.jsx:312 — modified: `title` is empty when `isChecked`
+- unlockuser.client/src/components/forms/Form.jsx:318 — deleted: `disabled={isChecked}` on `Tooltip`
+
 ## 2026-11-09 13:33
 Fixed: the "Testa inloggning" Send button did not send the typed password. `checkLogin` read `e.target.value`, but on click `e.target` is the button or its icon, so the password was an empty string (no request) or the event object itself. The password is now read from the input through a ref, for both click and Enter. Also removed a `console.log` that printed the plain-text password.
 

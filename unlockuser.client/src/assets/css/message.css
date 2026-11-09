@@ -73,21 +73,18 @@
     max-height: 170px !important;
 }
 
-.login-container .message-box,
-.form-modal div[role="dialog"] .message-box {
+.login-container .message-box {
     position: absolute;
     bottom: 0;
     left: 0;
     z-index: 5000;
 }
 
-.login-container .message-box>*,
-.form-modal div[role="dialog"] .message-box>* {
+.login-container .message-box>* {
     border-radius: 0 !important;
 }
 
-.login-container .message-box,
-.form-modal div[role="dialog"] .message-box>* {
+.login-container .message-box {
     margin-bottom: 0 !important;
 }
 

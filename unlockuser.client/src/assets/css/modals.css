@@ -11,9 +11,9 @@ div[role="dialog"] {
 }
 
 .modal-form div[role="dialog"] {
-  width: 400px;
+  width: 500px;
   max-width: 95%;
-  min-height: 200px;
+  min-height: 260px;
   max-height: 80vh;
 }
 

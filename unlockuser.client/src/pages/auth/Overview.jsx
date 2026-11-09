@@ -346,7 +346,8 @@ function Overview() {
                     disabled={pending}
                     inputRef={passwordRef} // 2026-11-09 13:33
                     placeholder="Ange lösenord ..."
-                    error={!!response}
+                    error={!!response && !success}
+                    success={!!response && success}
                     helperText={response?.msg ?? "Ange lösenord för att kontrollera inloggning."}
                     InputProps={{
                         endAdornment: <InputAdornment position="end">

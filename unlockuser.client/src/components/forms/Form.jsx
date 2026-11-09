@@ -2,9 +2,9 @@ import { use, useReducer, useActionState, Children, cloneElement } from 'react';
 
 // Installed
 import {
-    Checkbox, FormControl, FormControlLabel, TextField, IconButton, Tooltip, Button, Popover, Typography
+    Checkbox, FormControl, FormControlLabel, TextField, IconButton, Tooltip, Button, Popover, Typography, CircularProgress
 } from '@mui/material';
-import { Abc, Password, Send, Check } from '@mui/icons-material'; //, PrivacyTipOutlined, PrivacyTip
+import { Abc, Password, Send, Check, Error } from '@mui/icons-material'; //, PrivacyTipOutlined, PrivacyTip
 import { useNavigate } from 'react-router-dom';
 
 // Components
@@ -34,6 +34,7 @@ const initialState = {
     password: null,
     isCleaned: null,
     isChanged: false,
+    isChecked: false,
     dirty: false,
     anchorEl: null,
     passToCopy: null,
@@ -64,7 +65,7 @@ function actionReducer(state, action) {
 function Form({ children, label, labelInFile, passwordLength, locked, users, multiple, hidden, cls }) {
 
     const [state, dispatch] = useReducer(actionReducer, initialState);
-    const { showPassword, password, isCleaned, isChanged, passToCopy, dirty, anchorEl, checkboxes } = state;
+    const { showPassword, password, isCleaned, isChanged, isChecked, passToCopy, dirty, anchorEl, checkboxes } = state;
 
     const { response, pending: load, fetchData, success, handleResponse } = use(FetchContext);
 
@@ -176,6 +177,9 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
     }
 
     function comparePasswords(fd) {
+        
+        handleDispatch("isChecked", false);
+
         const _password = fd.get("password")?.trim() ?? password;
         const _confirmPassword = fd.get("confirmPassword")?.trim() ?? password;
 
@@ -231,8 +235,18 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
     }
 
     async function checkLogin() {
+        if(isChecked) return;
         const data = { username: users[0]?.username, password: passToCopy };
         await fetchData({ api: "authentication/check/login", method: "post", data: data }) ?? {};
+        handleDispatch("isChecked", true);
+    }
+
+    async function onCloseResponse() {
+        if (response?.success && !multiple)
+            navigate("/");
+
+        handleResponse();
+        handleDispatch("isChecked", false);
     }
 
     const [formState, formAction, pending] = useActionState(multiple ? onSubmitMultiplePasswords : onSubmitSinglePassword, { error: null });
@@ -275,9 +289,9 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
             </div>
 
             {/* Response message */}
-            {response && <Message res={response} cancel={() => response.success ? navigate("/") : handleResponse()}>
+            {response && <Message res={response} cancel={() => onCloseResponse()}>
                 {/* Password */}
-                {(response?.success && passToCopy && !multiple) && <div className="d-row ai-center jc-start w-100">
+                {(response?.success && passToCopy && !multiple) && <div className="d-row ai-center jc-start w-100" style={{ marginTop: "10px" }}>
                     <Button color="inherit" disabled>Nya lösenord: </Button>
                     <Tooltip
                         title="Dubbelklicka för att kopiera lösenord."
@@ -285,14 +299,20 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
                             tooltip: "tooltip-info",
                             arrow: "tooltip-arrow-info"
                         }}
-                        placement="right" arrow>
+                        arrow>
                         <span>
-                            <Button onDoubleClick={(e) => copyToClipboard(e, passToCopy)} disabled={Boolean(anchorEl)}>{passToCopy}</Button>
+                            <Button
+                                variant="outlined"
+                                onDoubleClick={(e) => copyToClipboard(e, passToCopy)}
+                                style={{ textTransform: "none", marginRight: "20px" }}
+                                disabled={Boolean(anchorEl)}>
+                                {passToCopy}
+                            </Button>
                         </span>
                     </Tooltip>
 
                     <Tooltip
-                        title="Klicka här att kontrollera att lösenordet fungerar för inloggning."
+                        title={isChecked ? "" : "Klicka här att kontrollera att lösenordet fungerar för inloggning."} // 2026-11-09 21:19
                         classes={{
                             tooltip: "tooltip-info",
                             arrow: "tooltip-arrow-info"
@@ -300,7 +320,11 @@ function Form({ children, label, labelInFile, passwordLength, locked, users, mul
                         placement="right"
                         arrow>
                         <span>
-                            <Button variant="contained" color="secondary" onClick={checkLogin} endIcon={success ? <Check /> : <Send />}>
+                            <Button
+                                variant="contained"
+                                onClick={checkLogin}
+                                color={success ? "success" : ((response && isChecked) ? "error" : "primary")}
+                                endIcon={success ? <Check /> : ((response && isChecked) ? <Error /> : (load ? <CircularProgress style={{ color: "white" }} size={16} /> : <Send />))}>
                                 Kontrollera inloggning
                             </Button>
                         </span>
