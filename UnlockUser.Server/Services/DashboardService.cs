@@ -1,5 +1,4 @@
-﻿using Google.Apis.Admin.Directory.directory_v1.Data;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 
 namespace UnlockUser.Server.Services;
 
@@ -116,9 +115,6 @@ public class DashboardService(
         {
             try
             {
-                var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
-                var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
-
                 // Lopp of all employees groups
                 foreach (var group in groups ?? [])
                 {
@@ -131,7 +127,6 @@ public class DashboardService(
                     _cache.TryGetValue(groupCacheKey!, out List<UserViewModel?>? cachedGroupMembers);
                     if (cachedGroupMembers?.Count > 0)
                         continue;
-
 
                     var (alternativeParams, isStudents) = await GetParams(group!, username, false);
                     _cache.TryGetValue(cacheKey!, out List<UserViewModel?>? cachedUsers);

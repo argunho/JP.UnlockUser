@@ -66,7 +66,7 @@ function Login() {
     const data = {
       username: fd.get("username"),
       password: fd.get("password"),
-      moderatorUsername: id ? fd.get("moderator") : null
+      moderator: id ? fd.get("moderator") : null
     }
 
     const res = await fetchData({ api: id ? `authentication/develop/mode/${id}`: "authentication", method: "post", data: data, action: "return" }) ?? {}; // 2026-10-19
