@@ -17,7 +17,7 @@ public class TaskController(ILocalUserService localUserService, IHelpService hel
     private readonly ILogger<TaskController> _logger = logger;
 
     #region POST
-    [HttpPost("check/{id}")]
+    [HttpPost("run/{id}")]
     public async Task<IActionResult> RunTask(string id)
     {
         try
