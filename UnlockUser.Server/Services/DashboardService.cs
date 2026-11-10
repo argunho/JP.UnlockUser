@@ -74,7 +74,7 @@ public class DashboardService(
         if (students == null || politiker == null || personal == null)
         {
             // Handle the case where one or more user lists are empty
-            if (_lockService.TryStart("chacheKey", out var waitTask))
+            if (_lockService.TryStart("cacheKey", out var waitTask))
             {
                 try
                 {
@@ -221,6 +221,11 @@ public class DashboardService(
 
     public async Task<List<UserViewModel>> GetStoredUsersGroup(string group, string? username = null)
     {
+        username ??= _credentials.GetClaim("username");
+        bool isLoading = _lockService.IsLocked(username!);
+        if (isLoading)
+            await Task.WhenAny(_lockService.GetWaitTask(username!), Task.Delay(3000));
+
         if (string.Equals(group, "Overview", StringComparison.OrdinalIgnoreCase))
             return GetGroupsCachedUsers();
 
@@ -262,7 +267,6 @@ public class DashboardService(
 
         return (alternativeParams, isStudents);
     }
-
 
     public List<UserViewModel> GetGroupsCachedUsers()
     {

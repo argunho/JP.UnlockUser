@@ -104,7 +104,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                 return Ok(users);
             }
 
-            var members = await GetMembers(group, username);
+            var members = await _dashboardService.GetStoredUsersGroup(group, username); ;
             return Ok(members);
         }
         catch (Exception ex)
@@ -119,7 +119,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     {
         try
         {
-            var members = await GetMembers(group);
+            var members = await _dashboardService.GetStoredUsersGroup(group);
             var offices = members.Where(x => x.Office != null).Select(s => s.Office!.Trim()).Distinct().ToList();
 
             var catalog = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
@@ -247,16 +247,6 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         return users;
     }
 
-    private async Task<List<UserViewModel>> GetMembers(string group, string? username = null)
-    {
-        username ??= _credentials.GetClaim("username");
-        bool isLoading = _lockService.IsLocked(username!);
-        if (isLoading)
-            await Task.WhenAny(_lockService.GetWaitTask(username!), Task.Delay(3000));
-
-        List<UserViewModel> groupMembers = await _dashboardService.GetStoredUsersGroup(group, username);
-        return groupMembers;
-    }
 
     private bool IsUserInRole(string role)
     {
