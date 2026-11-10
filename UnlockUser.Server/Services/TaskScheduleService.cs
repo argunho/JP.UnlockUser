@@ -2,14 +2,12 @@
 
 namespace UnlockUser.Server.Services;
 
-public class TaskScheduleService(IServiceScopeFactory scope, ILocalUserService localUserService, IGoogleService googleService,
+public class TaskScheduleService(IServiceScopeFactory scope,
     ILocalFileService localFileService, ILogger<TaskScheduleService> logger) : IHostedService, IDisposable
 {
     private int _execution = 0;
     private Timer _timer;
     private readonly IServiceScopeFactory _serviceScope = scope;
-    private readonly ILocalUserService _localUserService = localUserService;
-    private readonly IGoogleService _googleService = googleService;
     private readonly ILocalFileService _localFileService = localFileService;
     private readonly ILogger<TaskScheduleService> _logger = logger;
 
@@ -38,12 +36,6 @@ public class TaskScheduleService(IServiceScopeFactory scope, ILocalUserService l
                 // Update employees in txt file
                 if (currentHour >= 6 && (lastUpdated == null || currentDate.Date != lastUpdated?.Date))
                 {
-                    // Renew users saved list
-                    await _localUserService.RenewUsersCachedList();
-
-                    // Get and save in memory cache list of students from Google API
-                    await _googleService.GetStudentsFromGoogleApi();
-
                     // Remove old files
                     if (currentDate.DayOfWeek == DayOfWeek.Monday)
                     {

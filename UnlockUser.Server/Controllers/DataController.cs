@@ -12,8 +12,8 @@ namespace UnlockUser.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class DataController(IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService, 
-                            IConfiguration config, IMemoryCache memoryCache, IRefreshLockService lockService, 
+public class DataController(IHelpService helpService, ICredentialsService credentials, ILocalFileService localFileService,
+                            IConfiguration config, IMemoryCache memoryCache, IRefreshLockService lockService,
                             DashboardService dashboardService, ILogger<DataController> logger) : ControllerBase
 {
     private readonly IHelpService _helpService = helpService;
@@ -100,64 +100,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             // KC group has full access like a real KC login, so it uses the regular session cache path below (supports "overview")
             if (impersonating && !IsUserInRole("KCGroup")) // 2026-09-24
             {
-                List<UserViewModel> groupMembers = [];
-                _cache.TryGetValue(group, out List<UserViewModel>? users);
-                if (users == null)
-                    return Ok();
-
-                var (alternativeParams, isStudents) = await _dashboardService.GetParams(group!, username!);
-                if (isStudents)
-                {
-                    users = [..users.Where(x => !string.IsNullOrEmpty(x.Office) &&
-                                 alternativeParams.Any(p => x.Office!.StartsWith(p, StringComparison.OrdinalIgnoreCase)))];
-                }
-                else
-                {
-                    var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
-                    var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
-                    var pe = permissions?.Employees ?? [];
-                    var po = permissions?.Offices ?? [];
-                    var mu = moderators.Select(m => m.Username).ToList();
-
-                    groupMembers.AddRange([.. users.Where(x =>
-                    {
-                        if (x.Manager == null || pe!.Contains(x.Username!) || po!.Contains(x.Office!) || mu.Contains(x.Username))
-                            return false;
-
-                        var m = x.Manager.Trim();
-
-                        // ensure there's enough length for a start index of 3
-                        if (m.Length <= 3)
-                            return false;
-                        var comma = m.IndexOf(',');
-
-                        // ensure comma exists and is after the start index
-                        if (comma <= 3)
-                            return false;
-
-                        var part = m[3..comma ];  // m.Substring(3, comma - 3)
-                        return alternativeParams!.Contains(part, StringComparer.OrdinalIgnoreCase);
-                    })]);
-
-                    var usernames = groupMembers.Select(s => s.Username).ToList();
-                    if (po?.Count > 0)
-                    {
-                        groupMembers.AddRange([.. users.Where(x => !usernames.Contains(x.Username!, StringComparer.OrdinalIgnoreCase)
-                            && po.Contains(x.Office!, StringComparer.OrdinalIgnoreCase)
-                            && !mu.Contains(x.Username, StringComparer.OrdinalIgnoreCase))]);
-                    }
-
-                    usernames = [.. groupMembers.Select(s => s.Username)];
-
-                    if (pe?.Count > 0)
-                    {
-                        groupMembers.AddRange([.. users.Where(x => !usernames.Contains(x.Username!, StringComparer.OrdinalIgnoreCase) 
-                            && pe.Contains(x.Username!, StringComparer.OrdinalIgnoreCase))]);
-                    }
-
-                    return Ok(groupMembers);
-                }
-
+                var users = await GetImpersonating(group, username);
                 return Ok(users);
             }
 
@@ -241,14 +184,77 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     #endregion
 
     #region Helpers
+    private async Task<List<UserViewModel>> GetImpersonating(string group, string username)
+    {
+        List<UserViewModel> groupMembers = [];
+        _cache.TryGetValue(group, out List<UserViewModel>? users);
+        if (users == null)
+            return [];
+
+        var (alternativeParams, isStudents) = await _dashboardService.GetParams(group!, username!);
+        if (isStudents)
+        {
+            users = [..users.Where(x => !string.IsNullOrEmpty(x.Office) &&
+                                 alternativeParams.Any(p => x.Office!.StartsWith(p, StringComparison.OrdinalIgnoreCase)))];
+        }
+        else
+        {
+            var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+            var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
+            var pe = permissions?.Employees ?? [];
+            var po = permissions?.Offices ?? [];
+            var mu = moderators.Select(m => m.Username).ToList();
+
+            groupMembers.AddRange([.. users.Where(x =>
+                    {
+                        if (x.Manager == null || pe!.Contains(x.Username!) || po!.Contains(x.Office!) || mu.Contains(x.Username))
+                            return false;
+
+                        var m = x.Manager.Trim();
+
+                        // ensure there's enough length for a start index of 3
+                        if (m.Length <= 3)
+                            return false;
+                        var comma = m.IndexOf(',');
+
+                        // ensure comma exists and is after the start index
+                        if (comma <= 3)
+                            return false;
+
+                        var part = m[3..comma ];  // m.Substring(3, comma - 3)
+                        return alternativeParams!.Contains(part, StringComparer.OrdinalIgnoreCase);
+                    })]);
+
+            var usernames = groupMembers.Select(s => s.Username).ToList();
+            if (po?.Count > 0)
+            {
+                groupMembers.AddRange([.. users.Where(x => !usernames.Contains(x.Username!, StringComparer.OrdinalIgnoreCase)
+                            && po.Contains(x.Office!, StringComparer.OrdinalIgnoreCase)
+                            && !mu.Contains(x.Username, StringComparer.OrdinalIgnoreCase))]);
+            }
+
+            usernames = [.. groupMembers.Select(s => s.Username)];
+
+            if (pe?.Count > 0)
+            {
+                groupMembers.AddRange([.. users.Where(x => !usernames.Contains(x.Username!, StringComparer.OrdinalIgnoreCase)
+                            && pe.Contains(x.Username!, StringComparer.OrdinalIgnoreCase))]);
+            }
+
+            return groupMembers;
+        }
+
+        return users;
+    }
+
     private async Task<List<UserViewModel>> GetMembers(string group, string? username = null)
     {
         username ??= _credentials.GetClaim("username");
         bool isLoading = _lockService.IsLocked(username!);
         if (isLoading)
-            await Task.WhenAny(_lockService.GetWaitTask(username!), Task.Delay(90000));
+            await Task.WhenAny(_lockService.GetWaitTask(username!), Task.Delay(3000));
 
-        List<UserViewModel> groupMembers = await _dashboardService.GetStoredUsersGroup(group);
+        List<UserViewModel> groupMembers = await _dashboardService.GetStoredUsersGroup(group, username);
         return groupMembers;
     }
 

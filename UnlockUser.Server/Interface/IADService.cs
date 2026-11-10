@@ -17,7 +17,8 @@ public interface IADService
     List<string> GetUserGroups(UserPrincipalExtension user);
 
     DirectorySearcher GetMembers(string? groupName);
-    Task<List<User>> GetUsersByGroupName(GroupModel group, string? username = null, List<string>? managers = null);
+    Task<List<User>> GetUsersByGroupNameFilteredByUserPermissions(string group, string? username = null, List<string>? managers = null);
+    Task<Dictionary<string, List<User>>> GetEmployesByGroupName();
     List<string> GetSecurityGroupMembers(string? groupName);
     List<User> GetUsers(DirectorySearcher result, string groupName);
     List<Manager> GetUserManagers(User user);

@@ -1,16 +1,18 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System.Diagnostics;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 
 namespace UnlockUser.Server.IServices;
 
-public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileService localFileService) : IADService // Help class inherit an interface and this class is a provider to use interface methods into another controller
+public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileService localFileService, IMemoryCache cache) : IADService // Help class inherit an interface and this class is a provider to use interface methods into another controller
 {
     private readonly string domain = "alvesta";
     private readonly string defaultOU = "DC=alvesta,DC=local";
 
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly ILocalFileService _localFileService = localFileService;
+    private readonly IMemoryCache _cache = cache;
 
     #region Find user   
     // Method to get a user with extension parameters from Active Dericotry
@@ -106,11 +108,105 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
         return search;
     }
 
-    // Get users by group name
-    public async Task<List<User>> GetUsersByGroupName(GroupModel group, string? username = null, List<string>? alternativeParams = null)
+    // Get users by group name filtered by user permissions
+    public async Task<List<User>> GetUsersByGroupNameFilteredByUserPermissions(string group, string? username = null, List<string>? alternativeParams = null)
     {
-        List<User> users = [];
-        using DirectoryEntry entry = new($"LDAP://OU={group.Group!},OU=Users,OU=Kommun,DC=alvesta,DC=local");
+        List<User> employees = [];
+        _cache.TryGetValue(group, out List<User>? users);
+        if(employees == null)
+        {
+            var employeesByGroup = await GetEmployesByGroupName();
+            if (employeesByGroup.Count > 0)
+            {
+                foreach (var groupName in employeesByGroup.Keys)
+                {
+                    var cacheKey = groupName.ToLower();
+                    _cache.Set(cacheKey, employeesByGroup[groupName], new MemoryCacheEntryOptions
+                    {
+                        SlidingExpiration = TimeSpan.FromHours(15), // Cache for 15 hours, removes after this time if it is not used
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(18) // Cache for 18 hours, removes after this time even if it is used
+                    });
+                }
+
+                employees = group?.ToLower() switch
+                {
+                    "politiker" => employeesByGroup["politiker"],
+                    "personal" => employeesByGroup["personal"],
+                    _ => []
+                };
+            }
+        }
+
+        // Saved employees who have permission to manage employee passwords
+        var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
+        var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
+        var pe = permissions?.Employees ?? [];
+        var po = permissions?.Offices ?? [];
+
+        bool isEmployee = group.Equals("personal", StringComparison.OrdinalIgnoreCase);
+        bool isPolitician = group.Equals("politiker", StringComparison.OrdinalIgnoreCase);
+        foreach (var user in users)
+        {
+            var moderator = moderators.FirstOrDefault(x => string.Equals(x.Username, user.Username, StringComparison.OrdinalIgnoreCase));
+            if (moderator != null)
+                user.Permissions = moderator.Permissions;
+
+            if (alternativeParams == null || alternativeParams?.Count == 0)
+                employees?.Add(user!);
+            else if (isEmployee && !employees!.Exists(x => x.Username == user.Username!))
+            {
+                if (po.Count > 0 && po.Contains(user.Office!, StringComparer.OrdinalIgnoreCase)
+                    && !string.Equals(moderator!.Username, user.Username!, StringComparison.OrdinalIgnoreCase))
+                {
+                    employees.Add(user);
+                    continue;
+                }
+                else if (pe.Count > 0 && pe.Contains(user.Username!, StringComparer.OrdinalIgnoreCase))
+                {
+                    employees.Add(user);
+                    continue;
+                }
+                else if (moderator != null)
+                    continue;
+
+                if (user.Manager == null)
+                    continue;
+                var m = user.Manager.Trim();
+
+                // ensure there's enough length for a start index of 3
+                if (m.Length <= 3)
+                    continue;
+                var comma = m.IndexOf(',');
+
+                // ensure comma exists and is after the start index
+                if (comma <= 3)
+                    continue;
+
+                var part = m.Substring(3, comma - 3);
+                //(alternativeParams!.Contains(user.Manager!.Trim()?[3..user.Manager.IndexOf(',')], StringComparer.OrdinalIgnoreCase)
+                if (alternativeParams!.Contains(part, StringComparer.OrdinalIgnoreCase))
+                {
+                    employees.Add(user);
+                }
+            }
+            else if (isPolitician && alternativeParams!.Contains(user.Username, StringComparer.OrdinalIgnoreCase))
+                employees.Add(user);
+        }
+
+
+        return employees;
+    }
+
+    // Get users by group name
+    public async Task<Dictionary<string, List<User>>> GetEmployesByGroupName()
+    {
+        Dictionary<string, List<User>> users = new()
+        {
+            { "politiker", [] },
+            { "personal", [] }
+        };
+
+        using DirectoryEntry entry = new($"LDAP://OU=Employees,OU=Users,OU=Kommun,DC=alvesta,DC=local");
         using DirectorySearcher search = new(entry);
         search.Filter = $"(&(objectClass=User))";
 
@@ -123,16 +219,6 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
         res.PageSize = 1000;
         res.SizeLimit = 0;
 
-        bool isEmployeeGroup = string.Equals(group.Group, "Employees", StringComparison.OrdinalIgnoreCase);
-        bool isPolitician = string.Equals(group.Name, "Politiker", StringComparison.OrdinalIgnoreCase);
-        bool isEmployee = string.Equals(group.Name, "Personal", StringComparison.OrdinalIgnoreCase);
-
-        // Saved employees who have permission to manage employee passwords
-        var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
-        var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
-        var pe = permissions?.Employees ?? [];
-        var po = permissions?.Offices ?? [];
-
 
         // Get all users by search group parameters
         foreach (SearchResult? result in res.FindAll().OfType<SearchResult>())
@@ -141,67 +227,14 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
             var user = GetUserParams(props);
             if (user == null)
                 continue;
-
-            if (isEmployeeGroup)
-            {
-                var properties = props["memberOf"].OfType<string>() ?? [];
-                bool isPoliticianGroup = properties.Any(x => x.Contains("Ciceron-Assistentanvändare", StringComparison.OrdinalIgnoreCase));
-
-                if (isPolitician && !isPoliticianGroup)
-                    continue;
-                else if (isEmployee && isPoliticianGroup)
-                    continue;
-
-                var moderator = moderators.FirstOrDefault(x => string.Equals(x.Username, user.Username, StringComparison.OrdinalIgnoreCase));
-                if (moderator != null)
-                    user.Permissions = moderator.Permissions;
-
-                if (alternativeParams == null || alternativeParams?.Count == 0)
-                    users.Add(user!);
-                else if (isEmployee && !users.Exists(x => x.Username == user.Username!))
-                {
-                    if (po.Count > 0 && po.Contains(user.Office!, StringComparer.OrdinalIgnoreCase) 
-                        && !string.Equals(moderator!.Username, user.Username!, StringComparison.OrdinalIgnoreCase))
-                    {
-                        users.Add(user);
-                        continue;
-                    }
-                    else if (pe.Count > 0 && pe.Contains(user.Username!, StringComparer.OrdinalIgnoreCase))
-                    {
-                        users.Add(user);
-                        continue;
-                    }
-                    else if (moderator != null)
-                        continue;
-
-                    if (user.Manager == null)
-                        continue;
-                    var m = user.Manager.Trim();
-
-                    // ensure there's enough length for a start index of 3
-                    if (m.Length <= 3)
-                        continue;
-                    var comma = m.IndexOf(',');
-
-                    // ensure comma exists and is after the start index
-                    if (comma <= 3)
-                        continue;
-
-                    var part = m.Substring(3, comma - 3);
-                    //(alternativeParams!.Contains(user.Manager!.Trim()?[3..user.Manager.IndexOf(',')], StringComparer.OrdinalIgnoreCase)
-                    if (alternativeParams!.Contains(part, StringComparer.OrdinalIgnoreCase))
-                    {
-                        users.Add(user);
-                    }
-                }
-                else if (isPolitician && alternativeParams!.Contains(user.Username, StringComparer.OrdinalIgnoreCase))
-                    users.Add(user);
-            }
-            else if ((alternativeParams?.Count == 0))
-                users.Add(user);
-            else if (alternativeParams!.Contains(user!.Office!, StringComparer.OrdinalIgnoreCase))
-                users.Add(user);
+            var properties = props["memberOf"].OfType<string>() ?? [];
+            bool isInPoliticianGroup = properties.Any(x => x.Contains("Ciceron-Assistentanvändare", StringComparison.OrdinalIgnoreCase));
+            if (isInPoliticianGroup)
+                users["politiker"].Add(user);
+            else
+                users["personal"].Add(user);
         }
+
         entry.Close();
 
         return users;

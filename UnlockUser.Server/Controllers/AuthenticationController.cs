@@ -363,12 +363,10 @@ public class AuthenticationController(IADService provider, IConfiguration config
             var currentModerator = moderators?.FirstOrDefault(x => x.Username != null && x.Username.Equals(authorizedUser?.Name.ToString(), StringComparison.OrdinalIgnoreCase));
 
             // Get employees lis by user permissions groups 
-            _ = Task.Run(async () =>
-                await _dashboardService.StoreUsersByGroup(
-                    authorizedUser.Name,
-                    currentModerator?.Permissions?.Groups,
-                    openAccess || limitedAccess)
-                ); // 2026-10-19
+            if (openAccess || limitedAccess)
+                await _dashboardService.GetCacheGroupsUsers();
+            else
+                await _dashboardService.StoreUsersByGroup(authorizedUser.Name, currentModerator?.Permissions?.Groups);
 
 
             claims.Add(new("Email", authorizedUser.EmailAddress));
@@ -379,15 +377,6 @@ public class AuthenticationController(IADService provider, IConfiguration config
             claims.Add(new("Department", authorizedUser.Department));
             claims.Add(new("Groups", groups));
             claims.Add(new("Permissions", string.Join(',', currentModerator?.Permissions?.Groups ?? [])));
-            // start: 2026-10-19
-            // Same marker as LoginAs: blocks password changes (NotImpersonating policy) and ResetLoginAs/log can see who it is
-            //if (impersonating != null)
-            //{
-            //    roles.Add("Impersonating");
-            //    claims.Add(new("Impersonating", impersonating));
-            //    _logger.LogInformation("Utvecklare {developer} loggade in (develop mode) som {username} vid: {time}.", impersonating, authorizedUser.Name, DateTime.Now.ToString("g"));
-            //}
-            // end
             claims.Add(new("Roles", string.Join(",", roles)));
 
 

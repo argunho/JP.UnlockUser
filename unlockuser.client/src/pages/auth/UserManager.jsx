@@ -3,6 +3,7 @@ import { use, useState } from 'react';
 
 // Installed
 import { Button, CircularProgress } from '@mui/material';
+import { LockOpen } from '@mui/icons-material';
 import { useLoaderData } from 'react-router-dom';
 
 // Components
@@ -24,7 +25,7 @@ function UserManager() {
     async function unlockUser() {
         // Request
         const res = await fetchData({ api: "user/unlock/" + user?.username, method: "put", action: "success" });
-        setLocked(res ? true : false);
+        setLocked(res?.isLocked);
     }
 
     return <>
@@ -37,8 +38,9 @@ function UserManager() {
                     color="error"
                     disabled={pending}
                     onClick={unlockUser}
+                    endIcon={pending ? <CircularProgress style={{ width: "15px", height: "15px", marginTop: "3px" }} /> : <LockOpen />}
                     className="unlock-btn button-btn">
-                    {pending ? <CircularProgress style={{ width: "15px", height: "15px", marginTop: "3px" }} /> : "Lås upp"}
+                    Lås upp
                 </Button>
             </div>}
         </TabPanel>
