@@ -20,10 +20,6 @@ import { DecodedClaims } from '../../functions/DecodedToken';
 import { FetchContext } from '../../storage/FetchContext';
 
 function Manual({ api, label, menuLabel }) {
-  const [manual, setManual] = useState(null);
-  const [confirm, setConfirm] = useState(false);
-  const [sortedNames, setSortedNames] = useState(null);
-  const [sortingModel, setSortingMode] = useState(false);
 
   const { openAccess } = DecodedClaims()
   const manuals = useLoaderData();
@@ -32,6 +28,11 @@ function Manual({ api, label, menuLabel }) {
   const revalidator = useRevalidator();
 
   const { pending, success, response, fetchData, handleResponse } = use(FetchContext);
+
+  const [manual, setManual] = useState(manuals?.[0]);
+  const [confirm, setConfirm] = useState(false);
+  const [sortedNames, setSortedNames] = useState(null);
+  const [sortingModel, setSortingMode] = useState(false);
 
   useEffect(() => {
     document.title = "UnlockUser | Manual";
@@ -147,7 +148,7 @@ function Manual({ api, label, menuLabel }) {
         {/* Manual content view */}
         {manuals?.length > 0 &&
           <div key={manual?.name} className="box-wrapper fade-in w-100"
-            dangerouslySetInnerHTML={{ __html: (manual ?? manuals?.[0])?.html }}></div>}
+            dangerouslySetInnerHTML={{ __html: manual?.html }}></div>}
 
       </div>}
 

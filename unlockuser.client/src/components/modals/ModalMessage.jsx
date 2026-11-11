@@ -7,7 +7,7 @@ import {
     Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
 } from "@mui/material";
 
-function ModalMessage({ children, childrenButton, open = true, label, content, onClose }) {
+function ModalMessage({ children, childrenButton, open = true, label, content, cls = null, onClose }) {
 
     const ref = useRef(null);
 
@@ -19,6 +19,10 @@ function ModalMessage({ children, childrenButton, open = true, label, content, o
         }
     }
 
+    const clsModal = cls?.modal ? `modal-view ${cls?.modal}` : "modal-view"
+    const clsLabel = cls?.label ? { className: cls?.label } : null;
+    const clsActions = cls?.actions ? { className: cls?.actions } : null;
+    
     return (
         <Dialog
             open={open}
@@ -29,18 +33,20 @@ function ModalMessage({ children, childrenButton, open = true, label, content, o
                 zIndex: 3000,
             }}
             ref={ref}
-            className="modal-view"
+            className={clsModal}
         >
 
-            <DialogTitle id="alert-dialog-title">
+            <DialogTitle
+                id="alert-dialog-title"
+                {...clsLabel}>
                 <span dangerouslySetInnerHTML={{ __html: label ?? "Obs!" }}></span>
             </DialogTitle>
             <DialogContent>
                 <DialogContentText className="modal-content-div" id="alert-dialog-description" sx={{ margin: "10px 15px 0 15px" }}>
-                   {(!childrenButton && children) ||  <span dangerouslySetInnerHTML={{ __html: content }}></span>}
+                    {(!childrenButton && children) || <span dangerouslySetInnerHTML={{ __html: content }}></span>}
                 </DialogContentText>
             </DialogContent>
-            <DialogActions>
+            <DialogActions {...clsActions}>
                 {/* Child button */}
                 {(childrenButton && children) && children}
 

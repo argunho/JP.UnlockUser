@@ -402,13 +402,21 @@ main,
     margin: 0 !important;
 }
 
-
 .no-l-margin {
     margin-left: 0 !important;
 }
 
 .no-r-margin {
     margin-right: 0 !important;
+}
+
+.no-padding,
+.no-padding div[role="dialog"] {
+    padding: 0 !important;
+}
+
+.no-border {
+    border: none !important;
 }
 
 .back-scale,

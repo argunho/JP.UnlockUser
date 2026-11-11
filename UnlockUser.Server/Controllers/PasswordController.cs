@@ -382,24 +382,24 @@ public class PasswordController(IADService provider, IWebHostEnvironment env,
                 return;
 
             var description = new StringBuilder();
-            description.Append("\r Administratör som utförde lösenordsändring");
+            description.Append("\r\n <b>Administratör som utförde lösenordsändring</b>");
             description.Append($"\n - Användarnamn: {user?.Name}");
             description.Append($"\n - Namn: {user?.DisplayName}");
             description.Append($"\n - E-postadress: {user?.EmailAddress}");
             description.Append($"\n - Arbetsplats: {user.Department}");
             description.Append($"\n - Tjänst: {user.Title}");
-            description.Append($"\n\n\r Dator");
+            description.Append($"\n\n\r <b>Dator</b>");
             description.Append($"\n - Datornamn: {model?.ComputerName}");
             description.Append($"\n - IpAddress: {model?.IpAddress}");
-            description.Append($"\n\n\r Hantering");
+            description.Append($"\n\n\r <b>Hantering</b>");
             description.Append($"\n - Gruppnamn: {model?.Group}");
 
             bool isStudentGroup = string.Equals(model!.Group, "studenter", StringComparison.OrdinalIgnoreCase);
 
             if (isStudentGroup)
             {
-                description.Append($" - Skolan: {model?.ManagedUserOffice}");
-                description.Append($" - Klassnamn: {model?.ManagedUserDepartment}");
+                description.Append($"\n  - Skolan: {model?.ManagedUserOffice}");
+                description.Append($"\n  - Klassnamn: {model?.ManagedUserDepartment}");
                 description.Append($"\n\n\r Lösenord ändrad till {model?.Users.Count} student{(model?.Users.Count > 1 ? "er" : "")}:");
                 foreach (var student in model!.Users)
                     description.Append($"\n\t- Student: {student}");
@@ -412,11 +412,11 @@ public class PasswordController(IADService provider, IWebHostEnvironment env,
                     model.Office = user.Office;
                     model.Department = user.Department;
                 }
-                description.Append($" - Arbetsplats: {model?.Office}");
+                description.Append($"\n - Arbetsplats: {model?.Office}");
                 description.Append($"\n\n\r Lösenord ändrad till:");
                 description.Append($"\n\t-{model?.Group}: {model?.Users[0]}");
             }
-            description.Append("\n\n\n Datum: " + DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
+            description.Append("\n\n\n <b>Datum:</b> " + DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
 
             var histories = await _localFile.GetEncryptedFile<List<FileViewModel>>("catalogs/histories") ?? [];
             FileViewModel hitoryData = new()

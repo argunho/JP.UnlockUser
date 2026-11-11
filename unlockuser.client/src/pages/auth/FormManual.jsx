@@ -64,7 +64,7 @@ function FormManual({ api, label, checkbox, groups }) {
         setCheckboxValue(!!formModel?.[checkbox]);
     }
 
-
+console.log(success)
     return <>
         <TabPanel primary={label ?? (id && (!formModel ? "Data hämtas..." : `Edit: ${formModel?.name}`))} />
 
@@ -121,7 +121,7 @@ function FormManual({ api, label, checkbox, groups }) {
         </form>}
 
         {/* Success modal */}
-        {(success && !item) && <ModalSuccess onClose={() => navigate(-1)} />}
+        {success && <ModalSuccess onClose={() => navigate(-1)} />} {/* 2026-11-11 */}
     </>;
 }
 

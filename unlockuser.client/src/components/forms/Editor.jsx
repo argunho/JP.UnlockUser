@@ -5,7 +5,7 @@ import { Box, InputLabel, Button, ToggleButtonGroup, Tooltip, ToggleButton, Clic
 import {
     Clear, DeleteSweep, FormatAlignCenter, FormatAlignJustify, FormatAlignLeft, FormatAlignRight, FormatBold, FormatClear, Title, FormatSize,
     FormatItalic, FormatListBulleted, FormatListNumbered, ImageSearch, Image, Compare, FormatStrikethrough, FormatColorText, Square, FormatColorFill,
-    FormatUnderlined, Link, ArrowDropDown, ArrowDropUp, Code // 2026-10-25
+    FormatUnderlined, Link, ArrowDropDown, ArrowDropUp, Code, Undo, Redo, FontDownload, FontDownloadOff // 2026-11-11 14:01
 } from '@mui/icons-material';
 import axios from 'axios'; // 2026-10-25
 
@@ -45,6 +45,10 @@ const colorCodes = [
 const headings = ["h1", "h2", "h3", "h4", "h5", "h6"];
 const numbers = Array.from({ length: 27 }, (_, i) => i + 4);
 const sizes = [...numbers, ...[32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76]];
+// start: 2026-11-11 14:01
+const standardFont = "Standard"; // Removes the inline font-family, the site font is used
+const fonts = [standardFont, "Calibri", "Arial", "Segoe UI", "Verdana", "Tahoma", "Georgia", "Times New Roman", "Courier New"];
+// end
 
 const colorsTooltip = {
     secondary: "#9c27b0",
@@ -56,12 +60,18 @@ const colorsTooltip = {
 }
 
 const buttons = [
+    // start: 2026-11-11 13:50
+    { cmd: "undo", icon: <Undo />, tip: "Ångra (Ctrl+Z)", skip: true },
+    { cmd: "redo", icon: <Redo />, tip: "Gör om (Ctrl+Y)", skip: true },
+    // end
     { cmd: "bold", key: "strong", icon: <FormatBold /> },
     { cmd: "italic", key: "em", icon: <FormatItalic /> },
     { cmd: "underline", key: "u", icon: <FormatUnderlined /> },
     { cmd: "strikethrough", key: "del", icon: <FormatStrikethrough /> },
     { cmd: "paragraph", key: "paragraph", icon: <Title />, tip: "h1,h2,h3,h4,h5,h6", models: headings, skip: true },
     { cmd: "fontSize", key: "formatSize", icon: <FormatSize />, tip: "Font size", models: sizes, skip: true },
+    { cmd: "fontFamily", icon: <FontDownload />, tip: "Typsnitt (markerad text eller hela texten)", models: fonts, skip: true, fonts: true }, // 2026-11-11 14:01
+    { cmd: "resetFontFamily", icon: <FontDownloadOff />, tip: "Standardtypsnitt (markerad text eller hela texten)", skip: true }, // 2026-11-11 14:01
     { cmd: "justifyLeft", icon: <FormatAlignLeft /> },
     { cmd: "justifyCenter", icon: <FormatAlignCenter /> },
     { cmd: "justifyRight", icon: <FormatAlignRight /> },
@@ -124,6 +134,34 @@ function cleanHtml(html) {
 
 const maxImageSize = 10 * 1024 * 1024; // Same limit as the server (api/images/editor)
 
+// start: 2026-11-11 13:50
+// Undo/redo history
+const maxHistory = 100;
+const historyMergeMs = 800; // Typing within this time is one undo step
+const typingInputRegex = /^(insertText|insertCompositionText|deleteContent)/;
+
+// Elements that end a line of text (used to find the line around the cursor)
+const lineBreakTags = ["BR", "P", "DIV", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "UL", "OL", "BLOCKQUOTE", "TABLE", "HR"];
+const headingBlockSelector = "p, div, h1, h2, h3, h4, h5, h6, li, blockquote";
+
+function isLineBreak(node) {
+    return node?.nodeType === 1 && lineBreakTags.includes(node.tagName);
+}
+// end
+
+// start: 2026-11-11 13:57
+const headingStyleProps = ["font-size", "font-weight", "font-family", "font-style", "line-height"];
+
+// Remove inline font styles (e.g. from pasted text), so the h1-h6 size is used
+function clearFontStyles(heading) {
+    [heading, ...heading.querySelectorAll("[style]")].forEach(el => {
+        headingStyleProps.forEach(prop => el.style.removeProperty(prop));
+        if (!el.getAttribute("style")?.trim())
+            el.removeAttribute("style");
+    });
+}
+// end
+
 // Line breaks after block elements, makes the html code readable
 function formatHtml(html) {
     return (html ?? "").replace(/(<\/(p|div|h[1-6]|li|ul|ol|blockquote)>|<br\s*\/?>)(?!\n)/gi, "$1\n");
@@ -150,20 +188,248 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
     // Cursor position before the file dialog opens, the image is inserted there after upload
     const refRange = useRef(null);
 
+    // start: 2026-11-11 13:50
+    // Snapshots of the editor html for undo/redo (programmatic DOM changes break the browser's own undo)
+    const refHistory = useRef({ stack: [defaultValue ?? ""], index: 0, time: 0 });
+    // end
+
     const cleanValue = useMemo(() => cleanHtml(value), [value]);
 
     useEffect(() => {
         if (defaultValue) {
             refEditor.current.innerHTML = defaultValue;
             setValue(defaultValue);
+            refHistory.current = { stack: [defaultValue], index: 0, time: 0 }; // 2026-11-11 13:50
         }
     }, [defaultValue])
 
     // Keep the state in sync with the editor after programmatic DOM changes (they don't fire onInput)
-    function syncValue() {
+    function syncValue(merge = false) { // 2026-11-11 13:50
         const htmlValue = refEditor.current?.innerHTML?.replaceAll(transmarkRegex, "") ?? "";
         setValue(htmlValue === "<br/>" || htmlValue === "<br>" ? "" : htmlValue);
+        recordHistory(refEditor.current?.innerHTML ?? "", merge); // 2026-11-11 13:50
     }
+
+    // start: 2026-11-11 13:50
+    // Save a snapshot, typing in a row is merged into one step
+    function recordHistory(html, merge) {
+        const history = refHistory.current;
+        if (history.stack[history.index] === html)
+            return;
+
+        const now = Date.now();
+        history.stack = history.stack.slice(0, history.index + 1); // A new change removes the redo steps
+
+        if (merge && history.index > 0 && now - history.time < historyMergeMs)
+            history.stack[history.index] = html;
+        else {
+            history.stack.push(html);
+            if (history.stack.length > maxHistory)
+                history.stack.shift();
+            history.index = history.stack.length - 1;
+        }
+
+        history.time = merge ? now : 0;
+    }
+
+    // step: -1 = undo, 1 = redo
+    function restoreHistory(step) {
+        const history = refHistory.current;
+        const index = history.index + step;
+        if (index < 0 || index >= history.stack.length || !refEditor.current)
+            return;
+
+        history.index = index;
+        history.time = 0;
+
+        const html = history.stack[index];
+        refEditor.current.innerHTML = html;
+        setValue(html === "<br/>" || html === "<br>" ? "" : html.replaceAll(transmarkRegex, ""));
+        placeCaret(refEditor.current);
+    }
+
+    // Put the cursor at the end of the element
+    function placeCaret(element) {
+        const selection = window.getSelection();
+        if (!selection || !element) return;
+
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+
+    // Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z use the editor history instead of the browser undo
+    function onKeyDown(e) {
+        if (!(e.ctrlKey || e.metaKey))
+            return;
+
+        const key = e.key?.toLowerCase();
+        if (key === "z" && !e.shiftKey) {
+            e.preventDefault();
+            restoreHistory(-1);
+        } else if (key === "y" || (key === "z" && e.shiftKey)) {
+            e.preventDefault();
+            restoreHistory(1);
+        }
+    }
+
+    // Change the block around the cursor to a heading (h1-h6), the same heading again turns it back to a paragraph.
+    // execCommand("formatBlock") did not work reliably here, so the DOM is changed directly.
+    // start: 2026-11-11 13:59
+    // Remove the inline font-family (e.g. from pasted text) so the standard font is used.
+    // Selected text: only the selection (and its parent elements), nothing selected: the whole text.
+    // start: 2026-11-11 14:01
+    // Set the font-family on the selected text, nothing selected: on the whole text
+    function applyFontFamily(font) {
+        if (font === standardFont) {
+            resetFontFamily();
+            return;
+        }
+
+        const editor = refEditor.current;
+        const selection = window.getSelection();
+        if (!editor || !selection)
+            return;
+
+        const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+        const hasSelection = range && !range.collapsed && editor.contains(range.commonAncestorContainer);
+
+        // Nothing selected -> select the whole text
+        if (!hasSelection) {
+            const allRange = document.createRange();
+            allRange.selectNodeContents(editor);
+            selection.removeAllRanges();
+            selection.addRange(allRange);
+        }
+
+        document.execCommand("fontName", false, font);
+
+        // execCommand creates <font face="...">, use css instead (the face attribute is obsolete).
+        // The <font> element is kept, it can also have a color from the text color button.
+        // "!important" is needed: index.css sets font-family with !important on div, p, span, h1-h6, li...
+        editor.querySelectorAll("font[face]").forEach(el => {
+            const face = el.getAttribute("face");
+            el.removeAttribute("face");
+            el.style.setProperty("font-family", face, "important");
+
+            // Inner elements (span, p...) would get the site font from index.css or their own pasted font
+            if (face === font)
+                el.querySelectorAll("*").forEach(child => child.style?.setProperty("font-family", "inherit", "important"));
+        });
+
+        if (!hasSelection)
+            placeCaret(editor);
+
+        syncValue();
+    }
+    // end
+
+    function resetFontFamily() {
+        const editor = refEditor.current;
+        if (!editor)
+            return;
+
+        const selection = window.getSelection();
+        const range = selection?.rangeCount > 0 ? selection.getRangeAt(0) : null;
+        const hasSelection = range && !range.collapsed && editor.contains(range.commonAncestorContainer);
+
+        let elements = [...editor.querySelectorAll("*")];
+        if (hasSelection) {
+            elements = elements.filter(el => range.intersectsNode(el));
+
+            // Parent elements around the selection can also have a font-family
+            let parent = range.commonAncestorContainer;
+            if (parent.nodeType === 3)
+                parent = parent.parentElement;
+            while (parent && parent !== editor) {
+                elements.push(parent);
+                parent = parent.parentElement;
+            }
+        }
+
+        elements.forEach(el => {
+            el.style?.removeProperty("font-family");
+            if (el.hasAttribute("style") && !el.getAttribute("style").trim())
+                el.removeAttribute("style");
+            if (el.tagName === "FONT")
+                el.removeAttribute("face");
+        });
+
+        syncValue();
+    }
+    // end
+
+    function applyHeading(tag) {
+        const editor = refEditor.current;
+        const selection = window.getSelection();
+        if (!editor || !selection || selection.rangeCount === 0)
+            return;
+
+        const range = selection.getRangeAt(0);
+        if (!editor.contains(range.commonAncestorContainer))
+            return;
+
+        let node = range.startContainer;
+        if (node.nodeType === 3)
+            node = node.parentElement;
+
+        const block = node?.closest(headingBlockSelector);
+        let heading;
+
+        if (block && block !== editor && editor.contains(block) && block.tagName !== "LI") {
+            // Replace the block tag, keep its attributes (alignment etc.) and content
+            heading = document.createElement(block.tagName.toLowerCase() === tag ? "p" : tag);
+            [...block.attributes].forEach(attr => heading.setAttribute(attr.name, attr.value));
+            heading.append(...block.childNodes);
+            block.replaceWith(heading);
+        } else if (!range.collapsed) {
+            // Selected text directly in the editor (or in a list item)
+            heading = document.createElement(tag);
+            heading.append(range.extractContents());
+            range.insertNode(heading);
+        } else {
+            // Cursor directly in the editor (or in a list item), wrap the whole line around the cursor
+            heading = document.createElement(tag);
+            const parent = block?.tagName === "LI" ? block : editor;
+
+            let top = range.startContainer === parent
+                ? (parent.childNodes[range.startOffset] ?? parent.lastChild)
+                : range.startContainer;
+            while (top && top.parentNode !== parent)
+                top = top.parentNode;
+
+            if (!top || isLineBreak(top)) {
+                heading.append(document.createElement("br"));
+                if (top) parent.insertBefore(heading, top);
+                else parent.append(heading);
+            } else {
+                let first = top, last = top;
+                while (first.previousSibling && !isLineBreak(first.previousSibling))
+                    first = first.previousSibling;
+                while (last.nextSibling && !isLineBreak(last.nextSibling))
+                    last = last.nextSibling;
+
+                parent.insertBefore(heading, first);
+                let current = first;
+                while (current) {
+                    const next = current === last ? null : current.nextSibling;
+                    heading.append(current);
+                    current = next;
+                }
+
+                // The heading is a block, the line break after it is not needed
+                if (heading.nextSibling?.nodeName === "BR")
+                    heading.nextSibling.remove();
+            }
+        }
+
+        clearFontStyles(heading); // 2026-11-11 13:57
+        placeCaret(heading);
+        syncValue();
+    }
+    // end
 
     // Switch between the visual editor and the html code
     function toggleHtml() {
@@ -200,10 +466,11 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
         refEditor.current.innerHTML = "";
         onSave?.(cleanHtml(htmlValue));
         setValue("");
+        refHistory.current = { stack: [""], index: 0, time: 0 }; // 2026-11-11 13:50
     }
 
-    function onChange() {
-        syncValue();
+    function onChange(e) { // 2026-11-11 13:50
+        syncValue(typingInputRegex.test(e?.nativeEvent?.inputType ?? "")); // 2026-11-11 13:50
     }
 
     function onPaste(e) {
@@ -340,15 +607,31 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                 toggleHtml(); // 2026-10-25
                 break;
             case headings.includes(key):
-                document.execCommand("formatBlock", false, key.toUpperCase());
+                applyHeading(key); // 2026-11-11 13:50
                 break;
+            // start: 2026-11-11 13:50
+            case key === "undo":
+                restoreHistory(-1);
+                break;
+            case key === "redo":
+                restoreHistory(1);
+                break;
+            // start: 2026-11-11 14:01
+            case fonts.includes(key):
+                applyFontFamily(key);
+                break;
+            case key === "resetFontFamily":
+                resetFontFamily();
+                break;
+            // end
+            // end
             case key === "erase":
                 if (str?.length > 0)
                     selection.deleteFromDocument();
                 break;
             case key === "remove":
                 refEditor.current.innerHTML = "";
-                setValue(""); // 2026-10-25
+                syncValue(); // 2026-11-11 13:50 - also saves an undo step
                 if (defaultValue && onCancel)
                     onCancel();
                 // setFormats([]);
@@ -511,12 +794,13 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                                             selected={item?.cmd === "html" && showHtml} // 2026-10-25
                                             disabled={(showHtml && item?.cmd !== "html") || (uploading && item?.cmd === "image")} // 2026-10-25
                                             aria-label={item?.cmd}
+                                            onMouseDown={(e) => e.preventDefault()} // 2026-11-11 13:50 - keeps the focus and the selection in the editor
                                             style={{ position: "relative" }}
                                             onClick={() => handleAction(item, index)}>
                                             {item?.icon}
                                             {item?.models && <>
                                                 {openIndex === index ? <ArrowDropUp /> : <ArrowDropDown />}
-                                                {openIndex === index && <div className="d-column jc-start editor-dropdown">
+                                                {openIndex === index && <div className={`d-column jc-start editor-dropdown${item?.fonts ? " editor-dropdown-fonts" : ""}`} /* 2026-11-11 14:01 */>
                                                     {item?.models?.map((m) => (
                                                         <Button
                                                             component="div" // 2026-10-25 - avoids <button> inside <button>
@@ -525,7 +809,13 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                                                             aria-label={m}
                                                             className="w-100"
                                                             onClick={() => handleChange(m)}>
-                                                            {item?.colors ? <Square style={{ color: m }} /> : m}
+                                                            {/* start: 2026-11-11 14:01 */}
+                                                            {item?.colors
+                                                                ? <Square style={{ color: m }} />
+                                                                : item?.fonts
+                                                                    ? <span ref={el => m !== standardFont && el?.style.setProperty("font-family", `'${m}'`, "important")}>{m}</span>
+                                                                    : m}
+                                                            {/* end */}
                                                         </Button>
 
                                                     ))}
@@ -569,6 +859,7 @@ function Editor({ label = "Text", name = "text", defaultValue, required, disable
                             className='w-100 editor-textarea'
                             onInput={onChange}
                             onPaste={onPaste}
+                            onKeyDown={onKeyDown} // 2026-11-11 13:50
                         >
                         </div>
 

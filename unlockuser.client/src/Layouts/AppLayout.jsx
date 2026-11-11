@@ -85,8 +85,13 @@ function AppLayout() {
 
       {/* Modal message */}
       {open && <ModalMessage
-        label={`<p style='font-size: 32px'>${modalMessage?.primary}</p>`}
+        label={modalMessage?.primary}
         content={modalMessage?.html}
+        cls={{
+          modal: "no-padding",
+          label: "modal-label",
+          actions: "modal-actions no-border"
+        }}
         childrenButton={true}>
         <Button variant="contained" color="default" onClick={hideMessage}>
           Visa inte meddelandet igen

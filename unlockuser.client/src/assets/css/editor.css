@@ -128,20 +128,45 @@
     top: 50px !important;
     right: 0;
     height: auto;
-    overflow: visible;
+    /* start: 2026-11-11 14:03 */
+    max-height: 200px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* end */
     width: 170px;
     background-color: #f5f5f5;
     border: 1px solid var(--color-light-gray);
     z-index: 3000;
     padding: 3px 0;
-    flex-wrap: wrap;
+    flex-wrap: nowrap !important; /* 2026-11-11 14:03 - wrap in a column with max-height would make new columns instead of scrolling */
 }
+
+/* start: 2026-11-11 14:03 */
+.editor-dropdown > * {
+    flex-shrink: 0;
+}
+/* end */
 
 .editor-dropdown button {
     min-width: unset;
     width: calc(100% / 5)!important;
     padding: 3px !important;
 }
+
+/* start: 2026-11-11 14:01 */
+/* Font list: one font per row, the names are long */
+.editor-dropdown-fonts {
+    width: 200px;
+}
+
+.editor-dropdown-fonts > * {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    padding: 5px 10px !important;
+    text-transform: none !important;
+    white-space: nowrap;
+}
+/* end */
 
 .editor-textarea {
     padding: 12px;

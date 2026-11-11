@@ -1,5 +1,64 @@
 # UnlockUser
 
+## 2026-11-11 14:03
+Editor: font-family dropdown + scrollable dropdowns.
+- The "Typsnitt" toolbar button is now a dropdown (Standard, Calibri, Arial, Segoe UI, Verdana, Tahoma, Georgia, Times New Roman, Courier New). It sets the font on the selected text, or on the whole text when nothing is selected. `execCommand("fontName")` creates `<font face>`; the face is moved to `style="font-family: … !important"` (needed because index.css sets `font-family !important` on div/p/span/h1–h6/li), inner elements get `font-family: inherit !important`. "Standard" = reset.
+- The "Standardtypsnitt" reset button is kept as a separate button (user request).
+- All editor dropdowns: max-height 200px with vertical scroll; `flex-wrap: nowrap`, otherwise a column flex with max-height wraps into new columns instead of scrolling.
+
+- unlockuser.client/src/components/forms/Editor.jsx:8 — modified: imported `FontDownloadOff` icon
+- unlockuser.client/src/components/forms/Editor.jsx:48-51 — added: `standardFont`, `fonts`
+- unlockuser.client/src/components/forms/Editor.jsx:73 — modified: `fontFamily` button is a dropdown (`models: fonts`)
+- unlockuser.client/src/components/forms/Editor.jsx:74 — added: `resetFontFamily` button
+- unlockuser.client/src/components/forms/Editor.jsx:283-327 — added: `applyFontFamily`
+- unlockuser.client/src/components/forms/Editor.jsx:619-626 — modified: `fonts` / `resetFontFamily` cases in `handleChange` (replaced the 13:59 `fontFamily` case)
+- unlockuser.client/src/components/forms/Editor.jsx:803 — modified: `editor-dropdown-fonts` class for the font dropdown
+- unlockuser.client/src/components/forms/Editor.jsx:812-818 — added: font names shown in their own font
+- unlockuser.client/src/assets/css/editor.css:131-135 — added: dropdown `max-height: 200px`, `overflow-y: auto`
+- unlockuser.client/src/assets/css/editor.css:141 — modified: dropdown `flex-wrap: nowrap`
+- unlockuser.client/src/assets/css/editor.css:144-148 — added: dropdown items `flex-shrink: 0`
+- unlockuser.client/src/assets/css/editor.css:156-169 — added: `.editor-dropdown-fonts` styles
+
+## 2026-11-11 13:59
+Editor: added a "Standardtypsnitt" toolbar button that removes the inline `font-family` (and `<font face>`) so the standard font is used — for the selected text (and its parent elements), or for the whole text when nothing is selected. Undoable.
+
+- unlockuser.client/src/components/forms/Editor.jsx:8 — modified: imported `FontDownload` icon
+- unlockuser.client/src/components/forms/Editor.jsx:69 — added: `fontFamily` toolbar button
+- unlockuser.client/src/components/forms/Editor.jsx:275-311 — added: `resetFontFamily`
+- unlockuser.client/src/components/forms/Editor.jsx:567-569 — added: `fontFamily` case in `handleChange`
+
+## 2026-11-11 13:57
+Fixed: a heading (h1–h6) made from pasted text stayed 14px. `applyHeading` copied the block's inline `style` (e.g. `font-size:14px;font-weight:400` from Teams/Outlook), which overrode the heading size. Font styles are now removed from the heading and its child elements; other styles (e.g. `text-align`) are kept.
+
+- unlockuser.client/src/components/forms/Editor.jsx:146-157 — added: `headingStyleProps`, `clearFontStyles`
+- unlockuser.client/src/components/forms/Editor.jsx:338 — added: `clearFontStyles(heading)` call in `applyHeading`
+
+## 2026-11-11 13:50
+Editor: added Undo/Redo ("back action") and fixed the h1–h6 headings.
+- Undo/Redo: the editor keeps its own history of html snapshots (max 100), because programmatic DOM changes (font size, alignment, images, "clear") break the browser's built-in undo. Typing in a row (<800 ms) is merged into one step. Toolbar buttons + Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z.
+- Headings: `execCommand("formatBlock")` did not work, replaced with `applyHeading`, which changes the block around the cursor (or wraps the selection / the current line) into h1–h6; choosing the same heading again turns it back into `<p>`.
+- Toolbar buttons now call `preventDefault()` on mousedown, so the editor keeps the focus and the selection when a toolbar/dropdown button is clicked.
+
+- unlockuser.client/src/components/forms/Editor.jsx:8 — modified: imported `Undo`, `Redo` icons
+- unlockuser.client/src/components/forms/Editor.jsx:59-62 — added: undo/redo toolbar buttons
+- unlockuser.client/src/components/forms/Editor.jsx:131-144 — added: history constants, `lineBreakTags`, `headingBlockSelector`, `isLineBreak`
+- unlockuser.client/src/components/forms/Editor.jsx:172-175 — added: `refHistory`
+- unlockuser.client/src/components/forms/Editor.jsx:183 — modified: history reset when `defaultValue` loads
+- unlockuser.client/src/components/forms/Editor.jsx:188-191 — modified: `syncValue(merge)` records a history step
+- unlockuser.client/src/components/forms/Editor.jsx:194-328 — added: `recordHistory`, `restoreHistory`, `placeCaret`, `onKeyDown`, `applyHeading`
+- unlockuser.client/src/components/forms/Editor.jsx:365 — modified: history reset in `saveItem`
+- unlockuser.client/src/components/forms/Editor.jsx:368-369 — modified: `onChange` merges typing steps
+- unlockuser.client/src/components/forms/Editor.jsx:506 — modified: headings use `applyHeading` instead of `execCommand("formatBlock")`
+- unlockuser.client/src/components/forms/Editor.jsx:508-515 — added: `undo` / `redo` cases
+- unlockuser.client/src/components/forms/Editor.jsx:522 — modified: "remove" uses `syncValue()` (undoable)
+- unlockuser.client/src/components/forms/Editor.jsx:685 — added: `onMouseDown` preventDefault on toolbar buttons
+- unlockuser.client/src/components/forms/Editor.jsx:744 — added: `onKeyDown` on the editor
+
+## 2026-11-11
+Fixed: the success modal never opened after editing a manual/article. The modal was rendered only when `success && !item`, but on the edit route (`edit/:id`) `item` always comes from the loader, so the condition was always false. The modal now depends on `success` only.
+
+- unlockuser.client/src/pages/auth/FormManual.jsx:124 — modified: removed `!item` from the `ModalSuccess` condition
+
 ## 2026-11-09 21:19
 Fixed: the "Kontrollera inloggning" tooltip was still shown after the check had run. MUI `Tooltip` has no `disabled` prop, so `disabled={isChecked}` did not hide it. The title is now an empty string when `isChecked` is true, which makes MUI not render the tooltip.
 
