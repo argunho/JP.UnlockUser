@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, use } from 'react'; // 2026-11-09 13:33
+import { useEffect, useRef, useState, use, Fragment } from 'react'; // 2026-11-20 13:10
 
 // Installed
 import { useNavigate, useLoaderData } from 'react-router-dom';
@@ -71,7 +71,8 @@ function Overview() {
 
     const navigate = useNavigate();
 
-    const [message, setMessage] = useState(hasPermission ? messages?.info : messages?.noPermission);
+    const initialMessage = hasPermission ? messages.info : messages.noPermission; // 2026-11-20 13:22
+    const [message, setMessage] = useState(initialMessage); // 2026-11-20 13:22
     const [checked, setChecked] = useState(null);
     const [matched, setMatched] = useState([]);
     const [collapsed, setCollapsed] = useState(false);
@@ -92,6 +93,16 @@ function Overview() {
             }, 2000);
         }
     }, [success, response, loginCheck])
+    // end
+
+    // start: 2026-11-20 13:22
+    // The same component is reused when another user is opened, reset the local state
+    useEffect(() => {
+        setMessage(initialMessage);
+        setChecked(null);
+        setMatched([]);
+        setSearchValue("");
+    }, [user?.username, hasPermission])
     // end
 
     function handleLoginCheck() {
@@ -133,7 +144,6 @@ function Overview() {
     }
 
     function handleChecked(userToCheck) {
-
         setMatched([]);
         const userManager = userToCheck?.manager ? userToCheck.manager?.trim()?.substring(3, userToCheck.manager.indexOf(',')) : null;
 
@@ -156,7 +166,7 @@ function Overview() {
     }
 
     function onReset() {
-        setMessage(messages.info);
+        setMessage(initialMessage); // 2026-11-20 13:22
         setChecked(null);
         setSearchValue("");
         setMatched([]);
@@ -229,9 +239,8 @@ function Overview() {
                 </div>
 
                 <List className="profile-list" disablePadding>
-                    {profileFields.map(({ label, value, icon: Icon, collapse, props }) => <>
+                    {profileFields.map(({ label, value, icon: Icon, collapse, props }) => <Fragment key={label} /* 2026-11-20 13:10 - the key must be on the outer element */>
                         <ListItem
-                            key={label}
                             // divider={index < profileFields.length - 1}, index
                             disableGutters
                             {...props}
@@ -257,7 +266,7 @@ function Overview() {
                                 })}
                             </List>
                         </Collapse>}
-                    </>)}
+                    </Fragment>)} {/* 2026-11-20 13:10 */}
                 </List>
             </section>
 
@@ -319,7 +328,7 @@ function Overview() {
                                 <span> - {checked?.group}</span>
                             </div>
                             <div>
-                                <h3>Arebtesplats</h3>
+                                <h3>Arbetsplats</h3> {/* 2026-11-20 13:22 */}
                                 <span> - {checked?.office}</span>
                             </div>
                         </div>
@@ -333,7 +342,6 @@ function Overview() {
                     }} close={false} />
                 </Alert>}
             </section>
-
         </div>
 
         {/* Modal form */}

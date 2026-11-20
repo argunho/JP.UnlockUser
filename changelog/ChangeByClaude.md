@@ -1,5 +1,24 @@
 # UnlockUser
 
+## 2026-11-20 13:22
+Fixed: Overview showed the wrong message (e.g. the "noPermission" warning for an admin). `useState` computed the initial message only once, and the same Overview instance is reused when another user is opened, so the previous user's message stayed. The local state (message, checked, matched, search value) is now reset when the viewed user changes, and `onReset` uses the correct initial message (info / noPermission) instead of always `info`.
+Also fixed typos: server group names "Politeker"/"Stundeter" (did not match "Politiker"/"Studenter" used by the client checks), the "Arebtesplats" label, and removed a debug `console.log`.
+
+- unlockuser.client/src/pages/auth/Overview.jsx:74-75 — modified: `initialMessage` used as the initial state
+- unlockuser.client/src/pages/auth/Overview.jsx:98-106 — added: `useEffect` that resets the local state when the viewed user changes
+- unlockuser.client/src/pages/auth/Overview.jsx:146 — deleted: debug `console.log` in `handleChecked`
+- unlockuser.client/src/pages/auth/Overview.jsx:169 — modified: `onReset` uses `initialMessage`
+- unlockuser.client/src/pages/auth/Overview.jsx:331 — modified: "Arebtesplats" → "Arbetsplats"
+- UnlockUser.Server/Controllers/UserController.cs:167 — modified: "Politeker" → "Politiker"
+- UnlockUser.Server/Controllers/UserController.cs:172 — modified: "Stundeter" → "Studenter"
+
+## 2026-11-20 13:10
+Fixed React warning "Each child in a list should have a unique key prop" in Overview. The `profileFields.map` returned a short fragment `<>…</>` without a key; the `key` was on the inner `ListItem`, where React does not use it. Replaced with `<Fragment key={label}>`.
+
+- unlockuser.client/src/pages/auth/Overview.jsx:1 — modified: imported `Fragment`
+- unlockuser.client/src/pages/auth/Overview.jsx:232 — modified: `<>` → `<Fragment key={label}>`; removed `key` from `ListItem`
+- unlockuser.client/src/pages/auth/Overview.jsx:259 — modified: `</>` → `</Fragment>`
+
 ## 2026-11-11 14:03
 Editor: font-family dropdown + scrollable dropdowns.
 - The "Typsnitt" toolbar button is now a dropdown (Standard, Calibri, Arial, Segoe UI, Verdana, Tahoma, Georgia, Times New Roman, Courier New). It sets the font on the selected text, or on the whole text when nothing is selected. `execCommand("fontName")` creates `<font face>`; the face is moved to `style="font-family: … !important"` (needed because index.css sets `font-family !important` on div/p/span/h1–h6/li), inner elements get `font-family: inherit !important`. "Standard" = reset.

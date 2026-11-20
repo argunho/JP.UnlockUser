@@ -20,3 +20,11 @@
 #### 18. Own password not working
 #### 19. Catalog update, remove offices
 #### 20. Admin in list, navigate to admin sida
+## 21. Symbol for admins insid Overview
+## 22. AD search errors
+## 23. No students persmissions view in overview / example susanne
+## 24. Simple password accept fro F,1,2,3 och Capellskolan
+## 25. List view design (moderators)
+## 26. Topdesk ärende popup message
+## 23. Authorized users list
+## 24. History for users

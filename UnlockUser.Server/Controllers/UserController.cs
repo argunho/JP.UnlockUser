@@ -164,12 +164,12 @@ public class UserController(IADService provider, IConfiguration config, ILocalFi
             {
                 var userByGroups = _provider.GetSecurityGroupMembers("Ciceron-Assistentanvändare");
                 if (userByGroups != null && userByGroups.FirstOrDefault(x => x == userPrincipal.SamAccountName) != null)
-                    modifiedUser.Group = "Politeker";
+                    modifiedUser.Group = "Politiker"; // 2026-11-20 13:22 - was "Politeker", must match the group name in appsettings/client
                 else
                     modifiedUser.Group = "Personal";
             }
             else
-                modifiedUser.Group = "Stundeter";
+                modifiedUser.Group = "Studenter"; // 2026-11-20 13:22 - was "Stundeter", must match the group name in appsettings/client
 
             return Ok(new { user = modifiedUser, collections });
         }
