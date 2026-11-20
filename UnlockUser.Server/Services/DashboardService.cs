@@ -161,34 +161,35 @@ public class DashboardService(
                                 && alternativeParams.Any(parameter => manager.Contains(parameter, StringComparison.OrdinalIgnoreCase))
                                 && !mu.Contains(employee.Username, StringComparer.OrdinalIgnoreCase))];
 
+                            var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
+                            var pe = permissions?.Employees ?? [];
+                            var sortedUsernames = sorted.Select(s => s.Username).ToList();
+                            foreach (var user in cachedUsers)
+                            {
+                                if (sortedUsernames.Contains(user!.Username, StringComparer.OrdinalIgnoreCase))
+                                    continue;
+                                else if (pe.Count > 0 && pe.Contains(user.Username!, StringComparer.OrdinalIgnoreCase))
+                                {
+                                    sorted.Add(user);
+                                    continue;
+                                }
+                            }
+
                             if (string.Equals(group, "Personal", StringComparison.OrdinalIgnoreCase))
                             {
-                                var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
-                                var pe = permissions?.Employees ?? [];
                                 var po = permissions?.Offices ?? [];
-                                var pp = permissions?.Politicians ?? [];
+                                var users =cachedUsers.OfType<UserViewModel>().Where(empl => po.Contains(empl.Office!, StringComparer.OrdinalIgnoreCase) 
+                                                    && !mu.Contains(empl.Username, StringComparer.OrdinalIgnoreCase)).ToList();
+                                if (users.Count > 0)
+                                    sorted.AddRange(users);
 
-                                var sortedUsernames = sorted.Select(s => s.Username).ToList();
-                                foreach (var user in cachedUsers)
-                                {
-                                    if (sortedUsernames.Contains(user!.Username, StringComparer.OrdinalIgnoreCase))
-                                        continue;
-                                    else if ((po.Count > 0 && po.Contains(user.Office!, StringComparer.OrdinalIgnoreCase) && !mu.Contains(user.Username, StringComparer.OrdinalIgnoreCase)))
-                                    {
-                                        sorted.Add(user);
-                                        continue;
-                                    }
-                                    else if (pe.Count > 0 && pe.Contains(user.Username!, StringComparer.OrdinalIgnoreCase))
-                                    {
-                                        sorted.Add(user);
-                                        continue;
-                                    }
-                                    else if (pp.Count > 0 && pp.Contains(user.Username!, StringComparer.OrdinalIgnoreCase))
-                                    {
-                                        sorted.Add(user);
-                                        continue;
-                                    }
-                                }
+                            }
+                            else
+                            {
+                                var pp = permissions?.Politicians ?? [];
+                                var users = cachedUsers.OfType<UserViewModel>().Where(empl => pp.Contains(empl.Username!, StringComparer.OrdinalIgnoreCase)).ToList();
+                                if (users.Count > 0)
+                                    sorted.AddRange(users);
                             }
 
                             cachedUsers = sorted!;

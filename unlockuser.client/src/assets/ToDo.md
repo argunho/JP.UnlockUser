@@ -28,3 +28,5 @@
 ## 26. Topdesk ärende popup message
 ## 23. Authorized users list
 ## 24. History for users
+## 25. Password reset view fom admns account for support
+## 26: Logout develop mode, show usernames too

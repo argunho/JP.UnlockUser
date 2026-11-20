@@ -104,7 +104,7 @@ public class DataController(IHelpService helpService, ICredentialsService creden
                 return Ok(users);
             }
 
-            var members = await _dashboardService.GetStoredUsersGroup(group, username); ;
+            var members = await _dashboardService.GetStoredUsersGroup(group, username);
             return Ok(members);
         }
         catch (Exception ex)
