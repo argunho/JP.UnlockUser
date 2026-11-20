@@ -11,7 +11,7 @@ namespace UnlockUser.Server.Controllers;
 [Authorize]
 public class CatalogController(ILocalFileService localFileService, IHelpService helpService,
     IConfiguration config, ILocalUserService localUserService, IRefreshLockService lockService, ICredentialsService credentials,
-    IMemoryCache memoryCache, ILogger<CatalogController> logger) : ControllerBase
+    IMemoryCache memoryCache, DashboardService dashboardService, ILogger<CatalogController> logger) : ControllerBase
 {
     private readonly IConfiguration _config = config;
     private readonly IHelpService _help = helpService;
@@ -20,6 +20,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
     private readonly IRefreshLockService _lockService = lockService;
     private readonly ICredentialsService _credentials = credentials;
     private readonly IMemoryCache _cache = memoryCache;
+    private readonly DashboardService _dashboardService = dashboardService;
     private readonly ILogger<CatalogController> _logger = logger;
 
     private const string ModeratorsCatalog = "catalogs/moderators";
@@ -232,6 +233,7 @@ public class CatalogController(ILocalFileService localFileService, IHelpService 
         try
         {
             await _localUserService.RenewUsersCachedList();
+            await _dashboardService.CacheUsersByGroup();
             _localFileService.UpdateConfigFile("appconfig", "LastUpdatedDate", DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
             return Ok();
         }

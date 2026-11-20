@@ -81,6 +81,7 @@ public class PermissionsController(ILocalFileService localFileService, IHelpServ
         {
             try
             {
+                _cache.Remove($"politiker:{model.Username}");
                 _cache.Remove($"personal:{model.Username}");
 
                 HashSet<string> changed = model.Names.ToHashSet(StringComparer.OrdinalIgnoreCase);

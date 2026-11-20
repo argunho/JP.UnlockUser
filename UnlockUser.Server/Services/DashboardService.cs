@@ -38,12 +38,14 @@ public class DashboardService(
             }
 
             var employeesByGroup = await _provider.GetEmployesByGroupName();
+            var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
             foreach (var (group, employees) in employeesByGroup)
             {
                 var cacheKey = group.ToLowerInvariant();
                 var users = employees
                     .Select(employee => new UserViewModel(employee)
                     {
+                        Permissions = moderators.FirstOrDefault(x => x.Username == employee.Username)?.Permissions ?? null,
                         Group = group,
                         PasswordLength = 12
                     })

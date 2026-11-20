@@ -1,5 +1,10 @@
 # UnlockUser
 
+## 2026-11-20 13:40
+Fixed: Overview showed "saknar behörighet…" (noPermission) for users who do have password-management permissions. Users found in the group cache (`GetGroupsCachedUsers`, filled from AD/Google) have no `Permissions` — those are stored only in `catalogs/moderators`. `GetUserByUsername` now loads the permissions from the file for a cached user (on a copy, the cached object is shared). Also fixed the `collections = []` check: with `Permissions == null` it never matched, so the full user list of all groups was sent to the client for every profile.
+
+- UnlockUser.Server/Controllers/UserController.cs:119-127 — modified: load permissions from `catalogs/moderators` for cached users, use a copy of the cached user, fixed the empty-permissions check for `collections`
+
 ## 2026-11-20 13:22
 Fixed: Overview showed the wrong message (e.g. the "noPermission" warning for an admin). `useState` computed the initial message only once, and the same Overview instance is reused when another user is opened, so the previous user's message stayed. The local state (message, checked, matched, search value) is now reset when the viewed user changes, and `onReset` uses the correct initial message (info / noPermission) instead of always `info`.
 Also fixed typos: server group names "Politeker"/"Stundeter" (did not match "Politiker"/"Studenter" used by the client checks), the "Arebtesplats" label, and removed a debug `console.log`.

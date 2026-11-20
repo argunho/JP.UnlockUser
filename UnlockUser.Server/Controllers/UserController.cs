@@ -116,8 +116,15 @@ public class UserController(IADService provider, IConfiguration config, ILocalFi
                                 ?? collections.FirstOrDefault(x => x.Email == key);
                 if (user != null)
                 {
-                    if (user.Permissions?.Groups.Count == 0 || search)
+                    // start: 2026-11-20 13:40
+                    // Cached users come from AD/Google without permissions, permissions are stored in catalogs/moderators.
+                    // A copy is used, the cached object is shared and must not be changed.
+                    var permissions = (await _localUser.GetUserFromFile(user.Username!))?.Permissions;
+                    user = new UserViewModel(user) { Group = user.Group, PasswordLength = user.PasswordLength, Permissions = permissions };
+
+                    if ((permissions?.Groups?.Count ?? 0) == 0 || search)
                         collections = [];
+                    // end
 
                     if (!search)
                     {
