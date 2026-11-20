@@ -166,6 +166,7 @@ public class DashboardService(
                                 var permissions = moderators.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase))?.Permissions;
                                 var pe = permissions?.Employees ?? [];
                                 var po = permissions?.Offices ?? [];
+                                var pp = permissions?.Politicians ?? [];
 
                                 var sortedUsernames = sorted.Select(s => s.Username).ToList();
                                 foreach (var user in cachedUsers)
@@ -178,6 +179,11 @@ public class DashboardService(
                                         continue;
                                     }
                                     else if (pe.Count > 0 && pe.Contains(user.Username!, StringComparer.OrdinalIgnoreCase))
+                                    {
+                                        sorted.Add(user);
+                                        continue;
+                                    }
+                                    else if (pp.Count > 0 && pp.Contains(user.Username!, StringComparer.OrdinalIgnoreCase))
                                     {
                                         sorted.Add(user);
                                         continue;
