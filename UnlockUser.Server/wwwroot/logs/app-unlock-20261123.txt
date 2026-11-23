@@ -1,0 +1,4 @@
+2026-11-23 11:49:05.000 +01:00 [INF] Autentisering utförd vid: 2026-11-23 11:49. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-11-23 11:51:16.143 +01:00 [INF] Utvecklare 790822asla loggade in som 710224lind vid: 2026-11-23 11:51.
+2026-11-23 11:51:28.085 +01:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-11-23 11:51.
+2026-11-23 11:52:17.237 +01:00 [INF] Autentisering utförd vid: 2026-11-23 11:52. User: 790822asla. Department: Furuliden Adm. Office: Furuliden Adm.

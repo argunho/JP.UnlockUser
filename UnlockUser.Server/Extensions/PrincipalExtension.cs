@@ -96,6 +96,20 @@ public class UserPrincipalExtension : UserPrincipal
         set { ExtensionSet("extensionAttribute1", value); }
     }
 
+    [DirectoryProperty("extensionAttribute7")]
+    public bool ElectedRepresentative
+    {
+        get
+        {
+            if (ExtensionGet("extensionAttribute7").Length != 1)
+                return false;
+
+            return (bool)(ExtensionGet("extensionAttribute7")[0].ToString() ?? "").Contains("Förtroendevald", StringComparison.OrdinalIgnoreCase);
+        }
+
+        set { ExtensionSet("extensionAttribute7", value); }
+    }
+
     [DirectoryProperty("extensionAttribute9")]
     public string Email
     {

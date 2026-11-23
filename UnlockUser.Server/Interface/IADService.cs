@@ -20,7 +20,6 @@ public interface IADService
     Task<List<User>> GetUsersByGroupNameFilteredByUserPermissions(string group, string? username = null, List<string>? managers = null);
     Task<Dictionary<string, List<User>>> GetEmployesByGroupName();
     List<string> GetSecurityGroupMembers(string? groupName);
-    List<User> GetUsers(DirectorySearcher result, string groupName);
     List<Manager> GetUserManagers(User user);
 
     PrincipalContext GetContext();
@@ -29,4 +28,9 @@ public interface IADService
     DirectorySearcher? UpdatedProparties(DirectorySearcher? result);
     User? GetUserParams(ResultPropertyCollection? props);
     bool CheckManager(string jobTitle);
+
+    #region Obsolete
+    [Obsolete]
+    List<User> GetUsers(DirectorySearcher result, string groupName);
+    #endregion
 }

@@ -11,6 +11,7 @@ public class User
     public string? Office { get; set; }
     public string? Division { get; set; }
     public string? Title { get; set; }
+    public bool ElectedRepresentative { get; set; }
     public string? LastLoginTime { get; set; }
     public bool IsLocked { get; set; }
     public DateTime? Expires { get; set; }

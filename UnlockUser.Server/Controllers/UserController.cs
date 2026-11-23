@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Google.Apis.Admin.Directory.directory_v1.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using System.DirectoryServices;
@@ -51,32 +53,9 @@ public class UserController(IADService provider, IConfiguration config, ILocalFi
                 return Ok(user);
             }
 
+            await _dashboard.StoreUsersByGroup();
 
-            // Search in AD
-            var groupName = "Employees";
-            DirectorySearcher? members = _provider.GetMembers(groupName);
-
-            members.Filter = $"(&(objectClass=User)(|(cn={key})(sAMAccountname={key})))";
-
-            var claims = _credentials.GetClaims(["roles", "permissions"]);
-
-            if (members.FindOne() != null)
-            {
-                user = new UserViewModel((_provider.GetUsers(members, group)).FirstOrDefault()!);
-                if ((user == null))
-                {
-                    return NotFound(_help.NotFound("Användaren"));
-                }
-                else if (!claims!["roles"].Contains("Suppport", StringComparison.OrdinalIgnoreCase)
-                        && ((await _localUser.Filter([user], groupName, claims!["permissions"]))?.Count == 0))
-                {
-                    return Ok(_help.Warning($"Behörigheter saknas att ändra lösenord till {user.DisplayName}!"));
-                }
-
-                if (_provider.MembershipCheck(_provider.FindUser(key), "Password Twelve Characters"))
-                    user!.PasswordLength = 12;
-            }
-            return Ok(user);
+            return await GetUserForPasswordManage(group, key);
         }
         catch (Exception ex)
         {
@@ -162,6 +141,7 @@ public class UserController(IADService provider, IConfiguration config, ILocalFi
                 Office = userPrincipal.Office,
                 Department = userPrincipal.Department,
                 Division = userPrincipal.Division,
+                ElectedRepresentative = userPrincipal.ElectedRepresentative,
                 Manager = userPrincipal.Manager,
                 IsLocked = userPrincipal.AccountLockoutTime != null,
                 Permissions = cachedUser != null ? cachedUser?.Permissions : null
@@ -169,8 +149,9 @@ public class UserController(IADService provider, IConfiguration config, ILocalFi
 
             if (userPrincipal.DistinguishedName!.Contains("OU=Employees", StringComparison.OrdinalIgnoreCase))
             {
-                var userByGroups = _provider.GetSecurityGroupMembers("Ciceron-Assistentanvändare");
-                if (userByGroups != null && userByGroups.FirstOrDefault(x => x == userPrincipal.SamAccountName) != null)
+                //var userByGroups = _provider.GetSecurityGroupMembers("Ciceron-Assistentanvändare");
+                //if (userByGroups != null && userByGroups.FirstOrDefault(x => x == userPrincipal.SamAccountName) != null)
+                if(userPrincipal.ElectedRepresentative)
                     modifiedUser.Group = "Politiker"; // 2026-11-20 13:22 - was "Politeker", must match the group name in appsettings/client
                 else
                     modifiedUser.Group = "Personal";
@@ -316,4 +297,38 @@ public class UserController(IADService provider, IConfiguration config, ILocalFi
         }
     }
     #endregion
+
+    #region Obsolete
+    [Obsolete]
+    private async Task<UserViewModel> FindUser(string group, string key)
+    {
+        UserViewModel? user = null;
+        // Search in AD
+        var groupName = "Employees";
+        DirectorySearcher? members = _provider.GetMembers(groupName);
+
+        members.Filter = $"(&(objectClass=User)(|(cn={key})(sAMAccountname={key})))";
+
+        var claims = _credentials.GetClaims(["roles", "permissions"]);
+
+        if (members.FindOne() != null)
+        {
+            user = new UserViewModel((_provider.GetUsers(members, group)).FirstOrDefault()!);
+            if ((user == null))
+            {
+                throw new Exception("Användaren");
+            }
+            else if (!claims!["roles"].Contains("Suppport", StringComparison.OrdinalIgnoreCase)
+                    && ((await _localUser.Filter([user], groupName, claims!["permissions"]))?.Count == 0))
+            {
+                throw new Exception($"Behörigheter saknas att ändra lösenord till {user.DisplayName}!");
+            }
+
+            if (_provider.MembershipCheck(_provider.FindUser(key), "Password Twelve Characters"))
+                user!.PasswordLength = 12;
+        }
+        return user;
+    }
+    #endregion
 }
+

@@ -27,7 +27,10 @@ public class LocalUserService(ILocalFileService localFileService,
         search = _provider.UpdatedProparties(search);
         List<SearchResult>? list = [.. search.FindAll().OfType<SearchResult>()];
 
-        List<string> _politicians = _provider.GetSecurityGroupMembers("Ciceron-Assistentanvändare");
+        // Old approach to check politicians. Obsoleted
+
+        // List<string> _politicians = _provider.GetSecurityGroupMembers("Ciceron-Assistentanvändare");
+
         foreach (SearchResult res in list)
         {
             var user = new UserViewModel(_provider.GetUserParams(res.Properties)!);
@@ -37,8 +40,10 @@ public class LocalUserService(ILocalFileService localFileService,
 
             if (user.Title != null && _provider.CheckManager(user.Title))
                 managers.Add(user);
-            if (_politicians.Contains(user.Username, StringComparer.OrdinalIgnoreCase))
+            if(user.ElectedRepresentative)
                 politicians.Add(user);
+            //if (_politicians.Contains(user.Username, StringComparer.OrdinalIgnoreCase))
+            //    politicians.Add(user);
         }
 
         var managersToSave = managers.Select(s => new Manager

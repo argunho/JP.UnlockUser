@@ -228,8 +228,8 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
             if (user == null)
                 continue;
             var properties = props["memberOf"].OfType<string>() ?? [];
-            bool isInPoliticianGroup = properties.Any(x => x.Contains("Ciceron-Assistentanvändare", StringComparison.OrdinalIgnoreCase));
-            if (isInPoliticianGroup)
+            //bool isInPoliticianGroup = properties.Any(x => x.Contains("Ciceron-Assistentanvändare", StringComparison.OrdinalIgnoreCase));
+            if (user.ElectedRepresentative)
                 users["politiker"].Add(user);
             else
                 users["personal"].Add(user);
@@ -248,26 +248,6 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
         return members;
     }
 
-    // Return a list of found users
-    public List<User> GetUsers(DirectorySearcher? result, string? groupName)
-    {
-        result = UpdatedProparties(result);
-        List<User> users = [];
-
-        List<SearchResult> list = [.. result.FindAll().OfType<SearchResult>()];
-        if (groupName != "Studenter" && list != null)
-        {
-            list = list.Where(x => x.Properties["memberOf"].OfType<string>()
-                .Any(x => groupName == "Politiker" ? x.Contains("Ciceron-Assistentanvändare") : !x.Contains("Ciceron-Assistentanvändare"))).ToList();
-        }
-
-        if (list.Count == 0) return users;
-
-        foreach (SearchResult res in list)
-            users.Add(GetUserParams(res.Properties));
-
-        return users;
-    }
 
     // Get all employee's managers
     public List<Manager> GetUserManagers(User user)
@@ -386,6 +366,7 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
         result?.PropertiesToLoad.Add("department");
         result?.PropertiesToLoad.Add("title");
         result?.PropertiesToLoad.Add("extensionAttribute1");
+        result?.PropertiesToLoad.Add("extensionAttribute7");
         result?.PropertiesToLoad.Add("extensionAttribute9");
         result?.PropertiesToLoad.Add("extensionAttribute10");
         result?.PropertiesToLoad.Add("accountExpires");
@@ -429,6 +410,12 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
             Console.WriteLine(ex.Message);
         }
 
+        bool ElectedRepresentative = false;
+        if (props.Contains("extensionAttribute7"))
+        {
+            ElectedRepresentative = (props["extensionAttribute7"][0]?.ToString() ?? "").Contains("Förtroendevald", StringComparison.OrdinalIgnoreCase);
+        }
+
 
         return new User
         {
@@ -441,11 +428,36 @@ public class ADService(IHttpContextAccessor httpContextAccessor, ILocalFileServi
             Department = props.Contains("department") ? props["department"][0]?.ToString() : "",
             Expires = expires,
             Title = title,
+            ElectedRepresentative =  ElectedRepresentative,
             IsLocked = isLocked
         };
     }
 
     public bool CheckManager(string jobTitle) =>
         jobTitle.Contains("chef", StringComparison.CurrentCultureIgnoreCase) || jobTitle.ToLower().Contains("rektor", StringComparison.CurrentCultureIgnoreCase);
+    #endregion
+
+    #region Obsolete
+    // Return a list of found users
+    [Obsolete]
+    public List<User> GetUsers(DirectorySearcher? result, string? groupName)
+    {
+        result = UpdatedProparties(result);
+        List<User> users = [];
+
+        List<SearchResult> list = [.. result.FindAll().OfType<SearchResult>()];
+        if (groupName != "Studenter" && list != null)
+        {
+            list = list.Where(x => x.Properties["memberOf"].OfType<string>()
+                .Any(x => groupName == "Politiker" ? x.Contains("Ciceron-Assistentanvändare") : !x.Contains("Ciceron-Assistentanvändare"))).ToList();
+        }
+
+        if (list.Count == 0) return users;
+
+        foreach (SearchResult res in list)
+            users.Add(GetUserParams(res.Properties));
+
+        return users;
+    }
     #endregion
 }

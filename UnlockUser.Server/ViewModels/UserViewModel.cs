@@ -23,6 +23,7 @@ public class UserViewModel : User
             Office = user?.Office;
             Division = user?.Division;
             Title = user?.Title;
+            ElectedRepresentative = user.ElectedRepresentative;
             LastLoginTime = user?.LastLoginTime;
             Expires = user?.Expires;
             IsLocked = user!.IsLocked || false;
