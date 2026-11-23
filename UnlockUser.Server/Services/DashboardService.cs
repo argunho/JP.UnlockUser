@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Google.Apis.Admin.Directory.directory_v1.Data;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace UnlockUser.Server.Services;
 
@@ -66,7 +67,7 @@ public class DashboardService(
         }
     }
 
-    public async Task GetCacheGroupsUsers()
+    public async Task GetCachedGroupsUsers()
     {
         _cache.TryGetValue("studenter", out List<UserViewModel?>? students);
         _cache.TryGetValue("politiker", out List<UserViewModel?>? politiker);
@@ -98,18 +99,7 @@ public class DashboardService(
         _logger.LogTrace("Starting asynchronous dashboard data setup.");
 
         // Session users calims data
-        if (string.IsNullOrEmpty(username))
-        {
-            var claims = _credentials.GetClaims(["username", "permissions"]);
-            if (claims == null)
-            {
-                _logger.LogWarning("No claims available from credentials; aborting StoreUsersByGroup.");
-                return;
-            }
-            claims.TryGetValue("username", out username);
-            groups ??= claims!.TryGetValue("permissions", out string? permissions) ? [.. permissions.Split(',')] : [];
-        }
-
+        (username, groups) = GetClaimGroupUsername(username, groups);
         if (string.IsNullOrEmpty(username))
             return;
 
@@ -129,6 +119,7 @@ public class DashboardService(
                     _cache.TryGetValue(groupCacheKey!, out List<UserViewModel?>? cachedGroupMembers);
                     if (cachedGroupMembers?.Count > 0)
                         continue;
+
 
                     var (alternativeParams, isStudents) = await GetParams(group!, username, false);
                     _cache.TryGetValue(cacheKey!, out List<UserViewModel?>? cachedUsers);
@@ -178,18 +169,23 @@ public class DashboardService(
                             if (string.Equals(group, "Personal", StringComparison.OrdinalIgnoreCase))
                             {
                                 var po = permissions?.Offices ?? [];
-                                var users =cachedUsers.OfType<UserViewModel>().Where(empl => po.Contains(empl.Office!, StringComparer.OrdinalIgnoreCase) 
+                                var users = cachedUsers.OfType<UserViewModel>().Where(empl => po.Contains(empl.Office!, StringComparer.OrdinalIgnoreCase) 
                                                     && !mu.Contains(empl.Username, StringComparer.OrdinalIgnoreCase)).ToList();
-                                if (users.Count > 0)
-                                    sorted.AddRange(users);
 
+                                var uniqueUsers = users.Where(u => sorted.Any(s => !s.Username!.Equals(u.Username, StringComparison.OrdinalIgnoreCase))).ToList();
+
+                                if (uniqueUsers.Count > 0)
+                                    sorted.AddRange(uniqueUsers);
                             }
                             else
                             {
                                 var pp = permissions?.Politicians ?? [];
                                 var users = cachedUsers.OfType<UserViewModel>().Where(empl => pp.Contains(empl.Username!, StringComparer.OrdinalIgnoreCase)).ToList();
-                                if (users.Count > 0)
-                                    sorted.AddRange(users);
+
+                                var uniqueUsers = users.Where(u => sorted.Any(s => !s.Username!.Equals(u.Username, StringComparison.OrdinalIgnoreCase))).ToList();
+
+                                if (uniqueUsers.Count > 0)
+                                    sorted.AddRange(uniqueUsers);
                             }
 
                             cachedUsers = sorted!;
@@ -207,6 +203,9 @@ public class DashboardService(
                         return cachedUsers;
                     });
 
+
+                    _cache.TryGetValue(groupCacheKey!, out cachedGroupMembers);
+
                     _logger.LogTrace("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", group, DateTime.Now.ToString("G"));
                 }
 
@@ -220,6 +219,23 @@ public class DashboardService(
             {
                 _lockService.Finish(username);
             }
+        }
+    }
+
+    public async Task RemoveStoredByUsername(string? username = null, List<string>? groups = null)
+    {
+        // Session users calims data
+        (username, groups) = GetClaimGroupUsername(username, groups);
+        if (string.IsNullOrEmpty(username))
+            return;
+
+        foreach(var group in groups)
+        {
+            var cacheKey = group?.ToLower();
+            var groupCacheKey = $"{cacheKey}:{username.ToLower()}";
+            _cache.TryGetValue(groupCacheKey!, out List<UserViewModel?>? cachedGroupMembers);
+            if (cachedGroupMembers?.Count > 0)
+               _cache.Remove(groupCacheKey);
         }
     }
 
@@ -335,5 +351,22 @@ public class DashboardService(
                 _lockService.Finish(lockKey);
             }
         }
+    }
+
+    public (string?, List<string>?) GetClaimGroupUsername(string? username = null, List<string>? groups = null) {
+        // Session users calims data
+        if (string.IsNullOrEmpty(username))
+        {
+            var claims = _credentials.GetClaims(["username", "permissions"]);
+            if (claims == null)
+            {
+                _logger.LogWarning("No claims available from credentials; aborting StoreUsersByGroup.");
+                return (null, []);
+            }
+            claims.TryGetValue("username", out username);
+            groups ??= claims!.TryGetValue("permissions", out string? permissions) ? [.. permissions.Split(',')] : [];
+        }
+
+        return (username, groups ?? []);
     }
 }

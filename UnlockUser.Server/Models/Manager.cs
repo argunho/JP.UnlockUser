@@ -8,6 +8,7 @@ public class Manager
     public string? Department { get; set; }
     public string? Division { get; set; }
     public string? ManagerName { get; set; }
+    public bool ElectedRepresentative { get; set; }
     public bool Disabled { get; set; }
     public bool Default { get; set; } = true;
 

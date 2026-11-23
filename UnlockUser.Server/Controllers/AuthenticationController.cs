@@ -350,7 +350,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
                 limitedAccess = true;
             }
 
-            permissionGroups?.RemoveAll(x => !userGroups.Contains(x.PermissionGroup!));
+            permissionGroups?.RemoveAll(x => !userGroups.Contains(x.Permission!));
             permissionGroups ??= [];
 
             // Failed! Permission missed
@@ -364,7 +364,7 @@ public class AuthenticationController(IADService provider, IConfiguration config
 
             // Get employees lis by user permissions groups 
             if (openAccess || limitedAccess)
-                await _dashboardService.GetCacheGroupsUsers();
+                await _dashboardService.GetCachedGroupsUsers();
             else
                 await _dashboardService.StoreUsersByGroup(authorizedUser.Name, currentModerator?.Permissions?.Groups);
 

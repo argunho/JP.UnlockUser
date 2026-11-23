@@ -15,6 +15,7 @@ public class LocalUserService(ILocalFileService localFileService,
     public async Task RenewUsersCachedList()
     {
         var currentDate = DateTime.Now.Date;
+
         #region Get managers & politicians to save to file
         List<User> managers = [];
         List<User> politicians = [];
@@ -27,9 +28,6 @@ public class LocalUserService(ILocalFileService localFileService,
         search = _provider.UpdatedProparties(search);
         List<SearchResult>? list = [.. search.FindAll().OfType<SearchResult>()];
 
-        // Old approach to check politicians. Obsoleted
-
-        // List<string> _politicians = _provider.GetSecurityGroupMembers("Ciceron-Assistentanvändare");
 
         foreach (SearchResult res in list)
         {
@@ -42,8 +40,6 @@ public class LocalUserService(ILocalFileService localFileService,
                 managers.Add(user);
             if(user.ElectedRepresentative)
                 politicians.Add(user);
-            //if (_politicians.Contains(user.Username, StringComparer.OrdinalIgnoreCase))
-            //    politicians.Add(user);
         }
 
         var managersToSave = managers.Select(s => new Manager
@@ -53,7 +49,7 @@ public class LocalUserService(ILocalFileService localFileService,
             Office = s.Office,
             Department = s.Department,
             Division = s.Division,
-            //ManagerName = !string.IsNullOrEmpty(s.Manager) ? s.Manager.Trim()?[3..s.Manager.IndexOf(',')] : "",
+            ElectedRepresentative = s.ElectedRepresentative,
             ManagerName = !string.IsNullOrEmpty(s.Manager) ? ExtractManagerName(s.Manager) : "",
             Disabled = false,
             Default = false
@@ -80,14 +76,14 @@ public class LocalUserService(ILocalFileService localFileService,
 
         foreach (var group in groups!)
         {
-            if (string.IsNullOrWhiteSpace(group.PermissionGroup))
+            if (string.IsNullOrWhiteSpace(group.Permission))
                 continue; // -
 
-            List<string> membersUsernames = [.. _provider.GetSecurityGroupMembers(group.PermissionGroup)];
+            List<string> securityMembers = [.. _provider.GetSecurityGroupMembers(group.Permission)];
 
-            for (int i = 0; i < membersUsernames.Count; i++)
+            for (int i = 0; i < securityMembers.Count; i++)
             {
-                string username = membersUsernames[i];
+                string username = securityMembers[i];
 
                 // Сохраняем реальную группу пользователя.
                 if (!groupsByUsername.TryGetValue(username, out var userGroups))
@@ -96,7 +92,7 @@ public class LocalUserService(ILocalFileService localFileService,
                     groupsByUsername[username] = userGroups;
                 }
 
-                bool groupAlreadyAdded = userGroups.Any(x => string.Equals(x.Name, group.Name, StringComparison.OrdinalIgnoreCase) &&
+                bool groupAlreadyAdded = userGroups.Count > 0 && userGroups.Any(x => string.Equals(x.Name, group.Name, StringComparison.OrdinalIgnoreCase) &&
                                     string.Equals(x.Group, group.Group, StringComparison.OrdinalIgnoreCase));
 
                 if (!groupAlreadyAdded)
@@ -119,6 +115,7 @@ public class LocalUserService(ILocalFileService localFileService,
                     Email = directoryUser.EmailAddress,
                     Office = directoryUser.Office,
                     Title = directoryUser.Title,
+                    ElectedRepresentative = directoryUser.ElectedRepresentative,
                     Department = directoryUser.Department,
                     Division = directoryUser.Division,
                     Manager = directoryUser.Manager
@@ -134,6 +131,11 @@ public class LocalUserService(ILocalFileService localFileService,
         {
             string username = userEntry.Key; // -
             User user = userEntry.Value; // -
+
+            bool me = false;
+            if (username == "790822asla")
+                me = true;
+
 
             var permissions = user.Permissions ?? new();
 
@@ -158,11 +160,11 @@ public class LocalUserService(ILocalFileService localFileService,
                 var mp = moderator!.Permissions;
                 // Руководитель не изменился.
                 // Копируем сохранённые права в новые списки.
-                permissions.Managers = [.. mp!.Managers?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
-                permissions.Politicians = [.. mp.Politicians?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
-                permissions.Schools = [.. mp.Schools?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
-                permissions.Employees = [.. mp.Employees?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
-                permissions.Offices = [.. mp.Offices?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
+                permissions.Managers = [.. mp!.Managers?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase).Distinct()];
+                permissions.Politicians = permissions.Groups.Contains("Politiker", StringComparer.OrdinalIgnoreCase) ? [.. mp.Politicians?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase).Distinct()] : [];
+                permissions.Schools = permissions.Groups.Contains("Studenter", StringComparer.OrdinalIgnoreCase) ? [.. mp.Schools?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase).Distinct()] : [];
+                permissions.Employees = permissions.Groups.Contains("Personal", StringComparer.OrdinalIgnoreCase) ? [.. mp.Employees?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase).Distinct()] : [];
+                permissions.Offices = permissions.Groups.Contains("Personal", StringComparer.OrdinalIgnoreCase) ? [.. mp.Offices?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase).Distinct()] : [];
             }
             else
             {

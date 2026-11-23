@@ -53,6 +53,7 @@ public class UserController(IADService provider, IConfiguration config, ILocalFi
                 return Ok(user);
             }
 
+            await _dashboard.RemoveStoredByUsername();
             await _dashboard.StoreUsersByGroup();
 
             return await GetUserForPasswordManage(group, key);
