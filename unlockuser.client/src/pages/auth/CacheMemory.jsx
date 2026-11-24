@@ -23,6 +23,7 @@ function CacheMemory() {
     const data = useLoaderData();
     const revalidator = useRevalidator();
     const [search, setSearch] = useState("");
+    const [selected, setSelected] = useState(-1);
 
     const entries = Array.isArray(data) ? data : (data?.entries ?? []);
     const statistics = data?.statistics;
@@ -31,6 +32,12 @@ function CacheMemory() {
     // start: 2026-11-24 14:10
     const { fetchData, pending, response, handleResponse } = use(FetchContext);
     const [confirmKey, setConfirmKey] = useState(null); // the key whose removal waits for confirmation
+
+    async function onRefresh(key, ind){
+        setSelected(ind);
+        await fetchData({ api: `data/renew/cache/by/${encodeURIComponent(key)}`, method: "POST", action: "done" });
+        revalidator.revalidate();
+    }
 
     // Remove one entry from the server cache, then reload the list
     async function onRemove(key) {
@@ -105,16 +112,24 @@ function CacheMemory() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {filtered.map(entry => (
+                        {filtered.map((entry, ind) => (
                             <TableRow key={entry.key} hover>
                                 <TableCell>{entry.key}</TableCell>
                                 <TableCell>{typeName(entry.type)}</TableCell>
                                 <TableCell align="right">{entry.count ?? "–"}</TableCell>
                                 {/* start: 2026-11-24 14:10 */}
                                 <TableCell align="right">
+                                    <Tooltip title="Uppdatera cached minne" classes={{
+                                       tooltip: "tooltip-info",
+                                       arrow: "tooltip-arrow-info"
+                                    }} placement="left" arrow>
+                                        <IconButton size="small" color="primary" onClick={() => onRefresh(entry.key, ind)}>
+                                            {(selected && pending) ? <CircularProgress size={22} /> : <Refresh fontSize="small" />}
+                                        </IconButton>
+                                    </Tooltip>
                                     {confirmKey === entry.key ? <>
                                         <Tooltip title="Ta bort" arrow>
-                                            <IconButton size="small" color="error" onClick={() => onRemove(entry.key)}>
+                                            <IconButton size="small" color="error" onClick={() => onRemove(entry.key, ind)}>
                                                 <Check fontSize="small" />
                                             </IconButton>
                                         </Tooltip>
@@ -123,10 +138,13 @@ function CacheMemory() {
                                                 <Close fontSize="small" />
                                             </IconButton>
                                         </Tooltip>
-                                    </> : <Tooltip title="Ta bort från cacheminnet" arrow>
+                                    </> : <Tooltip title="Ta bort från cacheminnet" classes={{
+                                       tooltip: "tooltip-red",
+                                       arrow: "tooltip-arrow-red"
+                                    }} arrow>
                                         <span>
                                             <IconButton size="small" color="error" disabled={pending || loading} onClick={() => setConfirmKey(entry.key)}>
-                                                <DeleteOutline fontSize="small" />
+                                                {(selected && pending) ? <CircularProgress size={22} /> : <DeleteOutline fontSize="small" />}
                                             </IconButton>
                                         </span>
                                     </Tooltip>}

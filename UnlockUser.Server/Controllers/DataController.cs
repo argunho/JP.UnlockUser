@@ -246,23 +246,26 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         }
     }
 
-    [HttpPost("renew/stored/by/usernames")]
+    [HttpPost("renew/cache/by/{key}")]
     [Authorize(Roles = "DevelopTeam")]
-    public async Task<IActionResult> RenewStoredByUsernames(List<string> usernames, bool refresh = false)
+    public async Task<IActionResult> RenewStoredByUsernames(string key)
     {
         try
         {
-            var moderators = refresh ? await _localFileService.GetEncryptedFile<List<Models.User>>("catalogs/moderators") : [];
-            foreach (var username in usernames)
-            {
-                if (!string.IsNullOrEmpty(username))
-                    await _lockService.GetWaitTask(username);
+            if (!string.IsNullOrEmpty($"{key}-renew"))
+                await _lockService.GetWaitTask($"{key}-renew");
 
-                await _dashboardService.RemoveStoredByUsername(username);
-                if (refresh)
+            await _dashboardService.RemoveStoredByUsername(key);
+
+            if (key.IndexOf(':') > -1)
+            {
+                string username = key.Split(':')[0];
+                var moderators = await _localFileService.GetEncryptedFile<List<Models.User>>("catalogs/moderators") ?? [];
+                if (moderators?.Count > 0)
                 {
                     var moderator = moderators?.FirstOrDefault(x => x.Username != null && x.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
-                    await _dashboardService.StoreUsersByGroup(username, moderator.Permissions.Groups);
+                    if (moderator != null && moderator.Permissions != null)
+                        await _dashboardService.StoreUsersByGroup(username, moderator.Permissions?.Groups);
                 }
             }
 
@@ -274,6 +277,26 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             return BadRequest(await _helpService.Error(ex)); // 2026-11-24 10:30 - don't send the exception text to the client
         }
     }
+    #endregion
+
+
+    #region DELETE
+    [HttpDelete("cache/{key}")]
+    [Authorize(Roles = "DevelopTeam")]
+    public async Task<IActionResult> DeleteCachedMinne(string key)
+    {
+        try
+        {
+            _cache.Remove(key);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+
+            return BadRequest(await _helpService.Error(ex));
+        }
+    }
+
     #endregion
 
     #region Helpers
