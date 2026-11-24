@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState, memo, use } from 'react';
+import { useEffect, useRef, useState, memo, use, useCallback } from 'react'; // 2026-11-24 12:01
 
 // Installed
-import { Menu, Close, Home, AssignmentReturnOutlined } from '@mui/icons-material';
+import { Menu, Close, Home, AssignmentReturnOutlined, Construction } from '@mui/icons-material';
 import { Button, IconButton, Tooltip } from '@mui/material';
 import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 
@@ -21,18 +21,21 @@ import '../../assets/css/header.css';
 
 const Header = memo(function Header({ disabled, supportMode }) {
 
-    const [open, setOpen] = useState(false);
+    const [openMenu, setOpenMenu] = useState(false);
+    const [openDevTeamMenu, setOpenDevTeamMenu] = useState(false);
+    const [closingMenu, setClosingMenu] = useState(false); // 2026-11-24 12:01 - true while the hidden menu plays its slide-out animation
 
     const navigate = useNavigate();
     const loc = useLocation();
     const refMenu = useRef();
-    const { permissions, displayName, openAccess, limitedAccess, impersonating } = DecodedClaims();
+    const { permissions, displayName, openAccess, limitedAccess, roles, impersonating } = DecodedClaims();
  
     const groups = permissions != null ? permissions?.split(",").filter(x => x.trim() !== "") : [];
     const access = openAccess || limitedAccess ?
         {
             open: openAccess,
-            limited: limitedAccess
+            limited: limitedAccess,
+            develop: roles.includes("DevelopTeam")
         } : null;
 
     // start: 2026-09-08
@@ -53,8 +56,8 @@ const Header = memo(function Header({ disabled, supportMode }) {
 
     useEffect(() => {
         let clickHandler = (event) => {
-            if (refMenu.current && !refMenu.current?.contains(event.target) && open)
-                setOpen(false);
+            if (refMenu.current && !refMenu.current?.contains(event.target) && openMenu)
+                setOpenMenu(false);
         }
 
         document.addEventListener("mousedown", clickHandler);
@@ -63,28 +66,48 @@ const Header = memo(function Header({ disabled, supportMode }) {
         }
     })
 
+    // start: 2026-11-24 12:01
+    const menuIsOpen = openMenu || openDevTeamMenu;
+
     useEffect(() => {
-        if (open)
-            setOpen(false);
+        if (menuIsOpen)
+            setClosingMenu(true);
     }, [loc])
 
-    // start: 2026-10-15
     // Lock page scroll while the hidden menu is open, regardless of how it was opened/closed
     useEffect(() => {
-        document.getElementById("root")?.classList.toggle("hide-overflow", open);
-    }, [open])
-    // end
+        document.getElementById("root")?.classList.toggle("hide-overflow", menuIsOpen);
+    }, [menuIsOpen])
 
-    function handleOpenMenu() {
-        setOpen((open) => !open);
-
-        if (open && !sessionStorage.getItem("blinked"))
-            sessionStorage.setItem("blinked", "ok");
+    // Start the slide-out animation, HiddenMenu calls handleOpenMenu when it is finished
+    function closeMenu() {
+        if (menuIsOpen)
+            setClosingMenu(true);
     }
+
+    // Toggle one of the menus, an open menu is always closed with the animation first
+    function toggleMenu(setOpen) {
+        if (menuIsOpen)
+            closeMenu();
+        else
+            setOpen(true);
+    }
+
+    const handleOpenMenu = useCallback(() => {
+        setClosingMenu(false);
+        setOpenDevTeamMenu(false)
+        setOpenMenu((open) => {
+            // The blinking links are only shown in the main menu
+            if (open && !sessionStorage.getItem("blinked"))
+                sessionStorage.setItem("blinked", "ok");
+            return false;
+        });
+    }, [])
+    // end
 
     const switchMenuColor = loc.pathname.toLowerCase().includes("overview") || supportMode;
     const link = `/search/${(groups?.length > 0 ? groups[0] : "overview")?.toLowerCase()}`;
-    
+
     return (
         <header className='header-container w-100 d-column'>
             <section className='header-wrapper d-row jc-start w-100' id="logotype">
@@ -143,20 +166,36 @@ const Header = memo(function Header({ disabled, supportMode }) {
                         </Tooltip>}
                         {/* end */}
 
+                        {/* Navigation develop group button */}
+                        {/* start: 2026-11-24 12:01 */}
+                        {access?.develop && <IconButton
+                            variant='outlined'
+                            size="large"
+                            disabled={disabled}
+                            className="nav-btn-develop"
+                            sx={{ marginRight: "30px" }}
+                            onClick={() => toggleMenu(setOpenDevTeamMenu)}>
+                            {openDevTeamMenu ? <Close /> : <Construction /> }
+                        </IconButton>}
+
                         {/* Navigation button */}
                         <Button
                             variant='outlined'
                             size="large"
-                            className={`nav-btn ${open && 'nav-btn-active'}`}
+                            className={`nav-btn ${openMenu && 'nav-btn-active'}`}
                             disabled={disabled}
-                            onClick={() => setOpen((open) => !open)}>
-                            {open ? <Close /> : <Menu />}
+                            onClick={() => toggleMenu(setOpenMenu)}>
+                            {openMenu ? <Close /> : <Menu />}
                         </Button>
 
                         {/* Hidden menu */}
-                        {open && <HiddenMenu
+                        {menuIsOpen && <HiddenMenu
                             access={access}
-                            onClose={handleOpenMenu} />}
+                            developTeam={openDevTeamMenu}
+                            closing={closingMenu}
+                            onClose={closeMenu}
+                            onClosed={handleOpenMenu} />}
+                        {/* end */}
                     </div>
 
 

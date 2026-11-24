@@ -91,3 +91,79 @@ a.hm-link:hover>svg {
   background-color: rgb(1, 19, 5, 0.9);
 }
 /* #endregion */
+
+/* start: 2026-11-24 12:01 */
+/* #region Closing animation (duration must match closeAnimationMs in HiddenMenu.jsx) */
+.hidden-menu.closing {
+  animation: hm-swing-out-right 0.6s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+  pointer-events: none;
+}
+
+@keyframes hm-swing-out-right {
+  0% {
+    transform: rotateY(0);
+    transform-origin: right;
+    opacity: 1;
+  }
+
+  100% {
+    transform: rotateY(70deg);
+    transform-origin: right;
+    opacity: 0;
+  }
+}
+/* #endregion */
+
+/* #region Develop team menu */
+.hidden-menu-dev {
+  --hm-dev-bg: #263238;
+  --hm-dev-accent: #ffb300;
+  --hm-dev-text: #eceff1;
+}
+
+.hidden-menu-dev .hm-header {
+  border-bottom-color: var(--hm-dev-accent);
+}
+
+.hidden-menu-dev .hm-links-wrapper {
+  background-color: var(--hm-dev-bg);
+  padding-bottom: 10px;
+}
+
+.hm-dev-title {
+  padding: 25px 18px 25px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--hm-dev-accent);
+}
+
+.hm-dev-title>svg {
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+a.hm-link.hm-link-dev {
+  color: var(--hm-dev-text) !important;
+  border: 1px dashed var(--hm-dev-accent);
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+a.hm-link.hm-link-dev>svg {
+  color: var(--hm-dev-accent);
+}
+
+a.hm-link.hm-link-dev:hover,
+a.hm-link.hm-link-dev.active {
+  background: linear-gradient(to left, #ffe082 0%, #ffca28 30%, #ffb300 65%, #ff8f00 100%);
+  color: var(--hm-dev-bg) !important;
+}
+
+a.hm-link.hm-link-dev:hover>svg,
+a.hm-link.hm-link-dev.active>svg {
+  color: var(--hm-dev-bg);
+}
+/* #endregion */
+/* end */

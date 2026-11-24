@@ -226,6 +226,35 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             return BadRequest(await _helpService.Error(ex)); // 2026-11-24 10:30 - don't send the exception text to the client
         }
     }
+
+    [HttpPost("renew/stored/by/usernames")]
+    [Authorize(Roles = "DevelopTeam")]
+    public async Task<IActionResult> RenewStoredByUsernames(List<string> usernames, bool refresh = false)
+    {
+        try
+        {
+            var moderators = refresh ? await _localFileService.GetEncryptedFile<List<Models.User>>("catalogs/moderators") : [];
+            foreach (var username in usernames)
+            {
+                if (!string.IsNullOrEmpty(username))
+                    await _lockService.GetWaitTask(username);
+
+                await _dashboardService.RemoveStoredByUsername(username);
+                if (refresh)
+                {
+                    var moderator = moderators?.FirstOrDefault(x => x.Username != null && x.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+                    await _dashboardService.StoreUsersByGroup(username, moderator.Permissions.Groups);
+                }
+            }
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Endpoint: {nameof(RenewStoredByUsername)}. Error: {ex.Message}");
+            return BadRequest(await _helpService.Error(ex)); // 2026-11-24 10:30 - don't send the exception text to the client
+        }
+    }
     #endregion
 
     #region Helpers

@@ -15,12 +15,12 @@ export const Links = [
     { label: "Skolor/Utbildningsanstalt", url: "/catalog/schools", icon: School, access: true, permission: true },
     { label: "Statistik", url: "/catalog/statistics", icon: BarChart, access: true, permission: true },
     { label: "Historik", url: "/catalog/history", icon: WorkHistory, access: true, permission: true },
-    { label: "Loggfiler", url: "/catalog/errors", icon: ErrorOutline, access: true, permission: true },
+    { label: "Loggfiler", url: "/catalog/errors", icon: ErrorOutline, access: true, permission: true, developTeam: true },
     { label: "Topdesk ärende", url: "/catalog/cases", icon: Cases, access: true },
     { label: "Skicka mail", url: "/send/email", icon: ForwardToInbox, color: "warning", access: true, permission: true },
-    { label: "Google-tjänstkonto", url: "/service/configuration", icon: UploadFile, access: true, permission: true },
+    { label: "Google-tjänstkonto", url: "/service/configuration", icon: UploadFile, access: true, permission: true, developTeam: true },
     // { label: "Kontakta kontaktcenter", url: "/contact", icon: LiveHelp, access: false },
-    { label: "Logga in som Kontaktcenter", url: null, icon: PermPhoneMsg, access: true, permission: true },
-    { label: "Logga ut (develop mode)", url: "/session/logout/dm", icon: DeveloperMode, access: true, permission: true, developer: true }, // 2026-10-19
+    { label: "Logga in som Kontaktcenter", url: null, icon: PermPhoneMsg, access: true, permission: true, developTeam: true },
+    { label: "Logga ut (develop mode)", url: "/session/logout/dm", icon: DeveloperMode, access: true, permission: true, developTeam: true }, // 2026-10-19
     { label: "Logga ut", url: "/session/logout", icon: Logout, access: false }
 ];

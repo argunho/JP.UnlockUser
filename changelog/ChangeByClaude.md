@@ -1,5 +1,21 @@
 # UnlockUser
 
+## 2026-11-24 12:01
+Hidden menu: the DevelopTeam menu and its links now have their own design (dark links area, amber dashed links, "Develop team" title). The menu also slides out slowly when it is closed, instead of disappearing at once. Closing goes through a `closing` state: HiddenMenu plays the swing-out animation (0.6s) and then calls `onClosed`, which unmounts it. Also fixed: a crash on `access.develop` when `access` is null, the develop button's active class (it checked `openMenu`), page scroll lock and close-on-navigation now also apply to the develop menu, and a stray `"` in the link class name.
+
+- unlockuser.client/src/components/menu/HiddenMenu.jsx:1,4 — modified: imports `useEffect`, `Construction`
+- unlockuser.client/src/components/menu/HiddenMenu.jsx:24-27 — added: `closeAnimationMs` constant
+- unlockuser.client/src/components/menu/HiddenMenu.jsx:29 — modified: new props `closing`, `onClosed`
+- unlockuser.client/src/components/menu/HiddenMenu.jsx:36-43 — added: timer that calls `onClosed` after the closing animation
+- unlockuser.client/src/components/menu/HiddenMenu.jsx:58-63 — modified: background fade-out and menu classes `closing` / `hidden-menu-dev`
+- unlockuser.client/src/components/menu/HiddenMenu.jsx:74-78 — added: "Develop team" title
+- unlockuser.client/src/components/menu/HiddenMenu.jsx:91 — modified: `hm-link-dev` class for DevelopTeam links, removed stray `"`
+- unlockuser.client/src/components/blocks/Header.jsx:1 — modified: imports `useCallback`
+- unlockuser.client/src/components/blocks/Header.jsx:26 — added: `closingMenu` state
+- unlockuser.client/src/components/blocks/Header.jsx:69-106 — modified: `menuIsOpen`, animated close on navigation, scroll lock for both menus, `closeMenu`, `toggleMenu`, `handleOpenMenu` as `useCallback`
+- unlockuser.client/src/components/blocks/Header.jsx:170-198 — modified: `access?.develop`, develop button active class, toggle buttons use `toggleMenu`, HiddenMenu gets `closing`/`onClose`/`onClosed`
+- unlockuser.client/src/assets/css/hidden-menu.css:95-169 — added: `.hidden-menu.closing` swing-out animation and the develop team menu styles
+
 ## 2026-11-24 10:57
 Enabled memory cache statistics (`TrackStatistics = true`), so `MemoryCache.GetCurrentStatistics()` returns entry count, hits and misses (for the cache inspection endpoint the user is adding to DataController). `MemoryCache.Keys` works without this setting.
 

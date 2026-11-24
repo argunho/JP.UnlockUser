@@ -202,15 +202,26 @@ a.header-link.active {
 
 
 /* #region Nav */
-.nav-btn {
+.nav-btn,
+.nav-btn-develop {
   color: #fff !important;
   border-color: #fff !important;
   height: 50px;
 }
 
+.nav-btn-develop {
+  width: 50px;
+}
+
 .nav-btn:hover,
 .nav-btn-active {
   box-shadow: 0 0 1px 1px #FFFFFF;
+}
+
+.nav-btn-develop:hover {
+  transition: all 0.4s ease-in-out;
+  transform: scale(1.4);
+  background-color: transparent !important;
 }
 
 .nav-btn:last-child svg {
