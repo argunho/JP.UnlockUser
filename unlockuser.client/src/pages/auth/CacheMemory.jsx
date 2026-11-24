@@ -51,7 +51,7 @@ function CacheMemory() {
         { label: "Träffsäkerhet", value: hitRate }
     ];
 
-    const filtered = entries.filter(x => x?.key?.toLowerCase().includes(search.trim().toLowerCase()));
+    const filtered = entries.filter(x => x?.key?.toLowerCase().includes(search?.trim().toLowerCase()));
 
     // "List`1" -> "List"
     const typeName = (type) => type?.replace(/`\d+/g, "") ?? "–";
@@ -61,16 +61,15 @@ function CacheMemory() {
             {/* Tab menu */}
             <TabPanel primary="Cacheminne" secondary="Innehåll i serverns IMemoryCache (endast nycklar, inte data)">
 
-                        {/* Search filter */}
-                        <SearchFilter
-                            key={search}
-                            label="nyckel"
-                            placeholder=""
-                            onSearch={(value) => setSearch(value)}
-                            onReset={() => setSearch()}
-                            searchValue={search} />
+                {/* Search filter */}
+                <SearchFilter
+                    label="nyckel"
+                    placeholder=""
+                    onSearch={(value) => setSearch(value)}
+                    onReset={() => setSearch("")}
+                    searchValue={search} />
 
-                <Tooltip title="Uppdatera" classes={{ tooltip: "tooltip-white" }} placement="left" arrow>
+                <Tooltip title="Uppdatera" classes={{ tooltip: "tooltip-white" }} arrow>
                     <span>
                         <IconButton onClick={() => revalidator.revalidate()} disabled={loading} sx={{ marginRight: "20px" }}>
                             {loading ? <CircularProgress size={22} /> : <Refresh />}
