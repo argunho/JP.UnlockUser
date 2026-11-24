@@ -11,7 +11,7 @@
 ## 23. Authorized users list
 ## 24. History for users
 ## 25. Password reset view fom admns account for support
-## 26. Logout develop mode, show usernames too
+#### 26. Logout develop mode, show usernames too
 #### 27. Double search value
 #### 28. Button to remove users memory cache
 ## 39. Loading is not in center/reload moderators

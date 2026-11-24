@@ -128,7 +128,10 @@ function Login() {
           onChange={(e, option) => setModerator(option)}
           renderOption={(props, option) => {
             const { key, ...rest } = props;
-            return <li key={option.secondary ?? key} {...rest}>{option.primary}</li>;
+            console.log(option)
+            return <li key={option.secondary ?? key} {...rest}>
+                <span className="d-row jc-between w-100">{option.primary} <span className="secondary-span">{option.secondary}</span></span>
+              </li>;
           }}
           renderInput={(params) => <TextField {...params} label="Moderator" required />}
           disabled={disabled}

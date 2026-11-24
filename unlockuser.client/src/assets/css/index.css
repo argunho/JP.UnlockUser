@@ -185,7 +185,7 @@ main,
 }
 
 .jc-around {
-    justify-content: space-around;
+    justify-content: space-around !important;
 }
 
 .flex03 {
