@@ -64,7 +64,6 @@ function FormManual({ api, label, checkbox, groups }) {
         setCheckboxValue(!!formModel?.[checkbox]);
     }
 
-console.log(success)
     return <>
         <TabPanel primary={label ?? (id && (!formModel ? "Data hämtas..." : `Edit: ${formModel?.name}`))} />
 

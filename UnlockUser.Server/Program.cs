@@ -162,7 +162,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddHttpContextAccessor();
 
 // Add session ---
-builder.Services.AddMemoryCache();
+builder.Services.AddMemoryCache(options => options.TrackStatistics = true); // 2026-11-24 - enables MemoryCache.GetCurrentStatistics() (entry count, hits, misses)
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {

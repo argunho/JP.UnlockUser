@@ -212,7 +212,7 @@ function Home() {
             await new Promise(resolve => setTimeout(resolve, 1000));
 
         const accounts = groupAccountsRef.current;
-console.log(accounts)
+
         // start: 2026-09-22
         // Shared predicate for the two near-identical filters below.
         // checkUsernameOnMatch keeps the small behavior difference between the two original branches.
@@ -276,7 +276,6 @@ console.log(accounts)
         }
 
         res = Array.isArray(res) ? res?.sort((a, b) => a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase())) : [];
-        console.log(res)
         handleDispatch("users", res, "RESULT"); // 2026-09-03
         return Array.isArray(res) ? null : data;
     }
@@ -314,7 +313,7 @@ console.log(accounts)
     // end
 
     const [formState, formAction, pending] = useActionState(onSubmit, { errors: null });
-console.log(groupAccountsRef?.current)
+
     return (
         <>
             {/* Search form */}

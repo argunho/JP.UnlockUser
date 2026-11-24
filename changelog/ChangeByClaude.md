@@ -1,5 +1,34 @@
 # UnlockUser
 
+## 2026-11-24 10:57
+Enabled memory cache statistics (`TrackStatistics = true`), so `MemoryCache.GetCurrentStatistics()` returns entry count, hits and misses (for the cache inspection endpoint the user is adding to DataController). `MemoryCache.Keys` works without this setting.
+
+- UnlockUser.Server/Program.cs:165 — modified: `AddMemoryCache(options => options.TrackStatistics = true)`
+
+## 2026-11-24 10:26
+Permissions page ("Mina behörigheter"): added a refresh button that calls `POST api/data/renew/stored/by/username` to renew the cached user lists according to the current permissions, then reloads the page data (`useRevalidator`). Shows a spinner while running and a success/error message. `HttpContext.Session.Remove("session-data")` was kept in the controller (not moved to `RemoveStoredByUsername`): the service method can be called for another username, and a service cannot clear another user's session.
+
+- unlockuser.client/src/pages/auth/Permissions.jsx:1-6 — modified: imports (`use`, `useRevalidator`, `Refresh`, `IconButton`, `Tooltip`, `CircularProgress`)
+- unlockuser.client/src/pages/auth/Permissions.jsx:17 — added: `FetchContext` import
+- unlockuser.client/src/pages/auth/Permissions.jsx:24-35 — added: `onRenew`, `renewing`
+- unlockuser.client/src/pages/auth/Permissions.jsx:40-54 — modified: `TabPanel` with the refresh button, success/error messages
+
+## 2026-11-24 10:30
+Fixed the new `POST api/data/renew/stored/by/username` endpoint (written by the user) and its helper:
+- `RemoveStoredByUsername` removed a cache entry only when the list was not empty. An empty cached list was never renewed, because `GetOrCreateAsync` in `StoreUsersByGroup` returns an existing entry as is. Now the entry is always removed.
+- The endpoint waits for an already running refresh for the same user (lock) before renewing; otherwise `StoreUsersByGroup` skipped the work and the endpoint still answered 200.
+- The endpoint clears `session-data` (schools/groups built from the user's permissions).
+- Errors are returned via `_helpService.Error(ex)` instead of the raw exception message.
+
+- UnlockUser.Server/Controllers/DataController.cs:181-190 — added: wait for running refresh, clear `session-data`
+- UnlockUser.Server/Controllers/DataController.cs:199 — modified: `BadRequest(await _helpService.Error(ex))`
+- UnlockUser.Server/Services/DashboardService.cs:256 — modified: always remove the user's group cache entry
+
+## 2026-11-24 10:10
+Removed the unused `POST api/data/update/stored` endpoint. Nothing in the client or server called it; `StoreUsersByGroup` is called directly on login (AuthenticationController) and in UserController. The endpoint also ran `StoreUsersByGroup()` in `Task.Run` without parameters, so it read claims from an `HttpContext` that may already be gone and did nothing.
+
+- UnlockUser.Server/Controllers/DataController.cs:138-145 — deleted: `UpdateStoredData` (`update/stored`); line 138 now holds a comment about the removal
+
 ## 2026-11-23 22:04
 LocalUserService cleanup (not related to the duplicate users in search):
 1. `DirectorySearcher` and `SearchResultCollection` are now disposed (`using`) — AD resources leaked on every `RenewUsersCachedList` run.

@@ -3,3 +3,4 @@
 2026-11-24 08:50:30.515 +01:00 [INF] Autentisering utförd vid: 2026-11-24 08:50. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
 2026-11-24 08:51:32.522 +01:00 [INF] Autentisering utförd vid: 2026-11-24 08:51. User: 790822asla. Department: Furuliden Adm. Office: Furuliden Adm.
 2026-11-24 09:21:49.025 +01:00 [INF] Autentisering utförd vid: 2026-11-24 09:21. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-11-24 10:43:06.500 +01:00 [INF] Autentisering utförd vid: 2026-11-24 10:43. User: 790822asla. Department: IT avdelning. Office: IT avdelning.

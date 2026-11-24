@@ -129,8 +129,8 @@ public class DashboardService(
 
                     cachedGroupMembers = await _cache.GetOrCreateAsync(groupCacheKey, async entry =>
                     {
-                        entry.SlidingExpiration = TimeSpan.FromHours(3); // Cache for 8 hours, removes after this time if it is not used
-                        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(2); // Cache for 1 day, removes after this time even if it is used
+                        entry.SlidingExpiration = TimeSpan.FromHours(1); // Cache for 1 hours, removes after this time if it is not used
+                        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(2); // Cache for 2 hours, removes after this time even if it is used
 
                         // If group are Students
                         if (isStudents)
@@ -253,9 +253,7 @@ public class DashboardService(
         {
             var cacheKey = group?.ToLower();
             var groupCacheKey = $"{cacheKey}:{username.ToLower()}";
-            _cache.TryGetValue(groupCacheKey!, out List<UserViewModel?>? cachedGroupMembers);
-            if (cachedGroupMembers?.Count > 0)
-               _cache.Remove(groupCacheKey);
+            _cache.Remove(groupCacheKey); // 2026-11-24 10:30 - always remove, an empty cached list must also be renewed (GetOrCreateAsync would return it as is)
         }
     }
 

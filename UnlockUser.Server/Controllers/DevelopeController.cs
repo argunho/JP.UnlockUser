@@ -14,7 +14,7 @@ public class DevelopeController(IADService provider, IMemoryCache memoryCache, I
     private readonly IWebHostEnvironment _env = env;
     private readonly ILogger<DevelopeController> _logger = logger;
 
-    #region GET
+    #region GET Unathorized
     [HttpGet("students")]
     public async Task<IActionResult> GetStudents([FromQuery] string? date, [FromQuery] bool clear = false)
     {

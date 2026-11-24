@@ -132,18 +132,36 @@ public class DataController(IHelpService helpService, ICredentialsService creden
             return Ok();
         }
     }
+
+    // start: <date>
+    // Lists what is stored in IMemoryCache: key, type and number of items (not the data itself)
+    [HttpGet("cache/keys")]
+    [Authorize(Roles = "DevelopTeam")]
+    public IActionResult GetCacheKeys()
+    {
+        if (_cache is not MemoryCache memoryCache)
+            return Ok(Array.Empty<object>());
+
+        var entries = memoryCache.Keys
+            .Select(key =>
+            {
+                memoryCache.TryGetValue(key, out object? value);
+                return new
+                {
+                    Key = key.ToString(),
+                    Type = value?.GetType().Name,
+                    Count = value is System.Collections.ICollection collection ? collection.Count : (int?)null
+                };
+            })
+            .OrderBy(x => x.Key)
+            .ToList();
+
+        return Ok(new { memoryCache.Count, statistics = memoryCache.GetCurrentStatistics(), entries });
+    }
+    // end
     #endregion
 
     #region POST
-    [HttpPost("update/stored")]
-    public async Task<IActionResult> UpdateStoredData()
-    {
-        // Get users by groups 
-        _ = Task.Run(async () => await _dashboardService.StoreUsersByGroup());
-
-        return Ok();
-    }
-
     /// <summary>
     /// Upload google service json, customer id and customer email
     /// </summary>
@@ -180,6 +198,33 @@ public class DataController(IHelpService helpService, ICredentialsService creden
         }
 
         return Ok();
+    }
+
+    [HttpPost("renew/stored")]
+    public async Task<IActionResult> RenewStoredByUsername()
+    {
+        try
+        {
+            // start: 2026-11-24 10:30
+            // If a refresh for this user is already running (e.g. right after login), wait for it first,
+            // otherwise StoreUsersByGroup below would skip the work because of the lock
+            var (username, _) = _dashboardService.GetClaimGroupUsername();
+            if (!string.IsNullOrEmpty(username))
+                await _lockService.GetWaitTask(username);
+
+            // Schools/groups cached in the session are also built from the user's permissions
+            HttpContext.Session.Remove("session-data");
+            // end
+
+            await _dashboardService.RemoveStoredByUsername();
+            await _dashboardService.StoreUsersByGroup();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Endpoint: {nameof(RenewStoredByUsername)}. Error: {ex.Message}");
+            return BadRequest(await _helpService.Error(ex)); // 2026-11-24 10:30 - don't send the exception text to the client
+        }
     }
     #endregion
 
@@ -246,7 +291,6 @@ public class DataController(IHelpService helpService, ICredentialsService creden
 
         return users;
     }
-
 
     private bool IsUserInRole(string role)
     {
