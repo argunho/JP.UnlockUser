@@ -1,5 +1,24 @@
 # UnlockUser
 
+## 2026-11-23 22:04
+LocalUserService cleanup (not related to the duplicate users in search):
+1. `DirectorySearcher` and `SearchResultCollection` are now disposed (`using`) — AD resources leaked on every `RenewUsersCachedList` run.
+2. Removed debug code with a hard-coded username (`check` / `"710224lind"`).
+3. Removed `politicians.Clear()` in the Politiker branch — it cleared the outer, already saved list and had no effect on the moderator's permissions.
+4. Removed the extra `.Distinct()` after `OrderBy` when copying saved permissions; a null list is now treated as empty (`?? []`) instead of throwing.
+5. `GetUserFromFile` compares the username case-insensitively.
+
+- UnlockUser.Server/IServices/LocalUserService.cs:22-34 — modified: `using` for `DirectorySearcher` / `SearchResultCollection`
+- UnlockUser.Server/IServices/LocalUserService.cs:151-155 (old) — deleted: debug `check` block
+- UnlockUser.Server/IServices/LocalUserService.cs:160-166 — modified: removed extra `.Distinct()`, null-safe lists
+- UnlockUser.Server/IServices/LocalUserService.cs:190-193 — modified: removed `politicians.Clear()` (comment only)
+- UnlockUser.Server/IServices/LocalUserService.cs:235 — modified: case-insensitive username comparison
+
+## 2026-11-23 21:30
+Fixed the `*.*` search shortcut in Home. `parseInt` returns `NaN` (type "number") for text, `parsedKey !== NaN` is always true, so `*.*an` did `slice(0, NaN)` = empty list; the `typeof parsedKey === "string"` branch could never run and also had the typo `toLowercase()`. Now: `*.*10` = first 10 accounts, `*.*an` = accounts whose display name starts with "an".
+
+- unlockuser.client/src/pages/auth/Home.jsx:235-244 — modified: `*.*` number / name-prefix handling
+
 ## 2026-11-20 13:40
 Fixed: Overview showed "saknar behörighet…" (noPermission) for users who do have password-management permissions. Users found in the group cache (`GetGroupsCachedUsers`, filled from AD/Google) have no `Permissions` — those are stored only in `catalogs/moderators`. `GetUserByUsername` now loads the permissions from the file for a cached user (on a copy, the cached object is shared). Also fixed the `collections = []` check: with `Permissions == null` it never matched, so the full user list of all groups was sent to the client for every profile.
 

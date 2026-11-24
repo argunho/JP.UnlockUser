@@ -19,17 +19,19 @@ public class LocalUserService(ILocalFileService localFileService,
         #region Get managers & politicians to save to file
         List<User> managers = [];
         List<User> politicians = [];
-        DirectorySearcher search = new(_provider.GetContext().Name)
+        // start: 2026-11-23 22:04
+        // using: the searcher and the result collection hold AD resources, they must be disposed
+        using DirectorySearcher search = new(_provider.GetContext().Name)
         {
             Filter = "(title=*)",
             PageSize = 1000
         };
 
-        search = _provider.UpdatedProparties(search);
-        List<SearchResult>? list = [.. search.FindAll().OfType<SearchResult>()];
+        _provider.UpdatedProparties(search); // Adds the properties to the same searcher object
+        using SearchResultCollection results = search.FindAll();
 
-
-        foreach (SearchResult res in list)
+        foreach (SearchResult res in results)
+        // end
         {
             var user = new UserViewModel(_provider.GetUserParams(res.Properties)!);
 
@@ -132,11 +134,6 @@ public class LocalUserService(ILocalFileService localFileService,
             string username = userEntry.Key; // -
             User user = userEntry.Value; // -
 
-            bool me = false;
-            if (username == "790822asla")
-                me = true;
-
-
             var permissions = user.Permissions ?? new();
 
             if (!groupsByUsername.TryGetValue(username, out var userGroups)) // -
@@ -160,11 +157,13 @@ public class LocalUserService(ILocalFileService localFileService,
                 var mp = moderator!.Permissions;
                 // Руководитель не изменился.
                 // Копируем сохранённые права в новые списки.
-                permissions.Managers = [.. mp!.Managers?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase).Distinct()];
-                permissions.Politicians = permissions.Groups.Contains("Politiker", StringComparer.OrdinalIgnoreCase) ? [.. mp.Politicians?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase).Distinct()] : [];
-                permissions.Schools = permissions.Groups.Contains("Studenter", StringComparer.OrdinalIgnoreCase) ? [.. mp.Schools?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase).Distinct()] : [];
-                permissions.Employees = permissions.Groups.Contains("Personal", StringComparer.OrdinalIgnoreCase) ? [.. mp.Employees?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase).Distinct()] : [];
-                permissions.Offices = permissions.Groups.Contains("Personal", StringComparer.OrdinalIgnoreCase) ? [.. mp.Offices?.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase).Distinct()] : [];
+                // start: 2026-11-23 22:04 - removed the extra .Distinct() after OrderBy
+                permissions.Managers = [.. (mp!.Managers ?? []).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
+                permissions.Politicians = permissions.Groups.Contains("Politiker", StringComparer.OrdinalIgnoreCase) ? [.. (mp.Politicians ?? []).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)] : [];
+                permissions.Schools = permissions.Groups.Contains("Studenter", StringComparer.OrdinalIgnoreCase) ? [.. (mp.Schools ?? []).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)] : [];
+                permissions.Employees = permissions.Groups.Contains("Personal", StringComparer.OrdinalIgnoreCase) ? [.. (mp.Employees ?? []).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)] : [];
+                permissions.Offices = permissions.Groups.Contains("Personal", StringComparer.OrdinalIgnoreCase) ? [.. (mp.Offices ?? []).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)] : [];
+                // end
             }
             else
             {
@@ -188,12 +187,10 @@ public class LocalUserService(ILocalFileService localFileService,
                         if (!string.IsNullOrWhiteSpace(managerName))
                             userManagers.Add(managerName);
                     }
-                    else if (isPoliticianGroup)
-                    {
-                        // Сохраняет поведение старого решения:
-                        // список политиков создаётся пустым.
-                        politicians.Clear();
-                    }
+                    // start: 2026-11-23 22:04
+                    // Politiker: the list of politicians stays empty for a new moderator (userPoliticians),
+                    // it is set later in the permissions view. Removed politicians.Clear(), it cleared the already saved outer list.
+                    // end
 
                     // Проверяем все школы только для соответствующей
                     // группы конкретного пользователя.
@@ -235,7 +232,7 @@ public class LocalUserService(ILocalFileService localFileService,
     public async Task<User?> GetUserFromFile(string username)
     {
         List<UserViewModel> moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
-        UserViewModel? moderator = moderators?.FirstOrDefault(x => x.Username == username);
+        UserViewModel? moderator = moderators?.FirstOrDefault(x => string.Equals(x.Username, username, StringComparison.OrdinalIgnoreCase)); // 2026-11-23 22:04
         return moderator;
     }
 

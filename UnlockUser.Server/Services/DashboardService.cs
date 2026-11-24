@@ -120,6 +120,9 @@ public class DashboardService(
                     if (cachedGroupMembers?.Count > 0)
                         continue;
 
+                    bool matched = false;
+                    if (username == "710224lind")
+                        matched = true;
 
                     var (alternativeParams, isStudents) = await GetParams(group!, username, false);
                     _cache.TryGetValue(cacheKey!, out List<UserViewModel?>? cachedUsers);
@@ -134,13 +137,13 @@ public class DashboardService(
                         {
                             cachedUsers ??= await _googleService.GetStudentsFromGoogleApi() ?? [];
 
-                            if (alternativeParams.Count > 0)
-                            {
-                                // Filter students by office prefix matching any alternative param
-                                return cachedUsers?.Where(x => !string.IsNullOrEmpty(x.Office)
-                                    && alternativeParams.Any(p => x.Office!.StartsWith(p, StringComparison.OrdinalIgnoreCase)))?.ToList();
-                            }
+                        if (alternativeParams.Count > 0)
+                        {
+                            // Filter students by office prefix matching any alternative param
+                            return cachedUsers?.Where(x => !string.IsNullOrEmpty(x.Office)
+                                && alternativeParams.Any(p => x.Office!.StartsWith(p, StringComparison.OrdinalIgnoreCase)))?.ToList();
                         }
+                    }
                         else if (cachedUsers != null && cachedUsers.Count > 0)
                         {
                             var moderators = await _localFileService.GetEncryptedFile<List<UserViewModel>>("catalogs/moderators") ?? [];
@@ -172,7 +175,7 @@ public class DashboardService(
                                 var users = cachedUsers.OfType<UserViewModel>().Where(empl => po.Contains(empl.Office!, StringComparer.OrdinalIgnoreCase) 
                                                     && !mu.Contains(empl.Username, StringComparer.OrdinalIgnoreCase)).ToList();
 
-                                var uniqueUsers = users.Where(u => sorted.Any(s => !s.Username!.Equals(u.Username, StringComparison.OrdinalIgnoreCase))).ToList();
+                                var uniqueUsers = users.Where(u => !sorted.Any(s => s.Username!.Equals(u.Username, StringComparison.OrdinalIgnoreCase))).ToList();
 
                                 if (uniqueUsers.Count > 0)
                                     sorted.AddRange(uniqueUsers);
@@ -182,7 +185,7 @@ public class DashboardService(
                                 var pp = permissions?.Politicians ?? [];
                                 var users = cachedUsers.OfType<UserViewModel>().Where(empl => pp.Contains(empl.Username!, StringComparer.OrdinalIgnoreCase)).ToList();
 
-                                var uniqueUsers = users.Where(u => sorted.Any(s => !s.Username!.Equals(u.Username, StringComparison.OrdinalIgnoreCase))).ToList();
+                                var uniqueUsers = users.Where(u => !sorted.Any(s => s.Username!.Equals(u.Username, StringComparison.OrdinalIgnoreCase))).ToList();
 
                                 if (uniqueUsers.Count > 0)
                                     sorted.AddRange(uniqueUsers);
@@ -200,13 +203,11 @@ public class DashboardService(
                             _ = cachedUsers?.ConvertAll(x => x.PasswordLength = 12).ToList();
                         }
 
-                        return cachedUsers;
-                    });
+                    return cachedUsers;
+                });
 
 
-                    _cache.TryGetValue(groupCacheKey!, out cachedGroupMembers);
-
-                    _logger.LogTrace("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", group, DateTime.Now.ToString("G"));
+                _logger.LogTrace("Gruppdata har laddats ner. Group: {group}. Tid: {time}.", group, DateTime.Now.ToString("G"));
                 }
 
                 _logger.LogTrace("Dashboard data setup completed.");
@@ -219,23 +220,6 @@ public class DashboardService(
             {
                 _lockService.Finish(username);
             }
-        }
-    }
-
-    public async Task RemoveStoredByUsername(string? username = null, List<string>? groups = null)
-    {
-        // Session users calims data
-        (username, groups) = GetClaimGroupUsername(username, groups);
-        if (string.IsNullOrEmpty(username))
-            return;
-
-        foreach(var group in groups)
-        {
-            var cacheKey = group?.ToLower();
-            var groupCacheKey = $"{cacheKey}:{username.ToLower()}";
-            _cache.TryGetValue(groupCacheKey!, out List<UserViewModel?>? cachedGroupMembers);
-            if (cachedGroupMembers?.Count > 0)
-               _cache.Remove(groupCacheKey);
         }
     }
 
@@ -256,6 +240,23 @@ public class DashboardService(
             return cachedGroups ?? [];
 
         return [];
+    }
+
+    public async Task RemoveStoredByUsername(string? username = null, List<string>? groups = null)
+    {
+        // Session users calims data
+        (username, groups) = GetClaimGroupUsername(username, groups);
+        if (string.IsNullOrEmpty(username))
+            return;
+
+        foreach(var group in groups)
+        {
+            var cacheKey = group?.ToLower();
+            var groupCacheKey = $"{cacheKey}:{username.ToLower()}";
+            _cache.TryGetValue(groupCacheKey!, out List<UserViewModel?>? cachedGroupMembers);
+            if (cachedGroupMembers?.Count > 0)
+               _cache.Remove(groupCacheKey);
+        }
     }
 
     public async Task<(List<string>, bool)> GetParams(string group, string username, bool access = false)

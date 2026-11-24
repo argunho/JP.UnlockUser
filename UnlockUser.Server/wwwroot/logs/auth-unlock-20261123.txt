@@ -5,3 +5,22 @@
 2026-11-23 13:00:18.493 +01:00 [INF] Autentisering utförd vid: 2026-11-23 13:00. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
 2026-11-23 13:05:10.287 +01:00 [INF] Autentisering utförd vid: 2026-11-23 13:05. User: 790822asla. Department: Furuliden Adm. Office: Furuliden Adm.
 2026-11-23 14:30:31.342 +01:00 [INF] Autentisering utförd vid: 2026-11-23 14:30. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-11-23 14:55:50.212 +01:00 [INF] Autentisering utförd vid: 2026-11-23 14:55. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-11-23 20:51:45.124 +01:00 [INF] Autentisering utförd vid: 2026-11-23 20:51. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-11-23 20:53:03.945 +01:00 [INF] Utvecklare 790822asla loggade in som 790822asla vid: 2026-11-23 20:53.
+2026-11-23 20:53:18.363 +01:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-11-23 20:53.
+2026-11-23 20:55:54.742 +01:00 [INF] Autentisering utförd vid: 2026-11-23 20:55. User: 790822asla. Department: Furuliden Adm. Office: Furuliden Adm.
+2026-11-23 21:06:58.924 +01:00 [INF] Autentisering utförd vid: 2026-11-23 21:06. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-11-23 21:09:44.775 +01:00 [INF] Autentisering utförd vid: 2026-11-23 21:09. User: 790822asla. Department: Furuliden Adm. Office: Furuliden Adm.
+2026-11-23 21:14:22.315 +01:00 [INF] Autentisering utförd vid: 2026-11-23 21:14. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-11-23 21:19:46.314 +01:00 [INF] Autentisering utförd vid: 2026-11-23 21:19. User: 790822asla. Department: Myndighetskontor. Office: Myndighetskontor.
+2026-11-23 21:21:06.612 +01:00 [INF] Autentisering utförd vid: 2026-11-23 21:21. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-11-23 21:22:31.513 +01:00 [INF] Utvecklare 790822asla loggade in som 710224lind vid: 2026-11-23 21:22.
+2026-11-23 21:22:45.027 +01:00 [INF] Utvecklare 790822asla återgick från granskningsläge vid: 2026-11-23 21:22.
+2026-11-23 21:23:32.530 +01:00 [INF] Autentisering utförd vid: 2026-11-23 21:23. User: 790822asla. Department: Furuliden Adm. Office: Furuliden Adm.
+2026-11-23 21:33:02.445 +01:00 [INF] Autentisering utförd vid: 2026-11-23 21:33. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-11-23 21:34:31.650 +01:00 [INF] Autentisering utförd vid: 2026-11-23 21:34. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-11-23 21:38:57.223 +01:00 [INF] Autentisering utförd vid: 2026-11-23 21:38. User: 790822asla. Department: Furuliden Adm. Office: Furuliden Adm.
+2026-11-23 21:40:44.646 +01:00 [INF] Autentisering utförd vid: 2026-11-23 21:40. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-11-23 21:45:19.472 +01:00 [INF] Autentisering utförd vid: 2026-11-23 21:45. User: 790822asla. Department: IT avdelning. Office: IT avdelning.
+2026-11-23 21:48:25.146 +01:00 [INF] Autentisering utförd vid: 2026-11-23 21:48. User: 790822asla. Department: IT avdelning. Office: IT avdelning.

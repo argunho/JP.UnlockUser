@@ -212,7 +212,7 @@ function Home() {
             await new Promise(resolve => setTimeout(resolve, 1000));
 
         const accounts = groupAccountsRef.current;
-
+console.log(accounts)
         // start: 2026-09-22
         // Shared predicate for the two near-identical filters below.
         // checkUsernameOnMatch keeps the small behavior difference between the two original branches.
@@ -232,10 +232,16 @@ function Home() {
         if (accounts?.length > 0) {
             if(key === "*.*")
                 res = accounts;
-            else if(key.startsWith("*.*")){
-                const number = parseInt(key.substring(3));
-                res = accounts?.slice(0, number);
+            // start: 2026-11-23 21:30
+            // "*.*10" = the first 10 accounts, "*.*an" = accounts whose name starts with "an" (key is already lower case)
+            else if (key.startsWith("*.*")) {
+                const rest = key.substring(3).trim();
+                if (/^\d+$/.test(rest))
+                    res = accounts.slice(0, Number(rest));
+                else
+                    res = accounts.filter(x => x?.displayName?.toLowerCase().startsWith(rest));
             }
+            // end
             else if (gn === "overview") {
                 if (byOffice)
                     res = accounts?.filter(x => x?.office?.toLowerCase().includes(key));
@@ -243,12 +249,13 @@ function Home() {
                     res = accounts?.filter(x => matchesKey(x, { checkUsernameOnMatch: true })); // 2026-09-22
             } else {
                 res = (isClass)
-                    ? accounts?.filter(x => x?.department?.toLowerCase() === key && x?.office?.startsWith(school))?.sort((a, b) => a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase()))
+                    ? accounts?.filter(x => x?.department?.toLowerCase() === key && x?.office?.startsWith(school))
                     : accounts?.filter(x => matchesKey(x)); // 2026-09-22
 
                 // start: 2026-08-27 09:57
                 if (isClass && res?.length > 0 && res.find(x => !x.lastLoginTime) !== null) {
                     const now = new Date();
+
                     // School year starts in August: Aug-Dec use this year, Jan-Jul use previous year
                     const schoolYearStartYear = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
                     const schoolYearStart = new Date(schoolYearStartYear, 7, 1);
@@ -268,7 +275,9 @@ function Home() {
             }
         }
 
-        handleDispatch("users", Array.isArray(res) ? res : [], "RESULT"); // 2026-09-03
+        res = Array.isArray(res) ? res?.sort((a, b) => a.displayName?.toLowerCase().localeCompare(b.displayName?.toLowerCase())) : [];
+        console.log(res)
+        handleDispatch("users", res, "RESULT"); // 2026-09-03
         return Array.isArray(res) ? null : data;
     }
 
