@@ -1,5 +1,29 @@
 # UnlockUser
 
+## 2026-11-24 14:10
+Cache page: each row now has a remove button. It asks for confirmation (check/cancel) in the row, then calls the new endpoint `DELETE api/data/cache/{key}` (DevelopTeam only) and reloads the list. The server matches the key by its string value, as listed by `cache/keys`.
+
+- UnlockUser.Server/Controllers/DataController.cs:164-181 — added: `RemoveCacheKey` endpoint `cache/{key}` in a new DELETE region
+- unlockuser.client/src/pages/auth/CacheMemory.jsx:2,6,18 — modified: imports `use`, `DeleteOutline`, `Check`, `Close`, `FetchContext`
+- unlockuser.client/src/pages/auth/CacheMemory.jsx:31-41 — added: `confirmKey` state and `onRemove`
+- unlockuser.client/src/pages/auth/CacheMemory.jsx:84 — added: error message from the remove request
+- unlockuser.client/src/pages/auth/CacheMemory.jsx:105 — added: actions column header
+- unlockuser.client/src/pages/auth/CacheMemory.jsx:114-135 — added: remove button with confirmation in each row
+- unlockuser.client/src/pages/auth/CacheMemory.jsx:140 — modified: `colSpan` 3 → 4
+
+## 2026-11-24 13:46
+GoogleService cached the Google student list under its own key `students`, while DashboardService stores the same list as `studenter`. Both keys now use `studenter`, so there is only one cache entry for students.
+
+- UnlockUser.Server/IServices/GoogleService.cs:24 — modified: reads the cache key `studenter` instead of `students`
+- UnlockUser.Server/IServices/GoogleService.cs:113 — modified: writes the cache key `studenter` instead of `students`
+
+## 2026-11-24 12:20
+New page "Cacheminne" for DevelopTeam. It shows what is stored in the server's IMemoryCache, using the existing endpoint `api/data/cache/keys`. The page has statistics cards (entries, hits, misses, hit rate), a key search, a table with key, type and item count, and a refresh button. The menu link was added by the user (`Storage` icon). Claude's duplicate link was removed again.
+
+- unlockuser.client/src/pages/auth/CacheMemory.jsx:1-112 — added: the cache page
+- unlockuser.client/src/routes/AppRoutes.jsx:26 — modified: imports `CacheMemory`
+- unlockuser.client/src/routes/AppRoutes.jsx:253-260 — added: route `/catalog/cache` with loader `data/cache/keys`
+
 ## 2026-11-24 12:01
 Hidden menu: the DevelopTeam menu and its links now have their own design (dark links area, amber dashed links, "Develop team" title). The menu also slides out slowly when it is closed, instead of disappearing at once. Closing goes through a `closing` state: HiddenMenu plays the swing-out animation (0.6s) and then calls `onClosed`, which unmounts it. Also fixed: a crash on `access.develop` when `access` is null, the develop button's active class (it checked `openMenu`), page scroll lock and close-on-navigation now also apply to the develop menu, and a stray `"` in the link class name.
 

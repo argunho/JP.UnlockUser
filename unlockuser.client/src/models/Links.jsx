@@ -3,7 +3,7 @@ import {
     Logout, FactCheck, Settings, School, 
     WorkHistory, ErrorOutline, BarChart, Home, MenuBook, Cases,
     UploadFile, Info, ForwardToInbox, PermPhoneMsg,
-    DeveloperMode // 2026-10-19
+    DeveloperMode, Storage // 2026-10-19
 } from '@mui/icons-material';
 
 export const Links = [
@@ -18,6 +18,7 @@ export const Links = [
     { label: "Loggfiler", url: "/catalog/errors", icon: ErrorOutline, access: true, permission: true, developTeam: true },
     { label: "Topdesk ärende", url: "/catalog/cases", icon: Cases, access: true },
     { label: "Skicka mail", url: "/send/email", icon: ForwardToInbox, color: "warning", access: true, permission: true },
+    { label: "Cacheminne", url: "/catalog/cache", icon: Storage, access: true, permission: true, developTeam: true }, // 2026-11-24
     { label: "Google-tjänstkonto", url: "/service/configuration", icon: UploadFile, access: true, permission: true, developTeam: true },
     // { label: "Kontakta kontaktcenter", url: "/contact", icon: LiveHelp, access: false },
     { label: "Logga in som Kontaktcenter", url: null, icon: PermPhoneMsg, access: true, permission: true, developTeam: true },

@@ -161,6 +161,25 @@ public class DataController(IHelpService helpService, ICredentialsService creden
     // end
     #endregion
 
+    // start: 2026-11-24 14:10
+    #region DELETE
+    // Removes one entry from IMemoryCache, the key is matched by its string value (as listed by cache/keys)
+    [HttpDelete("cache/{key}")]
+    [Authorize(Roles = "DevelopTeam")]
+    public IActionResult RemoveCacheKey(string key)
+    {
+        if (_cache is not MemoryCache memoryCache || string.IsNullOrWhiteSpace(key))
+            return BadRequest();
+
+        var cacheKey = memoryCache.Keys.FirstOrDefault(x => string.Equals(x.ToString(), key, StringComparison.Ordinal));
+        if (cacheKey != null)
+            memoryCache.Remove(cacheKey);
+
+        return Ok();
+    }
+    #endregion
+    // end
+
     #region POST
     /// <summary>
     /// Upload google service json, customer id and customer email

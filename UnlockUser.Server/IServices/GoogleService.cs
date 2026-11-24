@@ -21,7 +21,7 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
         List<UserModel> users = [];
         try
         {
-            if (_cache.TryGetValue("students", out List<UserViewModel>? cachedUsers))
+            if (_cache.TryGetValue("studenter", out List<UserViewModel>? cachedUsers)) // 2026-11-24 13:46 - same key as DashboardService, one cache entry for students
             {
                 _logger.LogTrace($"{nameof(GetStudentsFromGoogleApi)} Info: Returning cached students from Google Workspace.");
                 return cachedUsers!;
@@ -110,7 +110,7 @@ public class GoogleService(ILocalFileService localFileService, IMemoryCache cach
                 };
 
                 _cache.Set(
-                    "students",
+                    "studenter", // 2026-11-24 13:46
                     usersViewModel,
                     options
                 );

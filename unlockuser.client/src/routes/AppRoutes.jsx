@@ -23,6 +23,7 @@ import Permissions from '../pages/auth/permissions';
 import EmployeeView from '../pages/auth/EmployeeView';
 import FormEmail from '../pages/auth/FormEmail';
 import FormUploadFile from '../pages/auth/FormUploadFile';
+import CacheMemory from '../pages/auth/CacheMemory'; // 2026-11-24 12:20
 
 import Contacts from "../pages/Contacts";
 import NotFound from "../pages/NotFound";
@@ -248,7 +249,15 @@ const AppRoutes = () => [
         element: <Catalog label="Loggfiler" api="logs" download={true} />,
         errorElement: <ErrorView />,
         loader: loader("logs")
+      },
+      // start: 2026-11-24 12:20
+      {
+        path: 'cache',
+        element: <CacheMemory />,
+        errorElement: <ErrorView />,
+        loader: loader("data/cache/keys")
       }
+      // end
     ]
   },
   {
